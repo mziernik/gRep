@@ -1,0 +1,22 @@
+- repozytorium backupowe a'la svn
+- Logi
+- Aktualizacje aplikacji (wersje do pobrania)
+- wymiana plików między użytkownikami
+- wklejanie kodu w stylu "pastie"
+- przechowywanie danych: loginy, hasła, adresy, dokumentacja
+- generowanie linków do pobrania plików na podstawie hashow
+- komunikacja między aplikacjami przez websocket-y
+- klient bazy danych
+- klient svna - pobieranie wersji, komentarzy, monitorowanie + powiadomienia
+- bugtacker (możliwość robienia screenów)
+- lista ToDo
+- nagios, monitorowanie aplikacji
+- arp
+- upnp
+- skaner sieci
+- dropbox, mega, google drive -> ftp
+- fragmenty kodu, przykłady, notatnik programisty
+- downloader, pobieranie plików po http w określinym harmonogramie
+
+=========== zdalne komendy =============
+- restart aplikacji
