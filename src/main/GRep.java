@@ -40,7 +40,7 @@ public class GRep extends AppContext implements WebAppContext {
         Handlers.events.setHandler(new Events());
         Handlers.database.setHandler(new DbHnd());
 
-        WebApiControllerMeta.autoGenerateJsClient("view/grepApi.js", WApi::new);
+     //   WebApiControllerMeta.autoGenerateJsClient("view/grepApi.js", WApi::new);
 
         //logger.addEventsHandler(new Logs());
         if (devMode) {

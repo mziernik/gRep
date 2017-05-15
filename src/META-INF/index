@@ -21,12 +21,17 @@
     "init": ["model.Db.synchronize"],
     "resource": [
         "cDIWgw:E49AEAC2:model/data.7z",
-        "AazElw:F8E124C6:view/grepApi.js",
-        "SXuR9w:37A25A56:view/main/index.html",
-        "HIr0Uw:53815A88:view/main/main.css",
-        "SEIbhQ:0C913B50:view/main/service.css",
-        "LqEFuw:721C1F7B:view/main/service.js",
-        "GZM5bA:B4117743:view/main/ui.js",
-        "AazElw:F8E124C6:view/grepApi.js"
+        "AazElw:E38DA315:view/grepApi.js",
+        "SXuR9w:A17C9F3A:view/main/index.html",
+        "HIr0Uw:7AA66E9B:view/main/main.css",
+        "SEIbhQ:4E096FD9:view/main/service.css",
+        "LqEFuw:1F4D2283:view/main/service.js",
+        "GZM5bA:5B7EC4A5:view/main/ui.js",
+        "AazElw:E38DA315:view/grepApi.js",
+        "SXuR9w:A17C9F3A:view/main/index.html",
+        "HIr0Uw:7AA66E9B:view/main/main.css",
+        "SEIbhQ:4E096FD9:view/main/service.css",
+        "LqEFuw:1F4D2283:view/main/service.js",
+        "GZM5bA:5B7EC4A5:view/main/ui.js"
     ]
 }
