@@ -1,4 +1,4 @@
-\.git
-\.svn
-\bin
-\UI\node-modules\
+/.git
+/.svn
+/bin
+/UI/node_modules
