@@ -22,7 +22,7 @@ public class WApi extends WebApiController {
     public final WDbModel model = new WDbModel();
 
     @WebApiEndpoint
-    public CachedData export() throws IOException {
+    public CachedData export_() throws IOException {
 
         JObject json = new JObject();
 

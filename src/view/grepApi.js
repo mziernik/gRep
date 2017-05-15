@@ -4,7 +4,7 @@ function GrepApi(api) {
     this.api = api;
     api.httpUrl = api.httpUrl || "http://localhost/api";
     api.wsUrl = api.wsUrl || "ws://localhost/api";
-    api.hash = 'coad9Q';
+    api.hash = '8jZr6A';
 
     this.data = {
     };
@@ -124,8 +124,8 @@ function GrepApi(api) {
         }
     };
 
-    this.export = function (data) {
-        return api.call("export", 'bVJXCg', 'CRUD', data, {});
+    this.export_ = function (data) {
+        return api.call("export_", 'ijnFQQ', 'CRUD', data, {});
     };
 
     api.initImpl(this);
