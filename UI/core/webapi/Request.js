@@ -1,0 +1,82 @@
+// @flow
+'use strict';
+
+import "../utils/DOMPrototype";
+import WebApi, {OnSuccess, OnError} from "./WebApi";
+import WebApiResponse from "./Response";
+import Spinner from "../utils/Spinner";
+import EError from "../utils/EError";
+import Debug from "../Debug";
+import PromiseEx from "../PromiseEx";
+
+let lastId = 0;
+
+export default class WebApiRequest {
+    onSent: (WebApiRequest) => void;
+    onSuccess: (data: ?any, response: WebApiResponse) => void;
+    onResponse: (response: WebApiResponse) => void;
+    onEvent: (response: WebApiResponse) => void;
+    onError: (error: ?EError, response: WebApiResponse) => void;
+
+    _processed: boolean = false;
+
+    webApi: WebApi;
+    id: string = "" + ++lastId;
+    location: string = window.location.href;
+    hash: string;
+    method: string;
+    params: Object;
+    headers: Object = {};
+    spinner: ?Spinner;
+    promise: PromiseEx = new PromiseEx();
+
+    transportData: Object;
+    sendTime: Date;
+
+    constructor(webApi: WebApi, method: string, hash: ?string, params: ?Object, onSuccess: ?OnSuccess, onError: ?OnError) {
+        this.webApi = webApi;
+
+        // for (let i = 0; i < 4; i++)
+        //     this.id += (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+
+        this.hash = hash;
+        this.method = method;
+        this.onSuccess = onSuccess;
+        this.params = params;
+        //    req.spinner = data.spinner === undefined || data.spinner !== null ?         new Spinner() : null;
+
+        // przepisywanie globalnych nagłówków
+        for (let name in WebApi.headers)
+            if (!this.headers[name])
+                this.headers[name] = WebApi.headers[name];
+
+        Debug.log(this, `${this.id},\t "${this.method}"`);
+
+        window.setTimeout(() => webApi.send(this));
+    }
+
+    // wyślij zdarzenie związane z danym żądaniem
+    event(name: string, data: any) {
+        if (this._processed) {
+            Debug.warning(`Żądanie ${this.id} zostało już przetworzone`);
+            return;
+        }
+
+
+        /*
+         ws.send(JSON.stringify({
+         id: req.id,
+         event: name,
+         data: data
+         }));*/
+    };
+
+
+    cancel() {/*
+     ws.send(JSON.stringify({
+     id: req.id,
+     event: "cancel"
+     }));*/
+    };
+
+}

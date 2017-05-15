@@ -1,0 +1,44 @@
+.x-tree {
+    display: inline-block;
+    list-style: none;
+}
+
+.x-tree, .x-tree ul {
+    padding-left: 20px;
+}
+
+.x-tree-node {
+    list-style: none;
+    user-select: none;
+    cursor: default;
+}
+
+.x-tree-icon {
+    width: 25px;
+    text-align: center;
+}
+
+.x-tree-checkbox{
+
+}
+.x-tree-header:hover {
+    background-color: #ddd;
+}
+
+.x-tree-header[selected] {
+    background-color: #bce;
+}
+
+.x-tree-node ul {
+    overflow: hidden;
+    display: none;
+    transition: height 0.2s ease-in-out;
+}
+
+.x-tree-node > ul > ul {
+
+}
+
+.x-tree-node[data-expanded] ul {
+
+}

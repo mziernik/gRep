@@ -1,0 +1,6 @@
+npm install --save-dev raw-loader
+npm install --save jquery
+
+
+
+pliki *inline.css będą ładowane jako wewnętrzne

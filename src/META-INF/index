@@ -21,13 +21,12 @@
     "init": ["model.Db.synchronize"],
     "resource": [
         "cDIWgw:E49AEAC2:model/data.7z",
-        "AazElw:A4C6CE7D:view/grepApi.js",
+        "AazElw:F8E124C6:view/grepApi.js",
         "SXuR9w:37A25A56:view/main/index.html",
         "HIr0Uw:53815A88:view/main/main.css",
         "SEIbhQ:0C913B50:view/main/service.css",
         "LqEFuw:721C1F7B:view/main/service.js",
         "GZM5bA:B4117743:view/main/ui.js",
-        "AazElw:A4C6CE7D:view/grepApi.js",
-        "GZM5bA:B4117743:view/main/ui.js"
+        "AazElw:F8E124C6:view/grepApi.js"
     ]
 }

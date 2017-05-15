@@ -4,7 +4,7 @@ function GrepApi(api) {
     this.api = api;
     api.httpUrl = api.httpUrl || "http://localhost/api";
     api.wsUrl = api.wsUrl || "ws://localhost/api";
-    api.hash = '8jZr6A';
+    api.hash = '8txD1A';
 
     this.data = {
     };
@@ -126,6 +126,16 @@ function GrepApi(api) {
 
     this.export_ = function (data) {
         return api.call("export_", 'ijnFQQ', 'CRUD', data, {});
+    };
+
+    this.test1 = function (data) {
+        return api.call("test1", 'V53vnw', 'CRUD', data, {
+            bool: ["boolean", true],
+            int: ["number", true],
+            str: ["string", false],
+            object: ["object", true],
+            array: ["array", true]
+        });
     };
 
     api.initImpl(this);

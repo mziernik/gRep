@@ -3,11 +3,14 @@ package api;
 import com.cache.CachedData;
 import com.database.model.DsTable;
 import com.database.model.WDbModel;
+import com.json.JArray;
 import com.json.JObject;
+import com.servlet.interfaces.Arg;
 import com.servlet.interfaces.Endpoint;
 import com.servlet.websocket.WebSocketEndpoint;
 import com.webapi.core.WebApiController;
 import com.webapi.core.WebApiEndpoint;
+import com.webapi.core.WebApiRequest;
 import java.io.IOException;
 import java.util.Map.Entry;
 
@@ -20,6 +23,23 @@ public class WApi extends WebApiController {
 
     @WebApiEndpoint
     public final WDbModel model = new WDbModel();
+
+    @WebApiEndpoint
+    public JObject test1(WebApiRequest request,
+            @Arg(name = "bool") Boolean bool,
+            @Arg(name = "int") Integer i,
+            @Arg(name = "str", required = false) String sss,
+            @Arg(name = "object") JObject object,
+            @Arg(name = "array") JArray array
+    ) {
+
+        JObject result = new JObject();
+
+        result.put("OK", "sdfsdgsfdg");
+
+        return result;
+
+    }
 
     @WebApiEndpoint
     public CachedData export_() throws IOException {
