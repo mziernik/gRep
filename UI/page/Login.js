@@ -7,12 +7,12 @@ import PropTypes from 'prop-types';
 import Application from "../core/Application";
 import Component from "../core/Component";
 import API from "../model/API";
-import Spinner from "../core/utils/Spinner";
+import Spinner from "../component/Spinner";
 import Storage from "../core/Storage";
 import AppNode from "../core/Node";
 import User from "../model/User";
-import IconEdit from "../component/IconEdit";
-import Button from "../component/Button";
+import IconEdit from "../component/edit/IconEdit";
+import Button from "../component/base/Button";
 
 
 function setError(e) {

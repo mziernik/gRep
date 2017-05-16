@@ -15,10 +15,10 @@ import  "./core/utils/DOMPrototype";
 import "./core/utils/ErrorHandler";
 import Login from "./page/Login";
 import AppNode from "./core/Node";
-Utils.importHeadStyle(require('./core/bootstrap/bootstrap.min.css'));
+Utils.importHeadStyle(require('./component/bootstrap/bootstrap.min.css'));
 Utils.importHeadStyle(require('./page/main/Layout.css'));
-Utils.importHeadStyle(require('./core/utils/font-awesome.css'));
-Utils.importHeadStyle(require('./core/swal/sweetalert2.css'));
+Utils.importHeadStyle(require('./component/glyph/font-awesome.css'));
+Utils.importHeadStyle(require('./component/alert/sweetalert2.css'));
 
 // ==================================== inicjalizacja aplikacji ====================================
 

@@ -2,7 +2,7 @@ import {HubConnection} from "../core/webapi/SignalR/HubConnection";
 import  API from "./API";
 import Debug from "../core/Debug";
 import Events from "./Events";
-import Alert from "../core/Alert";
+import Alert from "../component/alert/Alert";
 import PromiseEx from "../core/PromiseEx";
 
 export type State = "init" | "connecting" | "connected" | "disconnected";

@@ -81,7 +81,7 @@ const config = {
 config.plugins.push(new OpenBrowserPlugin({url: 'http://' + config.devServer.host + ":" + config.devServer.port}));
 
 const _env = {};
-for (let name in environment)
+for (var name in environment)
     _env[name] = JSON.stringify(environment[name]);
 
 config.plugins.push(new webpack.DefinePlugin({'process.env': _env}));

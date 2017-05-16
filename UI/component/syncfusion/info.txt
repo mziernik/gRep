@@ -1,0 +1,3 @@
+Wersja 15.2.0.40
+Generator pakietu:              http://csg.syncfusion.com/combine
+Pobieranie wersji darmowej:     https://www.syncfusion.com/downloads/communitylicense/confirmation

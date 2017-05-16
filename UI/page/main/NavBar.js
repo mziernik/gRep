@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import {Link, Redirect, Switch, Miss} from 'react-router-dom';
 import Component from "../../core/Component";
 import API from "../../model/API";
-import Alert from "../../core/Alert";
+import Alert from "../../component/alert/Alert";
 
 
 export default class NavBar extends Component<*, *, *> {
