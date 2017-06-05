@@ -3,3 +3,5 @@
 /bin
 /UI/node_modules
 /nbproject/private/
+/build/
+/UI/public/assets

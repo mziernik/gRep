@@ -78,7 +78,7 @@ export default class WebApi {
             window.spa.alert(data);
     };
 
-    onError(response: WebApiResponse, error: EError, handled: boolean) {
+    onError(error: EError, response: WebApiResponse, handled: boolean) {
         Debug.error(this, error.message);
     }
 

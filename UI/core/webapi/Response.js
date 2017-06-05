@@ -111,7 +111,7 @@ export default class WebApiResponse {
          }
          */
         if (this.error) {
-            req.promise.reject(err, this);
+            req._reject(err, this);
 
             let handled = false;
             if (err && typeof req.onError === "function") {
@@ -120,11 +120,11 @@ export default class WebApiResponse {
             }
 
             if (err && typeof webApi.onError === "function")
-                webApi.onError(this, err, handled);
+                webApi.onError(err, err, handled);
         }
 
         if (!this.error) {
-            req.promise.resolve(this.data, this);
+            req._resolve(this.data, this);
             if (typeof req.onSuccess === "function")
                 req.onSuccess(this.data, this);
         }

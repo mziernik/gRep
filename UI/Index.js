@@ -20,7 +20,7 @@ import TitleBar, {Status} from "./page/main/TitleBar";
 import {React, Application, Utils, AppStatus, Repository, Store} from "./core/core";
 import {PageTitle} from "./core/components";
 import {PERMISSIONS} from "./core/repository/PermissionRepo";
-//import * as PermissionRepo from "./core/repository/PermissionRepo";
+import * as API from "./model/API";
 
 PageTitle.renderer = (sender: PageTitle) => {
     TitleBar.setTitle(sender);
@@ -28,6 +28,7 @@ PageTitle.renderer = (sender: PageTitle) => {
 };
 
 AppStatus.factory = (context: any) => new Status();
+
 
 window.addEventListener("load", () => {
 
@@ -38,6 +39,7 @@ window.addEventListener("load", () => {
             repo.storage.load();
         });
 
+        API.initialize();
 
         Login.display((user) => {
             Application.render(<Header/>, "#app-header");

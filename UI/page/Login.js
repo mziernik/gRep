@@ -6,7 +6,7 @@
 import React from 'react';
 import Application from "../core/application/Application";
 import Component from "../core/component/Component";
-import * as API from "../model/API";
+import * as API from "../model/GrepApi";
 import Spinner from "../core/component/Spinner";
 import Store from "../core/Store";
 import AppNode from "../core/application/Node";
