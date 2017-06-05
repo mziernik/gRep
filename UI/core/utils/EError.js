@@ -1,8 +1,7 @@
 // @flow
 'use strict';
 
-
-import Utils from "./Utils"
+import * as Utils from "./Utils"
 
 export default class EError {
 
@@ -47,7 +46,7 @@ export default class EError {
             if (Utils.className(source) === "XMLHttpRequest" || (source.status && source.statusText)) {
                 const xhr: XMLHttpRequest = source;
 
-                // zakladamy ze jest to XMLHttpRequest
+                // zakładamy ze jest to XMLHttpRequest
                 this.message = "";
                 const ext = xhr.status !== 0 && xhr.statusText;
                 if (!ext) {

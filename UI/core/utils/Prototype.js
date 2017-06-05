@@ -2,6 +2,13 @@
 'use strict';
 
 
+// Zamienia wszystkie wystąpienia frazy
+// $FlowFixMe
+String.prototype.replaceAll = String.prototype.contains || function (from: string, to: string): boolean {
+        return this.split(from).join(to);
+    };
+
+
 // czy string zawiera daną frazę
 // $FlowFixMe
 String.prototype.contains = String.prototype.contains || function (str: string): boolean {

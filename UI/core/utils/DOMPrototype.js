@@ -340,95 +340,91 @@ Node.prototype.svg = Node.prototype.svg || function (width: number, height: numb
     };
 
 
-export default class Utils {
-
-
-    static  updateCssRule(selector, style, value) {
-        for (let i = 0; i < document.styleSheets.length; i++) {
-            const sheet = document.styleSheets[i];
+export function updateCssRule(selector, style, value) {
+    for (let i = 0; i < document.styleSheets.length; i++) {
+        const sheet = document.styleSheets[i];
+        // $FlowFixMe
+        for (let j = 0; j < sheet.cssRules.length; j++) {
             // $FlowFixMe
-            for (let j = 0; j < sheet.cssRules.length; j++) {
-                // $FlowFixMe
-                const sel = sheet.cssRules[j].selectorText;
-                if (!sel)
-                    continue;
-                /*   if (sel.substring(0, 1) === "."
-                 || sel.substring(0, 1) === "#"
-                 || sel.substring(0, 1) === "@")
-                 sel = sel.substr(1);
-                 */
+            const sel = sheet.cssRules[j].selectorText;
+            if (!sel)
+                continue;
+            /*   if (sel.substring(0, 1) === "."
+             || sel.substring(0, 1) === "#"
+             || sel.substring(0, 1) === "@")
+             sel = sel.substr(1);
+             */
 
-                if (sel.toLowerCase() !== selector.toLowerCase())
-                    continue;
-                // $FlowFixMe
-                let rule: string = sheet.cssRules[j].cssText;
-                let v1 = rule.indexOf(style);
-                let v2 = 0;
-                if (v1 < 0) {
-                    v1 = rule.indexOf("{") + 1;
-                    v2 = v1;
-                } else
-                    v2 = rule.indexOf(";", v1);
-                if (v2 < 0)
-                    v2 = rule.indexOf("}", v1);
-                rule = rule.substring(0, v1) + style + ": " + value
-                    + (v1 === v2 ? "; " : "") + rule.substring(v2, rule.length);
-                // $FlowFixMe
-                sheet.deleteRule(j);
-                // $FlowFixMe
-                sheet.insertRule(rule, j);
-            }
+            if (sel.toLowerCase() !== selector.toLowerCase())
+                continue;
+            // $FlowFixMe
+            let rule: string = sheet.cssRules[j].cssText;
+            let v1 = rule.indexOf(style);
+            let v2 = 0;
+            if (v1 < 0) {
+                v1 = rule.indexOf("{") + 1;
+                v2 = v1;
+            } else
+                v2 = rule.indexOf(";", v1);
+            if (v2 < 0)
+                v2 = rule.indexOf("}", v1);
+            rule = rule.substring(0, v1) + style + ": " + value
+                + (v1 === v2 ? "; " : "") + rule.substring(v2, rule.length);
+            // $FlowFixMe
+            sheet.deleteRule(j);
+            // $FlowFixMe
+            sheet.insertRule(rule, j);
         }
-        return null;
     }
+    return null;
+}
 
 
-    static serializeForm(form: HTMLFormElement, builder: UrlBuilder) {
-        if (typeof form === 'string')
-            form = $id(form);
+export function serializeForm(form: HTMLFormElement, builder: UrlBuilder) {
+    if (typeof form === 'string')
+        form = $id(form);
 
-        if (!form || !form.elements)
-            return;
-        if (!builder instanceof UrlBuilder)
-            builder = new UrlBuilder();
-        let i, j, first;
-        const elems = form.elements;
-        for (i = 0; i < elems.length; i += 1, first = false) {
+    if (!form || !form.elements)
+        return;
+    if (!builder instanceof UrlBuilder)
+        builder = new UrlBuilder();
+    let i, j, first;
+    const elems = form.elements;
+    for (i = 0; i < elems.length; i += 1, first = false) {
+        // $FlowFixMe
+        if (elems[i].name.length > 0) { /* don't include unnamed elements */
             // $FlowFixMe
-            if (elems[i].name.length > 0) { /* don't include unnamed elements */
-                // $FlowFixMe
-                switch (elems[i].type) {
-                    case 'select-one':
-                        first = true;
-                        break;
-                    case 'select-multiple':
+            switch (elems[i].type) {
+                case 'select-one':
+                    first = true;
+                    break;
+                case 'select-multiple':
+                    // $FlowFixMe
+                    for (j = 0; j < elems[i].options.length; j += 1)
                         // $FlowFixMe
-                        for (j = 0; j < elems[i].options.length; j += 1)
+                        if (elems[i].options[j].selected) {
                             // $FlowFixMe
-                            if (elems[i].options[j].selected) {
-                                // $FlowFixMe
-                                builder.add(elems[i].name, elems[i].options[j].value);
-                                if (first)
-                                    break;
-                                /* stop searching for select-one */
-                            }
+                            builder.add(elems[i].name, elems[i].options[j].value);
+                            if (first)
+                                break;
+                            /* stop searching for select-one */
+                        }
+                    break;
+                case 'checkbox':
+                case 'radio':
+                    if (!elems[i].checked)
                         break;
-                    case 'checkbox':
-                    case 'radio':
-                        if (!elems[i].checked)
-                            break;
-                        /* else continue */
-                        // $FlowFixMe
-                        builder.add(elems[i].name, elems[i].value);
-                        break;
-                    default:
-                        // $FlowFixMe
-                        builder.add(elems[i].name, elems[i].value);
-                        break;
-                }
+                    /* else continue */
+                    // $FlowFixMe
+                    builder.add(elems[i].name, elems[i].value);
+                    break;
+                default:
+                    // $FlowFixMe
+                    builder.add(elems[i].name, elems[i].value);
+                    break;
             }
         }
-
-        return builder.toString();
     }
+
+    return builder.toString();
 }

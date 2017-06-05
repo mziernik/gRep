@@ -8,7 +8,7 @@ export default class UrlBuilder {
     constructor(baseUrl) {
 
         this.preUrl = "";
-        this.items = new Array();
+        this.items = [];
 
         if (baseUrl) {
             var builder = this;

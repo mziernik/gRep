@@ -2,15 +2,11 @@
 'use strict';
 
 import React from 'react';
-import Page from "./Page";
+import Page from "../core/page/Page";
 
 export default class NotFound extends Page {
-    constructor() {
-        super("Error", ...arguments);
-    }
 
     render() {
-        super.render(...arguments);
         return <div style={{
             marginTop: "10%",
             textAlign: "center",

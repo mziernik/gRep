@@ -1,0 +1,8 @@
+- Wydzielenie oddzielnego projektu dla części bazowej
+- PopupMenu
+- ToolBar
+- Zakładki
+- Splitter
+- ToolTip
++ Klasa (enumerata) dla FontAwesome
++ Definicje styli (skórek) na poziomie komponentu (kolor czcionki, kolor tła)

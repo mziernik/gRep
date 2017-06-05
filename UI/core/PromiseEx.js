@@ -3,9 +3,10 @@
  * oraz z możliwością weryfikacji czy funkcje catch oraz then są obsłużone
  */
 
-import Utils from "./utils/Utils";
+import * as If from "./utils/If";
 export default class PromiseEx extends Promise {
 
+    created: Date = new Date();
     hasCatch: boolean = false;
     hasThen: boolean = false;
 
@@ -18,13 +19,11 @@ export default class PromiseEx extends Promise {
         super((resolve, reject) => {
             _resolve = resolve;
             _reject = reject;
-            if (Utils.isFunction(callback))
-                callback(resolve, reject)
+            If.isFunction(callback, () => callback(resolve, reject));
+
         });
         this.resolve = _resolve;
         this.reject = _reject;
-
-
     }
 
     catch(callback: () => void) {

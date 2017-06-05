@@ -1,11 +1,9 @@
 // @flow
 'use strict';
 
-import React, {Element} from 'react'
-import Notify from "../../core/Notify";
-import Component from "../../core/Component";
-import Events from "../../model/Events";
-import AppEvent from "../../core/Event";
+//FixMe importy
+import React from 'react'
+import Component from "../../core/component/Component";
 
 export default class StatusBar extends Component<*, *, { text: ?string }> {
 
@@ -15,7 +13,7 @@ export default class StatusBar extends Component<*, *, { text: ?string }> {
 
     constructor() {
         super(...arguments);
-        this.on(Events.STATUS_BAR_TEXT, (text: string, event: AppEvent) => this.setState({text: text}));
+     //   Events.STATUS_BAR_TEXT.listen(this, (text: string, event: AppEvent) => this.setState({text: text}));
     }
 
     render() {

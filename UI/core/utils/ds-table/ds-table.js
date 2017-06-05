@@ -58,7 +58,7 @@ function DsTable(optionsCallback) {
 
     this.controller = Utils.checkInstance(opt.controller, ["SPAController"]);
     this.id = Utils.checkId(id, ".");
-    this.tblTag = Utils.requireNotNull(
+    this.tblTag = Utils.checkNotNull(
             Utils.checkInstance(opt.tag, [HTMLTableElement]),
             "Wymagana wartość tblTag");
 

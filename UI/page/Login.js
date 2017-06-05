@@ -1,18 +1,17 @@
 // @flow
 'use strict';
 
+//FixMe importy
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import Application from "../core/Application";
-import Component from "../core/Component";
-import API from "../model/API";
-import Spinner from "../component/Spinner";
-import Storage from "../core/Storage";
-import AppNode from "../core/Node";
-import User from "../model/User";
-import IconEdit from "../component/edit/IconEdit";
-import Button from "../component/base/Button";
+import Application from "../core/application/Application";
+import Component from "../core/component/Component";
+import * as API from "../model/API";
+import Spinner from "../core/component/Spinner";
+import Store from "../core/Store";
+import AppNode from "../core/application/Node";
+import IconEdit from "../core/component/IconEdit";
+import Button from "../core/component/Button";
 
 
 function setError(e) {
@@ -25,8 +24,8 @@ function setError(e) {
 
 export default class Login extends Component {
 
-    static username: string = Storage.getLocal("login");
-    static password: string = Storage.getSession("pass");
+    static username: string = Store.local.get("login");
+    static password: string = Store.session.get("pass");
     static spinner: Spinner;
     static onAuthorized: (data: Object) => void;
     static instance: AppNode;
@@ -35,15 +34,15 @@ export default class Login extends Component {
 
     static logout() {
         Login.password = "";
-        Storage.removeSession("pass");
+        Store.session.remove("pass");
         Application.nodes.clone().forEach(node => node.remove());
         Login.display(Login.onAuthorized);
     }
 
     static display(onAuthorized: (data: Object) => void) {
 
-        // onAuthorized(null);
-        // return;
+        onAuthorized(null);
+        return;
 
         Login.onAuthorized = onAuthorized;
 
@@ -52,7 +51,7 @@ export default class Login extends Component {
             Login.spinner = new Spinner(false);
             API.login(Login.username, Login.password, (data) => {
                 Login.spinner.hide();
-                User.current.fill(data);
+                // User.current.fill(data);
                 Login.onAuthorized(data);
             }).catch((e) => {
                 Login.spinner.hide();
@@ -96,9 +95,7 @@ export default class Login extends Component {
             Login.instance.element.children[0].style.marginTop = "-100%";
         });
 
-        setTimeout(() => {
-            Login.instance.remove();
-        }, 600);
+        setTimeout(() => Login.instance.remove(), 600);
 
     }
 
@@ -111,13 +108,13 @@ export default class Login extends Component {
             Login.spinner.hide();
         };
 
-        Storage.setLocal("login", Login.username);
-        Storage.setSession("pass", Login.password, true);
+        Store.local.set("login", Login.username);
+        Store.session.set("pass", Login.password, true);
 
         Login.spinner = new Spinner(false);
         API.login(Login.username, Login.password, (data) => {
             done();
-            User.current.fill(data);
+            //User.current.fill(data);
             this.onAuthorized(e);
         }).catch((e) => {
             done();

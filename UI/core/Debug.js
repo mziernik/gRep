@@ -1,36 +1,43 @@
 // @flow
+import * as Utils from "./utils/Utils";
 'use strict';
 
 
 export default class Debug {
 
-    /**
-     *
-     * @param {any} context
-     * @param {mixed} value
-     */
-    static log(context: ?any, value: ?mixed) {
-        console.debug(format(context, value));
+
+    static group(context: ?any | any[], value: ?mixed, ...other: any) {
+        window.console.groupCollapsed(format(context, value));
+        (other || []).forEach(item => window.console.debug(item));
+        window.console.groupEnd();
     }
 
-    static warning(context: ?any, value: ?mixed) {
-        console.warn(value instanceof Error ? value : format(context, value));
+    static log(context: ?any | any[], value: ?mixed, ...args: any) {
+        window.console.debug(format(context, value), ...args);
     }
 
-    static error(context: ?any, value: ?mixed) {
-        console.error(value instanceof Error ? value : format(context, value));
+    static warning(context: ?any | any[], value: ?mixed, ...args: any) {
+        window.console.warn(value instanceof Error ? value : format(context, value), ...args);
+    }
+
+    static error(context: ?any | any[], value: ?mixed, ...args: any) {
+        window.console.error(value instanceof Error ? value : format(context, value), ...args);
+    }
+
+    static dir(value: ?mixed, ...args: any) {
+        window.console.dir(value, ...args);
     }
 }
 
-function format(context: ?any, value: ?mixed): string {
+function format(context: ?any | any[], value: ?mixed): string {
     if (value === null || value === undefined) {
         value = context;
         context = null;
     }
 
     let out: string = "";
-    if (context && context.constructor && context.constructor.name)
-        out = "[" + context.constructor.name + "] ";
+    if (context)
+        out = "[" + Utils.getContextName(context) + "] ";
 
     // $FlowFixMe: zignoruj ostrzeżenie
     return out + value;

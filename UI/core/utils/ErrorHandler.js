@@ -3,7 +3,7 @@
 
 import EError from "./EError";
 import "./DOMPrototype";
-import Utils from "./Utils";
+import * as Utils from "./Utils";
 
 const js_errors: JsError[] = [];
 let tContent; // tag zawierający treść błędów
@@ -176,7 +176,6 @@ class JsError {
             this.stack = [];
             for (let i = 0; i < split.length; i++) {
                 let s = split[i].trim();
-//"    at Object.Utils.checkInstance (/utils.js:488:11)"
                 if (s.indexOf("at ") !== 0 || s.indexOf(" (") <= 0)
                     continue;
                 s = s.substring(s.indexOf(" (") + 2);

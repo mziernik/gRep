@@ -1,27 +1,26 @@
 // @flow
 'use strict';
-
+//FixMe importy
 import React from 'react';
-import Debug from "../../core/Debug";
 import {Link} from 'react-router-dom';
-import Component from "../../core/Component";
-import Events from "../../model/Events";
-import API from "../../model/API";
-import SignalR from "../../model/SignalR";
+import Component from "../../core/component/Component";
 import Login from "../Login";
+import Breadcrumb from "../../core/component/Breadcrumbs";
+
+export type State = "init" | "connecting" | "connected" | "disconnected";
 
 class WebApiStatus extends Component<*, *, { state: ["init", "connecting", "connected", "disconnected"] }> {
 
 
     constructor() {
         super(...arguments);
-        this.on(Events.WEB_API_STATUS, state => this.forceUpdate());
+  //      Events.WEB_API_STATUS.listen(this, () => this.forceUpdate());
     }
 
     render() {
         let color = null;
         let name = null;
-        switch (SignalR.state) {
+        switch ("init") {
             case "init":
                 color = "gray";
                 name = "oczekujące";
@@ -49,17 +48,11 @@ class WebApiStatus extends Component<*, *, { state: ["init", "connecting", "conn
 
 export default class Header extends Component<*, *, { title: ?string }> {
 
-    state = {
-        title: ""
-    };
-
     constructor() {
         super(...arguments);
-        this.on(Events.HEADER_TITLE, title => this.setState({title: title}));
     }
 
     render() {
-        Debug.log(this, "Render");
 
         return (
             <header id="app-header">
@@ -76,7 +69,7 @@ export default class Header extends Component<*, *, { title: ?string }> {
                 <Link className="fa fa-warning" to="/calendar"/>
 
 
-                <span>{this.state.title}</span>
+                <Breadcrumb/>
 
                 <span style={{float: "right"}}>
 
