@@ -33,7 +33,7 @@ export default class RepositoryStorage {
             return;
 
         const columns: Field[] = data.columns.map(c => {
-            const result = this._repository.columns.find(cc => cc.name.toLowerCase() === c.name.toLowerCase());
+            const result = this._repository.columns.find(cc => cc._name.toLowerCase() === c.name.toLowerCase());
             if (!result)
                 throw new Error("Nie znaleziono kolumny " + JSON.stringify(c.name));
             return result;
@@ -49,7 +49,7 @@ export default class RepositoryStorage {
 
             columns.forEach((col: Field, idx: number) => {
                 const val = row[idx];
-                rec.getFieldF(col.name).set(val);
+                rec.getFieldF(col._name).set(val);
             });
 
             rec._sourceRecord = this._repository.get(rec.primaryKey.get());
@@ -68,7 +68,7 @@ export default class RepositoryStorage {
         this._repository.items.forEach((rec: Record) => {
             if (!data.columns.length)
                 rec.fields.forEach((f: Field) => data.columns.push({
-                    name: f.name,
+                    name: f._name,
                     type: f.dataType.name,
                     raw: f.dataType.simpleType
                 }));

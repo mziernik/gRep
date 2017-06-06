@@ -93,12 +93,13 @@ const config = {
                         }
                     ]
                 })
-            }
-            ,
+            },
             {
                 test: file => _filter("babel", file),
                 loader: 'babel-loader',
-                query: {presets: ['es2015', 'es2016', 'react', 'stage-2', 'flow']}
+                query: {
+                    presets: ['es2015', 'es2016', 'react', 'stage-2', 'flow']
+                }
             },
             {
                 test: file => _filter("ts", file),

@@ -7,7 +7,6 @@ import WebApiResponse from "./Response";
 import Spinner from "../component/Spinner";
 import EError from "../utils/EError";
 import Debug from "../Debug";
-import PromiseEx from "../PromiseEx";
 
 let lastId = 0;
 
@@ -28,13 +27,24 @@ export default class WebApiRequest {
     params: Object;
     headers: Object = {};
     spinner: ?Spinner;
-    promise: PromiseEx = new PromiseEx();
+    promise: Promise;
+    _resolve: (data: Object, response: WebApiResponse) => void;
+    _reject: (error: Error, response: WebApiResponse) => void;
 
     transportData: Object;
     sendTime: Date;
 
     constructor(webApi: WebApi, method: string, hash: ?string, params: ?Object, onSuccess: ?OnSuccess, onError: ?OnError) {
         this.webApi = webApi;
+        this.promise = new Promise((resolve, reject) => {
+            this._reject = reject;
+            this._resolve = resolve;
+        });
+
+        // przechwyć wyjątki z promise aby nie wyrzucało błędów w konsoli
+        this.promise.catch((e) => {
+
+        });
 
         // for (let i = 0; i < 4; i++)
         //     this.id += (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);

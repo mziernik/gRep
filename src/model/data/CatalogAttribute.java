@@ -24,7 +24,7 @@ public class CatalogAttribute extends DsTable<CatalogAttribute, Integer> {
     @DbCol(cast = "text[]")
     public final Col<Strings> value = column("Wartość");
     @DbCol
-    public final ColF<Integer, CryptKey> cryptKey = columnF("Klucz");
+    public final ColF<Integer[], CryptKey> cryptKey = columnF("Klucz");
     @DbCol
     public final Col<String> notes = column("Notatki");
 //    @DbCol

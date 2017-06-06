@@ -6,7 +6,7 @@ import {Check, If, React, DataType, Record, Repository, Delayed, Utils, Dispatch
 
 export default class Field {
 
-    name: string = "";
+    _name: string = "";
     _title: ?string = null;
     _value: ?T = null;
     dataType: DataType;
@@ -62,8 +62,9 @@ export default class Field {
     getFullId() {
         if (this._getFullId)
             return this._getFullId();
-        return this.name;
+        return this._name;
     }
+
 
     /**
      * Ustaw wartość pola, zweryfikuj poprawność danych
@@ -76,10 +77,12 @@ export default class Field {
             throw new Error(`Pole ${this.getFullId()} jest zablokowane`);
 
         try {
-            value = this.dataType.parse(value);
+            if (value !== null && value !== undefined)
+                value = this.dataType.parse(value);
         } catch (e) {
+            e.message = this.getFullId() + ": " + e.message;
             this.error = e.message;
-            return this;
+            throw e;
         }
 
         if (value === this._value)
@@ -117,6 +120,11 @@ export default class Field {
 
     title(title: ?string): Field {
         this._title = title;
+        return this;
+    }
+
+    name(name: ?string): Field {
+        this._name = name;
         return this;
     }
 

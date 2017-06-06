@@ -57,14 +57,14 @@ export function isObject(value: ?Object, error: ?Error = null): Object {
 export function nonEmptyString(value: ?string, error: ?Error = null): string {
     if (value === null || value === undefined)
         throw error ? error : new Error("Wartość nie może być pusta");
-    isString();
+    isString(value, error);
     if (!value.trim())
         throw error ? error : new Error("Wartość nie może być pusta");
     return value;
 }
 
 export function nonEmptyArray(value: ?Array, error: ?Error = null): string {
-    isArray(value);
+    isArray(value, error);
     if (!value.length)
         throw error ? error : new Error("Tablica nie może być pusta");
     return value;

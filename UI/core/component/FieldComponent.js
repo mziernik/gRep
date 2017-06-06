@@ -1,10 +1,11 @@
 // @flow
 'use strict';
-import {React, Repository, PropTypes, Record, Field} from "../core";
+import {React, Repository, Utils, PropTypes, Record, Field} from "../core";
 import {FontAwesome, FormComponent} from "../components";
 import CheckBox from "./CheckBox";
 import DatePicker from "./DatePicker";
 import Select from "./Select";
+
 
 export default class FieldComponent extends FormComponent {
 
@@ -17,7 +18,8 @@ export default class FieldComponent extends FormComponent {
     static propTypes = {
         preview: PropTypes.bool,
         checkBoxLabel: PropTypes.bool,
-        props: PropTypes.object
+        props: PropTypes.object,
+        readOnly: PropTypes.bool
     };
 
     constructor() {
@@ -36,8 +38,8 @@ export default class FieldComponent extends FormComponent {
                 <input
                     {...props}
                     placeholder={this.field._title}
-                    name={this.field.name}
-                    disabled={this.field._readOnly}
+                    name={this.field._name}
+                    disabled={Utils.coalesce(this.props.readOnly, this.field._readOnly)}
                     style={{textTransform: this.field.textCasing, flexGrow: 1}}
                     onChange={e => this._handleChange(false, e, e.target.value)}
                     onKeyPress={e => {

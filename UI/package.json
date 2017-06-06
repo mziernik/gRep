@@ -22,6 +22,7 @@
     "babel-preset-es2016": "~6.24.*",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-react": "~6.24.*",
+    "babel-preset-stage-2": "^6.24.1",
     "cross-env": "^4.0.0",
     "css-loader": "^0.28.0",
     "extract-text-webpack-plugin": "^2.1.0",

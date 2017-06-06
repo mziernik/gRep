@@ -43,7 +43,8 @@ export default class Record {
             const field: Field = this[name];
             if (!(field instanceof Field)) continue;
 
-            field.name = name.toLowerCase();
+            field._parent = this;
+            field._name = field._name || name.toLowerCase();
             field.onChange.listen(this, (field: Field, prev: ?any) => {
 
                 if (this.primaryKey === field) {
@@ -74,12 +75,12 @@ export default class Record {
 
             if (field._primaryKey) {
                 if (this.primaryKey)
-                    throw new Error(`Zduplikowany klucz główny ${this.primaryKey.name}, ${name}`);
+                    throw new Error(`Zduplikowany klucz główny ${this.primaryKey._name}, ${name}`);
                 this.primaryKey = field;
             }
 
             field._getFullId = () => {
-                return this.getFullId() + "." + field.name;
+                return this.getFullId() + "." + field._name;
             };
 
             this.fields.push(field);
@@ -115,7 +116,7 @@ export default class Record {
         this.$instanceId += " [" + Utils.className(context) + "]";
 
         this.fields.forEach(field => {
-            const dst: Field = result.getFieldF(field.name);
+            const dst: Field = result.getFieldF(field._name);
             dst._locked = false;
             dst.set(field.get());
         });
@@ -127,7 +128,7 @@ export default class Record {
         let result;
         if (name) {
             let s = name.toLowerCase();
-            result = this.fields.find(f => f.name === s);
+            result = this.fields.find(f => f._name.toLowerCase() === s);
         }
         if (!result)
             throw new Error(`Nie znaleziono kolumny ${name} repozytorium ${this.repository ? this.repository.name : "???"}`);
@@ -148,7 +149,7 @@ export default class Record {
         const obj = {};
         this.fields.forEach(field => {
             if (field.changed || !changedOnly)
-                obj[field.name] = field.get()
+                obj[field._name] = field.get()
         });
         return obj;
     }
@@ -159,7 +160,7 @@ export default class Record {
     }
 
     getFullId(): string {
-        return (this.repository ? this.repository.id : "") + `[${this.primaryKey.name}=${
+        return (this.repository ? this.repository.id : "") + `[${this.primaryKey._name}=${
                 this._primaryKeyValue !== null ? JSON.stringify(this._primaryKeyValue) : "???"}]`;
     }
 
@@ -167,49 +168,44 @@ export default class Record {
         Repository.submit(context, [this], true);
     }
 
-    _update(context: any, action: Action, source: Record): Promise {
+    _update(context: any, action: Action, source: Record) {
 
-        return new Promise((resolve, reject) => {
+        if (this._temporary)
+            throw new Error("Nie można aktualizować obiektów tymczasowych");
 
-            if (this._temporary)
-                throw new Error("Nie można aktualizować obiektów tymczasowych");
+        const changes = [];
 
-            const changes = [];
+        source.fields.forEach((srcField: Field) => {
+            const dstField: Field = this.getFieldF(srcField._name);
+            const locked = dstField._locked;
+            dstField._locked = false;
+            try {
+                const src = srcField.get();
+                const dst = dstField.get();
 
-            source.fields.forEach((srcField: Field) => {
-                const dstField: Field = this.getFieldF(srcField.name);
-                const locked = dstField._locked;
-                dstField._locked = false;
-                try {
-                    const src = srcField.get();
-                    const dst = dstField.get();
-
-                    if (src !== dst) {
-                        changes.push(srcField.name + ": " + JSON.stringify(Field.formatValue(src)) +
-                            (action === Action.UPDATE ? " -> " + JSON.stringify(Field.formatValue(dst)) : ""));
-                        dstField.set(srcField.get());
-                    }
-                } finally {
-                    dstField._locked = locked;
+                if (src !== dst) {
+                    changes.push(srcField._name + ": " + JSON.stringify(Field.formatValue(src)) +
+                        (action === Action.UPDATE ? " -> " + JSON.stringify(Field.formatValue(dst)) : ""));
+                    dstField.set(srcField.get());
                 }
-                dstField.changed = false;
-            });
+            } finally {
+                dstField._locked = locked;
+            }
+            dstField.changed = false;
+        });
 
-            Debug.group([this, context], (action === Action.UPDATE ? "Aktualizacja rekordu: " : "Nowy rekord: ")
-                + this.getFullId(), ...changes);
+        Debug.group([this, context], (action === Action.UPDATE ? "Aktualizacja rekordu: " : "Nowy rekord: ")
+            + this.getFullId(), ...changes);
 
-            this.fields.forEach(field => field._locked = true);
+        this.fields.forEach(field => field._locked = true);
 
-            // poinformuj o modyfikacji
-            this.onChange.dispatch(this, action, {});
+        // poinformuj o modyfikacji
+        this.onChange.dispatch(this, action, {});
 
-            // zaktualizuj wszystkie kopie repozytorium będące w trybie edycji
-            this.edits.forEach(rec => {
-                if (rec !== source)
-                    rec._update(action, source);
-            });
-
-            resolve();
+        // zaktualizuj wszystkie kopie repozytorium będące w trybie edycji
+        this.edits.forEach(rec => {
+            if (rec !== source)
+                rec._update(action, source);
         });
     }
 }

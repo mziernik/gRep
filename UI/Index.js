@@ -5,22 +5,16 @@ import Header from "./page/main/Header";
 import NavBar from "./page/main/NavBar";
 import Container from "./page/main/Container";
 import StatusBar from "./page/main/StatusBar";
-
 import "./page/Router";
-
-// ==================================== inicjalizacja modułów ====================================
-
 import Login from "./page/Login";
 import './core/component/bootstrap/bootstrap.min.css';
 import'./page/main/Layout.css';
 import TitleBar, {Status} from "./page/main/TitleBar";
-
-// ==================================== inicjalizacja aplikacji ====================================
-
 import {React, Application, Utils, AppStatus, Repository, Store} from "./core/core";
 import {PageTitle} from "./core/components";
 import {PERMISSIONS} from "./core/repository/PermissionRepo";
-//import * as PermissionRepo from "./core/repository/PermissionRepo";
+import * as API from "./model/API";
+import "./model/Repositories";
 
 PageTitle.renderer = (sender: PageTitle) => {
     TitleBar.setTitle(sender);
@@ -29,15 +23,21 @@ PageTitle.renderer = (sender: PageTitle) => {
 
 AppStatus.factory = (context: any) => new Status();
 
+
 window.addEventListener("load", () => {
 
         PERMISSIONS.refresh();
 
         Utils.forEach(Repository.all, (repo: Repository) => {
             repo.storage.store(Store.local);
-            repo.storage.load();
+            try {
+                repo.storage.load();
+            } catch (e) {
+                console.error(e);
+            }
         });
 
+        API.initialize();
 
         Login.display((user) => {
             Application.render(<Header/>, "#app-header");

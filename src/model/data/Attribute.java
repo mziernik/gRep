@@ -1,9 +1,7 @@
 package model.data;
 
-import com.database.QueryRow;
 import com.database.model.DbCol;
 import com.database.model.DsTable;
-import com.model.dataset.DsRecord;
 import com.utils.collections.Strings;
 import com.utils.date.TDate;
 import java.util.UUID;

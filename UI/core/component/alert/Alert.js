@@ -1,6 +1,6 @@
-import './sweetalert2.js';
+import swal from './sweetalert2.js';
 import './sweetalert2.css';
-import {If} from "../../components";
+import {If} from "../../core";
 
 export default class Alert {
     //ToDo: Przerobić okno alertów (wiele instancji, zawijanie wierszy, zmiana kolejności)

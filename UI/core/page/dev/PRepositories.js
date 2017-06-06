@@ -7,10 +7,8 @@ let REPO: PageDef;
 
 export default class PRepositories extends Page {
 
-
     render() {
         const data = [];
-
 
         return <div>
             <PageTitle>Repozytoria</PageTitle>
@@ -64,21 +62,17 @@ export class RepositoryPage extends Page {
 
     constructor() {
         super(...arguments);
-        this.repo = Repository.all[this.props.id];
-        if (!this.repo)
-            throw new Error("Nie znaleziono repozytorium " + JSON.stringify(this.props.id));
+        this.repo = Repository.getF(this.props.id);
     }
 
     render() {
 
-        const columns = {};
-
-        this.repo.columns.forEach((f: Field) => columns[f.name] =
-            <span style={{textAlign: "center"}}>
-                    <div>{f.name}</div>
-                    <div style={{fontWeight: "normal"}}>[{f.dataType.name}]</div>
+        const columns = [] = this.repo.columns.map((f: Field) =>
+            <span key={f._name} style={{textAlign: "center"}}>
+                    <div>{f._name}</div>
+                    <div style={{fontWeight: "normal"}}>{f._title}</div>
+                    <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.dataType.name}]</div>
                 </span>);
-
 
         return <div>
             <PageTitle>Repozytorium "{this.repo.name}"</PageTitle>
@@ -89,7 +83,7 @@ export class RepositoryPage extends Page {
                 rowMapper={(record: Record) => {
                     const result = {};
                     record.fields.forEach((f: Field) =>
-                        result[f.name] = <FieldComponent readOnly={true} field={f}/>);
+                        result[f._name] = <FieldComponent preview={true} field={f}/>);
                     return result;
                 }}
             />

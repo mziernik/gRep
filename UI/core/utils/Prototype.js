@@ -1,4 +1,5 @@
 // @flow
+import * as Utils from "./Utils";
 'use strict';
 
 
@@ -193,6 +194,17 @@ Array.prototype.last = Array.prototype.last || function (): ?any {
         if (this.length > 0)
             return this[this.length - 1];
         return undefined;
+    };
+
+/**
+ * Dodaje wszystkie elementy do tablicy
+ * @type {Function}
+ */
+// $FlowFixMe
+Array.prototype.addAll = Array.prototype.addAll || function (elements: []): [] {
+        if (elements)
+            Utils.forEach(elements, el => this.push(el));
+        return this;
     };
 
 /**

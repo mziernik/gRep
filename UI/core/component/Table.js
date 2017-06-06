@@ -1,4 +1,4 @@
-import {React, PropTypes, Utils, If} from "../core";
+import {React, PropTypes, Utils, If, Check} from "../core";
 import {Component} from "../components";
 
 export default class Table extends Component {
@@ -11,10 +11,12 @@ export default class Table extends Component {
 
     render() {
 
-        const cols = []; //klucze kolumn
+        const colKeys = []; //klucze kolumn
 
         const columns = Utils.forEachMap(this.props.columns, (col, key) => {
-            cols.push(key);
+            if (If.isNumber(key) && col.$$typeof)
+                key = Check.nonEmptyString(col.key, new Error("Wymagana definicja atrybutu key"));
+            colKeys.push(key);
             return <th key={key}>{col}</th>;
         });
 
@@ -32,7 +34,7 @@ export default class Table extends Component {
                     out.push(<td key={idx}>{elm}</td>);
                 });
             else {
-                cols.forEach((colName: string) => {
+                colKeys.forEach((colName: string) => {
                     out.push(<td key={colName}>{_row[colName]}</td>);
                 });
             }

@@ -1,6 +1,6 @@
 //FixMe importy, flow
 
-import {Check, Record, Field, Debug, DataType} from "../core";
+import {Check, Record, Field, Utils, Debug, DataType} from "../core";
 
 import Permission from "../application/Permission";
 import RepositoryStorage from "./RepositoryStorage";
@@ -46,12 +46,22 @@ export default class Repository {
 
         rec.fields.forEach((src: Field) => {
             const f: Field = new Field(src.dataType);
-            f.name = src.name;
+
+            for (let name in src)
+                f[name] = src[name];
+
             if (src === rec.primaryKey)
                 this.primaryKeyColumn = f;
             this.columns.push(f);
         });
 
+    }
+
+    static getF(key: string): Repository {
+        const result = Repository.all[key];
+        if (!result)
+            throw new Error("Nie znaleziono repozytorium " + JSON.stringify(key));
+        return result;
     }
 
     static register(repository: Repository) {
@@ -77,38 +87,33 @@ export default class Repository {
     /**
      * Zaktualizuj rekordy (lub dodaj nowe)
      */
-    update(context: any, records: Record[], canSave: boolean = true): Promise {
-        return new Promise((resolve, reject) => {
-            Check.instanceOf(records, [Array]);
-            if (!records || !records.length)
-                return
+    update(context: any, records: Record[], canSave: boolean = true) {
 
-            records.forEach((record: Record) => {
-                if (record.repository !== this)
-                    throw new Error(`Konflikt repozytoriów: ${record.repository.id} <-> ${this.id}`);
-            });
+        Check.instanceOf(records, [Array]);
+        if (!records || !records.length)
+            return
 
-            records.forEach((record: Record) => {
-                let dst: Record = this.get(record._primaryKeyValue);
-                let act: Action = dst ? Action.UPDATE : Action.CREATE;
-                if (!dst)
-                    dst = this.newRecord();
-
-                dst._temporary = false;
-                dst.fields.forEach((f: Field) => f._locked = true);
-                dst._update(context, act, record);
-
-                if (act === Action.CREATE)
-                    this.items.push(dst);
-            });
-
-            if (canSave)
-                this.storage.save();
-
-            window.setTimeout(() => {
-                resolve();
-            }, 3000);
+        records.forEach((record: Record) => {
+            if (record.repository !== this)
+                throw new Error(`Konflikt repozytoriów: ${record.repository.id} <-> ${this.id}`);
         });
+
+        records.forEach((record: Record) => {
+            let dst: Record = this.get(record._primaryKeyValue);
+            let act: Action = dst ? Action.UPDATE : Action.CREATE;
+            if (!dst)
+                dst = this.newRecord();
+
+            dst._temporary = false;
+            dst.fields.forEach((f: Field) => f._locked = true);
+            dst._update(context, act, record);
+
+            if (act === Action.CREATE)
+                this.items.push(dst);
+        });
+
+        if (canSave)
+            this.storage.save();
     }
 
 
@@ -123,7 +128,8 @@ export default class Repository {
 
         // utwórz grupy repozytorium - lista rekordów
         items.forEach((rec: Record) => {
-            const arr = upd[rec.repository.id] || [];
+            let arr = upd[rec.repository.id];
+            arr = arr ? arr[1] : [];
             arr.push(rec);
             upd[rec.repository.id] = [rec.repository, arr];
         });
@@ -142,22 +148,17 @@ export default class Repository {
         return Promise.all(result);
     }
 
-    static processDTO(data: Object) {
-
+    static processDTO(context: any, data: Object): Promise {
         if (!data)
             return;
+        const recs: Record[] = [];
 
-        for (let repoName in data) {
-            const repo: Repository = Repository.all[repoName];
+        Utils.forEach(data, (data: Object, key: string) => {
+            const repo: Repository = Repository.getF(key);
+            recs.addAll(visitRepository(context, data, repo));
+        });
 
-            if (!repo) {
-                Debug.warning("Nie znaleziono repozytorium " + JSON.stringify(repoName));
-                continue;
-            }
-
-            visitRepository(data[repoName], repo);
-        }
-
+        return Repository.submit(context, recs);
     }
 
     newRecord(): Record {
@@ -169,12 +170,28 @@ export default class Repository {
 }
 
 
-function visitRepository(data: Object, repo: Repository) {
+function visitRepository(context: any, data: Object, repo: Repository): Record[] {
 
-    for (let repoName in data) {
-        const repoData = data[repoName];
+    const recs: Record[] = [];
 
-        const pk = repo.primaryKeyDataType.parse(repoName);
+    if (data.key && data.pk && data.columns && data.rows) {
+
+        data.rows.forEach((rowData: []) => {
+            const rec = repo.newRecord();
+            for (let i = 0; i < rowData.length; i++) {
+                const field: Field = rec.getFieldF(data.columns[i].key);
+                field.set(rowData[i]);
+            }
+            recs.push(rec);
+        });
+
+        return recs;
+    }
+
+    // wariant obiektowy (kluczem obiektu jest klucz pola)
+    Utils.forEach((repoData: Object, key: string) => {
+
+        const pk = repo.primaryKeyDataType.parse(key);
 
         let rec: Record = repo.get(pk);
 
@@ -183,7 +200,7 @@ function visitRepository(data: Object, repo: Repository) {
         for (let fieldName in repoData) {
             const fieldData = repoData[fieldName];
 
-            const field = rec.fields.find(field => field.name.toLowerCase() === fieldName.toLowerCase());
+            const field = rec.fields.find(field => field._name.toLowerCase() === fieldName.toLowerCase());
             if (!field) {
                 Debug.warning("Nie znaleziono pola " + JSON.stringify(fieldName));
                 continue;
@@ -192,16 +209,18 @@ function visitRepository(data: Object, repo: Repository) {
             let value = field.get();
 
             if (value instanceof Repository) {
-                visitRepository(fieldData, value);
+                visitRepository(context, fieldData, value);
                 continue;
             }
 
             field.set(fieldData);
         }
 
-        repo.update(rec);
-    }
+        recs.push(rec);
 
+    });
+
+    return recs;
 }
 
 export class Change {
