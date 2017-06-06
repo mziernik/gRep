@@ -34,10 +34,3 @@ model/data/Category.class
 model/data/CategoryAttribute.class
 model/data/CryptKey.class
 model/data/Resource.class
-view/PService.class
-view/grepApi.js
-view/main/index.html
-view/main/main.css
-view/main/service.css
-view/main/service.js
-view/main/ui.js

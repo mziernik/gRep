@@ -36,7 +36,7 @@ export default class NavBar extends Component<*, *, *> {
                         <button onClick={() => Alert.error(this, "Testowy błąd") }>Alert</button>
                     </li>
                     <li>
-                        <button onClick={() => Tasks.test()}>DTO</button>
+                        <button>DTO</button>
                     </li>
 
                     <li>
