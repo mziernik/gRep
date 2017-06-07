@@ -15,6 +15,7 @@ import {PageTitle} from "./core/components";
 import {PERMISSIONS} from "./core/repository/PermissionRepo";
 import * as API from "./model/API";
 import "./model/Repositories";
+import WebApiRepositoryStorage from "./core/webapi/WebApiRepositoryStorage";
 
 PageTitle.renderer = (sender: PageTitle) => {
     TitleBar.setTitle(sender);
@@ -25,7 +26,6 @@ AppStatus.factory = (context: any) => new Status();
 
 
 window.addEventListener("load", () => {
-
         PERMISSIONS.refresh();
 
         Utils.forEach(Repository.all, (repo: Repository) => {
@@ -38,6 +38,7 @@ window.addEventListener("load", () => {
         });
 
         API.initialize();
+
 
         Login.display((user) => {
             Application.render(<Header/>, "#app-header");

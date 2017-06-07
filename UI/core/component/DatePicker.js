@@ -5,6 +5,7 @@ import {FormComponent} from '../components'
 import {DateTimePicker} from "react-widgets";
 import moment from "react-widgets/lib/localizers/moment";
 import Moment from "moment";
+import "react-widgets/dist/css/react-widgets.css";
 
 export default class DatePicker extends FormComponent {
     props: {

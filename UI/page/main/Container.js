@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {React, PageDef, AppEvent} from "../../core/core";
+import {React, Endpoint, AppEvent} from "../../core/core";
 import {Component} from "../../core/components";
 import {Switch} from 'react-router-dom';
 
@@ -18,7 +18,7 @@ export default class Container extends Component {
     }
 
     render() {
-        const map = PageDef.all.map((page: PageDef, idx: number) => page.route(idx));
+        const map = Endpoint.all.map((page: Endpoint, idx: number) => page.route(idx));
         return <Switch>{map}</Switch>
     }
 

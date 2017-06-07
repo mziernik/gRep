@@ -4,7 +4,7 @@ import {Route, BrowserRouter, Link, Redirect, Switch, Miss} from 'react-router-d
 
 import NotFound from "./NotFound";
 import Dashboard from "./dashboard/Dashboard";
-import PageDef from "../core/application/PageDef";
+import PageDef from "../core/application/Endpoint";
 import "../core/page/dev/PDev";
 import PDev from "../core/page/dev/PDev";
 

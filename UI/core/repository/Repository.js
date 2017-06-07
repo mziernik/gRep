@@ -5,6 +5,8 @@ import {Check, Record, Field, Utils, Debug, DataType} from "../core";
 import Permission from "../application/Permission";
 import RepositoryStorage from "./RepositoryStorage";
 import Action from "./Action";
+import Dispatcher from "../utils/Dispatcher";
+import WebApiRepositoryStorage from "../webapi/WebApiRepositoryStorage";
 
 
 export class RepositoryMode {
@@ -17,9 +19,12 @@ export const DATA_TYPE = new DataType("Repository", "object", val => Check.insta
 
 export default class Repository {
 
+    static externalStore: ?WebApiRepositoryStorage;
+
     static defaultCrudeRights = "CRUD"; //"CRUDE"
 
     static all = {};
+    static onChange: Dispatcher = new Dispatcher();
 
     id: string;
     name: string;
@@ -31,6 +36,8 @@ export default class Repository {
     columns: Field[] = [];
     primaryKeyColumn: Field;
     storage: RepositoryStorage = new RepositoryStorage(this);
+    /** Czy dane repozytorium zostały już wczytane */
+    isReady: boolean = false;
 
     constructor(id: string, name: string, primaryKeyDataType: DataType, recordClass: () => Record) {
         this.id = id;
@@ -87,7 +94,7 @@ export default class Repository {
     /**
      * Zaktualizuj rekordy (lub dodaj nowe)
      */
-    update(context: any, records: Record[], canSave: boolean = true) {
+    _update(context: any, records: Record[], canSave: boolean = false): Record[] {
 
         Check.instanceOf(records, [Array]);
         if (!records || !records.length)
@@ -98,6 +105,8 @@ export default class Repository {
                 throw new Error(`Konflikt repozytoriów: ${record.repository.id} <-> ${this.id}`);
         });
 
+        const result: Record[] = [];
+
         records.forEach((record: Record) => {
             let dst: Record = this.get(record._primaryKeyValue);
             let act: Action = dst ? Action.UPDATE : Action.CREATE;
@@ -107,6 +116,7 @@ export default class Repository {
             dst._temporary = false;
             dst.fields.forEach((f: Field) => f._locked = true);
             dst._update(context, act, record);
+            result.push(dst);
 
             if (act === Action.CREATE)
                 this.items.push(dst);
@@ -114,6 +124,8 @@ export default class Repository {
 
         if (canSave)
             this.storage.save();
+
+        return result;
     }
 
 
@@ -121,44 +133,38 @@ export default class Repository {
      * Zastosuj zmiany (edycja / synchronizacja)
      */
     static submit(context: any, items: Record[]): Promise {
-
         Check.instanceOf(items, [Array]);
+        if (Repository.externalStore)
+            return Repository.externalStore.submit(context, items)
 
-        const upd = {};
-
-        // utwórz grupy repozytorium - lista rekordów
-        items.forEach((rec: Record) => {
-            let arr = upd[rec.repository.id];
-            arr = arr ? arr[1] : [];
-            arr.push(rec);
-            upd[rec.repository.id] = [rec.repository, arr];
-        });
-
-        const result: Promise[] = [];
-
-        for (let name in upd) {
-            const repo: Repository = upd[name][0];
-            if (!repo.storage.write)
-                continue;
-
-            const modified: Record[] = upd[name][1];
-            result.push(repo.update(context, modified));
-        }
-
-        return Promise.all(result);
+        return null;
     }
 
-    static processDTO(context: any, data: Object): Promise {
+    /** Zaktualizuj rekordy z obiektu DTO */
+    static update(context: any, data: Object): Map<Repository, Record[]> {
         if (!data)
             return;
-        const recs: Record[] = [];
+
+        const updatedRecords: Record[] = [];
 
         Utils.forEach(data, (data: Object, key: string) => {
             const repo: Repository = Repository.getF(key);
-            recs.addAll(visitRepository(context, data, repo));
+            updatedRecords.addAll(processUpdate(context, data, repo));
         });
 
-        return Repository.submit(context, recs);
+        const map: Map<Repository, Record[]> = Utils.agregate(updatedRecords, (rec: Record) => rec.repository);
+        const allUpdated: Record[] = [];
+
+        map.forEach((records: Record[], repo: Repository) => {
+            const updated = repo._update(context, records, false);
+            records.clear();
+            records.addAll(updated);
+            allUpdated.addAll(updated);
+            repo.isReady = true;
+        });
+
+        Repository.onChange.dispatch(context, map, allUpdated);
+        return map;
     }
 
     newRecord(): Record {
@@ -170,7 +176,7 @@ export default class Repository {
 }
 
 
-function visitRepository(context: any, data: Object, repo: Repository): Record[] {
+function processUpdate(context: any, data: Object, repo: Repository): Record[] {
 
     const recs: Record[] = [];
 
@@ -209,7 +215,7 @@ function visitRepository(context: any, data: Object, repo: Repository): Record[]
             let value = field.get();
 
             if (value instanceof Repository) {
-                visitRepository(context, fieldData, value);
+                processUpdate(context, fieldData, value);
                 continue;
             }
 

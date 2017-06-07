@@ -6,10 +6,10 @@
 import {React, AppEvent, Utils, Dispatcher} from "../core";
 import Route from "react-router-dom/es/Route";
 
-export default class PageDef {
-    static all: PageDef[] = [];
+export default class Endpoint {
+    static all: Endpoint[] = [];
     /** domyślna strona 404 */
-    static NOT_FOUND: ?PageDef;
+    static NOT_FOUND: ?Endpoint;
 
     _name: ?string = null;
     _path: ?string = null;
@@ -25,52 +25,52 @@ export default class PageDef {
 
     onNavigate: Dispatcher = new Dispatcher();
 
-    static homePage: PageDef;
+    static homePage: Endpoint;
 
-    _parent: ?PageDef = null;
-    _children: PageDef[] = [];
+    _parent: ?Endpoint = null;
+    _children: Endpoint[] = [];
 
 
     constructor(name: string, path: string, component: React.Component) {
         this._name = name;
         this._path = path;
         this._component = component;
-        PageDef.all.push(this);
+        Endpoint.all.push(this);
 
-        if (PageDef.NOT_FOUND) {
+        if (Endpoint.NOT_FOUND) {
             // nawigacja do 404 musi być zawsze na końcu listy
-            if (!PageDef.all.remove(PageDef.NOT_FOUND))
+            if (!Endpoint.all.remove(Endpoint.NOT_FOUND))
                 throw new Error();
-            PageDef.all.push(PageDef.NOT_FOUND);
+            Endpoint.all.push(Endpoint.NOT_FOUND);
         }
 
-        if (!PageDef.homePage && name === "/")
-            PageDef.homePage = this;
+        if (!Endpoint.homePage && name === "/")
+            Endpoint.homePage = this;
 
     }
 
 
-    static pageOf(component: React.Component): ?PageDef {
-        return PageDef.all.find((page: PageDef) => page._component === component);
+    static pageOf(component: React.Component): ?Endpoint {
+        return Endpoint.all.find((page: Endpoint) => page._component === component);
     }
 
     hasLink() {
         return this._path && this._component;
     }
 
-    child(name: string, path: string, component: React.Component): PageDef {
-        const page = new PageDef(name, path, component);
+    child(name: string, path: string, component: React.Component): Endpoint {
+        const page = new Endpoint(name, path, component);
         this._children.push(page);
         page._parent = this;
         return page;
     }
 
-    exact(value: boolean): PageDef {
+    exact(value: boolean): Endpoint {
         this._exact = value;
         return this;
     }
 
-    defaultParams(value: Object): PageDef {
+    defaultParams(value: Object): Endpoint {
         this._defaultParams = value;
         return this;
     }
@@ -86,7 +86,7 @@ export default class PageDef {
         return result;
     }
 
-    hidden(value: boolean): PageDef {
+    hidden(value: boolean): Endpoint {
         this._hidden = value;
         return this;
     }
@@ -99,7 +99,9 @@ export default class PageDef {
             key={"page_" + idx}
             exact={this._exact}
             path={this._path}
-            children={(props: Object) => {
+            children={(route: Object) => {
+
+                const props = {};
 
                 this.onNavigate.dispatch(this, this);
 
@@ -107,10 +109,12 @@ export default class PageDef {
                     for (let name in this._props)
                         props[name] = this._props[name];
 
-                if (props.match && props.match.params)
-                    for (let name in props.match.params)
-                        props[name] = props.match.params[name];
+                if (route.match && route.match.params)
+                    for (let name in route.match.params)
+                        props[name] = route.match.params[name];
 
+                route.endpoint = this;
+                props.route = route;
                 AppEvent.NAVIGATE.send(this, this);
                 return React.createElement(this._component, props, null);
             }}

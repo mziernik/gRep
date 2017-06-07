@@ -117,9 +117,22 @@ export function makeFinal(obj: any, filter: ?(name: string, value: any) => boole
             configurable: prop.configurable
         });
     });
-
-    Object.preventExtensions(obj);
     return obj;
+}
+
+export function agregate(object: any, aggregator: (element: any) => any): Map<*, []> {
+    const result: Map<*, []> = new Map();
+
+    forEach(object, (element: any) => {
+        const base = aggregator(element);
+        if (base === null || base === undefined) return;
+
+        if (result.has(base))
+            result.get(base).push(element);
+        else
+            result.set(base, [element]);
+    });
+    return result;
 }
 
 /**

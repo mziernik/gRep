@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {React, PropTypes, PageDef, If} from "../core";
+import {React, PropTypes, Endpoint, If} from "../core";
 import {Component, Alert} from "../components";
 import FileSaver from "file-saver";
 import RouteLink from "react-router-dom/es/Link";
@@ -15,7 +15,7 @@ export default class Link extends Component {
         downloadName: PropTypes.string,
         downloadData: PropTypes.func,
         className: PropTypes.string,
-        link: PropTypes.any, //[String, PageDef]
+        link: PropTypes.any, //[String, Endpoint]
         icon: PropTypes.any, //(FontAwesome),
         style: PropTypes.object,
         onClick: PropTypes.func,
@@ -44,8 +44,8 @@ export default class Link extends Component {
 
         if (this.props.link) {
             let link = this.props.link;
-            if (link instanceof PageDef)
-                link = (link: PageDef).getLink();
+            if (link instanceof Endpoint)
+                link = (link: Endpoint).getLink();
 
             return <RouteLink to={link}>
                 <span

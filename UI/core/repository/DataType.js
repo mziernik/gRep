@@ -43,6 +43,9 @@ export default class DataType {
 
     static STRING = new DataType("string", "string", val => "" + val);
 
+    /** Wieloliniowy tekst */
+    static MEMO = new DataType("memo", "string", val => "" + val);
+
     static PASSWORD = new DataType("password", "string", val => "" + val);
 
     // problem parseInt("10abc"), parseInt([]);

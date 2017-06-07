@@ -17,7 +17,7 @@ export default class PermissionsRepo extends Repository {
     }
 
     refresh() {
-        this.update(this, Utils.forEachMap(Permission.all, (p: Permission) => p.record ? undefined
+        this._update(this, Utils.forEachMap(Permission.all, (p: Permission) => p.record ? undefined
             : new PermissionRecord(this, p.id, p.name, p.getCrude(), p)), false);
     }
 }

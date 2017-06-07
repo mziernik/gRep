@@ -5,7 +5,6 @@ import Record from "./Record";
 import Field from "./Field";
 
 export default class RepositoryStorage {
-
     _store: Store;
     _repository: Repository;
     read: boolean = false;
@@ -56,7 +55,7 @@ export default class RepositoryStorage {
             records.push(rec);
         });
 
-        records.forEach((rec: Record) => this._repository.update(this, [rec], false));
+        records.forEach((rec: Record) => this._repository._update(this, [rec], false));
     }
 
     build(): Object {

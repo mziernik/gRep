@@ -171,7 +171,7 @@ export default class Record {
     _update(context: any, action: Action, source: Record) {
 
         if (this._temporary)
-            throw new Error("Nie można aktualizować obiektów tymczasowych");
+            throw new Error(this.getFullId() + ": Nie można aktualizować obiektów tymczasowych");
 
         const changes = [];
 

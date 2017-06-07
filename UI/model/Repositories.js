@@ -43,7 +43,6 @@ export class CategoryAttribute extends Record {
 
 export class AttributeElementRepo extends Repository {
 
-
     constructor() {
         super("attrElm", "Element atrybutu", DataType.INT, AttributeElement);
     }
@@ -54,11 +53,11 @@ export class AttributeElement extends Record {
 
     MAX: Field = new Field(DataType.INT).name("max").title("Maksimum");
 
-    CREATED: Field = new Field(DataType.DATE).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
     FOREIGNELM: Field = new Field(DataType.INT).name("foreignElm").title("Element zewnętrzny");
 
-    DESCRIPTION: Field = new Field(DataType.STRING).name("description").title("Opis");
+    DESCRIPTION: Field = new Field(DataType.MEMO).name("description").title("Opis");
 
     TYPE: Field = new Field(DataType.STRING).name("type").title("Typ");
 
@@ -108,7 +107,7 @@ export class CatalogAttribute extends Record {
 
     CRYPTKEY: Field = new Field(DataType.ARRAY).name("cryptKey").title("Klucz");
 
-    CREATED: Field = new Field(DataType.DATE).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
     CATALOG: Field = new Field(DataType.INT).name("catalog").title("Katalog");
 
@@ -142,13 +141,13 @@ export class Resource extends Record {
 
     CRYPTKEY: Field = new Field(DataType.INT).name("cryptKey").title("Klucz");
 
-    CREATED: Field = new Field(DataType.DATE).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
     CATALOG: Field = new Field(DataType.INT).name("catalog").title("Katalog");
 
     FORMAT: Field = new Field(DataType.STRING).name("format").title("Format");
 
-    DESCRIPTION: Field = new Field(DataType.STRING).name("description").title("Opis");
+    DESCRIPTION: Field = new Field(DataType.MEMO).name("description").title("Opis");
 
     TYPE: Field = new Field(DataType.STRING).name("type").title("Typ");
 
@@ -192,7 +191,7 @@ export class Attribute extends Record {
 
     PARENT: Field = new Field(DataType.INT).name("parent").title("Rodzic");
 
-    CREATED: Field = new Field(DataType.DATE).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
     ELEMENTS: Field = new Field(DataType.ARRAY).name("elements").title("Elementy");
 
@@ -232,7 +231,7 @@ export class Category extends Record {
 
     UID: Field = new Field(DataType.STRING).name("uid").title("UID");
 
-    CREATED: Field = new Field(DataType.DATE).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
     NAME: Field = new Field(DataType.STRING).name("name").title("Nazwa");
 
@@ -272,7 +271,7 @@ export class Catalog extends Record {
 
     PARENT: Field = new Field(DataType.INT).name("parent").title("Rodzic");
 
-    CREATED: Field = new Field(DataType.DATE).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
     NAME: Field = new Field(DataType.STRING).name("name").title("Nazwa");
 
@@ -310,7 +309,7 @@ export class CryptKey extends Record {
 
     UID: Field = new Field(DataType.STRING).name("uid").title("UID");
 
-    CREATED: Field = new Field(DataType.DATE).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
     ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey();
 

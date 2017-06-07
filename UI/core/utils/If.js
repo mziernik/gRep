@@ -35,6 +35,9 @@ export function isDefined(object: ?any, then: ?(object: any) => void, otherwise:
     return result(typeof object !== undefined && object !== null, object, then, otherwise);
 }
 
+export function condition(condition: boolean, then: ?(object: any) => void, otherwise: ?(object: any) => void): boolean {
+    return result(condition, condition, then, otherwise);
+}
 
 /**
  * Sprawdza czy obiekt jest danej instancji

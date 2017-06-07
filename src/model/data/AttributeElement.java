@@ -16,9 +16,9 @@ public class AttributeElement extends DsTable<AttributeElement, Integer> {
     @DbCol
     public final Col<Integer> id = column(Integer.class, "ID").primaryKey();
     @DbCol
-    public final Col<UUID> uid = column("UID");
+    public final Col<UUID> uid = column(UUID.class, "UID").readOnly(true);
     @DbCol
-    public final Col<TDate> created = column("Utworzono");
+    public final Col<TDate> created = column(TDate.class, "Utworzono").readOnly(true);
     @DbCol
     public final Col<String> key = column("Klucz");
     @DbCol
@@ -41,6 +41,7 @@ public class AttributeElement extends DsTable<AttributeElement, Integer> {
     public final Col<Integer> foreignElm = column("Element zewnętrzny");
     @DbCol
     public final Col<Boolean> encrypted = column("Zaszyfrowany");
+    
     public final Col<Map<String, String>> enumerate = column("Enumerata");
 
     public AttributeElement(Integer id) {
@@ -50,7 +51,7 @@ public class AttributeElement extends DsTable<AttributeElement, Integer> {
 
     @Override
     protected void getUpdateQuery(MultipleQuery mqry, Map<DsColumn<?, AttributeElement, QueryRow, ?>, Object> cells) throws SQLError {
-        super.getUpdateQuery(mqry, cells); //To change body of generated methods, choose Tools | Templates.
+        super.getUpdateQuery(mqry, cells); 
     }
 
 }

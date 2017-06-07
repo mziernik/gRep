@@ -4,13 +4,13 @@
  */
 
 
-import {React, PropTypes, AppEvent, PageDef} from "../core";
+import {React, PropTypes, AppEvent, Endpoint} from "../core";
 import {Component, FontAwesome, Link} from "../components";
 
 
 export default class Breadcrumb extends Component {
 
-    page: PageDef;
+    page: Endpoint;
 
     static propTypes = {
         home: PropTypes.bool.isRequired
@@ -22,7 +22,7 @@ export default class Breadcrumb extends Component {
 
     constructor() {
         super(...arguments);
-        AppEvent.NAVIGATE.listen(this, (page: PageDef) => {
+        AppEvent.NAVIGATE.listen(this, (page: Endpoint) => {
             this.page = page;
             this.forceUpdate();
         });
@@ -32,10 +32,10 @@ export default class Breadcrumb extends Component {
         if (!this.page) return null;
 
 
-        let pages: PageDef[] = [];
+        let pages: Endpoint[] = [];
         let page = this.page;
         while (page) {
-            if (!this.props.home || page !== PageDef.homePage)
+            if (!this.props.home || page !== Endpoint.homePage)
                 pages.push(page);
             page = page._parent;
         }
@@ -45,10 +45,10 @@ export default class Breadcrumb extends Component {
         let elms = [];
 
         if (this.props.home)
-            elms.push(<Link key={0} link={PageDef.homePage ? PageDef.homePage.getLink() : "/"}><span
+            elms.push(<Link key={0} link={Endpoint.homePage ? Endpoint.homePage.getLink() : "/"}><span
                 className={FontAwesome.HOME.className}/></Link>);
 
-        pages.forEach((page: PageDef) => {
+        pages.forEach((page: Endpoint) => {
             if (elms.length)
                 elms.push(<span key={++idx} style={ {margin: "8px"} }>/</span>);
 

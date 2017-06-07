@@ -4,7 +4,7 @@
 import React from 'react';
 import Component from "../../core/component/Component";
 import Alert from "../../core/component/alert/Alert";
-import PageDef from "../../core/application/PageDef";
+import PageDef from "../../core/application/Endpoint";
 import Link from "react-router-dom/es/Link";
 
 

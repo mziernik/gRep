@@ -28,13 +28,15 @@ export {default as PropTypes} from 'prop-types';
 
 // -------------------- Aplikacja ---------------------------------
 export {default as DataType} from "./repository/DataType"; //
+import * as CRUDE from "./repository/CRUDE";
+export {CRUDE};
 
 export {default as Application} from "./application/Application";
 export {EventType} from "./application/Event";
 export {default as AppEvent} from "./application/Event";
 export {default as AppStatus} from "./application/Status";
 
-export {default as PageDef} from "./application/PageDef";
+export {default as Endpoint} from "./application/Endpoint";
 export {default as AppNode} from "./application/Node";
 
 

@@ -51,13 +51,13 @@ export default class WebApiTransport {
     }
 
     onError(e: ?any) {
-        Debug.error(e);
+        Debug.error(this, e);
         //if (this.connected)
         try {
             this.connected = false;
             this.close();
         } catch (e) {
-            Debug.error(e);
+            Debug.error(this, e);
         }
     }
 

@@ -53,6 +53,16 @@ export default class FieldComponent extends FormComponent {
             </span>);
     }
 
+    renderTextArea() {
+        return <textarea
+            style={{
+                width: "100%",
+                resize: "vertical"
+            }}
+            defaultValue={this.field.get()}/>;
+    }
+
+
     renderCheckbox() {
         if (!this.field)return null;
 
@@ -94,6 +104,7 @@ export default class FieldComponent extends FormComponent {
             </span>);
     }
 
+
     /* ToDo length(number z jednostką), object(???) */
     render() {
         if (!this.field) return null;
@@ -108,6 +119,8 @@ export default class FieldComponent extends FormComponent {
                 return this.renderInput({type: "password"});
             case "string":
                 return this.renderInput({type: "text"});
+            case "memo":
+                return this.renderTextArea();
             case "length":/* ToDo do poprawienia (number z jednostką)*/
                 return this.renderInput({type: "number", min: 0});
             case "double":
