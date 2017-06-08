@@ -9,7 +9,6 @@ export const EVENT: EventType = new EventType();
 
 export default class PageTitle extends Component {
 
-
     static renderer: ?(sender: PageTitle) => void = null;
 
     constructor() {

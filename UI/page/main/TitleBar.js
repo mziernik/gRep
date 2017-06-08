@@ -13,7 +13,7 @@ let instance: TitleBar;
 export class Status extends AppStatus {
 
     publish() {
-        TitleBar.setStatus(this);
+        setTimeout(() => TitleBar.setStatus(this));
     }
 }
 

@@ -1,4 +1,4 @@
-import {Utils, Check, Field, Repository, Dispatcher, Debug} from "../core";
+import {Utils, Check, Field, Repository, Dispatcher, Debug, CRUDE} from "../core";
 import Action from "./Action";
 
 export default class Record {
@@ -25,6 +25,9 @@ export default class Record {
 
     /** Rekord nie należący do żadnego repozytorium */
     _temporary: boolean = true;
+
+    /** Akcja, która ma zostać wykonana na danym repozytorium*/
+    _action: ?CRUDE = null;
 
 
     constructor(repository: Repository) {

@@ -1,5 +1,7 @@
 import {React, PropTypes, Field, Utils, Repository, Record, Endpoint, If} from '../../../core';
 import {Page, FontAwesome, Link, Table, PageTitle, FieldComponent} from '../../../components';
+import PageToolBar from "../../PageToolBar";
+import Button from "../../../component/Button";
 
 
 export default class PRepository extends Page {
@@ -34,6 +36,16 @@ export default class PRepository extends Page {
         return <div>
             <PageTitle>Repozytorium "{this.repo.name}"</PageTitle>
 
+            <PageToolBar>
+                <Link
+                    link={this.endpoint.RECORD.getLink({
+                        repo: this.repo.id,
+                        rec: "~new"
+                    })}
+                    icon={FontAwesome.PLUS_SQUARE}
+                />
+            </PageToolBar>
+
             <Table
                 columns={columns}
                 rows={this.repo.items}
@@ -47,7 +59,8 @@ export default class PRepository extends Page {
                                     rec: record.primaryKey.get()
                                 })}
                                 icon={FontAwesome.CREDIT_CARD}
-                            /></span>;
+                            />
+                    </span>;
 
                     record.fields.forEach((f: Field) =>
                         result[f._name] = <FieldComponent preview={true} field={f}/>);

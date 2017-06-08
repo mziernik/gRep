@@ -134,20 +134,34 @@ export default class Repository {
      */
     static submit(context: any, items: Record[]): Promise {
         Check.instanceOf(items, [Array]);
+
+        items.forEach((item: Record) => {
+            if (!item._action)
+                throw new Error(item.getFullId() + ": Brak przypisanej akcji CRUDE");
+        });
+
         if (Repository.externalStore)
             return Repository.externalStore.submit(context, items)
 
-        return null;
+        return new Promise((resolve, reject) => {
+            Repository.update(context, items);
+            resolve();
+        });
+
     }
 
-    /** Zaktualizuj rekordy z obiektu DTO */
-    static update(context: any, data: Object): Map<Repository, Record[]> {
+    /** Zaktualizuj rekordy z obiektu DTO lub z listy rekordów */
+    static update(context: any, data: Object | Record[]): Map<Repository, Record[]> {
         if (!data)
             return;
 
         const updatedRecords: Record[] = [];
 
         Utils.forEach(data, (data: Object, key: string) => {
+            if (data instanceof Record) {
+                updatedRecords.push(data);
+                return;
+            }
             const repo: Repository = Repository.getF(key);
             updatedRecords.addAll(processUpdate(context, data, repo));
         });

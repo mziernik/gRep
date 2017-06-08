@@ -1,8 +1,11 @@
 import {React, Check, If, Debug} from "../core";
+import * as Application from "./Application";
 
 type StatusType = "debug" | "info" | "success" | "warning" | "error"
 
 export default class AppStatus {
+
+    static catchExceptions: boolean = Application.DEV_MODE;
 
     static factory: ?(context: any) => AppStatus = null;
 
@@ -29,5 +32,18 @@ export default class AppStatus {
 
 
 }
+
+window.addEventListener("error", (e: any, file: ?any, line: ?number, column: ?number, ex: ?Error) => {
+    if (!AppStatus.catchExceptions)
+        return;
+    try {
+     //   AppStatus.set('ErrorHandler', "error", e instanceof ErrorEvent ? e.message : "" + e);
+    } catch (e) {
+        Debug.error(this, e);
+    }
+
+});
+
+
 
 

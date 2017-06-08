@@ -27,11 +27,11 @@ export class PermissionRecord extends Record {
 
     ID: Field = new Field(DataType.STRING).primaryKey();
     NAME: Field = new Field(DataType.STRING).required();
-    CREATE: Field = new Field(DataType.BOOLEAN).required();
-    READ: Field = new Field(DataType.BOOLEAN).required();
-    UPDATE: Field = new Field(DataType.BOOLEAN).required();
-    DELETE: Field = new Field(DataType.BOOLEAN).required();
-    EXECUTE: Field = new Field(DataType.BOOLEAN).required();
+    CREATE: Field = new Field(DataType.BOOLEAN).title("Tworzenie").required();
+    READ: Field = new Field(DataType.BOOLEAN).title("Odczyt").required();
+    UPDATE: Field = new Field(DataType.BOOLEAN).title("Aktualizacja").required();
+    DELETE: Field = new Field(DataType.BOOLEAN).title("Usuwanie").required();
+    EXECUTE: Field = new Field(DataType.BOOLEAN).title("Wykonanie").required();
     permission: ?Permission = null;
 
     constructor(repo: PermissionsRepo, id: string, name: string, crude: ?string, permission: ?Permission) {

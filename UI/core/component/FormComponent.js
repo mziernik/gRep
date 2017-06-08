@@ -3,14 +3,13 @@
 import {React, PropTypes, Field, Check} from '../core';
 import {Component, FieldController} from '../components';
 
-//ToDo: Dodać property style
 export default class FormComponent extends Component {
 
     field: Field;
 
     /** domyślny FieldController do błędów i ostrzeżeń */
     _fieldCtrlErr: ?FieldController = null;
-    /** domyślny FieldController do inforamcji i wymaganych */
+    /** domyślny FieldController do informacji i wymaganych */
     _fieldCtrlInfo: ?FieldController = null;
 
     props: {

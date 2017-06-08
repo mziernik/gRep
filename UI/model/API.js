@@ -15,5 +15,5 @@ wapi.onError = (error: EError, response: WebApiResponse, handled: boolean) => {
 };
 
 export function initialize() {
-    Repository.externalStore = new WebApiRepositoryStorage(api.model);
+    Repository.externalStore = new WebApiRepositoryStorage(api.repository);
 }

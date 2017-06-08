@@ -1,5 +1,6 @@
 import {React, PropTypes, Field, Repository, Record, Endpoint} from '../../../core';
 import {Page, FontAwesome, Link, Table, PageTitle, FieldComponent} from '../../../components';
+import ToolBar from "../../PageToolBar";
 
 export default class PRepositories extends Page {
 

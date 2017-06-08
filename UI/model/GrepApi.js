@@ -22,23 +22,23 @@ export default class GrepApi {
 
     data: Object = {};
 
-    model: Object = {
+    repository: Object = {
         edit: (params: { data: object }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("model/edit", 'k5hbfQ', params, onSuccess, onError)
+            this.api.call("repository/edit", 'k5hbfQ', params, onSuccess, onError)
         ,
         export: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("model/export", 'bVJXCg', null, onSuccess, onError)
+            this.api.call("repository/export", 'bVJXCg', null, onSuccess, onError)
         ,
         /** Zwraca dane z wielu tabel */
         getAll: (params: { repositories: string[] }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("model/getAll", '9shFmw', params, onSuccess, onError)
+            this.api.call("repository/getAll", '9shFmw', params, onSuccess, onError)
         ,
         /** Lista wszystkich rekordów w cache */
         list: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("model/list", 'DVEReg', null, onSuccess, onError)
+            this.api.call("repository/list", 'DVEReg', null, onSuccess, onError)
         ,
         remove: (params: { table: string, key: any }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("model/remove", 'Bzba3A', params, onSuccess, onError)
+            this.api.call("repository/remove", 'Bzba3A', params, onSuccess, onError)
 
     };
 

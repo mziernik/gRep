@@ -30,7 +30,7 @@ export class CategoryAttribute extends Record {
 
     REQUIRED: Field = new Field(DataType.BOOLEAN).name("required").title("Wymagane");
 
-    DEFVAL: Field = new Field(DataType.ARRAY).name("defVal").title("Wartość domyślna");
+    DEFVAL: Field = new Field(DataType.LIST).name("defVal").title("Wartość domyślna");
 
 
     constructor() {
@@ -73,13 +73,13 @@ export class AttributeElement extends Record {
 
     NAME: Field = new Field(DataType.STRING).name("name").title("Nazwa");
 
-    ENUMERATE: Field = new Field(DataType.OBJECT).name("enumerate").title("Enumerata");
+    ENUMERATE: Field = new Field(DataType.MAP).name("enumerate").title("Enumerata");
 
     ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey();
 
     KEY: Field = new Field(DataType.STRING).name("key").title("Klucz");
 
-    DEFVAL: Field = new Field(DataType.ARRAY).name("defVal").title("Wartość domyślna");
+    DEFVAL: Field = new Field(DataType.LIST).name("defVal").title("Wartość domyślna");
 
 
     constructor() {
@@ -101,11 +101,11 @@ export class CatalogAttributeRepo extends Repository {
 
 export class CatalogAttribute extends Record {
 
-    UID: Field = new Field(DataType.STRING).name("uid").title("UID");
+    UID: Field = new Field(DataType.STRING).name("uid").title("UID").readOnly(true);
 
-    NOTES: Field = new Field(DataType.STRING).name("notes").title("Notatki");
+    NOTES: Field = new Field(DataType.MEMO).name("notes").title("Notatki");
 
-    CRYPTKEY: Field = new Field(DataType.ARRAY).name("cryptKey").title("Klucz");
+    CRYPTKEY: Field = new Field(DataType.STRING).name("cryptKey").title("Klucz");
 
     CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
@@ -113,11 +113,11 @@ export class CatalogAttribute extends Record {
 
     INDEX: Field = new Field(DataType.INT).name("index").title("Kolejność");
 
-    ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey();
+    ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey().readOnly();
 
     ATTRIBUTE: Field = new Field(DataType.INT).name("attribute").title("Atrybut");
 
-    VALUE: Field = new Field(DataType.ARRAY).name("value").title("Wartość");
+    VALUE: Field = new Field(DataType.STRING).name("value").title("Wartość").required();
 
 
     constructor() {
@@ -151,7 +151,7 @@ export class Resource extends Record {
 
     TYPE: Field = new Field(DataType.STRING).name("type").title("Typ");
 
-    TAGS: Field = new Field(DataType.ARRAY).name("tags").title("Tagi");
+    TAGS: Field = new Field(DataType.LIST).name("tags").title("Tagi");
 
     UID: Field = new Field(DataType.STRING).name("uid").title("UID");
 
@@ -193,7 +193,7 @@ export class Attribute extends Record {
 
     CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
 
-    ELEMENTS: Field = new Field(DataType.ARRAY).name("elements").title("Elementy");
+    ELEMENTS: Field = new Field(DataType.LIST).name("elements").title("Elementy");
 
     ICON: Field = new Field(DataType.STRING).name("icon").title("Ikona");
 
@@ -207,7 +207,7 @@ export class Attribute extends Record {
 
     REQUIRED: Field = new Field(DataType.BOOLEAN).name("required").title("Wymagane");
 
-    DEFVAL: Field = new Field(DataType.ARRAY).name("defVal").title("Wartość domyślna");
+    DEFVAL: Field = new Field(DataType.LIST).name("defVal").title("Wartość domyślna");
 
 
     constructor() {
@@ -239,11 +239,11 @@ export class Category extends Record {
 
     DESCRIPTION: Field = new Field(DataType.STRING).name("description").title("Opis");
 
-    ATTRIBUTES: Field = new Field(DataType.ARRAY).name("attributes").title("Dozwolone atrybuty");
+    ATTRIBUTES: Field = new Field(DataType.LIST).name("attributes").title("Dozwolone atrybuty");
 
     ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey();
 
-    CATEGORIES: Field = new Field(DataType.ARRAY).name("categories").title("Kategoria");
+    CATEGORIES: Field = new Field(DataType.LIST).name("categories").title("Kategoria");
 
     KEY: Field = new Field(DataType.STRING).name("key").title("Klucz");
 
@@ -279,7 +279,7 @@ export class Catalog extends Record {
 
     DESCRIPTION: Field = new Field(DataType.STRING).name("description").title("Opis");
 
-    ATTRIBUTES: Field = new Field(DataType.ARRAY).name("attributes").title("Dozwolone atrybuty");
+    ATTRIBUTES: Field = new Field(DataType.LIST).name("attributes").title("Dozwolone atrybuty");
 
     ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey();
 

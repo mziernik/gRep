@@ -22,13 +22,34 @@ export default class DatePicker extends FormComponent {
         moment(Moment);
     }
 
+    /** Funkcja rysująca dni
+     * @private
+     */
+    _dayRendererFunc(props: { date: Date, label: string }) {
+        const setColors = () => {
+            switch (props.date.getDay()) {
+                case 0:
+                    return '#f00000';
+                case 6:
+                    return '#ff9000';
+                default:
+                    return null;
+            }
+        };
+
+        return (
+            <div style={{color: setColors()}}>
+                {props.label}
+            </div>);
+    }
+
     render() {
         return (
             <span>
                 {this._fieldCtrlInfo}
                 <DateTimePicker
                     {...this.props.dtpProps}
-                    dayComponent={DayRenderer}
+                    dayComponent={(props) => this._dayRendererFunc(props)}
                     placeholder={this.field._title}
                     disabled={this.field._readOnly}
                     messages={{

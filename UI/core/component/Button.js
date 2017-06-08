@@ -1,4 +1,4 @@
-import {React, PropTypes, Record, Repository, Utils, If, CRUDE} from "../core"
+import {React, PropTypes, Record, Repository, Utils, If, CRUDE, Endpoint} from "../core"
 import {Component} from "../components"
 
 export default class Button extends Component {
@@ -9,7 +9,8 @@ export default class Button extends Component {
         confirm: PropTypes.string,
         type: PropTypes.oneOf(["basic", "default", "primary", "success", "info", "warning", "danger", "link"]),
         title: PropTypes.string,
-        onClick: PropTypes.func.isRequired,
+        onClick: PropTypes.func,
+        link: PropTypes.any
     };
 
     render() {
@@ -45,20 +46,13 @@ export default class Button extends Component {
             onClick={(e) => {
                 If.isFunction(this.props.onClick, f => f(e));
 
-
                 if (this.props.record instanceof Record) {
 
+                    this.props.record._action = this.props.crude;
                     Repository.submit(this, [this.props.record]);
-
-
                 }
-
             }}
 
-        >{this.props.children}</button>
-
-
+        >{super.renderChildren(this.props.children)}</button>
     }
-
-
 }

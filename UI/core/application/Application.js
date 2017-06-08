@@ -79,5 +79,7 @@ export default class Application extends React.Component {
     }
 }
 
+export const DEV_MODE = process && process.env ? process.env.NODE_ENV !== 'production' : false;
+
 Object.preventExtensions(Application);
 

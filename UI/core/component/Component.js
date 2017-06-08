@@ -17,7 +17,6 @@ export default class Component<DefaultProps: any, Props: any, State: any>
     };
 
 
-
     static defaultProps = {};
 
     _compoenntIsRendering: boolean = false;
@@ -89,6 +88,11 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 
     toString() {
         return this.name;
+    }
+
+    renderChildren(children: any) {
+        //ToDo weryfikacja poprawności danych
+        return children;
     }
 
 

@@ -6,9 +6,9 @@ export default class DataType {
     simpleType: SimpleType;
     parser: (value: any) => any;
     name: string;
-    enumerate: ?{} = null;
+    enumerate: ?[] = null; // np.: [['tekst',{wartość}],['tekst2',{wartość2}],...]
     multiple: boolean = false;
-    units: Map<String, String>;
+    units: ?Map<string, string> = null;
 
     constructor(name: string, simpleType: SimpleType, parser: (value: any) => any) {
         this.name = name;
@@ -25,17 +25,18 @@ export default class DataType {
     }
 
     /** @private */
-    setEnumerate(enumerate: {}, multiple: boolean = false): DataType {
+    setEnumerate(enumerate: [], multiple: boolean = false): DataType {
         this.enumerate = enumerate;
         this.multiple = multiple;
         return this;
     }
 
     /** @private */
-    setUnits(units: Map<String, String>): DataType {
+    setUnits(units: Map<string, String>): DataType {
         this.units = units;
         return this;
     }
+
 
     static BOOLEAN = new DataType("boolean", "boolean", val => {
         return val ? true : false;
@@ -43,17 +44,17 @@ export default class DataType {
 
     static STRING = new DataType("string", "string", val => "" + val);
 
-    /** Wieloliniowy tekst */
-    static MEMO = new DataType("memo", "string", val => "" + val);
-
     static PASSWORD = new DataType("password", "string", val => "" + val);
+
+    // textarea
+    static MEMO = new DataType("memo", "string", val => "" + val);
 
     // problem parseInt("10abc"), parseInt([]);
     static INT = new DataType("int", "number", val => parseNumber(val, parseInt(Number(val))));
 
-    static LENGTH = new DataType("length", "number", val =>  parseNumber(val, parseInt(Number(val)))); // rozmiar danych w bajtach
+    static LENGTH = new DataType("length", "number", val => parseNumber(val, parseInt(Number(val)))); // rozmiar danych w bajtach
 
-    static DOUBLE = new DataType("double", "number", val =>  parseNumber(val, parseFloat(Number(val))));
+    static DOUBLE = new DataType("double", "number", val => parseNumber(val, parseFloat(Number(val))));
 
     static DATE = new DataType("date", "string", val => {
         const date = new Date(val);
@@ -76,13 +77,29 @@ export default class DataType {
         return date;
     });
 
-    static OBJECT = new DataType("object", "object", val => {
+    static MAP = new DataType("map", "object", val => {
         return Check.isObject(val);
     });
 
-    static ARRAY = new DataType("array", "array", val => {
+    static LIST = new DataType("list", "array", val => {
         return Check.isArray(val);
     });
+
+    //--------------------- CellsDataType ---------------------
+
+    //static BOOL_STRING = new CellsDataType("boolStr", [DataType.BOOLEAN, DataType.STRING], val => val);
+}
+
+
+export class CellsDataType extends DataType {
+
+    cells: DataType[];
+
+    constructor(name: string, cells: DataType[], parser: (value: any) => any) {
+        super(name, "array", parser);
+        this.cells = cells;
+    }
+
 }
 
 function parseNumber(value: any, parsed: number) {

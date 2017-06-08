@@ -1,6 +1,10 @@
 // @flow
 'use strict';
 
+//FixMe Poprawić
+//ToDo Możliwość dodania spinnera do konrolek (np do przycisku)
+
+
 import {React, PropTypes} from "../core";
 
 

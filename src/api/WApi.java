@@ -2,7 +2,7 @@ package api;
 
 import com.cache.CachedData;
 import com.database.model.DsTable;
-import com.database.model.WDbModel;
+import com.database.model.WRepository;
 import com.json.JArray;
 import com.json.JObject;
 import com.servlet.interfaces.Arg;
@@ -22,7 +22,7 @@ public class WApi extends WebApiController {
     public final WData data = new WData();
 
     @WebApiEndpoint
-    public final WDbModel model = new WDbModel();
+    public final WRepository repository = new WRepository();
 
     @WebApiEndpoint
     public JObject test1(WebApiRequest request,

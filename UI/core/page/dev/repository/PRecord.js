@@ -7,6 +7,9 @@ export default class PRecord extends Page {
 
     record: ?Record = null;
     repo: Repository;
+    isNew: boolean;
+
+
     static propTypes = {
         repo: PropTypes.string,
         rec: PropTypes.string
@@ -16,8 +19,9 @@ export default class PRecord extends Page {
         super(...arguments);
         this.repo = Repository.getF(this.props.repo);
 
+        this.isNew = !this.props.rec || this.props.rec === "~new";
 
-        if (!this.props.rec)
+        if (this.isNew)
             this.record = this.repo.newRecord();
         else {
             if (this.repo.isReady)
@@ -34,7 +38,7 @@ export default class PRecord extends Page {
 
     render() {
 
-        if (!this.repo.isReady)
+        if (!this.repo.isReady && !this.isNew)
             return <span>Inicjalizacja repozytorium. Proszę czekać...</span>;
 
         const columns = [];
@@ -50,13 +54,17 @@ export default class PRecord extends Page {
 
 
         return <div>
-            <PageTitle>Rekord {this.record.getFullId()} "{this.repo.name}"</PageTitle>
+            <PageTitle>{this.isNew ? "Nowy rekord " : "Edycja rekordu " + this.record.getFullId()
+            } repozytorium "{this.repo.name}"</PageTitle>
 
+            <section style={{display: "inline-block"}}>
 
             <table>
                 <tbody>
                 {
                     this.record.fields.map((field: Field) => {
+
+                        if (this.isNew && field._readOnly) return null;
 
                         return <tr>
                             <td style={ {textAlign: "right"} }>{field._title + ":"}</td>
@@ -77,10 +85,15 @@ export default class PRecord extends Page {
                 </tbody>
             </table>
 
-            <Button record={this.record} crude={CRUDE.UPDATE}>Zapisz</Button>
-            <Button record={this.record} crude={CRUDE.DELETE}>Usuń</Button>
-            <Button>Anuluj</Button>
+                <div style={{textAlign: "right"}}>
 
+            <Button record={this.record}
+                    crude={this.isNew ? CRUDE.CREATE : CRUDE.UPDATE}>{this.isNew ? "Utwórz" : "Zapisz"}</Button>
+                    {this.isNew ? null : <Button record={this.record} crude={CRUDE.DELETE}>Usuń</Button>}
+                    <Button>Anuluj</Button>
+                </div>
+
+                 </section>
         </div>
     }
 }

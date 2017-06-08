@@ -110,7 +110,7 @@
     footer: s,
     form: {
       attrs: {
-        crude: null, name: null,
+        action: null, name: null,
         "accept-charset": charsets,
         autocomplete: ["on", "off"],
         enctype: encs,

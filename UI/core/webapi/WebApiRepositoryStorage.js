@@ -1,4 +1,4 @@
-import {Utils, Record, Field, Repository} from "../core";
+import {Utils, Record, Field, Repository, CRUDE} from "../core";
 import WebApiResponse from "./Response";
 
 export default class WebApiRepositoryStorage {
@@ -15,6 +15,7 @@ export default class WebApiRepositoryStorage {
     }
 
     submit(context: any, records: Record[]): Promise {
+
         const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repository);
 
         debugger;
@@ -26,13 +27,17 @@ export default class WebApiRepositoryStorage {
             const obj = dto[repo.id] = [];
             records.forEach((record: Record) => {
                 const r = {};
+                r.action = (record._action: CRUDE).name;
+                r.fields = {};
                 record.fields.forEach((field: Field) => {
                     if (field.changed)
-                        r[field._name] = field.get();
+                        r.fields[field._name] = field.get();
                 });
 
                 obj.push(r);
             });
+
+            debugger;
 
             this.methods.edit({data: dto}, (data: Object, response: WebApiResponse) => {
                 debugger;

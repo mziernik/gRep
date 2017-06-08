@@ -25,9 +25,9 @@ export default class Field {
     _warning: ?string = null; // ostrzeżenie (np. pole wymagane)
     _info: ?string = null; // opis pola
     _store: ?FieldStore = null;
-    _enumerate: ?{} = null;
+    _enumerate: ?[] = null;
     _multiple: boolean = false;
-    _units: ?{} = null;
+    _units: ?Map<string, string> = null;
     _unit: ?string = null;
 
     /** Walidator wartości
@@ -164,7 +164,12 @@ export default class Field {
 
 
     isEmpty(): boolean {
-        return !(this._value !== null && this._value !== undefined && this._value !== "");
+        if (this._value === null || this._value === undefined || this._value === "")
+            return true;
+        if (this._enumerate !== null && this._value.length === 0)
+            return true;
+
+        return false;
     }
 
     /** walidacja wartości
@@ -226,14 +231,37 @@ export default class Field {
         return "" + this._value;
     }
 
-    static formatValue(value: any) {
+    /** Zwraca wartość do postaci, którą może wyświetlić react*/
+    getSimpleValue(): string | number | boolean {
+        return Field.formatValue(this.get());
+    }
+
+
+    /** Formatuje wartość do postaci, którą może wyświetlić react*/
+    static formatValue(value: any): string | number | boolean {
+        if (value === null || value === undefined)
+            return null;
+
+        switch (typeof value) {
+            case "string":
+            case "number":
+            case "boolean":
+                return value;
+        }
+
         if (value instanceof Repository)
             return (value: Repository).name;
+
         if (value instanceof Record)
             return (value: Record).getFullId();
+
         if (value instanceof Date)
             return value.toLocaleString();
-        return value;
+
+        if (value instanceof Array)
+            return value.toString();
+
+        return Utils.toString(value);
     }
 
     readOnly(): Field {
@@ -298,13 +326,13 @@ export default class Field {
         return this;
     }
 
-    setEnumerate(enumerate: {}, multiple: boolean = false): Field {
+    setEnumerate(enumerate: [], multiple: boolean = false): Field {
         this._enumerate = enumerate;
         this._multiple = multiple;
         return this;
     }
 
-    setUnits(units: {}): Field {
+    setUnits(units: Map<string, string>): Field {
         this._units = units;
         return this;
     }

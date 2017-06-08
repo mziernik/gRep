@@ -10,6 +10,7 @@ import PAppTest from "./AppTest";
 import PModules from "./PModules";
 import PRepository from "./repository/PRepository";
 import PRecord from "./repository/PRecord";
+import PFontAwesome from "./PFontAwesome";
 
 export default class DevRouter extends Endpoint {
 
@@ -22,6 +23,7 @@ export default class DevRouter extends Endpoint {
     LOCAL_STORAGE: Endpoint;
     APP_TEST: Endpoint;
     MODULES: Endpoint;
+    FONT_AWESOME: Endpoint;
 
     REPO: Endpoint;
     RECORD: Endpoint;
@@ -37,6 +39,8 @@ export default class DevRouter extends Endpoint {
         this.LOCAL_STORAGE = this.child("Magazyn lokalny", baseUrl + "/localstorage", PLocalStorage);
         this.APP_TEST = this.child("Test aplikacji", baseUrl + "/apptest", PAppTest);
         this.MODULES = this.child("Moduły", baseUrl + "/modules", PModules);
+
+        this.FONT_AWESOME = this.child("Font Awesome", baseUrl + "/fontawesome", PFontAwesome);
 
         this.REPOS = this.child("Repozytoria", baseUrl + "/repositories", PRepositories);
         this.REPO = this.REPOS.child("Repozytorium", this.REPOS._path + "/:repo", PRepository).defaultParams({repo: "permissions"});

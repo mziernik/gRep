@@ -3,6 +3,8 @@ import './font-awesome.css';
 export default class FontAwesome {
     className: string;
 
+    static ALL: FontAwesome[] = [];
+
     static GLASS = new FontAwesome("fa fa-glass");
     static MUSIC = new FontAwesome("fa fa-music");
     static SEARCH = new FontAwesome("fa fa-search");
@@ -680,6 +682,7 @@ export default class FontAwesome {
 
     constructor(className: string) {
         this.className = className;
+        FontAwesome.ALL.push(this);
     }
 
     toString() {
