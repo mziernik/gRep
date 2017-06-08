@@ -1,0 +1,25 @@
+﻿{
+    "controller": ["api.WApi"],
+    "view": [],
+    "websocket": ["api.WApi"],
+    "webservice": [],
+    "test": [],
+    "right": [],
+    "group": [],
+    "cron": [],
+    "event": [],
+    "user_type": [],
+    "dev_action": ["main.ActWww"],
+    "lang_dict": [],
+    "config": [
+        "model.Db$CDatabase.dbName",
+        "model.Db$CDatabase.host",
+        "model.Db$CDatabase.pass",
+        "model.Db$CDatabase.user"
+    ],
+    "web_api": ["api.WApi", "api.WData"],
+    "init": ["model.Db.synchronize"],
+    "resource": [
+        "cDIWgw:E49AEAC2:model/data.7z"
+    ]
+}
