@@ -28,6 +28,9 @@ export {default as PropTypes} from 'prop-types';
 
 // -------------------- Aplikacja ---------------------------------
 export {default as DataType} from "./repository/DataType"; //
+export {ForeignDataType} from "./repository/DataType"; //
+
+
 import * as CRUDE from "./repository/CRUDE";
 export {CRUDE};
 
@@ -41,6 +44,7 @@ export {default as AppNode} from "./application/Node";
 
 
 // --------------------- moduły ------------------------------
+
 
 export {default as Repository} from "./repository/Repository";
 export {default as Record} from "./repository/Record";

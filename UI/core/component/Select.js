@@ -1,23 +1,35 @@
 //@Flow
 'use strict';
-import {React, PropTypes} from '../core';
+import {React, PropTypes, Utils} from '../core';
 import {FormComponent, FontAwesome} from '../components';
 import {DropdownList} from 'react-widgets';
 
 export default class Select extends FormComponent {
 
-    /** @private */
+    /** lista pozycji do wyświetlenia
+     * @type {Array}
+     * @private
+     */
     _enumerate: [] = [];
-    /** @private */
+    /** Propsy dla multiselecta
+     * @type {null}
+     * @private
+     */
     _multiselectProps: {} = null;
-    /** @private */
+    /** Zapobiega zamknięciu się listy multiselecta gdy została wybrana pozycja
+     * @type {boolean}
+     * @private
+     */
     _selected: boolean = false;
 
     props: {
-        units: ?boolean
+        /** czy jest to lista jednostek */
+            units: ?boolean,
+        readOnly: ?boolean
     };
 
     static PropTypes = {
+        /** czy jest to lista jednostek */
         units: PropTypes.bool
     };
 
@@ -29,11 +41,13 @@ export default class Select extends FormComponent {
             for (let [key, value] of this.field._units)
                 this._enumerate.push({text: value, value: key});
         } else {
-            this.field._enumerate.map((item) => {
-                this._enumerate.push({text: item[0], value: item[1], checked: false});
-            });
+            Utils.forEach(this.field._enumerate, (item) => this._enumerate.push({
+                text: item[0],
+                value: item[1],
+                checked: false
+            }));
 
-            if (this.field._multiple)
+            if (this.field.type.multiple)
                 this._multiselectProps = {
                     onFocus: () => {
                         this.setState({open: true});
@@ -49,18 +63,23 @@ export default class Select extends FormComponent {
         }
     }
 
-    /** @private */
+    /** Obsługa wybrania pozycji
+     * @param item - wybrana pozycja
+     * @private
+     */
     _handleSelect(item: { text: string, value: any, checked: boolean }) {
         if (this.props.units) {
             this.field._unit = item.value;
         } else {
             let tmp = item.value;
-            if (this.field._multiple) {
+            if (this.field.type.multiple) {
                 item.checked = !item.checked;
-                tmp = this.field.isEmpty() ? [] : this.field._value.slice();
-                if (!tmp.contains(item.value))
-                    tmp.push(item.value);
-                else tmp.remove(item.value);
+                tmp = [];
+                Utils.forEach(this._enumerate, (item) => {
+                    if (item.checked) tmp.push(item.value)
+                });
+                if (tmp.length === 0)
+                    tmp = null;
             }
             if (tmp !== this.field._value)
                 this._handleChange(false, null, tmp);
@@ -68,7 +87,11 @@ export default class Select extends FormComponent {
         }
     }
 
-    /** @private */
+    /** metoda do rysowania wybranych pozycji
+     * @param props - wybrana pozycja (niewykorzystywane)
+     * @returns {*}
+     * @private
+     */
     _valueRenderer(props: { item: { text: string, value: any } }) {
         if (this.field.isEmpty()) return null;
         const n = this.field._value.length;
@@ -77,11 +100,14 @@ export default class Select extends FormComponent {
         return <span>{text}</span>;
     }
 
-    /** @private */
+    /** metoda do rysowania pozycji na liście wyboru
+     * @param props - pozycja do narysowania
+     * @returns {XML}
+     * @private
+     */
     _itemRenderer(props: { item: { text: string, value: any, checked: boolean } }) {
-        let checked = false;
         if (!this.field.isEmpty())
-            checked = this.field._value.contains(props.item.value);
+            props.item.checked = this.field._value.contains(props.item.value);
         return (
             <span>
                 <span className={props.item.checked ? FontAwesome.CHECK_SQUARE_O : FontAwesome.SQUARE_O}
@@ -90,11 +116,20 @@ export default class Select extends FormComponent {
             </span>);
     }
 
-    /** @private */
+    /** obsługa wyszukiwania pozycji na liście
+     * @param item - aktualnie sprawdzany element
+     * @param search - wyszukiwana wartość
+     * @returns {*} - wynik wyszukiwania
+     * @private
+     */
     _handleSearch(item: { text: string, value: any, checked: boolean }, search: string): boolean {
         return item.text.contains(search);
     }
 
+    /** Obsługa zdarzenia kliknięcia
+     * @param e - obiekt zdarzenia
+     * @private
+     */
     _handleClick(e: Event) {
         if (!this._selected)
             this.setState({open: !this.state.open});
@@ -108,10 +143,13 @@ export default class Select extends FormComponent {
                 {this._fieldCtrlInfo}
                 <DropdownList
                     {...this._multiselectProps}
+
+                    defaultValue={this.field.get()}
+                    title={this.field._title}
                     open={this.state.open}
-                    filter={(this._enumerate.length < 10 || this.field._multiple || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}
+                    filter={(this._enumerate.length < 10 || this.field.type.multiple || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}
                     data={this._enumerate}
-                    readOnly={this.field._readOnly}
+                    readOnly={this.props.readOnly || this.field._readOnly}
                     placeholder={this.field._title}
                     onSelect={(value) => this._handleSelect(value)}
                     textField='text'

@@ -24,7 +24,6 @@ PageTitle.renderer = (sender: PageTitle) => {
 
 AppStatus.factory = (context: any) => new Status();
 
-
 window.addEventListener("load", () => {
         PERMISSIONS.refresh();
 

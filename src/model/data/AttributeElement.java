@@ -2,7 +2,7 @@ package model.data;
 
 import com.database.QueryRow;
 import com.database.model.DbCol;
-import com.database.model.DsTable;
+import com.database.model.Repository_old;
 import com.database.queries.MultipleQuery;
 import com.exceptions.SQLError;
 import com.model.dataset.DsColumn;
@@ -11,7 +11,7 @@ import com.utils.date.TDate;
 import java.util.Map;
 import java.util.UUID;
 
-public class AttributeElement extends DsTable<AttributeElement, Integer> {
+public class AttributeElement extends Repository_old<AttributeElement, Integer> {
 
     @DbCol
     public final Col<Integer> id = column(Integer.class, "ID").primaryKey();

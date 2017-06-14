@@ -20,6 +20,9 @@ export function forEachMap(object: ?any, callback: (object: ?any, index: number 
 
     const result = [];
 
+    if (If.isFunction(object))
+        object = object();
+
     if (object instanceof Array) {
         for (let i = 0; i < object.length; i++) {
             const res = callback(object[i], i);
@@ -38,6 +41,9 @@ export function forEachMap(object: ?any, callback: (object: ?any, index: number 
 
 export function forEach(object: ?any, callback: (object: ?any, index: number | string) => ?boolean) {
     Check.isFunction(callback, new Error("Nieprawidłowe wywołanie funkcji forEach"));
+
+    if (If.isFunction(object))
+        object = object();
 
     if (object instanceof Array) {
         for (let i = 0; i < (object: Array).length; i++)
@@ -91,6 +97,17 @@ export function duration(name: string, callback: () => any): void {
     const ts = new Date().getTime();
     callback();
     console.log(name + ": " + (new Date().getTime() - ts));
+}
+
+
+export function clone(src: any, dst: ?any = null): any {
+    if (!src)
+        return {};
+    if (src === dst)
+        throw new Error("Identyczne instancje obiektów");
+    dst = dst || new src.constructor();
+    Object.assign(dst, src);
+    return dst;
 }
 
 /**

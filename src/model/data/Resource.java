@@ -1,12 +1,12 @@
 package model.data;
 
 import com.database.model.DbCol;
-import com.database.model.DsTable;
+import com.database.model.Repository_old;
 import com.utils.collections.Strings;
 import com.utils.date.TDate;
 import java.util.UUID;
 
-public class Resource extends DsTable<Resource, Integer> {
+public class Resource extends Repository_old<Resource, Integer> {
 
     @DbCol
     public final Col<Integer> id = column(Integer.class, "ID").primaryKey();

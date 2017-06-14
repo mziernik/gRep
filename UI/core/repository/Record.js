@@ -6,10 +6,16 @@ export default class Record {
     "use strict";
     $instanceId = Utils.randomId();
 
+    //----------- kluczowe pola --------
+    primaryKey: Field;
+    displayField: Field;
+    orderField: Field;
+
+    //----------------------------
     static all: Map<String, Repository[]> = new Map();
     repository: ?Repository = null;
     fields: Field[] = [];
-    primaryKey: Field;
+
     initialized: boolean = false;
     onChange: Dispatcher = new Dispatcher(); // (action: Action, changes: Change[]) => void = [];
     /** Lista kopii bieżącego repozytorium w trybie edycyjnym */
@@ -18,13 +24,15 @@ export default class Record {
     _sourceRecord: ?Record = null;
     _editContext: ?any = null;
 
-    /** Rekord tymczasowy nie należący do żądnego repozytorium*/
     fieldChanged: Dispatcher = new Dispatcher(this);
     /** wartość klucza głównego ustawiana automatycznie podczas dodawania rekordu */
     _primaryKeyValue: ?string | ?number = null;
 
     /** Rekord nie należący do żadnego repozytorium */
     _temporary: boolean = true;
+
+    /** Nowy rekord */
+    _isNew: boolean = false;
 
     /** Akcja, która ma zostać wykonana na danym repozytorium*/
     _action: ?CRUDE = null;
@@ -48,6 +56,7 @@ export default class Record {
 
             field._parent = this;
             field._name = field._name || name.toLowerCase();
+            field._title = field._title || field._name;
             field.onChange.listen(this, (field: Field, prev: ?any) => {
 
                 if (this.primaryKey === field) {
@@ -57,8 +66,8 @@ export default class Record {
                     if (val === this._primaryKeyValue)
                         return;
 
-                    const exists = this._temporary ? null : this.repository.get(val);
-                    if (this._primaryKeyValue)
+                    const exists = this._isNew ? this.repository.get(val) : null;
+                    if (!this._isNew && this._primaryKeyValue)
                         throw new Error("Nie można zmienić wartości klucza głównego " + this.getFullId());
 
                     if (val === null || val === undefined)
@@ -69,7 +78,7 @@ export default class Record {
                     this._primaryKeyValue = val;
                     this.$instanceId += " " + val;
 
-                    if (exists)
+                    if (exists) //this._temporary ? null :
                         throw new Error(`Rekord ${this.getFullId()} już istnieje`);
                 }
 
@@ -80,6 +89,8 @@ export default class Record {
                 if (this.primaryKey)
                     throw new Error(`Zduplikowany klucz główny ${this.primaryKey._name}, ${name}`);
                 this.primaryKey = field;
+                this.primaryKey._required = true;
+                this.primaryKey._readOnly = true;
             }
 
             field._getFullId = () => {
@@ -96,7 +107,7 @@ export default class Record {
         }
 
         if (!this.primaryKey)
-            throw new Error("Brak definicji klucza głównego dla " + this.getFullId());
+            throw new Error("Brak definicji klucza głównego dla repozytorium " + this.repository.id);
 
 
         // zablokuj możliwość dodawania nowych pól
@@ -111,6 +122,7 @@ export default class Record {
      */
     beginEdit(context: any): Record {
         const result: Record = this.repository.newRecord();
+        result._isNew = false;
         if (this.edits.length)
             Debug.warning(this, `Rekord ${this.getFullId()} jest już edytowany!!!`)
         this.edits.push(result);
@@ -125,6 +137,10 @@ export default class Record {
         });
 
         return result;
+    }
+
+    getDisplayValue() {
+        return this.displayField ? "" + this.displayField.get() : this.getFullId();
     }
 
     getFieldF(name: string): ?any {

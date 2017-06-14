@@ -1,16 +1,14 @@
-import {React, PropTypes} from "../core"
+import {React, PropTypes, Utils} from "../core"
 import {Component} from "../components"
 
 export default class Hint extends Component {
 
     props: {
-        style: object,
         visible: boolean,
         message: ?string
     };
 
     static PropTypes = {
-        style: PropTypes.object,
         visible: PropTypes.bool,
         message: PropTypes.string
     };
@@ -21,17 +19,19 @@ export default class Hint extends Component {
 
     _setPosition(elem) {
         if (!elem)return;
-        let el = elem.getBoundingClientRect();
+        const el = elem.getBoundingClientRect();
+        const parent = elem.parentElement.getBoundingClientRect();
         /* poziom */
-        if ((el.left + el.width) >= window.innerWidth) {
-            elem.style.left = -(el.width + 10) + 'px';
-        }
+        if ((parent.left + parent.width + el.width) >= window.innerWidth) {
+            elem.style.left = (parent.left - el.width) + 'px';
+        } else
+            elem.style.left = (parent.left + parent.width) + 'px';
 
         /* pion */
-        if ((el.top + el.height) >= window.innerHeight) {
-            elem.style.top = -(el.height) + 'px';
-        }
-
+        if ((parent.top + parent.height + el.height) >= window.innerHeight) {
+            elem.style.top = (parent.top - el.height) + 'px';
+        } else
+            elem.style.top = (parent.top + parent.height) + 'px';
         elem.style.visibility = 'visible';
     }
 
@@ -41,9 +41,20 @@ export default class Hint extends Component {
         }
         return (
             <span ref={(elem) => this._setPosition(elem)}
-                  style={{...this.props.style, visibility: 'hidden', whiteSpace: 'nowrap'}}>
+                  style={{
+                      ...this.props.style,
+                      visibility: 'hidden',
+                      whiteSpace: 'nowrap',
+                      position: 'fixed',
+                      background: '#585858',
+                      color: '#ffffff',
+                      borderRadius: '5px',
+                      padding: '5px 20px 5px 20px',
+                      //margin: '10px',
+                      zIndex: 1000
+                  }}>
                 {this.props.children
-                || this.props.message.split('\n').map((line, index) => {
+                || Utils.forEachMap(this.props.message.split('\n'), (line, index) => {
                     return <div key={index}>{line}</div>;
                 })}
             </span>

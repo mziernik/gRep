@@ -196,6 +196,21 @@ Array.prototype.last = Array.prototype.last || function (): ?any {
         return undefined;
     };
 
+
+/**
+ * Dodanie elementu do listy z opcjonalną funkcją zwrotną
+ * @type {Function}
+ */
+// $FlowFixMe
+Array.prototype.add = Array.prototype.add || function (element: any, callback: ?(element: any, array: []) => void = null): [] {
+        if (element !== undefined) {
+            this.push(element);
+            if (typeof callback === "function")
+                callback(element, this);
+        }
+        return this;
+    };
+
 /**
  * Dodaje wszystkie elementy do tablicy
  * @type {Function}

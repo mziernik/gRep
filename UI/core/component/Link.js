@@ -103,6 +103,8 @@ export default class Link extends Component {
                 onClick={(e) => {
                     if (this.props.confirm && If.isFunction(this.props.onClick))
                         Alert.confirm(this, this.props.confirm, () => this.props.onClick(e));
+                    else If.isFunction(this.props.onClick, f => f(e));
+
                 }}
             >{this.props.children}</span>
         </a>;

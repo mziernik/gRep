@@ -1,7 +1,7 @@
 // @flow
 'use strict';
-import {React, PropTypes, Field, Check} from '../core';
-import {Component, FieldController} from '../components';
+import {React, PropTypes, Field, Check} from '../../core';
+import {Component, FieldController} from '../../components';
 
 export default class FormComponent extends Component {
 

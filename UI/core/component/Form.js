@@ -3,7 +3,11 @@ import {Component} from "../components"
 
 export default class Form extends Component {
 
-    static propTypes = {};
+    static propTypes = {
+
+        record: PropTypes.any,
+
+    };
 
     constructor() {
         super(...arguments);

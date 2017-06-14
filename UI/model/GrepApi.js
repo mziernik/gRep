@@ -16,55 +16,30 @@ export default class GrepApi {
         this.api = api;
         api.httpUrl = api.httpUrl || "http://localhost/api";
         api.wsUrl = api.wsUrl || "ws://localhost/api";
-        api.hash = 'puKl8g';
+        api.hash = 'cbC0aQ';
 
     }
-
-    data: Object = {};
+    data: Object = {
+    };
 
     repository: Object = {
-        edit: (params: { data: object }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("repository/edit", 'k5hbfQ', params, onSuccess, onError)
+        edit: (params: {data: Object}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            this.api.call("repository/edit", 'yVVCCw', params, onSuccess, onError)
         ,
         export: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
             this.api.call("repository/export", 'bVJXCg', null, onSuccess, onError)
         ,
         /** Zwraca dane z wielu tabel */
-        getAll: (params: { repositories: string[] }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("repository/getAll", '9shFmw', params, onSuccess, onError)
+        get: (params: {repositories: ?Object}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            this.api.call("repository/get", 'j0y8zQ', params, onSuccess, onError)
         ,
         /** Lista wszystkich rekordów w cache */
         list: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
             this.api.call("repository/list", 'DVEReg', null, onSuccess, onError)
-        ,
-        remove: (params: { table: string, key: any }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("repository/remove", 'Bzba3A', params, onSuccess, onError)
 
     };
 
     service: Object = {
-        dbModel: {
-            edit: (params: { table: string, key: ?any }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/dbModel/edit", 'k5hbfQ', params, onSuccess, onError)
-            ,
-            editMultiple: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/dbModel/editMultiple", 'irw3RQ', null, onSuccess, onError)
-            ,
-            export: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/dbModel/export", 'bVJXCg', null, onSuccess, onError)
-            ,
-            /** Zwraca dane z wielu tabel */
-            getAll: (params: { repositories: string[] }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/dbModel/getAll", '9shFmw', params, onSuccess, onError)
-            ,
-            /** Lista wszystkich rekordów w cache */
-            list: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/dbModel/list", 'DVEReg', null, onSuccess, onError)
-            ,
-            remove: (params: { table: string, key: any }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/dbModel/remove", 'Bzba3A', params, onSuccess, onError)
-
-        },
         httpSession: {
             getAll: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/httpSession/getAll", 'u4EVMA', null, onSuccess, onError)
@@ -77,18 +52,34 @@ export default class GrepApi {
             getSources: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/notifications/getSources", 'aTzqHw', null, onSuccess, onError)
             ,
-            hashChange: (params: { hash: string }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            hashChange: (params: {hash: string}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/notifications/hashChange", 'qHTEcg', params, onSuccess, onError)
             ,
-            log: (params: { type: string, value: string }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            log: (params: {type: string, value: string}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/notifications/log", '2vFHMg', params, onSuccess, onError)
             ,
-            register: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/notifications/register", 'SbXo2Q', null, onSuccess, onError)
+            register: (params: {sources: string[]}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+                this.api.call("service/notifications/register", 'SJsxbQ', params, onSuccess, onError)
+
+        },
+        repository: {
+            edit: (params: {data: Object}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+                this.api.call("service/repository/edit", 'yVVCCw', params, onSuccess, onError)
+            ,
+            export: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+                this.api.call("service/repository/export", 'bVJXCg', null, onSuccess, onError)
+            ,
+            /** Zwraca dane z wielu tabel */
+            get: (params: {repositories: ?Object}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+                this.api.call("service/repository/get", 'j0y8zQ', params, onSuccess, onError)
+            ,
+            /** Lista wszystkich rekordów w cache */
+            list: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+                this.api.call("service/repository/list", 'DVEReg', null, onSuccess, onError)
 
         },
         session: {
-            authorize: (params: { username: string }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            authorize: (params: {username: string}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/session/authorize", 'MVfGRQ', params, onSuccess, onError)
             ,
             getCurrentSession: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
@@ -108,7 +99,7 @@ export default class GrepApi {
         this.api.call("export_", 'ijnFQQ', null, onSuccess, onError)
     ;
 
-    test1: Object = (params: { bool: boolean, int: number, str: ?string, object: Object, array: Array }, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+    test1: Object = (params: {bool: boolean, int: number, str: ?string, object: Object, array: Array}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
         this.api.call("test1", 'V53vnw', params, onSuccess, onError)
     ;
 

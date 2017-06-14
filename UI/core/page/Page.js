@@ -17,7 +17,7 @@ export default class Page extends Component {
 
     endpoint: Endpoint;
 
-    constructor() {
+    constructor(scrollable: boolean) {
         super(...arguments);
         this.endpoint = this.props.route.endpoint;
         Utils.makeFinal(this, ["endpoint"])
@@ -27,10 +27,16 @@ export default class Page extends Component {
     beginEdit(record: Record) {
         const rec = record.beginEdit(this);
 
-
         this.onDestroy(() => rec.cancelEdit());
         record.onChange.listen(this, () => this.forceUpdate());
         return rec;
+    }
+
+    render(){
+
+        <div>
+            {sdgasfdgsd}
+        </div>
     }
 
     submit(...records: Record) {

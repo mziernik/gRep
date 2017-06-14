@@ -98,7 +98,7 @@ const config = {
                 test: file => _filter("babel", file),
                 loader: 'babel-loader',
                 query: {
-                    presets: ['es2015', 'es2016', 'react', 'stage-2', 'flow']
+                    presets: ['es2015', 'es2016', 'es2017', 'react', 'stage-2', 'flow']
                 }
             },
             {

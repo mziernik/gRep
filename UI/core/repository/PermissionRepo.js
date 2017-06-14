@@ -14,11 +14,13 @@ export default class PermissionsRepo extends Repository {
     constructor() {
         super("permissions", "Uprawnienia", DataType.STRING, PermissionRecord);
         Object.preventExtensions(this);
+        this.isLocal = true;
     }
 
     refresh() {
         this._update(this, Utils.forEachMap(Permission.all, (p: Permission) => p.record ? undefined
             : new PermissionRecord(this, p.id, p.name, p.getCrude(), p)), false);
+        this.isReady = true;
     }
 }
 
@@ -26,7 +28,7 @@ export default class PermissionsRepo extends Repository {
 export class PermissionRecord extends Record {
 
     ID: Field = new Field(DataType.STRING).primaryKey();
-    NAME: Field = new Field(DataType.STRING).required();
+    NAME: Field = new Field(DataType.STRING).required().title("Nazwa");
     CREATE: Field = new Field(DataType.BOOLEAN).title("Tworzenie").required();
     READ: Field = new Field(DataType.BOOLEAN).title("Odczyt").required();
     UPDATE: Field = new Field(DataType.BOOLEAN).title("Aktualizacja").required();

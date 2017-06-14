@@ -1,5 +1,8 @@
 import * as Check from "../utils/Check";
-export type SimpleType = "boolean" | "number" | "string" | "object" | "array";
+import Repository from "./Repository";
+import Record from "./Record";
+import * as Utils from "../utils/Utils";
+export type SimpleType = "any" | "boolean" | "number" | "string" | "object" | "array";
 
 export default class DataType {
 
@@ -7,17 +10,26 @@ export default class DataType {
     parser: (value: any) => any;
     name: string;
     enumerate: ?[] = null; // np.: [['tekst',{wartość}],['tekst2',{wartość2}],...]
+    /** Wybór wielu wartości enumeraty */
     multiple: boolean = false;
+    /** Wiele wierszy - możliwość dodawania / usuwania */
+    list: boolean = false;
     units: ?Map<string, string> = null;
 
     constructor(name: string, simpleType: SimpleType, parser: (value: any) => any) {
         this.name = name;
         this.parser = Check.isFunction(parser);
-        this.simpleType = Check.instanceOf(simpleType, ["boolean", "number", "string", "object", "array"]);
+        this.simpleType = Check.instanceOf(simpleType, ["any", "boolean", "number", "string", "object", "array"]);
     }
 
     getDisplayValue(value: any) {
         return "" + value;
+    }
+
+    clone(): DataType {
+        const result = new this.constructor(this.name, this.simpleType, this.parser);
+        Utils.clone(this, result);
+        return result;
     }
 
     parse(value: any): any {
@@ -37,12 +49,18 @@ export default class DataType {
         return this;
     }
 
-
     static BOOLEAN = new DataType("boolean", "boolean", val => {
         return val ? true : false;
     });
 
     static STRING = new DataType("string", "string", val => "" + val);
+
+
+    static UUID = new DataType("string", "string", val => {
+        if (!val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
+            throw new Error(JSON.stringify(val) + " nie jest prawidłowym identyfikatorem UUID");
+        return val;
+    });
 
     static PASSWORD = new DataType("password", "string", val => "" + val);
 
@@ -102,9 +120,34 @@ export class CellsDataType extends DataType {
 
 }
 
+export class ForeignDataType extends DataType {
+
+    repo: Repository;
+
+    constructor(repo: Repository | string, list: boolean = false, multiple: boolean = false) {
+        Check.instanceOf(repo, ["string", Repository]);
+        repo = repo instanceof Repository ? repo : Repository.getF(repo);
+
+        super(list ? "list" : repo.primaryKeyDataType.name,
+            list ? "array" : repo.primaryKeyDataType.simpleType,
+            repo.primaryKeyDataType.parser);
+        this.multiple = multiple;
+        this.list = list;
+        this.repo = repo instanceof Repository ? repo : Repository.getF(repo);
+    }
+
+    clone(): ForeignDataType {
+        const result = new this.constructor(this.repo, this.list, this.multiple);
+        Utils.clone(this, result);
+        return result;
+    }
+
+}
+
+
 function parseNumber(value: any, parsed: number) {
     // parseInt(Number("10abc"))
     if (isNaN(value) || isNaN(parsed))
-        throw new Error('Nieprawidłowa wartość czasu');
+        throw new Error('Nieprawidłowa wartość numeryczna: ' + JSON.stringify(value));
     return parsed;
 }

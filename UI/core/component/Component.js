@@ -90,9 +90,10 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         return this.name;
     }
 
-    renderChildren(children: any) {
+    renderChildren(children: ?any = null) {
+
         //ToDo weryfikacja poprawności danych
-        return children;
+        return children || this.props.children;
     }
 
 

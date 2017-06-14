@@ -18,16 +18,30 @@ export default class CheckBox extends FormComponent {
         this.state = {icon: this._setIcon(), color: null};
     }
 
+    /** Obsługa zdarzenia kliknięcia
+     * @param e - obiekt zdarzenia
+     * @private
+     */
     _handleClick(e: Event) {
         let value = this.field.get();
         if (value === null || value === undefined)
             value = true;
         else
             value = value ? false : null;
-        this._handleChange(false, e, value);
+
+        let exception = null;
+        try {
+            this._handleChange(false, e, value);
+        } catch (ex) {
+            exception = ex;
+        }
         this.setState({icon: this._setIcon()});
+        if (exception) throw exception;
     }
 
+    /** Określa jaka ikona powinna być wyświetlona
+     * @private
+     */
     _setIcon(): FontAwesome {
         const val = this.field.get();
         let icon = FontAwesome.CHECK_SQUARE;
@@ -36,6 +50,10 @@ export default class CheckBox extends FormComponent {
         return icon;
     }
 
+    /** Ustawia 'podświetlenie' ikony
+     * @param highlight - czy ma być 'podświetlona'
+     * @private
+     */
     _highlight(highlight: boolean = true) {
         if (this.field._readOnly)return;
         this.setState({color: highlight ? '#696969' : null});
@@ -46,6 +64,7 @@ export default class CheckBox extends FormComponent {
             <span>
                 {this._fieldCtrlInfo}
                 <span className={this.state.icon}
+                      title={this.field._title}
                       tabIndex="0"
                       onClick={(e) => this.field._readOnly ? null : this._handleClick(e)}
                       onKeyPress={(e) => this.field._readOnly ? null : e.charCode === 32 ? this._handleClick(e) : null}

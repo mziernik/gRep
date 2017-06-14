@@ -15,7 +15,6 @@ export class RepositoryMode {
     static SYNCHRONIZED: RepositoryMode = new RepositoryMode();
 }
 
-export const DATA_TYPE = new DataType("Repository", "object", val => Check.instanceOf(val, [Repository]));
 
 export default class Repository {
 
@@ -38,6 +37,10 @@ export default class Repository {
     storage: RepositoryStorage = new RepositoryStorage(this);
     /** Czy dane repozytorium zostały już wczytane */
     isReady: boolean = false;
+    /** Repozytorium lokalne, nie podlega synchronizacji */
+    isLocal: boolean = false;
+    /** Czy repozytorium ma być automatycznie synchronizowane z serwerem */
+    autoUpdate: boolean = true;
 
     constructor(id: string, name: string, primaryKeyDataType: DataType, recordClass: () => Record) {
         this.id = id;
@@ -45,14 +48,14 @@ export default class Repository {
         this.name = name;
         this._recordClass = recordClass;
 
-        this.permission = Permission.all["repo." + id]
-            || new Permission(this, "repo." + id, `Repozytorium "${name}"`, Repository.defaultCrudeRights);
+        this.permission = Permission.all["repo-" + id]
+            || new Permission(this, "repo-" + id, `Repozytorium "${name}"`, Repository.defaultCrudeRights);
 
         // utwórz tymczasowo jeden rekord i pobierz z niego listę pól a następnie listę kolumn.
         const rec: Record = this.newRecord();
 
         rec.fields.forEach((src: Field) => {
-            const f: Field = new Field(src.dataType);
+            const f: Field = new Field(src.type);
 
             for (let name in src)
                 f[name] = src[name];
@@ -141,7 +144,7 @@ export default class Repository {
         });
 
         if (Repository.externalStore)
-            return Repository.externalStore.submit(context, items)
+            return Repository.externalStore.submit(context, items);
 
         return new Promise((resolve, reject) => {
             Repository.update(context, items);
@@ -184,6 +187,7 @@ export default class Repository {
     newRecord(): Record {
         const result: Record = new this._recordClass(this);
         result.init();
+        result._isNew = true;
         return result;
     }
 

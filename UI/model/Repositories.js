@@ -51,19 +51,25 @@ export class AttributeElementRepo extends Repository {
 
 export class AttributeElement extends Record {
 
+    ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey();
+
+    KEY: Field = new Field(DataType.STRING).name("key").title("Klucz").minLength(4).maxLength(10).description("Min 4, max 10");
+
+    UID: Field = new Field(DataType.UUID).name("uid").title("UID");
+
+    NAME: Field = new Field(DataType.STRING).name("name").title("Nazwa").required();
+
     MAX: Field = new Field(DataType.INT).name("max").title("Maksimum");
 
-    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono").readOnly();
 
     FOREIGNELM: Field = new Field(DataType.INT).name("foreignElm").title("Element zewnętrzny");
 
     DESCRIPTION: Field = new Field(DataType.MEMO).name("description").title("Opis");
 
-    TYPE: Field = new Field(DataType.STRING).name("type").title("Typ");
+    TYPE: Field = new Field(DataType.STRING).name("type").title("Typ").required();
 
-    REQUIRED: Field = new Field(DataType.BOOLEAN).name("required").title("Wymagany");
-
-    UID: Field = new Field(DataType.STRING).name("uid").title("UID");
+    REQUIRED: Field = new Field(DataType.BOOLEAN).name("required").title("Wymagany").required();
 
     REGEX: Field = new Field(DataType.STRING).name("regex").title("Wyrażenie sprawdzające");
 
@@ -71,13 +77,7 @@ export class AttributeElement extends Record {
 
     ENCRYPTED: Field = new Field(DataType.BOOLEAN).name("encrypted").title("Zaszyfrowany");
 
-    NAME: Field = new Field(DataType.STRING).name("name").title("Nazwa");
-
     ENUMERATE: Field = new Field(DataType.MAP).name("enumerate").title("Enumerata");
-
-    ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey();
-
-    KEY: Field = new Field(DataType.STRING).name("key").title("Klucz");
 
     DEFVAL: Field = new Field(DataType.LIST).name("defVal").title("Wartość domyślna");
 
@@ -101,21 +101,27 @@ export class CatalogAttributeRepo extends Repository {
 
 export class CatalogAttribute extends Record {
 
+    ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey().readOnly();
+
     UID: Field = new Field(DataType.STRING).name("uid").title("UID").readOnly(true);
 
     NOTES: Field = new Field(DataType.MEMO).name("notes").title("Notatki");
 
-    CRYPTKEY: Field = new Field(DataType.STRING).name("cryptKey").title("Klucz");
+    CRYPTKEY: Field = new Field(DataType.STRING)
+        .name("cryptKey")
+        .title("Klucz")
+        .required()
+        .minLength(4)
+        .maxLength(10)
+        .description("Długość 4..10 znaków\nWartość testowa");
 
-    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono");
+    CREATED: Field = new Field(DataType.TIMESTAMP).name("created").title("Utworzono").required().readOnly();
 
-    CATALOG: Field = new Field(DataType.INT).name("catalog").title("Katalog");
+    CATALOG: Field = new Field(DataType.INT).name("catalog").title("Katalog").required();
 
     INDEX: Field = new Field(DataType.INT).name("index").title("Kolejność");
 
-    ID: Field = new Field(DataType.INT).name("id").title("ID").primaryKey().readOnly();
-
-    ATTRIBUTE: Field = new Field(DataType.INT).name("attribute").title("Atrybut");
+    ATTRIBUTE: Field = new Field(DataType.INT).name("attribute").title("Atrybut").required();
 
     VALUE: Field = new Field(DataType.STRING).name("value").title("Wartość").required();
 

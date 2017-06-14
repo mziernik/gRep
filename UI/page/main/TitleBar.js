@@ -15,6 +15,11 @@ export class Status extends AppStatus {
     publish() {
         setTimeout(() => TitleBar.setStatus(this));
     }
+
+    hide() {
+        setTimeout(() => TitleBar.setStatus(null));
+    }
+
 }
 
 export default class TitleBar extends Component {
@@ -38,38 +43,74 @@ export default class TitleBar extends Component {
 
     render() {
 
-        const info = this.state.status ? <span
-            style={{
-                display: "inline-block",
-                position: "absolute",
-                right: "0",
-                top: "0",
-                border: "1px solid #595",
-                backgroundColor: "#cec",
-                paddingLeft: "10px",
-                height: "100%",
-                minWidth: "30%",
-                borderRadius: "4px 0 0 4px",
-                boxShadow: "2px 2px 3px rgba(0, 0, 0, 0.4)"
-            }}
-        >
-                  <span style={ {
-                      fontSize: "24px",
-                      verticalAlign: "baseline",
-                      margin: "4px"
-                  } } className={FontAwesome.INFO}/>
+        let info = null;
+
+        if (this.state.status) {
+
+            let icon: FontAwesome;
+            let background: string;
+            let border: string;
+            switch (this.state.status.type) {
+                case "debug":
+                    icon = FontAwesome.BUG;
+                    border = "#555";
+                    background = "#ccc";
+                    break;
+                case "info":
+                    icon = FontAwesome.INFO;
+                    border = "#459";
+                    background = "#ade";
+                    break;
+                case "success":
+                    icon = FontAwesome.CHECK;
+                    border = "#595";
+                    background = "#aea";
+                    break;
+                case "warning" :
+                    icon = FontAwesome.EXCLAMATION_TRIANGLE;
+                    border = "#963";
+                    background = "#eda";
+                    break;
+                case "error":
+                    icon = FontAwesome.TIMES;
+                    border = "#b55";
+                    background = "#eaa";
+                    break;
+            }
+
+            info = <span
+                style={{
+                    display: "inline-block",
+                    position: "absolute",
+                    right: "0",
+                    top: "0",
+                    border: "1px solid " + border,
+                    backgroundColor: background,
+                    paddingLeft: "10px",
+                    height: "100%",
+                    minWidth: "30%"
+                 }}
+            >
+                <span style={ {
+                    fontSize: "24px",
+                    width: "30px",
+                    color: border,
+                    verticalAlign: "baseline",
+                    margin: "4px"
+                } } className={icon}/>
 
                 <span style={ {
-                    fontSize: "14px",
+                    fontSize: "16px",
                     verticalAlign: "baseline",
+                    fontWeight: "bold",
                     margin: "4px",
                     paddingLeft: "4px",
-                    color: "#666",
-                    textShadow: "1px 1px 2px rgba(0, 0, 0, 0.4)"
+                    color: "#333",
                 } }
                 >{this.state.status.message}</span>
-            </span> : null;
+            </span>;
 
+        }
         return <div style={{position: "relative"}}>
                    <span>
                     <h5 style={ {

@@ -30,7 +30,7 @@ export default class PRepository extends Page {
             <span key={f._name} style={{textAlign: "center"}}>
                     <div>{f._name}</div>
                     <div style={{fontWeight: "normal"}}>{f._title}</div>
-                    <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.dataType.name}]</div>
+                    <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.type.name}]</div>
                 </span>));
 
         return <div>

@@ -23,6 +23,8 @@ export default class DatePicker extends FormComponent {
     }
 
     /** Funkcja rysująca dni
+     * @param props - aktualnie rysowany dzień
+     * @returns {XML}
      * @private
      */
     _dayRendererFunc(props: { date: Date, label: string }) {
@@ -49,6 +51,7 @@ export default class DatePicker extends FormComponent {
                 {this._fieldCtrlInfo}
                 <DateTimePicker
                     {...this.props.dtpProps}
+                    title={this.field._title}
                     dayComponent={(props) => this._dayRendererFunc(props)}
                     placeholder={this.field._title}
                     disabled={this.field._readOnly}
@@ -64,36 +67,5 @@ export default class DatePicker extends FormComponent {
                 {this._fieldCtrlErr}
             </span>
         );
-    }
-}
-
-/** Klasa do renderowania dni w kalendarzu */
-class DayRenderer extends React.Component {
-    props: {
-        date: Date,
-        label: string
-    };
-
-    static propTypes = {
-        date: PropTypes.instanceOf(Date),
-        label: PropTypes.string
-    };
-
-    _setColors(): ?string {
-        switch (this.props.date.getDay()) {
-            case 0:
-                return '#f00000';
-            case 6:
-                return '#ff9000';
-            default:
-                return null;
-        }
-    }
-
-    render() {
-        return (
-            <div style={{color: this._setColors()}}>
-                {this.props.label}
-            </div>);
     }
 }

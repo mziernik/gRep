@@ -1,0 +1,59 @@
+.tabSet {
+}
+
+.tabSetVertical {
+    display: flex;
+    flex-direction: row;
+}
+
+.tabsCtrl {
+    display: flex;
+    align-items: center;
+}
+
+.tabsVertical {
+    display: flex;
+    flex-direction: column;
+}
+
+.tabArrow {
+    padding: 0 10px 0 10px;
+}
+
+.tabArrow:hover {
+    color: #0092ff;
+}
+
+.tabs {
+    display: flex;
+    overflow: hidden;
+}
+
+.tab {
+    white-space: nowrap;
+    padding: 5px 20px 5px 20px;
+    cursor: default;
+    border: 1px solid #bbbbbb;
+    border-bottom-color: #474747;
+}
+
+.tab:hover {
+    background-color: #bac6e1;
+}
+
+.tab_selected {
+    background-color: #dddddd;
+    border: 1px solid #474747;
+    border-bottom: none;
+    text-shadow: #a5a5a5 1px 1px 1px;
+}
+
+.tab_disabled {
+    color: #bbbbbb;
+    background-color: #888888;
+    border: 1px solid #474747;
+}
+
+.tabContent {
+    padding: 10px;
+}

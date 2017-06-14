@@ -1,6 +1,5 @@
 package model;
 
-import com.database.model.DbRecordTransaction;
 import com.config.engine.ConfigNode;
 import com.config.engine.HConfig;
 import com.config.engine.field.CfPassword;
@@ -12,11 +11,14 @@ import com.mlogger.Log;
 import com.utils.collections.TList;
 import java.sql.*;
 import com.config.engine.interfaces.Cfg;
-import com.database.model.DsTable;
+import com.database.model.Repository_old;
 import static com.lang.LConfig.*;
+import com.mlogger.status.RThreads;
+import com.model.dao.DatabaseDAO;
+import com.model.repository.Repository;
 import com.utils.Unquoted;
 import main.GRep;
-import model.data.Attribute;
+
 import model.data.AttributeElement;
 import model.data.CatalogAttribute;
 import model.data.CryptKey;
@@ -24,18 +26,23 @@ import model.data.CategoryAttribute;
 import model.data.Category;
 import model.data.Catalog;
 import model.data.Resource;
+import model.repository.RAttribute;
 
 public class Db extends PostgreSQL {
 
+    public final static RThreads THREADS = Repository.register(new RThreads());
+    public final static RAttribute ATTRIBUTE = Repository.register(new RAttribute());
+
     static {
-        DsTable.registerRecords(CategoryAttribute.class);
-        DsTable.registerRecords(AttributeElement.class);
-        DsTable.registerRecords(CatalogAttribute.class);
-        DsTable.registerRecords(Resource.class);
-        DsTable.registerRecords(Attribute.class);
-        DsTable.registerRecords(Category.class);
-        DsTable.registerRecords(Catalog.class);
-        DsTable.registerRecords(CryptKey.class);
+
+        Repository_old.registerRecords(CategoryAttribute.class);
+        Repository_old.registerRecords(AttributeElement.class);
+        Repository_old.registerRecords(CatalogAttribute.class);
+        Repository_old.registerRecords(Resource.class);
+
+        Repository_old.registerRecords(Category.class);
+        Repository_old.registerRecords(Catalog.class);
+        Repository_old.registerRecords(CryptKey.class);
     }
 
 //    public final static Files files = new Files();
@@ -142,8 +149,11 @@ public class Db extends PostgreSQL {
     @ContextInitialized(async = true, ignoreErrors = true)
     private static void synchronize() throws Exception {
         // DbModel_old.init(Db::new);
-        DsTable.updateAll(Db::new);
-/*
+        Repository_old.updateAll(Db::new);
+
+        Repository.loadAll(new DatabaseDAO());
+
+        /*
         DbRecordTransaction trans = new DbRecordTransaction();
 
         AttributeElement elm = new AttributeElement(1);

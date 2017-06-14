@@ -123,8 +123,10 @@ export default class WebApiResponse {
                 webApi.onError(err, err, handled);
         }
 
+
         if (!this.error) {
-            req._resolve(this.data, this);
+            if (req._resolve)
+                req._resolve(this.data, this);
             if (typeof req.onSuccess === "function")
                 req.onSuccess(this.data, this);
         }

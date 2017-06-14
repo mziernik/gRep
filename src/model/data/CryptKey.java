@@ -1,11 +1,11 @@
 package model.data;
 
 import com.database.model.DbCol;
-import com.database.model.DsTable;
+import com.database.model.Repository_old;
 import com.utils.date.TDate;
 import java.util.UUID;
 
-public class CryptKey extends DsTable<CryptKey, Integer> {
+public class CryptKey extends Repository_old<CryptKey, Integer> {
 
     @DbCol
     public final Col<Integer> id = column(Integer.class, "ID").primaryKey();

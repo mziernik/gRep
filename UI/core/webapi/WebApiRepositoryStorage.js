@@ -8,17 +8,20 @@ export default class WebApiRepositoryStorage {
 
     constructor(methods: Object) {
         this.methods = methods;
+        const repos = {};
 
-        const repos: string[] = Utils.forEachMap(Repository.all, (repo: Repository) => repo.id).splice(1);
+        Utils.forEach(Repository.all, (repo: Repository) => {
+            if (repo.isLocal) return;
+            repos[repo.id] = repo.autoUpdate;
+        });
 
-        methods.getAll({repositories: repos}, (data: Object, response: WebApiResponse) => Repository.update(this, data));
+        methods.get({repositories: repos}, (data: Object, response: WebApiResponse) => Repository.update(this, data));
     }
 
     submit(context: any, records: Record[]): Promise {
-
         const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repository);
 
-        debugger;
+        const promises: Promise[] = [];
 
         const dto: Object = {};
 
@@ -36,16 +39,10 @@ export default class WebApiRepositoryStorage {
 
                 obj.push(r);
             });
-
-            debugger;
-
-            this.methods.edit({data: dto}, (data: Object, response: WebApiResponse) => {
-                debugger;
-                alert("ok");
-            });
-
-
+            promises.push(this.methods.edit({data: dto}).promise);
         });
 
+
+        return Promise.all(promises);
     }
 }

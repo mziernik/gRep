@@ -1,18 +1,20 @@
 // @flow
 'use strict';
-import {React, PropTypes, Field, Check} from '../core';
-import {Component, FontAwesome} from '../components';
-import Hint from "./Hint";
+import {React, PropTypes, Field, Check} from '../../core';
+import {Component, FontAwesome} from '../../components';
+import Hint from "../Hint";
 
 export default class FieldController extends Component {
 
     field: Field;
 
     /* domyślne ikony */
-    defError: Object = <span className={FontAwesome.EXCLAMATION_CIRCLE.className} style={{color: 'red', margin: '0px 8px'}}/>;
+    defError: Object = <span className={FontAwesome.EXCLAMATION_CIRCLE.className}
+                             style={{color: 'red', margin: '0px 8px', position:'relative'}}/>;
     defWarning: Object = <span className={FontAwesome.EXCLAMATION_TRIANGLE.className}
                                style={{color: '#ffad00', margin: '0px 8px'}}/>;
-    defInfo: Object = <span className={FontAwesome.QUESTION_CIRCLE.className} style={{color: '#0091ff', margin: '0px 8px'}}/>;
+    defDesc: Object = <span className={FontAwesome.QUESTION_CIRCLE.className}
+                            style={{color: '#0091ff', margin: '0px 8px'}}/>;
     defReq: Object = <span className={FontAwesome.ASTERISK.className}
                            style={{fontSize: '.7em', verticalAlign: 'top', color: 'red', margin: '0px 8px'}}/>;
 
@@ -21,10 +23,10 @@ export default class FieldController extends Component {
         handleFieldError: boolean,
         handleFieldWarning: boolean,
         handleRequired: boolean,
-        handleInformation: boolean,
+        handleDescription: boolean,
         defError: Object,
         defWarning: Object,
-        defInfo: Object,
+        defDesc: Object,
         defReq: Object
     };
 
@@ -41,10 +43,10 @@ export default class FieldController extends Component {
         handleFieldError: PropTypes.bool,
         handleFieldWarning: PropTypes.bool,
         handleRequired: PropTypes.bool,
-        handleInformation: PropTypes.bool,
+        handleDescription: PropTypes.bool,
         defError: PropTypes.object,
         defWarning: PropTypes.object,
-        defInfo: PropTypes.object,
+        defDesc: PropTypes.object,
         defReq: PropTypes.object
 
     };
@@ -55,15 +57,17 @@ export default class FieldController extends Component {
 
         this.defError = this.props.defError || this.defError;
         this.defWarning = this.props.defWarning || this.defWarning;
-        this.defInfo = this.props.defInfo || this.defInfo;
+        this.defDesc = this.props.defDesc || this.defDesc;
         this.defReq = this.props.defReq || this.defReq;
 
-        const msg = this.props.handleInformation ? this.field.info : null;
+        let msg = this.props.handleDescription ? this.field.getDescription() : null;
+        if (!msg)
+            msg = (this.props.handleRequired && this.field.isRequired()) ? 'Pole obowiązkowe' : null;
         const ren = msg ? true : (this.props.handleRequired && this.field.isRequired());
         this.state = {
             render: ren,
             message: msg,
-            defIcon: this.props.handleRequired && this.field.isRequired() ? this.defReq : this.defInfo,
+            defIcon: this.props.handleRequired && this.field.isRequired() ? this.defReq : this.defDesc,
             hint: false
         };
         if (this.props.handleFieldError)
@@ -88,9 +92,11 @@ export default class FieldController extends Component {
     }
 
     _setMessage(msg: ?string, icon: ?Object) {
-        const m = msg || (this.props.handleInformation ? this.field.info : null);
+        let m = msg || (this.props.handleDescription ? this.field.getDescription() : null);
+        if (!m)
+            m = (this.props.handleRequired && this.field.isRequired()) ? 'Pole obowiązkowe' : null;
         this.setState({
-            defIcon: msg ? icon : this.props.handleRequired && this.field.isRequired() ? this.defReq : this.defInfo,
+            defIcon: msg ? icon : this.props.handleRequired && this.field.isRequired() ? this.defReq : this.defDesc,
             message: m,
             render: m ? true : (this.props.handleRequired && this.field.isRequired())
         });
@@ -118,15 +124,7 @@ export default class FieldController extends Component {
                 <Hint
                     visible={this.state.hint}
                     message={this.state.message}
-                    style={{
-                        position: 'absolute',
-                        background: '#585858',
-                        color: '#ffffff',
-                        borderRadius: '5px',
-                        padding: '5px 20px 5px 20px',
-                        margin: '10px',
-                        zIndex: 1000
-                    }}/>
+                />
             </span>);
 
     }

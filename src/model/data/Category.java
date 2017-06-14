@@ -1,11 +1,11 @@
 package model.data;
 
 import com.database.model.DbCol;
-import com.database.model.DsTable;
+import com.database.model.Repository_old;
 import com.utils.date.TDate;
 import java.util.UUID;
 
-public class Category extends DsTable<Category, Integer> {
+public class Category extends Repository_old<Category, Integer> {
 
     @DbCol
     public final Col<Integer> id = column(Integer.class, "ID")
@@ -25,7 +25,7 @@ public class Category extends DsTable<Category, Integer> {
     @DbCol
     public final ColF<Integer[], Category> categories = columnF("Kategoria");
     @DbCol
-    public final ColF<Integer[], Attribute> attributes = columnF("Dozwolone atrybuty");
+    public final ColF<Integer[], Attribute_old> attributes = columnF("Dozwolone atrybuty");
 
     public Category(Integer id) {
         super("category", "data.category", "Kategoria", id);

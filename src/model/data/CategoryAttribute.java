@@ -1,11 +1,11 @@
 package model.data;
 
 import com.database.model.DbCol;
-import com.database.model.DsTable;
+import com.database.model.Repository_old;
 import com.utils.collections.Strings;
 import java.util.UUID;
 
-public class CategoryAttribute extends DsTable<CategoryAttribute, Integer> {
+public class CategoryAttribute extends Repository_old<CategoryAttribute, Integer> {
 
     @DbCol
     public final Col<Integer> id = column(Integer.class, "ID")
@@ -15,7 +15,7 @@ public class CategoryAttribute extends DsTable<CategoryAttribute, Integer> {
     @DbCol
     public final ColF<Integer, Category> category = columnF("Kategoria");
     @DbCol
-    public final ColF<Integer, Attribute> attribute = columnF("Atrybut");
+    public final ColF<Integer, Attribute_old> attribute = columnF("Atrybut");
     @DbCol()
     public final Col<Boolean> displayMask = column("Maska wyświetlania");
     @DbCol

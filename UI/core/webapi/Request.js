@@ -37,8 +37,8 @@ export default class WebApiRequest {
     constructor(webApi: WebApi, method: string, hash: ?string, params: ?Object, onSuccess: ?OnSuccess, onError: ?OnError) {
         this.webApi = webApi;
         this.promise = new Promise((resolve, reject) => {
-            this._reject = reject;
             this._resolve = resolve;
+            this._reject = reject;
         });
 
         // przechwyć wyjątki z promise aby nie wyrzucało błędów w konsoli

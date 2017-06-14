@@ -1,12 +1,12 @@
 package model.data;
 
 import com.database.model.DbCol;
-import com.database.model.DsTable;
+import com.database.model.Repository_old;
 import com.utils.Utils;
 import com.utils.date.TDate;
 import java.util.UUID;
 
-public class Catalog extends DsTable<Catalog, Integer> {
+public class Catalog extends Repository_old<Catalog, Integer> {
 
     @DbCol
     public final Col<Integer> id = column(Integer.class, "ID").primaryKey();
@@ -27,7 +27,7 @@ public class Catalog extends DsTable<Catalog, Integer> {
     @DbCol
     public final ColF<Integer, Catalog> parent = columnF("Rodzic");
     @DbCol
-    public final ColF<Integer[], Attribute> attributes = columnF("Dozwolone atrybuty");
+    public final ColF<Integer[], Attribute_old> attributes = columnF("Dozwolone atrybuty");
 
     public Catalog(Integer id) {
         super("catalog", "data.catalog", "Katalog", id);

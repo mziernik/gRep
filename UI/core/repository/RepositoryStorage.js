@@ -26,7 +26,7 @@ export default class RepositoryStorage {
         if (!this._store || !this.read)
             return;
 
-        const data = this._store.get("repo." + this._repository.id);
+        const data = this._store.get("repo-" + this._repository.id);
 
         if (!data || !data.columns || !data.rows)
             return;
@@ -68,8 +68,8 @@ export default class RepositoryStorage {
             if (!data.columns.length)
                 rec.fields.forEach((f: Field) => data.columns.push({
                     name: f._name,
-                    type: f.dataType.name,
-                    raw: f.dataType.simpleType
+                    type: f.type.name,
+                    raw: f.type.simpleType
                 }));
 
             const row = [];
@@ -95,6 +95,6 @@ export default class RepositoryStorage {
             return;
 
 
-        this._store.set("repo." + this._repository.id, this.build());
+        this._store.set("repo-" + this._repository.id, this.build());
     }
 }

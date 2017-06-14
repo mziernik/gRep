@@ -1,17 +1,43 @@
-import {React, PropTypes, Record, Repository, Utils, If, CRUDE, Endpoint} from "../core"
-import {Component} from "../components"
+import {React, PropTypes, Record, Repository, Utils, If, CRUDE, Endpoint, AppStatus} from "../core"
+import {Component, Spinner} from "../components"
+import Field from "../repository/Field";
 
 export default class Button extends Component {
 
-    static propTypes = {
-        crude: PropTypes.instanceOf(CRUDE),
-        record: PropTypes.any,
+    state: {
+        disabled: boolean
+    };
+
+
+    static  propTypes = {
+        crude: PropTypes.any, //CRUDE
+        record: PropTypes.any, //Record
         confirm: PropTypes.string,
         type: PropTypes.oneOf(["basic", "default", "primary", "success", "info", "warning", "danger", "link"]),
         title: PropTypes.string,
         onClick: PropTypes.func,
         link: PropTypes.any
     };
+
+    constructor() {
+        super(...arguments);
+        this.state = {
+            disabled: this.props.crude ? true : false
+        };
+
+
+        this.state.disabled = false; // tymczasowo
+
+        if (this.props.crude && this.props.record)
+            (this.props.record: Record).fieldChanged.listen(this, (field: Field) => {
+                let ok = true;
+                this.props.record.fields.forEach((field: Field) => {
+                    if (!field.isValid())
+                        ok = false;
+                });
+                this.setState({disabled: !ok});
+            });
+    }
 
     render() {
 
@@ -33,13 +59,14 @@ export default class Button extends Component {
 
         return <button
             className={"btn " + (type ? "btn-" + type : "")}
+            disabled={this.state.disabled}
             style={ {
                 boxSizing: "border-box",
-                fontSize: "16px",
+                fontSize: "11pt",
                 padding: "6px 12px",
                 marginRight: "10px",
                 marginTop: "10px",
-                cursor: "pointer",
+                cursor: this.state.disabled ? "not-allowed" : "pointer",
                 border: "1px solid #444"
             }}
             title={this.props.title}
@@ -49,7 +76,19 @@ export default class Button extends Component {
                 if (this.props.record instanceof Record) {
 
                     this.props.record._action = this.props.crude;
-                    Repository.submit(this, [this.props.record]);
+
+                    this.setState({disabled: true});
+
+                    const spinner = new Spinner();
+
+                    Repository.submit(this, [this.props.record])
+                        .then((e) => {
+                            spinner.hide();
+                            AppStatus.success(this, "Zaktualizowano dane");
+                        }).catch((e) => {
+                        spinner.hide();
+                    });
+
                 }
             }}
 
