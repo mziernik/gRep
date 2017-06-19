@@ -26,11 +26,12 @@ model/Db$1.class
 model/Db$CDatabase.class
 model/Db.class
 model/data.7z
-model/data/Attribute.class
 model/data/AttributeElement.class
+model/data/Attribute_old.class
 model/data/Catalog.class
 model/data/CatalogAttribute.class
 model/data/Category.class
 model/data/CategoryAttribute.class
 model/data/CryptKey.class
 model/data/Resource.class
+model/repository/RAttribute.class

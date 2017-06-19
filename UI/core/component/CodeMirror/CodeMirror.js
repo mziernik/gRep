@@ -215,6 +215,7 @@ export default class CodeMirror extends Component {
         field: Field,
         mode: Mode,
         theme: Theme,
+        editorRef: (cm: CM) => void,
         onChange: (cm: CM, change: []) => void,
         style: Object,
     };
@@ -261,7 +262,7 @@ export default class CodeMirror extends Component {
                     return;
 
                 const cm = this.editor = new CM(tag, {
-                    value: this.field ? this.field.get() : this.props.value,
+                    value: (this.field ? this.field.get() : this.props.value) || "",
                     lineNumbers: true,
                     mode: this.props.mode,
                     theme: this.props.theme,
@@ -291,6 +292,8 @@ export default class CodeMirror extends Component {
                     if (If.isFunction(this.props.onChange))
                         this.props.onChange(cm, change);
                 });
+
+                If.isFunction(this.props.editorRef, f => f(cm));
 
             }}
 

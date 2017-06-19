@@ -297,7 +297,8 @@ class List extends Component {
     render() {
         const field: Field = this.props.field;
 
-        const array: [] = field.get() || [];
+        const array: [] = (field.get() || []).clone();
+
 
         const columns: DataType[] = [];
 
@@ -322,6 +323,12 @@ class List extends Component {
                                 const f: Field = new Field(dataType);
                                 f.name(field._name + " [" + rowIndex + "] [" + cellIdx + "]");
                                 f.set(row);
+
+                                f.onChange.listen(this, (f) => {
+                                    array[rowIndex] = f._value;
+                                    field.set(array);
+                                });
+
                                 return <td key={cellIdx}>
                                     <FieldComponent
                                         field={f}
@@ -352,7 +359,7 @@ class List extends Component {
                             const cells = [];
                             for (let i = 0; i < columns.length; i++)
                                 cells.push(null);
-                            array.push(field.type.multiple ? [cells] : cells);
+                            array.push(field.type.multiple ? cells : null);
                             field.set(array);
                             this.forceUpdate();
                         }}/></td>

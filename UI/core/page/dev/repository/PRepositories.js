@@ -6,7 +6,9 @@ export default class PRepositories extends Page {
 
     constructor() {
         super(...arguments);
-        Repository.onChange.listen(this, () => this.forceUpdate());
+        Repository.onChange.listen(this, () => {
+            this.forceUpdate()
+        });
     }
 
     render() {
@@ -20,6 +22,8 @@ export default class PRepositories extends Page {
                     id: "ID",
                     name: "Nazwa",
                     recs: "Rekordów",
+                    updates: "Ilość aktualizacji",
+                    last: "Ostatnia aktualizacja",
                     actions: "Akcje"
                 }}
                 rows={Repository.all}
@@ -28,6 +32,8 @@ export default class PRepositories extends Page {
                         name: repo.name,
                         id: repo.id,
                         recs: repo.items.length,
+                        updates: repo.updates,
+                        last: repo.lastUpdated ? repo.lastUpdated.toLocaleString() : "",
                         actions: (<span>
                             <Link
                                 downloadName={repo.id + ".json"}

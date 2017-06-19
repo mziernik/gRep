@@ -1,5 +1,7 @@
 import {React, PropTypes, Utils, If, Check} from "../core";
 import {Component} from "../components";
+import ReactTable from 'react-table';
+import 'react-table/react-table.css';
 
 export default class Table extends Component {
 
@@ -9,6 +11,53 @@ export default class Table extends Component {
         rowMapper: PropTypes.func
     };
 
+    constructor() {
+        super(...arguments);
+        this.columns = this._convertColumns();
+        this.data = this._convertData();
+    }
+
+    /** mapuje kolumny pod format ReactTable
+     * @returns {*[]}
+     * @private
+     */
+    _convertColumns(): [] {
+        return Utils.forEachMap(this.props.columns, (col, key) => {
+            let k = key;
+            if (If.isNumber(key) && col.$$typeof)
+                k = Check.nonEmptyString(col.key, new Error("Wymagana definicja atrybutu key"));
+            return {Header: col, accessor: "" + k};
+        });
+    }
+
+    /** mapuje dane przyp pomocy props.rowMapper
+     * @returns {*[]}
+     * @private
+     */
+    _convertData(): [] {
+        return Utils.forEachMap(this.props.rows, (row) => {
+            return If.isFunction(this.props.rowMapper) ? this.props.rowMapper(row) : row;
+        });
+    }
+
+    render1() {
+        return <ReactTable
+            showPagination={this.data.length > 20}
+            defaultPageSize={this.data.length === 0 ? 10 : this.data.length > 20 ? 20 : this.data.length}
+            columns={this.columns}
+            data={this.data}
+
+            previousText="Poprzednia"
+            nextText="Następna"
+            loadingText="Wczytywanie..."
+            noDataText="Brak rekordów"
+            pageText="Strona"
+            ofText="z"
+            rowsText="rekordów"
+        />;
+    }
+
+    //ToDo do usunięcia
     render() {
 
         const colKeys = []; //klucze kolumn

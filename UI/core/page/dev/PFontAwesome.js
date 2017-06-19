@@ -8,7 +8,7 @@ export default class PFontAwesome extends Page {
 
     state: {
         search: string;
-    }
+    };
 
     render() {
 
@@ -32,7 +32,9 @@ export default class PFontAwesome extends Page {
                     if (this.state && this.state.search && !name.contains(this.state.search))
                         return null;
 
-                    return <span style={ {
+                    return <span
+                        key={ico.className}
+                        style={ {
                         display: "inline-block",
                         width: "100px",
                         margin: "16px 4px",

@@ -11,7 +11,8 @@ let _private;
 const nodeModulesWhiteList = [
     "react-grid-layout/css",
     "react-resizable/css",
-    "react-widgets/dist"
+    "react-widgets/dist",
+    "react-table"
 ];
 
 

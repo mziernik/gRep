@@ -1,7 +1,6 @@
 package api;
 
 import com.cache.CachedData;
-import com.database.model.Repository_old;
 import com.model.repository.WRepository;
 import com.json.JArray;
 import com.json.JObject;
@@ -47,8 +46,8 @@ public class WApi extends WebApiController {
         JObject json = new JObject();
 
         JObject jtables = json.objectC("tables");
-        for (Entry<String, Repository_old<?, ?>> en : Repository_old.getTables().entrySet())
-            jtables.put(en.getKey(), en.getValue().getJson().array("rows"));
+//        for (Entry<String, Repository_old<?, ?>> en : Repository_old.getTables().entrySet())
+//            jtables.put(en.getKey(), en.getValue().getJson().array("rows"));
 
         CachedData cd = new CachedData("aaa", "xxx", "plik.json");
         json.write(cd);

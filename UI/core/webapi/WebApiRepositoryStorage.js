@@ -18,19 +18,15 @@ export default class WebApiRepositoryStorage {
         methods.get({repositories: repos}, (data: Object, response: WebApiResponse) => Repository.update(this, data));
     }
 
-    submit(context: any, records: Record[]): Promise {
-        const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repository);
-
-        const promises: Promise[] = [];
-
+    static buildDTO(records: Record[]): {} {
         const dto: Object = {};
-
+        const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repository);
         map.forEach((records: Record[], repo: Repository) => {
 
             const obj = dto[repo.id] = [];
             records.forEach((record: Record) => {
                 const r = {};
-                r.action = (record._action: CRUDE).name;
+                r.action = record._action ? (record._action: CRUDE).name : null;
                 r.fields = {};
                 record.fields.forEach((field: Field) => {
                     if (field.changed)
@@ -39,10 +35,12 @@ export default class WebApiRepositoryStorage {
 
                 obj.push(r);
             });
-            promises.push(this.methods.edit({data: dto}).promise);
         });
+        return dto;
+    }
 
-
-        return Promise.all(promises);
+    submit(context: any, records: Record[]): Promise {
+        const dto: Object = WebApiRepositoryStorage.buildDTO(records);
+        return this.methods.edit({data: dto}).promise;
     }
 }

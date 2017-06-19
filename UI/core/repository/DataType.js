@@ -32,8 +32,8 @@ export default class DataType {
         return result;
     }
 
-    parse(value: any): any {
-        return this.parser(value);
+    parse(value: ?any): any {
+        return value === null || value === undefined ? value : this.parser(value);
     }
 
     /** @private */
@@ -146,8 +146,7 @@ export class ForeignDataType extends DataType {
 
 
 function parseNumber(value: any, parsed: number) {
-    // parseInt(Number("10abc"))
-    if (isNaN(value) || isNaN(parsed))
+    if (value instanceof Array || isNaN(value) || isNaN(parsed))
         throw new Error('Nieprawidłowa wartość numeryczna: ' + JSON.stringify(value));
     return parsed;
 }

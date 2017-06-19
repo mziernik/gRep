@@ -1,6 +1,6 @@
 //FixMe importy, flow
 
-import {Check, Record, Field, Utils, Debug, DataType} from "../core";
+import {Check, Record, Field, Utils, If, Debug, DataType} from "../core";
 
 import Permission from "../application/Permission";
 import RepositoryStorage from "./RepositoryStorage";
@@ -41,6 +41,13 @@ export default class Repository {
     isLocal: boolean = false;
     /** Czy repozytorium ma być automatycznie synchronizowane z serwerem */
     autoUpdate: boolean = true;
+
+    /** Data ostatniej aktualizacji */
+    lastUpdated: Date;
+    /** Autor ostatniej aktualizacji */
+    lastUpdatedBy: string;
+    /* Ilość aktualizacji (numer bieżącej wersji)*/
+    updates: Number = 0;
 
     constructor(id: string, name: string, primaryKeyDataType: DataType, recordClass: () => Record) {
         this.id = id;
@@ -135,20 +142,20 @@ export default class Repository {
     /**
      * Zastosuj zmiany (edycja / synchronizacja)
      */
-    static submit(context: any, items: Record[]): Promise {
-        Check.instanceOf(items, [Array]);
+    static submit(context: any, records: Record[], dtoCallback: ?(dto: {}) => void): Promise {
+        Check.instanceOf(records, [Array]);
 
-        items.forEach((item: Record) => {
+        records.forEach((item: Record) => {
             if (!item._action)
                 throw new Error(item.getFullId() + ": Brak przypisanej akcji CRUDE");
         });
 
         if (Repository.externalStore)
-            return Repository.externalStore.submit(context, items);
+            return Repository.externalStore.submit(context, records);
 
         return new Promise((resolve, reject) => {
-            Repository.update(context, items);
-            resolve();
+            Repository.update(context, records);
+            resolve(dto);
         });
 
     }
@@ -198,22 +205,50 @@ function processUpdate(context: any, data: Object, repo: Repository): Record[] {
 
     const recs: Record[] = [];
 
-    if (data.key && data.pk && data.columns && data.rows) {
+    if (data.rows instanceof Array) {
 
-        data.rows.forEach((rowData: []) => {
-            const rec = repo.newRecord();
-            for (let i = 0; i < rowData.length; i++) {
-                const field: Field = rec.getFieldF(data.columns[i].key);
-                field.set(rowData[i]);
+        repo.lastUpdated = data.lastUpdated ? new Date(data.lastUpdated) : new Date();
+        repo.lastUpdatedBy = data.lastUpdatedBy;
+        repo.updates = data.updates ? data.updates : repo.updates + 1;
+
+        data.rows.forEach((rowData: {} | []) => {
+
+            if (rowData instanceof Array) {
+                const rec: Record = repo.newRecord();
+                for (let i = 0; i < rowData.length; i++) {
+                    const field: Field = rec.getFieldF(data.columns[i].key);
+                    field.set(rowData[i]);
+                }
+                recs.push(rec);
+                return;
             }
-            recs.push(rec);
+
+            let pk = rowData[repo.primaryKeyColumn._name];
+            if (!If.isDefined(pk))
+                throw new Error("Brak klucza głównego");
+
+
+            let r: Record = repo.get(pk);
+            r = r ? r.beginEdit(this) : repo.newRecord();
+
+            r.fields.forEach((field: Field) => {
+                if (rowData[field._name] === undefined)
+                    return;
+                field.set(rowData[field._name]);
+            });
+            recs.push(r);
+            if (r._sourceRecord)
+                r.cancelEdit();
+            return;
+
         });
 
         return recs;
     }
 
+
     // wariant obiektowy (kluczem obiektu jest klucz pola)
-    Utils.forEach((repoData: Object, key: string) => {
+    Utils.forEach(data, (repoData: Object, key: string) => {
 
         const pk = repo.primaryKeyDataType.parse(key);
 

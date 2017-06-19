@@ -7,6 +7,7 @@ import WebApiResponse from "./Response";
 import Debug from "../Debug";
 import EError from "../utils/EError";
 import WebApiTransport, {WebSocketTransport} from "./Transport";
+import Dispatcher from "../utils/Dispatcher";
 
 export type OnSuccess = (data: ?any, response: WebApiResponse) => void;
 export type OnError = (error: Object, response: WebApiResponse) => void;
@@ -20,6 +21,7 @@ export default class WebApi {
     eventHandlers = [];
     processed: Map<string, WebApiRequest> = new Map();
     transport: WebApiTransport;
+    onEvent: Dispatcher = new Dispatcher(); //(source: string, event: string, data: object, context: WebApiResponse)
 
 
     static headers: Object = {

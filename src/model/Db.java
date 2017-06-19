@@ -11,7 +11,6 @@ import com.mlogger.Log;
 import com.utils.collections.TList;
 import java.sql.*;
 import com.config.engine.interfaces.Cfg;
-import com.database.model.Repository_old;
 import static com.lang.LConfig.*;
 import com.mlogger.status.RThreads;
 import com.model.dao.DatabaseDAO;
@@ -19,31 +18,14 @@ import com.model.repository.Repository;
 import com.utils.Unquoted;
 import main.GRep;
 
-import model.data.AttributeElement;
-import model.data.CatalogAttribute;
-import model.data.CryptKey;
-import model.data.CategoryAttribute;
-import model.data.Category;
-import model.data.Catalog;
-import model.data.Resource;
 import model.repository.RAttribute;
+import model.repository.RAttributeElement;
 
 public class Db extends PostgreSQL {
 
     public final static RThreads THREADS = Repository.register(new RThreads());
     public final static RAttribute ATTRIBUTE = Repository.register(new RAttribute());
-
-    static {
-
-        Repository_old.registerRecords(CategoryAttribute.class);
-        Repository_old.registerRecords(AttributeElement.class);
-        Repository_old.registerRecords(CatalogAttribute.class);
-        Repository_old.registerRecords(Resource.class);
-
-        Repository_old.registerRecords(Category.class);
-        Repository_old.registerRecords(Catalog.class);
-        Repository_old.registerRecords(CryptKey.class);
-    }
+    public final static RAttributeElement ATTRIBUTE_ELEMENT = Repository.register(new RAttributeElement());
 
 //    public final static Files files = new Files();
     //   public final static Documents documents = new Documents();
@@ -148,9 +130,6 @@ public class Db extends PostgreSQL {
 
     @ContextInitialized(async = true, ignoreErrors = true)
     private static void synchronize() throws Exception {
-        // DbModel_old.init(Db::new);
-        Repository_old.updateAll(Db::new);
-
         Repository.loadAll(new DatabaseDAO());
 
         /*

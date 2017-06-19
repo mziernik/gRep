@@ -14,7 +14,11 @@ export default class PRepository extends Page {
     constructor() {
         super(...arguments);
         this.repo = Repository.getF(this.props.repo);
-        Repository.onChange.listen(this, (map: Map) => If.condition(map.has(this.repo), () => this.forceUpdate()));
+        Repository.onChange.listen(this, (map: Map) => {
+
+            If.condition(map.has(this.repo),
+                () => this.forceUpdate());
+        });
     }
 
     render() {
@@ -45,6 +49,21 @@ export default class PRepository extends Page {
                     icon={FontAwesome.PLUS_SQUARE}
                 />
             </PageToolBar>
+
+            <div>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td>Ilość aktualizacji</td>
+                        <td>{this.repo.updates}</td>
+                    </tr>
+                    <tr>
+                        <td>Ostatnia aktualizacja</td>
+                        <td>{this.repo.lastUpdated ? this.repo.lastUpdated.toLocaleString() : null} ({this.repo.lastUpdatedBy})</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <Table
                 columns={columns}

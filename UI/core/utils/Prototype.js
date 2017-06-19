@@ -85,10 +85,7 @@ Number.prototype.round = Number.prototype.round || function (places: number): nu
  */
 // $FlowFixMe
 Array.prototype.clone = Array.prototype.clone || function (): [] {
-        const result = [];
-        for (let i = 0; i < this.length; i++)
-            result.push(this[i]);
-        return result;
+        return this.slice(0);
     };
 
 /**

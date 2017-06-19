@@ -30,12 +30,7 @@ export default class WebApiResponse {
         this.type = data.type;
 
         if (this.type === "event" && !data.id) {
-            /*
-             this.webApi.eventHandlers.forEach()
-             var h = eventHandlers[i];
-             if (wapi.onEvent)
-             wapi.onEvent(h[0], h[1], h[2], h[3], data);
-             }*/
+            webApi.onEvent.dispatch(this, data.source, data.event, data.data, this);
             return;
         }
 

@@ -15,6 +15,10 @@ import {
     ForeignDataType
 } from "../core";
 
+type FieldConfig = {
+    required: boolean,
+    readOnly: boolean
+}
 
 export default class Field {
 
@@ -64,7 +68,7 @@ export default class Field {
 
     _getFullId: ?() => string = null;
 
-    constructor(dataType: DataType | Object) {
+    constructor(config: FieldConfig) {
 
         // if (typeof dataType === "object") {
         //     debugger;

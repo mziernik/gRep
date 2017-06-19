@@ -17,3 +17,13 @@ wapi.onError = (error: EError, response: WebApiResponse, handled: boolean) => {
 export function initialize() {
     Repository.externalStore = new WebApiRepositoryStorage(api.repository);
 }
+
+wapi.onEvent.listen(this, (source: string, event: string, data: object, context: WebApiResponse) => {
+
+    switch (source) {
+        case "repository":
+            Repository.update(context, data);
+            return;
+    }
+
+});

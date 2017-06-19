@@ -1,9 +1,12 @@
 package model.repository;
 
 import com.model.repository.Column;
+import com.model.repository.ForeignColumn;
+import com.model.repository.ForeignColumns;
 import com.model.repository.Repository;
 import com.utils.date.TDate;
-import com.utils.reflections.DataType;
+import com.utils.reflections.datatype.ArrayDataType;
+import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
 
 public class RAttribute extends Repository<Integer> {
@@ -49,40 +52,35 @@ public class RAttribute extends Repository<Integer> {
         c.required = true;
     });
 
-    public final static Column<Integer> PARENT = new Column<>(c -> {
+    public final static ForeignColumn<Integer, RCategory> PARENT = new ForeignColumn<>(c -> {
         c.repository = RAttribute.class;
         c.type = DataType.INT;
         c.key = "parent";
         c.name = "Rodzic";
-        c.foreign = RAttribute.ID; //Category
-    });
+    }, RCategory.ID);
 
-    public final static Column<Integer[]> ELEMENTS = new Column<>(c -> {
+    public final static ForeignColumns<Integer, RAttributeElement> ELEMENTS = new ForeignColumns<>(c -> {
         c.repository = RAttribute.class;
-        c.type = new DataType.ArrayDataType<>(Integer[].class);
-        c.clazz = Integer[].class;
+        c.type = DataType.INT.asArray();
         c.list = true;
         c.key = "elements";
         c.name = "Elementy";
-        c.foreign = RAttribute.ID; //AttributeElement
-    });
+    }, RAttributeElement.ID);
 
     public final static Column<String[]> DEF_VAL = new Column<>(c -> {
         c.repository = RAttribute.class;
-        c.type = new DataType.ArrayDataType<>(String[].class);
+        c.type = DataType.STRING.asArray();
         c.list = true;
         c.daoName = "def_val";
         c.key = "defVal";
         c.name = "Wartość domyślna";
-        c.foreign = RAttribute.ID; //AttributeElement
     });
 
-    public final static Column<Boolean> REQUIRED = new Column<>(c -> {
+    public final static Column<Boolean[]> REQUIRED = new Column<>(c -> {
         c.repository = RAttribute.class;
-        c.type = DataType.BOOLEAN;
+        c.type = DataType.BOOLEAN.asArray();
         c.key = "required";
         c.name = "Wymagane";
-        c.defaultValue = Boolean.TRUE;
     });
 
     // ToDo Dodać repozytorium ikon
