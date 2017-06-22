@@ -1,17 +1,17 @@
-import {Field, DataType, Repository, Record} from "../core/core";
+import {Field, FieldConfig, RepoConfig, Type, Repository, Record} from "../core/core";
 
 
 export class RThreadsRepo extends Repository {
 
 
     constructor() {
-        super({
-            key: "threads",
-            name: "Wątki",
-            pk: "long",
-            record: RThreads,
-            local: true,
-            readOnly: true,
+        super((rc: RepoConfig) => {
+            rc.key = "threads";
+            rc.name = "Wątki";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RThreads;
+            rc.crude = "R";
+            rc.local = true;
         });
     }
 
@@ -19,82 +19,84 @@ export class RThreadsRepo extends Repository {
 
 export class RThreads extends Record {
 
-    ID: Field = new Field({
-        key: "id",
-        name: "ID",
-        type: "long",
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "long";
+        fc.required = true;
+        fc.unique = true;
     });
 
-    NAME: Field = new Field({
-        key: "name",
-        name: "Nazwa",
-        type: "string",
+    NAME: Field = new Field((fc: FieldConfig) => {
+        fc.key = "name";
+        fc.name = "Nazwa";
+        fc.type = "string";
     });
 
-    GROUP: Field = new Field({
-        key: "group",
-        name: "Grupa",
-        type: "string",
+    GROUP: Field = new Field((fc: FieldConfig) => {
+        fc.key = "group";
+        fc.name = "Grupa";
+        fc.type = "string";
     });
 
-    STATE: Field = new Field({
-        key: "state",
-        name: "Stan",
-        type: "string",
+    STATE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "state";
+        fc.name = "Stan";
+        fc.type = "string";
     });
 
-    ALIVE: Field = new Field({
-        key: "alive",
-        name: "Żyje",
-        type: "boolean",
+    ALIVE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "alive";
+        fc.name = "Żyje";
+        fc.type = "boolean";
     });
 
-    DAEMON: Field = new Field({
-        key: "daemon",
-        name: "Demon",
-        type: "boolean",
+    DAEMON: Field = new Field((fc: FieldConfig) => {
+        fc.key = "daemon";
+        fc.name = "Demon";
+        fc.type = "boolean";
     });
 
-    INTERRUPTED: Field = new Field({
-        key: "interrupted",
-        name: "Przerwany",
-        type: "boolean",
+    INTERRUPTED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "interrupted";
+        fc.name = "Przerwany";
+        fc.type = "boolean";
     });
 
-    PRIORITY: Field = new Field({
-        key: "priority",
-        name: "Priorytet",
-        type: "int",
+    PRIORITY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "priority";
+        fc.name = "Priorytet";
+        fc.type = "int";
     });
 
-    CPUTIME: Field = new Field({
-        key: "cpuTime",
-        name: "Czas procesora",
-        type: "long",
+    CPU_TIME: Field = new Field((fc: FieldConfig) => {
+        fc.key = "cpuTime";
+        fc.name = "Czas procesora";
+        fc.type = "long";
     });
 
-    USERTIME: Field = new Field({
-        key: "userTime",
-        name: "Czas użytkownika",
-        type: "long",
+    USER_TIME: Field = new Field((fc: FieldConfig) => {
+        fc.key = "userTime";
+        fc.name = "Czas użytkownika";
+        fc.type = "long";
     });
 
-    ALLOC: Field = new Field({
-        key: "alloc",
-        name: "Zaalokowano",
-        type: "size",
+    ALLOC: Field = new Field((fc: FieldConfig) => {
+        fc.key = "alloc";
+        fc.name = "Zaalokowano";
+        fc.type = "size";
     });
 
-    BLOCKED: Field = new Field({
-        key: "blocked",
-        name: "Blokady",
-        type: "int",
+    BLOCKED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "blocked";
+        fc.name = "Blokady";
+        fc.type = "int";
     });
 
-    WAITED: Field = new Field({
-        key: "waited",
-        name: "Oczekiwania",
-        type: "int"
+    WAITED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "waited";
+        fc.name = "Oczekiwania";
+        fc.type = "int";
     });
 
 
@@ -110,12 +112,13 @@ export class RAttributeRepo extends Repository {
 
 
     constructor() {
-        super({
-            key: "attribute",
-            name: "Atrybut",
-            pk: "int",
-            record: RAttribute,
-            local: false,
+        super((rc: RepoConfig) => {
+            rc.key = "attribute";
+            rc.name = "Atrybut";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RAttribute;
+            rc.crude = "CRUD";
+            rc.local = false;
         });
     }
 
@@ -123,86 +126,794 @@ export class RAttributeRepo extends Repository {
 
 export class RAttribute extends Record {
 
-    ID: Field = new Field({
-        key: "id",
-        name: "ID",
-        type: "int",
-        required: true,
-        readOnly: true,
-        autoGenerated: true,
-        unique: true,
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "int";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
     });
 
-    UID: Field = new Field({
-        key: "uid",
-        name: "UID",
-        type: "uid",
-        required: true,
-        readOnly: true,
-        autoGenerated: true,
-        unique: true,
+    UID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "uid";
+        fc.name = "UID";
+        fc.type = "uid";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
     });
 
-    CREATED: Field = new Field({
-        key: "created",
-        name: "Utworzono",
-        type: "timestamp",
-        required: true,
-        readOnly: true,
-        autoGenerated: true,
+    CREATED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "created";
+        fc.name = "Utworzono";
+        fc.type = "timestamp";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
     });
 
-    KEY: Field = new Field({
-        key: "key",
-        name: "Klucz",
-        type: "key",
-        required: true,
-        unique: true,
+    KEY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "key";
+        fc.name = "Klucz";
+        fc.type = "key";
+        fc.required = true;
+        fc.unique = true;
     });
 
-    PARENT: Field = new Field({
-        key: "parent",
-        name: "Rodzic",
-        type: "int",
+    PARENT: Field = new Field((fc: FieldConfig) => {
+        fc.key = "parent";
+        fc.name = "Rodzic";
+        fc.type = "int";
+        fc.foreign = R_CATEGORY;
     });
 
-    ELEMENTS: Field = new Field({
-        key: "elements",
-        name: "Elementy",
-        type: "int[]",
+    ELEMENTS: Field = new Field((fc: FieldConfig) => {
+        fc.key = "elements";
+        fc.name = "Elementy";
+        fc.type = "int[]";
     });
 
-    DEFVAL: Field = new Field({
-        key: "defVal",
-        name: "Wartość domyślna",
-        type: "string[]",
+    DEF_VAL: Field = new Field((fc: FieldConfig) => {
+        fc.key = "defVal";
+        fc.name = "Wartość domyślna";
+        fc.type = "string[]";
     });
 
-    REQUIRED: Field = new Field({
-        key: "required",
-        name: "Wymagane",
-        type: "boolean[]",
+    REQUIRED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "required";
+        fc.name = "Wymagane";
+        fc.type = "boolean[]";
     });
 
-    ICON: Field = new Field({
-        key: "icon",
-        name: "Ikona",
-        type: "string",
-        required: true,
+    ICON: Field = new Field((fc: FieldConfig) => {
+        fc.key = "icon";
+        fc.name = "Ikona";
+        fc.type = "string";
+        fc.defaultValue = true;
+        fc.required = true;
     });
 
-    NAME: Field = new Field({
-        key: "name",
-        name: "Nazwa",
-        type: "string",
-        required: true,
+    NAME: Field = new Field((fc: FieldConfig) => {
+        fc.key = "name";
+        fc.name = "Nazwa";
+        fc.type = "string";
+        fc.required = true;
     });
 
-    DESC: Field = new Field({
-        key: "desc",
-        name: "Opis",
-        type: "memo",
-        max: 1000,
+    DESC: Field = new Field((fc: FieldConfig) => {
+        fc.key = "desc";
+        fc.name = "Opis";
+        fc.type = "memo";
+    });
+
+
+    constructor() {
+        super(...arguments);
+        this.init();
+    };
+
+
+}
+
+export class RAttributeElementRepo extends Repository {
+
+
+    constructor() {
+        super((rc: RepoConfig) => {
+            rc.key = "attrElm";
+            rc.name = "Element atrybutu";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RAttributeElement;
+            rc.crude = "CRUD";
+            rc.local = false;
+        });
+    }
+
+}
+
+export class RAttributeElement extends Record {
+
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "int";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    UID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "uid";
+        fc.name = "UIID";
+        fc.type = "uid";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+    });
+
+    CREATED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "created";
+        fc.name = "Utworzono";
+        fc.type = "timestamp";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+    });
+
+    KEY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "key";
+        fc.name = "Klucz";
+        fc.type = "key";
+    });
+
+    TYPE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "type";
+        fc.name = "Typ";
+        fc.type = "string";
+    });
+
+    NAME: Field = new Field((fc: FieldConfig) => {
+        fc.key = "name";
+        fc.name = "Nazwa";
+        fc.type = "string";
+        fc.required = true;
+    });
+
+    DESC: Field = new Field((fc: FieldConfig) => {
+        fc.key = "desc";
+        fc.name = "Opis";
+        fc.type = "memo";
+    });
+
+    REQUIRED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "required";
+        fc.name = "Wymagany";
+        fc.type = "boolean";
+    });
+
+    DEF_VAL: Field = new Field((fc: FieldConfig) => {
+        fc.key = "defVal";
+        fc.name = "Wartość domyślna";
+        fc.type = "string[]";
+    });
+
+    MIN: Field = new Field((fc: FieldConfig) => {
+        fc.key = "min";
+        fc.name = "Minimum";
+        fc.type = "int";
+    });
+
+    MAX: Field = new Field((fc: FieldConfig) => {
+        fc.key = "max";
+        fc.name = "Maksimum";
+        fc.type = "int";
+    });
+
+    REGEX: Field = new Field((fc: FieldConfig) => {
+        fc.key = "regex";
+        fc.name = "Wyrażenie sprawdzające";
+        fc.type = "regex";
+    });
+
+    FOREIGN_ELM: Field = new Field((fc: FieldConfig) => {
+        fc.key = "foreignElm";
+        fc.name = "Element zewnętrzny";
+        fc.type = "int";
+    });
+
+    ENCRYPTED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "encrypted";
+        fc.name = "Zaszyfrowany";
+        fc.type = "boolean";
+    });
+
+    ENUMERATE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "enumerate";
+        fc.name = "Enumerata";
+        fc.type = "{string, string}";
+    });
+
+
+    constructor() {
+        super(...arguments);
+        this.init();
+    };
+
+
+}
+
+export class RCatalogRepo extends Repository {
+
+
+    constructor() {
+        super((rc: RepoConfig) => {
+            rc.key = "catalog";
+            rc.name = "Katalog";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RCatalog;
+            rc.crude = "CRUD";
+            rc.local = false;
+        });
+    }
+
+}
+
+export class RCatalog extends Record {
+
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "int";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    UID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "uid";
+        fc.name = "UID";
+        fc.type = "uid";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.unique = true;
+    });
+
+    INDEX: Field = new Field((fc: FieldConfig) => {
+        fc.key = "index";
+        fc.name = "Kolejność";
+        fc.type = "int";
+    });
+
+    CATEGORY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "category";
+        fc.name = "Definicja";
+        fc.type = "int";
+        fc.foreign = R_CATALOG;
+    });
+
+    CREATED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "created";
+        fc.name = "Utworzono";
+        fc.type = "timestamp";
+    });
+
+    NAME: Field = new Field((fc: FieldConfig) => {
+        fc.key = "name";
+        fc.name = "Nazwa";
+        fc.type = "string";
+        fc.required = true;
+    });
+
+    DESC: Field = new Field((fc: FieldConfig) => {
+        fc.key = "desc";
+        fc.name = "Opis";
+        fc.type = "memo";
+    });
+
+    ABSTRACT: Field = new Field((fc: FieldConfig) => {
+        fc.key = "abstract";
+        fc.name = "Abstrakcyjne";
+        fc.type = "boolean";
+    });
+
+    PARENT: Field = new Field((fc: FieldConfig) => {
+        fc.key = "parent";
+        fc.name = "Rodzic";
+        fc.type = "int";
+        fc.foreign = R_CATALOG;
+    });
+
+    ATTRIBUTES: Field = new Field((fc: FieldConfig) => {
+        fc.key = "attributes";
+        fc.name = "Dozwolone atrybuty";
+        fc.type = "int[]";
+    });
+
+
+    constructor() {
+        super(...arguments);
+        this.init();
+    };
+
+
+}
+
+export class RCatalogAttributeRepo extends Repository {
+
+
+    constructor() {
+        super((rc: RepoConfig) => {
+            rc.key = "catalogAttr";
+            rc.name = "Atrybut katalogu";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RCatalogAttribute;
+            rc.crude = "CRUD";
+            rc.local = false;
+        });
+    }
+
+}
+
+export class RCatalogAttribute extends Record {
+
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "int";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    UID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "uid";
+        fc.name = "UID";
+        fc.type = "uid";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.unique = true;
+    });
+
+    CREATED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "created";
+        fc.name = "Utworzono";
+        fc.type = "timestamp";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+    });
+
+    CAT: Field = new Field((fc: FieldConfig) => {
+        fc.key = "cat";
+        fc.name = "Katalog";
+        fc.type = "int";
+        fc.foreign = R_CATALOG_ATTRIBUTE;
+    });
+
+    ATTR: Field = new Field((fc: FieldConfig) => {
+        fc.key = "attr";
+        fc.name = "Atrybut";
+        fc.type = "int";
+        fc.foreign = R_CATALOG_ATTRIBUTE;
+    });
+
+    ORDER: Field = new Field((fc: FieldConfig) => {
+        fc.key = "order";
+        fc.name = "Kolejność";
+        fc.type = "int";
+    });
+
+    VALUE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "value";
+        fc.name = "Wartość";
+        fc.type = "string[]";
+    });
+
+    CRYPT_KEY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "cryptKey";
+        fc.name = "Klucz";
+        fc.type = "int[]";
+    });
+
+    NOTES: Field = new Field((fc: FieldConfig) => {
+        fc.key = "notes";
+        fc.name = "Notatki";
+        fc.type = "memo";
+    });
+
+
+    constructor() {
+        super(...arguments);
+        this.init();
+    };
+
+
+}
+
+export class RCategoryRepo extends Repository {
+
+
+    constructor() {
+        super((rc: RepoConfig) => {
+            rc.key = "category";
+            rc.name = "Kategoria";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RCategory;
+            rc.crude = "CRUD";
+            rc.local = false;
+        });
+    }
+
+}
+
+export class RCategory extends Record {
+
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "int";
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    UID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "uid";
+        fc.name = "UID";
+        fc.type = "uid";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    KEY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "key";
+        fc.name = "Klucz";
+        fc.type = "key";
+        fc.required = true;
+    });
+
+    CREATED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "created";
+        fc.name = "Utworzono";
+        fc.type = "timestamp";
+        fc.autoGenerated = true;
+        fc.required = true;
+    });
+
+    NAME: Field = new Field((fc: FieldConfig) => {
+        fc.key = "name";
+        fc.name = "Nazwa";
+        fc.type = "string";
+        fc.required = true;
+    });
+
+    DESC: Field = new Field((fc: FieldConfig) => {
+        fc.key = "desc";
+        fc.name = "Opis";
+        fc.type = "memo";
+    });
+
+    ICON: Field = new Field((fc: FieldConfig) => {
+        fc.key = "icon";
+        fc.name = "Ikona";
+        fc.type = "int";
+    });
+
+    CATS: Field = new Field((fc: FieldConfig) => {
+        fc.key = "cats";
+        fc.name = "Kategorie";
+        fc.type = "int[]";
+    });
+
+    ATTR: Field = new Field((fc: FieldConfig) => {
+        fc.key = "attr";
+        fc.name = "Dozwolone atrybuty";
+        fc.type = "int";
+        fc.foreign = R_ATTRIBUTE;
+    });
+
+
+    constructor() {
+        super(...arguments);
+        this.init();
+    };
+
+
+}
+
+export class RCategoryAttributeRepo extends Repository {
+
+
+    constructor() {
+        super((rc: RepoConfig) => {
+            rc.key = "categoryAttr";
+            rc.name = "Atrybut kategorii";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RCategoryAttribute;
+            rc.crude = "CRUD";
+            rc.local = false;
+        });
+    }
+
+}
+
+export class RCategoryAttribute extends Record {
+
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "int";
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    UID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "uid";
+        fc.name = "UID";
+        fc.type = "uid";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    CAT: Field = new Field((fc: FieldConfig) => {
+        fc.key = "cat";
+        fc.name = "Kategoria";
+        fc.type = "int";
+        fc.foreign = R_CATEGORY;
+    });
+
+    ATTR: Field = new Field((fc: FieldConfig) => {
+        fc.key = "attr";
+        fc.name = "Atrybut";
+        fc.type = "int";
+        fc.foreign = R_ATTRIBUTE;
+    });
+
+    MASK: Field = new Field((fc: FieldConfig) => {
+        fc.key = "mask";
+        fc.name = "Maska wyświetlania";
+        fc.type = "string";
+    });
+
+    DEF_VAL: Field = new Field((fc: FieldConfig) => {
+        fc.key = "defVal";
+        fc.name = "Wartość domyślna";
+        fc.type = "string[]";
+    });
+
+    REQUIRED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "required";
+        fc.name = "Wymagane";
+        fc.type = "boolean";
+    });
+
+    MULTIPLE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "multiple";
+        fc.name = "Wielokrotne";
+        fc.type = "boolean";
+    });
+
+    UNIQUE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "unique";
+        fc.name = "Unikalny";
+        fc.type = "boolean";
+    });
+
+    ABSTRACT: Field = new Field((fc: FieldConfig) => {
+        fc.key = "abstract";
+        fc.name = "Abstrakcyjny";
+        fc.type = "boolean";
+    });
+
+
+    constructor() {
+        super(...arguments);
+        this.init();
+    };
+
+
+}
+
+export class RResourceRepo extends Repository {
+
+
+    constructor() {
+        super((rc: RepoConfig) => {
+            rc.key = "resource";
+            rc.name = "Zasób";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RResource;
+            rc.crude = "CRUD";
+            rc.local = false;
+        });
+    }
+
+}
+
+export class RResource extends Record {
+
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "int";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    UID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "uid";
+        fc.name = "UID";
+        fc.type = "uid";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.unique = true;
+    });
+
+    CREATED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "created";
+        fc.name = "Utworzono";
+        fc.type = "timestamp";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+    });
+
+    TYPE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "type";
+        fc.name = "Typ";
+        fc.type = "string";
+        fc.required = true;
+    });
+
+    NAME: Field = new Field((fc: FieldConfig) => {
+        fc.key = "name";
+        fc.name = "Nazwa";
+        fc.type = "string";
+        fc.required = true;
+    });
+
+    DESC: Field = new Field((fc: FieldConfig) => {
+        fc.key = "desc";
+        fc.name = "Opis";
+        fc.type = "memo";
+    });
+
+    VALUE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "value";
+        fc.name = "Wartość";
+        fc.type = "memo";
+    });
+
+    FORMAT: Field = new Field((fc: FieldConfig) => {
+        fc.key = "format";
+        fc.name = "Format";
+        fc.type = "string";
+    });
+
+    CAT: Field = new Field((fc: FieldConfig) => {
+        fc.key = "cat";
+        fc.name = "Katalog";
+        fc.type = "int";
+        fc.foreign = R_CATALOG;
+    });
+
+    FILE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "file";
+        fc.name = "Plik";
+        fc.type = "file_name";
+    });
+
+    SIZE: Field = new Field((fc: FieldConfig) => {
+        fc.key = "size";
+        fc.name = "Rozmiar";
+        fc.type = "size";
+    });
+
+    MD5: Field = new Field((fc: FieldConfig) => {
+        fc.key = "md5";
+        fc.name = "MD5";
+        fc.type = "string";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+    });
+
+    CRYPT_KEY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "cryptKey";
+        fc.name = "Klucz";
+        fc.type = "int";
+        fc.foreign = R_CRYPT_KEY;
+    });
+
+    TAGS: Field = new Field((fc: FieldConfig) => {
+        fc.key = "tags";
+        fc.name = "Tagi";
+        fc.type = "string[]";
+    });
+
+
+    constructor() {
+        super(...arguments);
+        this.init();
+    };
+
+
+}
+
+export class RCryptKeyRepo extends Repository {
+
+
+    constructor() {
+        super((rc: RepoConfig) => {
+            rc.key = "cryptKey";
+            rc.name = "Klucz szyfrujący";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = RCryptKey;
+            rc.crude = "CRUD";
+            rc.local = false;
+        });
+    }
+
+}
+
+export class RCryptKey extends Record {
+
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "id";
+        fc.name = "ID";
+        fc.type = "int";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    UID: Field = new Field((fc: FieldConfig) => {
+        fc.key = "uid";
+        fc.name = "UID";
+        fc.type = "uid";
+        fc.autoGenerated = true;
+        fc.required = true;
+        fc.unique = true;
+    });
+
+    CREATED: Field = new Field((fc: FieldConfig) => {
+        fc.key = "created";
+        fc.name = "Utworzono";
+        fc.type = "timestamp";
+        fc.autoGenerated = true;
+        fc.readOnly = true;
+    });
+
+    USER: Field = new Field((fc: FieldConfig) => {
+        fc.key = "user";
+        fc.name = "Użytkownik";
+        fc.type = "int";
+    });
+
+    SVR_KEY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "svrKey";
+        fc.name = "Klucz usługi";
+        fc.type = "password";
+    });
+
+    USER_KEY: Field = new Field((fc: FieldConfig) => {
+        fc.key = "userKey";
+        fc.name = "Klucz użytkownika";
+        fc.type = "password";
+    });
+
+    MD5: Field = new Field((fc: FieldConfig) => {
+        fc.key = "md5";
+        fc.name = "MD5";
+        fc.type = "string";
     });
 
 
@@ -216,3 +927,10 @@ export class RAttribute extends Record {
 
 export const R_THREADS: RThreadsRepo = Repository.register(new RThreadsRepo());
 export const R_ATTRIBUTE: RAttributeRepo = Repository.register(new RAttributeRepo());
+export const R_ATTRIBUTE_ELEMENT: RAttributeElementRepo = Repository.register(new RAttributeElementRepo());
+export const R_CATALOG: RCatalogRepo = Repository.register(new RCatalogRepo());
+export const R_CATALOG_ATTRIBUTE: RCatalogAttributeRepo = Repository.register(new RCatalogAttributeRepo());
+export const R_CATEGORY: RCategoryRepo = Repository.register(new RCategoryRepo());
+export const R_CATEGORY_ATTRIBUTE: RCategoryAttributeRepo = Repository.register(new RCategoryAttributeRepo());
+export const R_RESOURCE: RResourceRepo = Repository.register(new RResourceRepo());
+export const R_CRYPT_KEY: RCryptKeyRepo = Repository.register(new RCryptKeyRepo());

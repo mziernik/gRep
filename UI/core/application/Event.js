@@ -60,7 +60,10 @@ const delayedDispatch = new Delayed(null, 0);
 export default class AppEvent {
 
     /** @type {EventType}  */
-    static APPLICATION__BEFORE_UPDATE = new EventType("Aktualizacja gałęzi aplikacji");
+    static APPLICATION__BEFORE_UPDATE = new EventType("Aktualizacja gałęzi aplikacji")
+
+    /** @type {EventType}  */
+    static REPOSITORY_REGISTERED = new EventType("Zarejestrowano repozytorium");
 
     /** @type {EventType}  */
     static NAVIGATE = new EventType("Nawigacja do strony");
@@ -91,13 +94,13 @@ export default class AppEvent {
         queue.push(this);
 
         delayedDispatch.call(() => {
-            queue.forEach((event: AppEvent) => {
+            while (queue.length) {
+                const event: AppEvent = queue.splice(0, 1)[0];
                 queue.remove(event);
                 event.type.dispatcher.dispatch(sender, event.value, event);
                 event.sent = true;
                 If.isFunction(event.onSent, onSent => onSent(event));
-            });
-
+            }
         });
     }
 }

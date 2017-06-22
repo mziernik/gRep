@@ -7,7 +7,10 @@ import {React, AppEvent, Utils, Dispatcher} from "../core";
 import Route from "react-router-dom/es/Route";
 
 export default class Endpoint {
+
     static all: Endpoint[] = [];
+    static onChange: Dispatcher = new Dispatcher();
+
     /** domyślna strona 404 */
     static NOT_FOUND: ?Endpoint;
 
@@ -47,6 +50,7 @@ export default class Endpoint {
         if (!Endpoint.homePage && name === "/")
             Endpoint.homePage = this;
 
+        Endpoint.onChange.dispatch(this);
     }
 
 
@@ -102,6 +106,7 @@ export default class Endpoint {
             children={(route: Object) => {
 
                 const props = {};
+                props.key = Utils.randomId(); // dodanie losowego kolucza zmsza reacta do ponownego utworzenia komponentu dziedziczącego po page
 
                 this.onNavigate.dispatch(this, this);
 

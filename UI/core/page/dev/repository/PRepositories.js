@@ -6,9 +6,7 @@ export default class PRepositories extends Page {
 
     constructor() {
         super(...arguments);
-        Repository.onChange.listen(this, () => {
-            this.forceUpdate()
-        });
+        Repository.onChange.listen(this, () => this.forceUpdate());
     }
 
     render() {
@@ -30,18 +28,18 @@ export default class PRepositories extends Page {
                 rowMapper={(repo: Repository) => {
                     return {
                         name: repo.name,
-                        id: repo.id,
+                        id: repo.key,
                         recs: repo.items.length,
                         updates: repo.updates,
                         last: repo.lastUpdated ? repo.lastUpdated.toLocaleString() : "",
                         actions: (<span>
                             <Link
-                                downloadName={repo.id + ".json"}
+                                downloadName={repo.key + ".json"}
                                 downloadData={() => repo.storage.build()}
                                 icon={FontAwesome.DOWNLOAD}
                             />
                             <Link
-                                link={this.endpoint.REPO.getLink({repo: repo.id})}
+                                link={this.endpoint.REPO.getLink({repo: repo.key})}
                                 icon={FontAwesome.EYE}
                             />
                         </span>)

@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import React from 'react';
+import {React, Utils} from  "../../core/core";
 import Component from "../../core/component/Component";
 import PropTypes from 'prop-types';
 import PageTitle from "../../core/page/PageTitle";
@@ -107,7 +107,7 @@ export default class TitleBar extends Component {
                     paddingLeft: "4px",
                     color: "#333",
                 } }
-                >{this.state.status.message}</span>
+                >{Utils.toString(this.state.status.message)}</span>
             </span>;
 
         }

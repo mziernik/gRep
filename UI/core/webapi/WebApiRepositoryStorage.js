@@ -12,25 +12,26 @@ export default class WebApiRepositoryStorage {
 
         Utils.forEach(Repository.all, (repo: Repository) => {
             if (repo.isLocal) return;
-            repos[repo.id] = repo.autoUpdate;
+            repos[repo.key] = repo.autoUpdate;
         });
 
         methods.get({repositories: repos}, (data: Object, response: WebApiResponse) => Repository.update(this, data));
     }
 
-    static buildDTO(records: Record[]): {} {
+    static buildDTO(records: Record[], includeUnchanged: boolean = false): {} {
         const dto: Object = {};
         const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repository);
+
         map.forEach((records: Record[], repo: Repository) => {
 
-            const obj = dto[repo.id] = [];
+            const obj = dto[repo.key] = [];
             records.forEach((record: Record) => {
                 const r = {};
                 r.action = record._action ? (record._action: CRUDE).name : null;
                 r.fields = {};
                 record.fields.forEach((field: Field) => {
-                    if (field.changed)
-                        r.fields[field._name] = field.get();
+                    if (includeUnchanged || field.changed)
+                        r.fields[field.key] = field.type.serialize(field.value);
                 });
 
                 obj.push(r);

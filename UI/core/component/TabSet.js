@@ -129,7 +129,7 @@ export class TabSet extends Component {
                     <span ref={(elem) => this.tabs = elem}
                           className={"tabs " + (this.props.vertical ? "tabsVertical" : "")}
                           style={{position: 'relative'}}>
-                        {Utils.forEachMap(this.props.children, (child, index) => {
+                        {Utils.forEach(this.props.children, (child, index) => {
                             if (child.props.hidden)return null;
                             if (!child.props.disabled && this.state.selected === index)
                                 return <span ref={(elem) => this._setScroll(elem)}
@@ -148,6 +148,7 @@ export class TabSet extends Component {
                                     </span>)
                         })}
                     </span>
+                    <span style={{borderBottom:'1px solid black', position:'relative', flex:1, alignSelf:'flex-end'}}/>
                     <span ref={(elem) => this.arrows.right = elem}
                           className={(this.props.vertical ? FontAwesome.CHEVRON_DOWN : FontAwesome.CHEVRON_RIGHT) + ' tabArrow'}
                           style={{display: 'none'}}

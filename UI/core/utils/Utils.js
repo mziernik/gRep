@@ -14,7 +14,7 @@ export function toString(argument: any): string {
     return "" + argument;
 }
 
-export function forEachMap(object: ?any, callback: (object: ?any, index: number | string) => ?boolean): [] {
+export function forEach(object: ?any, callback: (object: ?any, index: number | string) => ?any): [] {
     if (!Check.isFunction(callback))
         throw new Error("Nieprawidłowe wywołanie funkcji forEach");
 
@@ -23,8 +23,16 @@ export function forEachMap(object: ?any, callback: (object: ?any, index: number 
     if (If.isFunction(object))
         object = object();
 
+    if (object instanceof Map) {
+        (object: Map).forEach((value, key) => {
+            const res = callback(value, key);
+            if (res !== undefined) result.push(res);
+        })
+        return result;
+    }
+
     if (object instanceof Array) {
-        for (let i = 0; i < object.length; i++) {
+        for (let i = 0; i < (object: Array).length; i++) {
             const res = callback(object[i], i);
             if (res !== undefined) result.push(res);
         }
@@ -37,25 +45,6 @@ export function forEachMap(object: ?any, callback: (object: ?any, index: number 
     }
 
     return result;
-}
-
-export function forEach(object: ?any, callback: (object: ?any, index: number | string) => ?boolean) {
-    Check.isFunction(callback, new Error("Nieprawidłowe wywołanie funkcji forEach"));
-
-    if (If.isFunction(object))
-        object = object();
-
-    if (object instanceof Array) {
-        for (let i = 0; i < (object: Array).length; i++)
-            if (callback(object[i], i) === false)
-                return;
-        return;
-    }
-
-    for (let name in object)
-        if (callback(object[name], name) === false)
-            return;
-
 }
 
 
@@ -116,13 +105,16 @@ export function clone(src: any, dst: ?any = null): any {
  * @param {string} fieldName
  */
 
-export function makeFinal(obj: any, filter: ?(name: string, value: any) => boolean | string[] = null): any {
+export function makeFinal(obj: any, filter: ?(name: string, value: any) => boolean | string | string[] = null): any {
     if (!obj) return obj;
     Object.entries(obj).forEach(en => {
         if (If.isFunction(filter) && !filter(en[0], en[1]))
             return;
 
         if (filter instanceof Array && filter.indexOf(en[0]) === -1)
+            return;
+
+        if (typeof filter === "string" && en[0] !== filter)
             return;
 
         const prop = Object.getOwnPropertyDescriptor(obj, en[0]);
@@ -135,6 +127,18 @@ export function makeFinal(obj: any, filter: ?(name: string, value: any) => boole
         });
     });
     return obj;
+}
+
+
+export function setReadOnly(object: Object, key: string, value: ?any, checkInstance: ?[] = null): any {
+    if (checkInstance)
+        Check.instanceOf(value, checkInstance);
+
+    Object.defineProperty(object, key, {
+        value: value,
+        writable: false
+    });
+    return value;
 }
 
 export function agregate(object: any, aggregator: (element: any) => any): Map<*, []> {
@@ -388,5 +392,16 @@ export function verifyObjectInstance(object: any, instances: any[]): ?string[] {
     return names;
 }
 
+export class AtomicNumber {
 
+    value = 0;
+
+    get next(): number {
+        return ++this.value;
+    }
+
+    get prev(): number {
+        return --this.value;
+    }
+}
 

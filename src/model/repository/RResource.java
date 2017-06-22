@@ -77,14 +77,13 @@ public class RResource extends Repository<Integer> {
         c.name = "Format";
     });
 
-    public final ForeignColumn<Integer, RCatalog> catalog = new ForeignColumn<>(c -> {
-
+    public final static ForeignColumn<Integer, RCatalog> catalog = new ForeignColumn<>(c -> {
         c.repository = RResource.class;
         c.type = DataType.INT;
         c.key = "cat";
         c.daoName = "catalog";
         c.name = "Katalog";
-    }, null);
+    }, RCatalog.ID);
 
     public final static Column<String> FILE = new Column<>(c -> {
         c.repository = RResource.class;
@@ -112,7 +111,8 @@ public class RResource extends Repository<Integer> {
     public final static ForeignColumn<Integer, RCryptKey> CRYPT_KEY = new ForeignColumn<>(c -> {
         c.repository = RResource.class;
         c.type = DataType.INT;
-        c.key = "key";
+        c.daoName = "crypt_key";
+        c.key = "cryptKey";
         c.name = "Klucz";
     }, RCryptKey.ID);
 
@@ -123,10 +123,10 @@ public class RResource extends Repository<Integer> {
         c.name = "Tagi";
     });
 
-    public RResource(Integer id) {
+    public RResource() {
         super(c -> {
             c.key = "resource";
-            c.tableName = "data.resource";
+            c.daoName = "data.resource";
             c.name = "Zasób";
             c.primaryKey = ID;
         });

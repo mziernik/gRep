@@ -23,7 +23,7 @@ export default class CheckBox extends FormComponent {
      * @private
      */
     _handleClick(e: Event) {
-        let value = this.field.get();
+        let value = this.field.value;
         if (value === null || value === undefined)
             value = true;
         else
@@ -43,7 +43,7 @@ export default class CheckBox extends FormComponent {
      * @private
      */
     _setIcon(): FontAwesome {
-        const val = this.field.get();
+        const val = this.field.value;
         let icon = FontAwesome.CHECK_SQUARE;
         if (val !== null && val !== undefined)
             icon = val ? FontAwesome.CHECK_SQUARE_O : FontAwesome.SQUARE_O;
@@ -55,7 +55,7 @@ export default class CheckBox extends FormComponent {
      * @private
      */
     _highlight(highlight: boolean = true) {
-        if (this.field._readOnly)return;
+        if (this.field.readOnly)return;
         this.setState({color: highlight ? '#696969' : null});
     }
 
@@ -64,10 +64,10 @@ export default class CheckBox extends FormComponent {
             <span>
                 {this._fieldCtrlInfo}
                 <span className={this.state.icon}
-                      title={this.field._title}
+                      title={this.field.hint}
                       tabIndex="0"
-                      onClick={(e) => this.field._readOnly ? null : this._handleClick(e)}
-                      onKeyPress={(e) => this.field._readOnly ? null : e.charCode === 32 ? this._handleClick(e) : null}
+                      onClick={(e) => this.field.readOnly ? null : this._handleClick(e)}
+                      onKeyPress={(e) => this.field.readOnly ? null : e.charCode === 32 ? this._handleClick(e) : null}
                       onFocus={() => this._highlight(true)}
                       onBlur={() => this._highlight(false)}
                       onMouseEnter={() => this._highlight(true)}
@@ -77,7 +77,7 @@ export default class CheckBox extends FormComponent {
                           marginRight: '10px',
                           color: this.state.color
                       }}/>
-                {this.props.label ? this.field._title : null}
+                {this.props.label ? this.field.name : null}
                 {this._fieldCtrlErr}
             </span>);
 

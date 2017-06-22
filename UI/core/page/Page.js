@@ -23,7 +23,6 @@ export default class Page extends Component {
         Utils.makeFinal(this, ["endpoint"])
     }
 
-
     beginEdit(record: Record) {
         const rec = record.beginEdit(this);
 
@@ -32,7 +31,7 @@ export default class Page extends Component {
         return rec;
     }
 
-    render(){
+    render() {
 
         <div>
             {sdgasfdgsd}

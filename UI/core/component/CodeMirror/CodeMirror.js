@@ -288,7 +288,7 @@ export default class CodeMirror extends Component {
 
                 cm.on("change", (cm, change) => {
                     if (this.field)
-                        this.field.set(cm.getValue());
+                        this.field.value = cm.getValue();
                     if (If.isFunction(this.props.onChange))
                         this.props.onChange(cm, change);
                 });

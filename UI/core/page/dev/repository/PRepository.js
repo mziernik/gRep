@@ -14,11 +14,7 @@ export default class PRepository extends Page {
     constructor() {
         super(...arguments);
         this.repo = Repository.getF(this.props.repo);
-        Repository.onChange.listen(this, (map: Map) => {
-
-            If.condition(map.has(this.repo),
-                () => this.forceUpdate());
-        });
+        Repository.onChange.listen(this, (map: Map) => If.condition(map.has(this.repo), () => this.forceUpdate()));
     }
 
     render() {
@@ -31,9 +27,9 @@ export default class PRepository extends Page {
         columns.push(<span key="#action" style={{textAlign: "center"}}>Akcje</span>);
 
         columns.addAll(this.repo.columns.map((f: Field) =>
-            <span key={f._name} style={{textAlign: "center"}}>
-                    <div>{f._name}</div>
-                    <div style={{fontWeight: "normal"}}>{f._title}</div>
+            <span key={f.key} style={{textAlign: "center"}}>
+                    <div>{f.key}</div>
+                    <div style={{fontWeight: "normal"}}>{f.name}</div>
                     <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.type.name}]</div>
                 </span>));
 
@@ -43,7 +39,7 @@ export default class PRepository extends Page {
             <PageToolBar>
                 <Link
                     link={this.endpoint.RECORD.getLink({
-                        repo: this.repo.id,
+                        repo: this.repo.key,
                         rec: "~new"
                     })}
                     icon={FontAwesome.PLUS_SQUARE}
@@ -59,7 +55,9 @@ export default class PRepository extends Page {
                     </tr>
                     <tr>
                         <td>Ostatnia aktualizacja</td>
-                        <td>{this.repo.lastUpdated ? this.repo.lastUpdated.toLocaleString() : null} ({this.repo.lastUpdatedBy})</td>
+                        <td>{this.repo.lastUpdated ? this.repo.lastUpdated.toLocaleString() : null}
+                            ({this.repo.lastUpdatedBy})
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -74,15 +72,15 @@ export default class PRepository extends Page {
                     result["#action"] = <span>
                             <Link
                                 link={this.endpoint.RECORD.getLink({
-                                    repo: this.repo.id,
-                                    rec: record.primaryKey.get()
+                                    repo: this.repo.key,
+                                    rec: record.primaryKey.value
                                 })}
                                 icon={FontAwesome.CREDIT_CARD}
                             />
                     </span>;
 
                     record.fields.forEach((f: Field) =>
-                        result[f._name] = <FieldComponent preview={true} field={f}/>);
+                        result[f.key] = <FieldComponent preview={true} singleLine={true} field={f}/>);
                     return result;
                 }}
             />

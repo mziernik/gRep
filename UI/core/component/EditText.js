@@ -34,7 +34,7 @@ export default class EditText extends FormComponent {
                             this._handleChange(true, e, e.target.value)
                     }}
                     onBlur={e => this._handleChange(true, e, e.target.value)}
-                    defaultValue={this.field.get()}
+                    defaultValue={this.field.value}
                 />
                 {this._fieldCtrlErr}
             </span>);

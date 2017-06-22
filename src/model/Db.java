@@ -20,13 +20,25 @@ import main.GRep;
 
 import model.repository.RAttribute;
 import model.repository.RAttributeElement;
+import model.repository.RCatalog;
+import model.repository.RCatalogAttribute;
+import model.repository.RCategory;
+import model.repository.RCategoryAttribute;
+import model.repository.RCryptKey;
+import model.repository.RResource;
 
 public class Db extends PostgreSQL {
 
     public final static RThreads THREADS = Repository.register(new RThreads());
     public final static RAttribute ATTRIBUTE = Repository.register(new RAttribute());
     public final static RAttributeElement ATTRIBUTE_ELEMENT = Repository.register(new RAttributeElement());
-
+    public final static RCatalog CATALOG = Repository.register(new RCatalog());
+    public final static RCatalogAttribute CATALOG_ATTRIBUTE = Repository.register(new RCatalogAttribute());
+    public final static RCategory CATEGORY = Repository.register(new RCategory());
+    public final static RCategoryAttribute CATEGORY_ATTRIBUTE = Repository.register(new RCategoryAttribute());
+    public final static RResource RESOURCE = Repository.register(new RResource());
+    public final static RCryptKey CRYPT_KEY = Repository.register(new RCryptKey());
+    
 //    public final static Files files = new Files();
     //   public final static Documents documents = new Documents();
     public static class CDatabase extends ConfigNode {

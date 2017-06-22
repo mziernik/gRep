@@ -1,24 +1,32 @@
 //FixMe importy
 
-import Repository, {DATA_TYPE as DT_REPOSITORY} from "./Repository";
-import Record from "./Record";
-import Field from "./Field";
+
+import Repository, {DATA_TYPE as DT_REPOSITORY, RepoConfig} from "./Repository";
+import Record, {RecordConfig} from "./Record";
+import Field, {FieldConfig} from "./Field";
 import Permission from "../application/Permission";
 import * as Utils from "../utils/Utils";
 import Action from "./Action";
 import Debug from "../Debug";
-import DataType from "./DataType";
+import {Type} from  "../core";
+import * as CRUDE from "./CRUDE";
 
 export default class PermissionsRepo extends Repository {
 
     constructor() {
-        super("permissions", "Uprawnienia", DataType.STRING, PermissionRecord);
+        super((rc: RepoConfig) => {
+            rc.key = "permissions";
+            rc.name = "Uprawnienia";
+            rc.primaryKeyColumn = "id";
+            rc.recordClass = PermissionRecord;
+        });
+
         Object.preventExtensions(this);
         this.isLocal = true;
     }
 
     refresh() {
-        this._update(this, Utils.forEachMap(Permission.all, (p: Permission) => p.record ? undefined
+        this._update(this, Utils.forEach(Permission.all, (p: Permission) => p.record ? undefined
             : new PermissionRecord(this, p.id, p.name, p.getCrude(), p)), false);
         this.isReady = true;
     }
@@ -27,13 +35,56 @@ export default class PermissionsRepo extends Repository {
 
 export class PermissionRecord extends Record {
 
-    ID: Field = new Field(DataType.STRING).primaryKey();
-    NAME: Field = new Field(DataType.STRING).required().title("Nazwa");
-    CREATE: Field = new Field(DataType.BOOLEAN).title("Tworzenie").required();
-    READ: Field = new Field(DataType.BOOLEAN).title("Odczyt").required();
-    UPDATE: Field = new Field(DataType.BOOLEAN).title("Aktualizacja").required();
-    DELETE: Field = new Field(DataType.BOOLEAN).title("Usuwanie").required();
-    EXECUTE: Field = new Field(DataType.BOOLEAN).title("Wykonanie").required();
+    ID: Field = new Field((fc: FieldConfig) => {
+        fc.type = Type.STRING;
+        fc.key = "id";
+        fc.name = "ID";
+        fc.unique = true;
+        fc.required = true;
+        fc.readOnly = true;
+    });
+
+    NAME: Field = new Field((fc: FieldConfig) => {
+        fc.type = Type.STRING;
+        fc.key = "name";
+        fc.name = "Nazwa";
+    });
+
+    CREATE: Field = new Field((fc: FieldConfig) => {
+        fc.type = Type.BOOLEAN;
+        fc.key = "create";
+        fc.name = "Tworzenie";
+        fc.required = true;
+    });
+
+    READ: Field = new Field((fc: FieldConfig) => {
+        fc.type = Type.BOOLEAN;
+        fc.key = "read";
+        fc.name = "Odczyt";
+        fc.required = true;
+    });
+
+    UPDATE: Field = new Field((fc: FieldConfig) => {
+        fc.type = Type.BOOLEAN;
+        fc.key = "update";
+        fc.name = "Aktualizacja";
+        fc.required = true;
+    });
+
+    DELETE: Field = new Field((fc: FieldConfig) => {
+        fc.type = Type.BOOLEAN;
+        fc.key = "delete";
+        fc.name = "Usuwanie";
+        fc.required = true;
+    });
+
+    EXECUTE: Field = new Field((fc: FieldConfig) => {
+        fc.type = Type.BOOLEAN;
+        fc.key = "execute";
+        fc.name = "Wykonanie";
+        fc.required = true;
+    });
+
     permission: ?Permission = null;
 
     constructor(repo: PermissionsRepo, id: string, name: string, crude: ?string, permission: ?Permission) {
@@ -42,6 +93,7 @@ export class PermissionRecord extends Record {
         this.permission = permission;
         this.ID.set(id);
         this.NAME.set(name);
+        this._action = CRUDE.UPDATE;
 
         this.fieldChanged.listen(this, (field: Field, prev: ?any) => {
             if (this._editContext && this._temporary && prev !== null)
@@ -58,8 +110,6 @@ export class PermissionRecord extends Record {
         }
 
         this.init();
-
-        Object.preventExtensions(this);
     }
 
     _update(context: any, action: Action, source: Record): Record {
@@ -71,11 +121,11 @@ export class PermissionRecord extends Record {
 
         const crude = this.permission.getCrude();
 
-        this.permission.create(this.CREATE.get());
-        this.permission.read(this.READ.get());
-        this.permission.update(this.UPDATE.get());
-        this.permission.delete(this.DELETE.get());
-        this.permission.execute(this.EXECUTE.get());
+        this.permission.create(this.CREATE.value);
+        this.permission.read(this.READ.value);
+        this.permission.update(this.UPDATE.value);
+        this.permission.delete(this.DELETE.value);
+        this.permission.execute(this.EXECUTE.value);
 
         if (crude !== this.permission.getCrude())
             Debug.log(this, `Aktualizacja uprawnień  ${this.permission.id}: ${crude} -> ${this.permission.getCrude()}`);

@@ -26,13 +26,13 @@ export default class RepositoryStorage {
         if (!this._store || !this.read)
             return;
 
-        const data = this._store.get("repo-" + this._repository.id);
+        const data = this._store.get("repo-" + this._repository.key);
 
         if (!data || !data.columns || !data.rows)
             return;
 
         const columns: Field[] = data.columns.map(c => {
-            const result = this._repository.columns.find(cc => cc._name.toLowerCase() === c.name.toLowerCase());
+            const result = this._repository.columns.find(cc => cc.key === c.key);
             if (!result)
                 throw new Error("Nie znaleziono kolumny " + JSON.stringify(c.name));
             return result;
@@ -48,7 +48,7 @@ export default class RepositoryStorage {
 
             columns.forEach((col: Field, idx: number) => {
                 const val = row[idx];
-                rec.getFieldF(col._name).set(val);
+                rec.getFieldF(col.key).set(val);
             });
 
             rec._sourceRecord = this._repository.get(rec.primaryKey.get());
@@ -67,14 +67,14 @@ export default class RepositoryStorage {
         this._repository.items.forEach((rec: Record) => {
             if (!data.columns.length)
                 rec.fields.forEach((f: Field) => data.columns.push({
-                    name: f._name,
+                    key: f.key,
                     type: f.type.name,
                     raw: f.type.simpleType
                 }));
 
             const row = [];
             rec.fields.forEach((f: Field) => {
-                let val = f.get();
+                let val = f.value;
 
                 if (val instanceof Repository)
                     val = null;
@@ -95,6 +95,6 @@ export default class RepositoryStorage {
             return;
 
 
-        this._store.set("repo-" + this._repository.id, this.build());
+        this._store.set("repo-" + this._repository.key, this.build());
     }
 }

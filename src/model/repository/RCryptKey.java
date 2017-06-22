@@ -3,7 +3,6 @@ package model.repository;
 import com.model.repository.Column;
 import com.model.repository.Repository;
 import com.utils.date.TDate;
-import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
 
@@ -68,10 +67,10 @@ public class RCryptKey extends Repository<Integer> {
         c.name = "MD5";
     });
 
-    public RCryptKey(Integer id) {
+    public RCryptKey() {
         super(c -> {
             c.key = "cryptKey";
-            c.tableName = "data.crypt_key";
+            c.daoName = "data.crypt_key";
             c.name = "Klucz szyfrujący";
             c.primaryKey = ID;
         });

@@ -1,115 +1,151 @@
 import {React, PropTypes, If} from "../core"
 import {Component} from "../components"
+import * as Utils from "../utils/Utils";
 
-class Element {
-
-    type: string;
-    parent: Element;
-    children: Element[] = [];
-    content: string = null;
-
-    constructor(type: string) {
-        this.type = type;
-    }
-
-    add(type: string) {
-        const element = new Element(type);
-        element.parent = this;
-        this.children.push(element);
-        return element;
-    }
-
-    render() {
-
-
-        return <div style={{padding: "4px 30px"}}>
-            <div>{this.content !== null ? "<" + this.type + "> " + this.content : null}</div>
-            {this.children.map(e => e.render())}
-        </div>
-    }
-}
-
-export default class Form extends Component {
+export default class JsonViewer extends Component {
 
     static propTypes = {
-
-        record: PropTypes.any,
-
+        object: PropTypes.any,
+        instance: PropTypes.func
     };
+
+    object: any;
 
     constructor() {
         super(...arguments);
-        If.isFunction(this.props.instance, f => f(this));
+        If.isFunction(this.props.instance, f => f(this))
+        this.object = this.props.object;
+    }
+
+    update(object: any) {
+        this.object = object;
+        this.forceUpdate();
     }
 
     render() {
 
-        let obj = {
-            tekst: "abc",
-            liczba: 12,
-        };
+        const keyId = new Utils.AtomicNumber();
 
-        const json = JSON.stringify(obj);
-
-        let quoted: boolean = false;
-
-
-        let current: Element = null;
-        let root: Element = null;
-
-        const open = (type: string): Element => current = current ? current.add(type) : root = new Element(type);
-        const close = (): Element => current = current.parent;
-
-
-        for (let i = 0; i < json.length; i++) {
-            const c = json[i];
-
-
-            if (c === '"') {
-                quoted = !quoted;
-                if (quoted)
-                    open("string");
-                else
-                    close();
-                continue;
-            }
-
-            if (c === " " && !quoted)
-                continue;
-
-            if (c === "{") {
-                open("object");
-                continue;
-            }
-
-            if (c === "[") {
-                open("array");
-                continue;
-            }
-
-            if (c === ":") {
-                open("value");
-                continue;
-            }
-
-            if (c === "," || c === "}" || c === "]") {
-
-                if ((current.type === "string" || current.type === "value")
-                    && (current.parent && current.parent.type === "object" || current.parent && current.parent.type === "array"))
-                    close();
-                
-                close();
-                continue;
-            }
-
-            current.content = (current.content || "") + c;
+        function Opr(props) {
+            return <span key={keyId.next} style={{
+                paddingRight: props.char === ":" || props.char === "," ? "8px" : null,
+                ...padding(props.level)
+            }}>{props.char}</span>
         }
 
+        function Br() {
+            return <br/>;
+        }
+
+        function map(item, singleLine, callback) {
+            const result = [];
+            Utils.forEach(item, (value, name) => {
+                let x = callback(value, name);
+                if (!x) return;
+                if (result.length) {
+                    result.push(<Opr key={keyId.next} char=","/>);
+                    if (!singleLine)
+                        result.push(<Br key={keyId.next}/>);
+                }
+                result.push(x);
+            });
+            return result;
+        }
+
+
+        function Block(props) {
+            return <span>
+                <Opr char={props.opr[0]} level={ props.intent ? props.level : 0}/>
+                {props.singleLine ? null : <Br/>}
+                {props.children}
+                {props.singleLine ? null : <Br/>}
+                <Opr char={props.opr[1]} level={props.singleLine ? 0 : props.level}/>
+            </span>;
+        }
+
+        function padding(level) {
+            return {paddingLeft: (level * 30) + "px"}
+        }
+
+        function draw(item: any, parent: {} | [], intent, level) {
+
+            const type = typeof item;
+            let color = "#000";
+
+            switch (type) {
+                case "string":
+                    color = "green";
+                    item = JSON.stringify(item);
+                    break;
+                case "number":
+                    color = "blue";
+                    break;
+                case "boolean":
+                    item = item ? "true" : "false";
+                    color = "blue";
+                    break;
+            }
+
+            if (item === null) {
+                item = "null";
+                color = "#aaa";
+            }
+
+
+            if (item instanceof Array) {
+                let singleLine = true;
+                item.forEach(elm => {
+                    if (elm instanceof Array) {
+                        if (elm.length)
+                            singleLine = false;
+                        return;
+                    }
+
+                    if (elm instanceof Object) {
+                        if (!Object.keys(elm).length)
+                            singleLine = true;
+                        return;
+                    }
+
+                    if (elm !== null && ["string", "number", "boolean"].indexOf(typeof elm) < 0)
+                        singleLine = false;
+                });
+
+                return <Block key={keyId.next} parent={item} intent={intent} level={level} opr="[]" singleLine={singleLine}>
+                    {map(item, singleLine, e => draw(e, item, true, singleLine ? 0 : level + 1))}
+                </Block>;
+            }
+
+            if (item instanceof Object) {
+
+                let singleLine = false;
+                if (!Object.keys(item).length)
+                    singleLine = true;
+
+                return <Block key={keyId.next} parent={item} intent={intent} level={level} opr="{}" singleLine={singleLine}>
+                    {map(item, false, (value, name) =>
+                        <span key={keyId.next} style={padding(level + 1)}>
+                            <span style={{color: "#880042"}}>{name}</span>
+                            <Opr char=":" level={0}/>
+                            {draw(value, item, false, level + 1)}
+                        </span>)
+                    }
+                </Block>;
+            }
+            const zz = intent ? padding(level) : {};
+
+            return <span key={keyId.next} style={{color: color, ...zz}}>{item}</span>
+        }
+
+
         return <div>
-            <div>{json}</div>
-            <hr/>
-            {root.render()}
+            <div style={{
+                fontFamily: "consolas",
+                fontSize: "10pt",
+            }}>
+                {draw(this.object, null, false, 0)}
+            </div>
         </div>
-    };
+    }
 
 }

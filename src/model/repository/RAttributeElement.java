@@ -2,10 +2,13 @@ package model.repository;
 
 import com.model.repository.Column;
 import com.model.repository.Repository;
+import com.model.repository.intf.CRUDE;
+import com.utils.Utils;
 import com.utils.date.TDate;
 import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
 import com.utils.reflections.datatype.MapDataType;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -72,9 +75,9 @@ public class RAttributeElement extends Repository<Integer> {
         c.name = "Opis";
     });
 
-    public final static Column<Boolean[]> REQUIRED = new Column<>(c -> {
+    public final static Column<Boolean> REQUIRED = new Column<>(c -> {
         c.repository = RAttributeElement.class;
-        c.type = DataType.BOOLEAN.asArray();
+        c.type = DataType.BOOLEAN;
         c.key = "required";
         c.name = "Wymagany";
     });
@@ -133,7 +136,7 @@ public class RAttributeElement extends Repository<Integer> {
     public RAttributeElement() {
         super(c -> {
             c.key = "attrElm";
-            c.tableName = "data.attribute_element";
+            c.daoName = "data.attribute_element";
             c.name = "Element atrybutu";
             c.primaryKey = ID;
         });

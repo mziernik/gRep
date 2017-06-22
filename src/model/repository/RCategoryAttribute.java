@@ -32,6 +32,7 @@ public class RCategoryAttribute extends Repository<Integer> {
     public final static ForeignColumn<Integer, RCategory> CATEGORY = new ForeignColumn<>(c -> {
         c.repository = RCatalogAttribute.class;
         c.type = DataType.INT;
+        c.daoName = "category";
         c.key = "cat";
         c.name = "Kategoria";
     }, RCategory.ID);
@@ -39,6 +40,7 @@ public class RCategoryAttribute extends Repository<Integer> {
     public final static ForeignColumn<Integer, RAttribute> ATTR = new ForeignColumn<>(c -> {
         c.repository = RCatalogAttribute.class;
         c.type = DataType.INT;
+        c.daoName = "attribute";
         c.key = "attr";
         c.name = "Atrybut";
     }, RAttribute.ID);
@@ -46,6 +48,7 @@ public class RCategoryAttribute extends Repository<Integer> {
     public final static Column<String> MASK = new Column<>(c -> {
         c.repository = RCatalogAttribute.class;
         c.type = DataType.STRING;
+        c.daoName = "display_mask";
         c.key = "mask";
         c.name = "Maska wyświetlania";
     });
@@ -53,6 +56,7 @@ public class RCategoryAttribute extends Repository<Integer> {
     public final static Column<String[]> DEF_VAL = new Column<>(c -> {
         c.repository = RCatalogAttribute.class;
         c.type = new ArrayDataType<>(DataType.STRING);
+        c.daoName = "def_val";
         c.key = "defVal";
         c.name = "Wartość domyślna";
     });
@@ -86,10 +90,10 @@ public class RCategoryAttribute extends Repository<Integer> {
         c.name = "Abstrakcyjny";
     });
 
-    public RCategoryAttribute(Integer id) {
+    public RCategoryAttribute() {
         super(c -> {
             c.key = "categoryAttr";
-            c.tableName = "data.category_attribute";
+            c.daoName = "data.category_attribute";
             c.name = "Atrybut kategorii";
             c.primaryKey = ID;
         });

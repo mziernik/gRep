@@ -113,7 +113,7 @@ public class RAttribute extends Repository<Integer> {
     public RAttribute() {
         super(c -> {
             c.key = "attribute";
-            c.tableName = "data.attribute";
+            c.daoName = "data.attribute";
             c.name = "Atrybut";
             c.primaryKey = ID;
         });

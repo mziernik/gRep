@@ -1,4 +1,4 @@
-import {React, Check, If, Debug} from "../core";
+import {React, Check, If, Debug, Utils} from "../core";
 import * as Application from "./Application";
 
 type StatusType = "debug" | "info" | "success" | "warning" | "error"
@@ -28,7 +28,7 @@ export default class AppStatus {
     }
 
     static error(context: any, message: string, details: ?string = null, timeout: ?number = null) {
-        return AppStatus.set(context, "error", message, details, timeout);
+        return AppStatus.set(context, "error", message, details, If.isDefined(timeout) ? timeout : 5000);
     }
 
     static warning(context: any, message: string, details: ?string = null, timeout: ?number = null) {

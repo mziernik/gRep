@@ -10,7 +10,7 @@ export default class FieldController extends Component {
 
     /* domyślne ikony */
     defError: Object = <span className={FontAwesome.EXCLAMATION_CIRCLE.className}
-                             style={{color: 'red', margin: '0px 8px', position:'relative'}}/>;
+                             style={{color: 'red', margin: '0px 8px', position: 'relative'}}/>;
     defWarning: Object = <span className={FontAwesome.EXCLAMATION_TRIANGLE.className}
                                style={{color: '#ffad00', margin: '0px 8px'}}/>;
     defDesc: Object = <span className={FontAwesome.QUESTION_CIRCLE.className}
@@ -60,14 +60,14 @@ export default class FieldController extends Component {
         this.defDesc = this.props.defDesc || this.defDesc;
         this.defReq = this.props.defReq || this.defReq;
 
-        let msg = this.props.handleDescription ? this.field.getDescription() : null;
+        let msg = this.props.handleDescription ? this.field.description : null;
         if (!msg)
-            msg = (this.props.handleRequired && this.field.isRequired()) ? 'Pole obowiązkowe' : null;
-        const ren = msg ? true : (this.props.handleRequired && this.field.isRequired());
+            msg = (this.props.handleRequired && this.field.required) ? 'Pole obowiązkowe' : null;
+        const ren = msg ? true : (this.props.handleRequired && this.field.required);
         this.state = {
             render: ren,
             message: msg,
-            defIcon: this.props.handleRequired && this.field.isRequired() ? this.defReq : this.defDesc,
+            defIcon: this.props.handleRequired && this.field.required ? this.defReq : this.defDesc,
             hint: false
         };
         if (this.props.handleFieldError)

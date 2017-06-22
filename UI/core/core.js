@@ -12,6 +12,11 @@ export {Utils};
 import * as If from "./utils/If";
 export {If};
 
+import * as ReactUtils from "./utils/ReactUtils";
+export {ReactUtils};
+
+
+export {default as Exception} from "./utils/Exception";
 
 export {default as Debug} from "./Debug";
 export {default as DOMPrototype} from "./utils/DOMPrototype";
@@ -27,9 +32,8 @@ export {default as PropTypes} from 'prop-types';
 
 
 // -------------------- Aplikacja ---------------------------------
-export {default as DataType} from "./repository/DataType"; //
-export {ForeignDataType} from "./repository/DataType"; //
-
+import * as Type from"./repository/Type";
+export {Type};
 
 import * as CRUDE from "./repository/CRUDE";
 export {CRUDE};
@@ -45,9 +49,11 @@ export {default as AppNode} from "./application/Node";
 
 // --------------------- moduły ------------------------------
 
-
 export {default as Repository} from "./repository/Repository";
 export {default as Record} from "./repository/Record";
 export {default as Field} from "./repository/Field";
+export {FieldConfig} from "./repository/Field";
+export {RepoConfig} from "./repository/Repository";
+
 
 export {default as Store} from "./Store";

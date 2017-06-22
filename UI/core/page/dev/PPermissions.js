@@ -17,8 +17,8 @@ export default class PPermissions extends Page {
         PERMISSIONS.refresh();
         const add = (record: PermissionRecord, field: Field) =>
             <input type="checkbox"
-                   defaultChecked={field.get()}
-                   onChange={e => field.set(e.currentTarget.checked)}
+                   defaultChecked={field.value}
+                   onChange={e => field.value = e.currentTarget.checked}
                    style={{
                        width: "16px",
                        height: "16px"

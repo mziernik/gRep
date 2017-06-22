@@ -22,7 +22,7 @@ export default class Button extends Component {
     constructor() {
         super(...arguments);
         this.state = {
-            disabled: this.props.crude ? true : false
+            disabled: !!this.props.crude
         };
 
 
@@ -32,7 +32,7 @@ export default class Button extends Component {
             (this.props.record: Record).fieldChanged.listen(this, (field: Field) => {
                 let ok = true;
                 this.props.record.fields.forEach((field: Field) => {
-                    if (!field.isValid())
+                    if (!field.isValid)
                         ok = false;
                 });
                 this.setState({disabled: !ok});

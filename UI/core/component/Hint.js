@@ -54,7 +54,7 @@ export default class Hint extends Component {
                       zIndex: 1000
                   }}>
                 {this.props.children
-                || Utils.forEachMap(this.props.message.split('\n'), (line, index) => {
+                || Utils.forEach(this.props.message.split('\n'), (line, index) => {
                     return <div key={index}>{line}</div>;
                 })}
             </span>

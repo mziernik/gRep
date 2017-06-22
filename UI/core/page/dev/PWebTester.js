@@ -1,4 +1,4 @@
-import {React, Delayed, Field, DataType} from "../../core";
+import {React, Delayed, Field, Type} from "../../core";
 import {Page} from "../../components";
 import CodeMirror from "../../component/CodeMirror/CodeMirror";
 
@@ -11,9 +11,9 @@ export default class PWebTester extends Page {
     fra: HTMLIFrameElement;
     console: HTMLDivElement;
 
-    js: Field = new Field(DataType.STRING).set(JS).store("WebTester_JS");
-    css: Field = new Field(DataType.STRING).set(CSS).store("WebTester_CSS");
-    html: Field = new Field(DataType.STRING).set(HTML).store("WebTester_HTML");
+    js: Field = new Field(Type.STRING).set(JS).store("WebTester_JS");
+    css: Field = new Field(Type.STRING).set(CSS).store("WebTester_CSS");
+    html: Field = new Field(Type.STRING).set(HTML).store("WebTester_HTML");
     changed = new Delayed(() => this._reload(), 500);
 
     constructor() {

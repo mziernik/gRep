@@ -5,7 +5,6 @@ import com.model.repository.ForeignColumn;
 import com.model.repository.ForeignColumns;
 import com.model.repository.Repository;
 import com.utils.date.TDate;
-import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
 
@@ -74,13 +73,15 @@ public class RCategory extends Repository<Integer> {
     public final static ForeignColumns<Integer, RCategory> CATS = new ForeignColumns<>(c -> {
         c.repository = RCategory.class;
         c.type = DataType.INT.asArray();
-        c.key = "cat";
-        c.name = "Kategoria";
+        c.daoName = "categories";
+        c.key = "cats";
+        c.name = "Kategorie";
     }, RCategory.ID);
 
-    public final ForeignColumn<Integer, RAttribute> ATTRS = new ForeignColumn<>(c -> {
+    public final static ForeignColumn<Integer, RAttribute> ATTRS = new ForeignColumn<>(c -> {
         c.repository = RCategory.class;
         c.type = DataType.INT;
+        c.daoName = "attributes";
         c.key = "attr";
         c.name = "Dozwolone atrybuty";
     }, RAttribute.ID);
@@ -88,7 +89,7 @@ public class RCategory extends Repository<Integer> {
     public RCategory() {
         super(c -> {
             c.key = "category";
-            c.tableName = "data.category";
+            c.daoName = "data.category";
             c.name = "Kategoria";
             c.primaryKey = ID;
         });

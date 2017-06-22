@@ -24,16 +24,16 @@ export default class PRepositories extends Page {
                 rowMapper={(repo: Repository) => {
                     return {
                         name: repo.name,
-                        id: repo.id,
+                        id: repo.key,
                         recs: repo.items.length,
                         actions: (<span>
                             <Link
-                                downloadName={repo.id + ".json"}
+                                downloadName={repo.key + ".json"}
                                 downloadData={() => repo.storage.build()}
                                 icon={FontAwesome.DOWNLOAD}
                             />
                             <Link
-                                link={REPO.getLink({id: repo.id})}
+                                link={REPO.getLink({id: repo.key})}
                                 icon={FontAwesome.EYE}
                             />
                         </span>)
@@ -68,9 +68,9 @@ export class RepositoryPage extends Page {
     render() {
 
         const columns = [] = this.repo.columns.map((f: Field) =>
-            <span key={f._name} style={{textAlign: "center"}}>
-                    <div>{f._name}</div>
-                    <div style={{fontWeight: "normal"}}>{f._title}</div>
+            <span key={f.key} style={{textAlign: "center"}}>
+                    <div>{f.key}</div>
+                    <div style={{fontWeight: "normal"}}>{f.name}</div>
                     <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.type.name}]</div>
                 </span>);
 
@@ -83,7 +83,7 @@ export class RepositoryPage extends Page {
                 rowMapper={(record: Record) => {
                     const result = {};
                     record.fields.forEach((f: Field) =>
-                        result[f._name] = <FieldComponent preview={true} field={f}/>);
+                        result[f.key] = <FieldComponent preview={true} field={f}/>);
                     return result;
                 }}
             />

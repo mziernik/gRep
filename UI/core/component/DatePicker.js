@@ -51,17 +51,17 @@ export default class DatePicker extends FormComponent {
                 {this._fieldCtrlInfo}
                 <DateTimePicker
                     {...this.props.dtpProps}
-                    title={this.field._title}
+                    title={this.field.hint}
                     dayComponent={(props) => this._dayRendererFunc(props)}
-                    placeholder={this.field._title}
-                    disabled={this.field._readOnly}
+                    placeholder={this.field.name}
+                    disabled={this.field.readOnly}
                     messages={{
                         calendarButton: 'Wybierz datę',
                         timeButton: 'Wybierz godzinę',
                         moveBack: 'Poprzedni miesiąc',
                         moveForward: 'Następny miesiąc'
                     }}
-                    defaultValue={this.field.get()}
+                    defaultValue={this.field.value}
                     duration={100}
                     onChange={(d, s) => this._handleChange(false, null, d)}/>
                 {this._fieldCtrlErr}

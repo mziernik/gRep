@@ -11,8 +11,12 @@ import PModules from "./PModules";
 import PRepository from "./repository/PRepository";
 import PRecord from "./repository/PRecord";
 import PFontAwesome from "./PFontAwesome";
+import Repository from "../../repository/Repository";
+import AppEvent from "../../application/Event";
 
 export default class DevRouter extends Endpoint {
+
+    static INSTANCES: DevRouter[] = [];
 
     SKIN: Endpoint;
     EVENTS: Endpoint;
@@ -43,16 +47,28 @@ export default class DevRouter extends Endpoint {
         this.FONT_AWESOME = this.child("Font Awesome", baseUrl + "/fontawesome", PFontAwesome);
 
         this.REPOS = this.child("Repozytoria", baseUrl + "/repositories", PRepositories);
-        this.REPO = this.REPOS.child("Repozytorium", this.REPOS._path + "/:repo", PRepository).defaultParams({repo: "permissions"});
-        this.RECORD = this.REPOS.child("Rekord", this.REPOS._path + "/:repo/:rec", PRecord).defaultParams({
-            repo: "permissions",
-            rec: null
-        });
+        this.REPO = this.REPOS.child("Repozytorium", this.REPOS._path + "/:repo", PRepository)
+            .defaultParams({repo: "permissions"})
+            .hidden(true);
+
+        this.RECORD = this.REPOS.child("Rekord", this.REPOS._path + "/:repo/:rec", PRecord)
+            .defaultParams({
+                repo: "permissions",
+                rec: null
+            }).hidden(true);
 
         this.REPOS.REPO = this.REPO;
         this.REPO.RECORD = this.RECORD;
 
+        DevRouter.INSTANCES.push(this);
+
         Object.preventExtensions(this);
+
+        AppEvent.REPOSITORY_REGISTERED.listen(this, (repo: Repository) => {
+                this.REPOS.child(repo.name, this.REPOS._path + "/" + repo.key, PRepository);
+            }
+        );
+
     }
 
 }

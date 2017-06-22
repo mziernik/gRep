@@ -1,11 +1,10 @@
 // @flow
 'use strict';
-import {React, Repository, Utils, If, Check, PropTypes, Record, Field, DataType} from "../../core";
-import {FontAwesome, FormComponent, Link, Component, MultipleCells} from "../../components";
+import {Debug, React, Repository, Utils, If, Check, PropTypes, Record, Field, FieldConfig, Type} from "../../core";
+import {FontAwesome, FormComponent, Link, Component} from "../../components";
 import CheckBox from "../CheckBox";
 import DatePicker from "../DatePicker";
 import Select from "../Select";
-import {CellsDataType, ForeignDataType} from "../../repository/DataType";
 
 
 export default class FieldComponent extends FormComponent {
@@ -16,6 +15,7 @@ export default class FieldComponent extends FormComponent {
 
     props: {
         preview: boolean,
+        singleLine: boolean,
         checkBoxLabel: boolean,
         props: ?Object,
         readOnly: boolean,
@@ -25,6 +25,7 @@ export default class FieldComponent extends FormComponent {
     static propTypes = {
         field: PropTypes.instanceOf(Field).isRequired,
         preview: PropTypes.bool,
+        singleLine: PropTypes.bool,
         checkBoxLabel: PropTypes.bool,
         props: PropTypes.object,
         readOnly: PropTypes.bool,
@@ -39,16 +40,16 @@ export default class FieldComponent extends FormComponent {
         if (!this.field) return null;
 
         if (this.props.preview)
-            return <span {...this.props.props} title={this.field._title}>{this.field.getSimpleValue()}</span>;
+            return <span {...this.props.props} title={this.field.name}>{this.field.displayValue}</span>;
 
         return (
             <span {...this.props.props} style={{display: 'flex'}}>
                 {super.renderChildren(this._fieldCtrlInfo)}
-                <input title={this.field._title}
+                <input title={this.field.hint}
                        {...props}
-                       placeholder={this.field._title}
-                       name={this.field._name}
-                       disabled={Utils.coalesce(this.props.readOnly, this.field._readOnly)}
+                       placeholder={this.field.name}
+                       name={this.field.key}
+                       disabled={Utils.coalesce(this.props.readOnly, this.field.readOnly)}
                        style={{
                            textTransform: this.field.textCasing,
                            flex: 'auto',
@@ -66,7 +67,7 @@ export default class FieldComponent extends FormComponent {
                        onBlur={e => {
                            if (this._changed) this._handleChange(true, e, e.target.value);
                        }}
-                       defaultValue={this.field.getSimpleValue()}
+                       defaultValue={this.field.units ? this.field.unitValue : this.field.simpleValue}
                 />
                 {this._unitSelect}
                 {super.renderChildren(this._fieldCtrlErr)}
@@ -77,11 +78,13 @@ export default class FieldComponent extends FormComponent {
         if (!this.field) return null;
 
         if (this.props.preview) {
-            return <span {...this.props.props} title={this.field._title} style={{display: 'flex'}}>
+            const singleLineStyle = this.props.singleLine ? {overflow: "hidden", textOverflow: "ellipsis"} : null;
+
+            return <span {...this.props.props} title={this.field.name} style={{display: 'flex'}}>
                 <pre
-                    style={{fontFamily: "inherit", flex: 'auto'}}
+                    style={{fontFamily: "inherit", flex: 'auto', ...singleLineStyle}}
                     disabled={true}
-                >{super.renderChildren(this.field.getSimpleValue())}</pre>
+                >{super.renderChildren(this.field.simpleValue)}</pre>
             </span>;
         }
 
@@ -89,10 +92,10 @@ export default class FieldComponent extends FormComponent {
             <span {...this.props.props} style={{display: 'flex'}}>
                 {super.renderChildren(this._fieldCtrlInfo)}
                 <textarea
-                    title={this.field._title}
-                    placeholder={this.field._title}
-                    name={this.field._name}
-                    disabled={Utils.coalesce(this.props.readOnly, this.field._readOnly)}
+                    title={this.field.hint}
+                    placeholder={this.field.name}
+                    name={this.field.key}
+                    disabled={Utils.coalesce(this.props.readOnly, this.field.readOnly)}
                     style={{
                         textTransform: this.field.textCasing,
                         flex: 'auto',
@@ -104,7 +107,7 @@ export default class FieldComponent extends FormComponent {
                     onBlur={e => {
                         if (this._changed) this._handleChange(true, e, e.target.value);
                     }}
-                    defaultValue={this.field.getSimpleValue()}
+                    defaultValue={this.field.simpleValue}
                 />
                 {super.renderChildren(this._fieldCtrlErr)}
             </span>);
@@ -117,9 +120,9 @@ export default class FieldComponent extends FormComponent {
             return (
                 <span {...this.props.props}>
                     <span style={{marginRight: '10px'}}
-                          title={this.field._title}
-                          className={this.field.get() ? FontAwesome.CHECK : FontAwesome.TIMES}/>
-                    {this.props.checkBoxLabel ? this.field._title : null}
+                          title={this.field.name}
+                          className={this.field.value ? FontAwesome.CHECK : FontAwesome.TIMES}/>
+                    {this.props.checkBoxLabel ? this.field.name : null}
                 </span>);
 
         const elem = <CheckBox field={this.field} label={this.props.checkBoxLabel} fieldCtrl={false}/>;
@@ -136,14 +139,16 @@ export default class FieldComponent extends FormComponent {
         if (!this.field)return null;
 
         if (this.props.preview) {
-            if (this.field.isEmpty()) return null;
+            if (this.field.isEmpty)
+                return null;
+
             switch (this.field.type.name) {
                 case "date":
-                    return <span title={this.field._title}>{(this.field._value: Date).toLocaleDateString()}</span>;
+                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleDateString()}</span>;
                 case "time":
-                    return <span title={this.field._title}>{(this.field._value: Date).toLocaleTimeString()}</span>;
+                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleTimeString()}</span>;
                 case "timestamp":
-                    return <span title={this.field._title}>{(this.field._value: Date).toLocaleString()}</span>;
+                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleString()}</span>;
             }
         }
 
@@ -157,24 +162,6 @@ export default class FieldComponent extends FormComponent {
 
     renderSelect() {
         if (!this.field) return null;
-
-        const enumerate = this.field._enumerate();
-
-        if (this.props.preview) {
-            if (this.field.isEmpty()) return null;
-            if (this.field.type.multiple || this.field.type.list) {
-                return (
-                    <span title={this.field._title}>{
-                        Utils.forEachMap(this.field._value, (item, i) => {
-                            const arr = enumerate.find((elem, i) => (elem[1] === item)) || [];
-                            return <span>{ (i > 0 ? ', ' : '') + arr[0]} </span>
-                        })}</span>);
-            }
-            return <span title={this.field._title}>{enumerate.find((elem, i) => {
-                if (elem[1] === this.field._value)
-                    return elem;
-            })[0]}</span>;
-        }
 
         return (
             <span {...this.props.props}>
@@ -194,30 +181,11 @@ export default class FieldComponent extends FormComponent {
 
         if (this.props.preview)
             return <ul>
-                {Utils.forEachMap(this.field.get(), (item: any) => <li>{Field.formatValue(item)}</li>)}
+                {Utils.forEach(this.field.value, (item: any, index: any) => <li
+                    key={index}>{Field.formatValue(item)}</li>)}
             </ul>;
 
         return <List field={this.field}/>
-    }
-
-    renderMap() {
-        if (!this.field) return null;
-        if (this.props.preview)
-            return <table>
-                <tbody>
-                {Utils.forEachMap(this.field.get(), (value: any, key: any) =>
-                    <tr>
-                        <td>{Field.formatValue(key)}</td>
-                        <td>{Field.formatValue(value)}</td>
-                    </tr>)}
-                </tbody>
-            </table>;
-
-
-    }
-
-    renderCells() {
-
     }
 
 
@@ -225,26 +193,33 @@ export default class FieldComponent extends FormComponent {
 
         if (!this.field) return null;
 
-        if (this.field.type.list)
+
+        if (this.props.preview && this.props.singleLine)
+            return <span>{this.field.displayValue}</span>;
+
+
+        if (this.props.preview && this.field.enumerate) {
+            const map: Map = this.field.enumerate();
+            return <ul title={this.field.hint}>{
+                Utils.forEach(this.field.value, (item, i) =>
+                    <li key={i}>{Field.formatValue(map.get(item))} </li>
+                )}
+            </ul>;
+        }
+
+        if (this.field.type instanceof Type.ListDataType || this.field.type instanceof Type.MapDataType)
             return this.renderList();
 
-        if (this.field._enumerate !== null && this.field._enumerate !== undefined)
+        if (this.field.enumerate)
             return this.renderSelect();
 
-        if (this.field._units)
+        if (this.field.units)
             this._unitSelect = <Select
                 style={{flex: 'auto', width: '10px'}}
                 field={this.field}
-                units={true}
+                units={this.field.units()}
                 fieldCtrl={false}
             />;
-
-        if (this.field.type instanceof CellsDataType)
-            return this.renderCells();
-
-        if (this.field.type instanceof ForeignDataType)
-            debugger;
-        //     return this.renderForeign();
 
         switch (this.field.type.name) {
             case "password":
@@ -268,10 +243,7 @@ export default class FieldComponent extends FormComponent {
                 return this.renderDateTimePicker({format: 'HH:mm', calendar: false});
             case "timestamp":
                 return this.renderDateTimePicker({format: 'DD-MM-YYYY HH:mm'});
-            case "map":
-                return this.renderMap();
-            case "list":
-                return this.renderList();
+
             default:
                 switch (this.field.type.simpleType) {
                     case "string":
@@ -281,6 +253,7 @@ export default class FieldComponent extends FormComponent {
                     case "boolean":
                         return this.renderCheckbox();
                     default:
+                        Debug.warning(this, "Brak obslugi typu " + JSON.stringify(this.field.type.name));
                         return this.renderInput({type: "text"});
                 }
         }
@@ -294,21 +267,18 @@ class List extends Component {
         field: PropTypes.any
     };
 
+    array: [];
+
     render() {
         const field: Field = this.props.field;
 
-        const array: [] = (field.get() || []).clone();
 
+        this.array = field.value instanceof Map
+            ? Utils.forEach(field.value, (v, k) => [k, v])
+            : (field.value || []).clone();
 
-        const columns: DataType[] = [];
-
-        if (field.type instanceof CellsDataType)
-            (field.type: CellsDataType).cells.forEach(cell => columns.push(cell.clone()));
-        else {
-            const t: DataType = field.type.clone();
-            t.list = false;
-            columns.push(t);
-        }
+        const multipleCells = field.type.types instanceof Array;
+        const columns: Type[] = multipleCells ? field.type.types : [Check.instanceOf(field.type.type, [Type.DataType])];
 
         const newRow = [];
         for (let i = 0; i < columns.length; i++)
@@ -317,16 +287,27 @@ class List extends Component {
 
         return <table style={{width: "100%"}}>
             <tbody>{
-                array.map((row: any | [], rowIndex: number) =>
+                this.array.map((row: any | [], rowIndex: number) =>
                     <tr key={rowIndex}>{
-                        columns.map((dataType: DataType, cellIdx: number) => {
-                                const f: Field = new Field(dataType);
-                                f.name(field._name + " [" + rowIndex + "] [" + cellIdx + "]");
-                                f.set(row);
+                        columns.map((dataType: Type.DataType, cellIdx: number) => {
+                                const f: Field = new Field((fc: FieldConfig) => {
+                                    fc.enumerate = field.enumerate;
+                                    fc.type = dataType;
+                                    fc.key = field.key + " [" + rowIndex + "] [" + cellIdx + "]";
+                                    fc.name = field.name;
+                                });
+
+                                f.set(multipleCells ? row[cellIdx] : row);
 
                                 f.onChange.listen(this, (f) => {
-                                    array[rowIndex] = f._value;
-                                    field.set(array);
+                                    if (multipleCells) {
+                                        const arr = this.array[rowIndex];
+                                        while (arr.length <= cellIdx)
+                                            arr.push(null);
+                                        arr[cellIdx] = f.value;
+                                    } else
+                                        this.array[rowIndex] = f.value;
+                                    field.value = this.array;
                                 });
 
                                 return <td key={cellIdx}>
@@ -341,10 +322,10 @@ class List extends Component {
                     }
                         <td style={{width: "20px"}}>
                             <Link
-                                icon={FontAwesome.TIMES}
+                                icon={FontAwesome.MINUS_SQUARE}
                                 onClick={(e) => {
-                                    array.splice(rowIndex, 1);
-                                    field.set(array);
+                                    this.array.splice(rowIndex, 1);
+                                    field.value = array;
                                     this.forceUpdate();
                                 }}/>
                         </td>
@@ -356,11 +337,8 @@ class List extends Component {
                     <Link
                         icon={FontAwesome.PLUS_SQUARE}
                         onClick={(e) => {
-                            const cells = [];
-                            for (let i = 0; i < columns.length; i++)
-                                cells.push(null);
-                            array.push(field.type.multiple ? cells : null);
-                            field.set(array);
+                            this.array.push(null);
+                            field.value = this.array;
                             this.forceUpdate();
                         }}/></td>
             </tr>
