@@ -14,7 +14,7 @@ export default class NotFound extends Page {
             fontWeight: "bold",
             color: "#c00"
         }}>
-            <span>Nie znaleziono strony "{this.props.location.pathname.substring(1)}"</span>
+            <span>Nie znaleziono strony "{this.props.route.location.pathname.substring(1)}"</span>
         </div>
             ;
     }

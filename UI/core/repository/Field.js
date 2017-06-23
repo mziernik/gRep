@@ -2,10 +2,11 @@
 'use strict';
 
 import {Check, If, React, Type, Record, Repository, Delayed, Utils, Dispatcher, Store} from "../core";
+import {DataType} from "./Type";
 
 
 export class FieldConfig {
-    type: ?Type.DataType = null;
+    type: ?DataType = null;
     key: ?string = null;
     name: ?string = null;
     subtitle: ?string = null;
@@ -29,9 +30,10 @@ export class FieldConfig {
 
     sortable: ? boolean = null;
     sortOrder: ? boolean = null;
-    filtered: ? boolean = null;
+    filterable: ? boolean = null;
     hidden: ? boolean = null;
     compare: ?(a: ?any, b: ?any) => number = null;
+    filter: ?(filter: ?any, cell: ?any) => boolean = null;
 
     foreign: ?Repository = null;
 
@@ -83,8 +85,7 @@ export default class Field extends FieldConfig {
 
         If.isString(cfg.type, t => cfg.type = Type.get(t));
         Check.instanceOf(cfg.type, [Type.DataType]);
-        If.isDefined(cfg.enumerate, e => Check.isFunction(e));
-        If.isDefined(cfg.units, e => Check.isFunction(e));
+
         Check.nonEmptyString(cfg.key);
         Check.nonEmptyString(cfg.name);
 
@@ -93,8 +94,28 @@ export default class Field extends FieldConfig {
         if (cfg.type.enumerate && !cfg.enumerate)
             cfg.enumerate = () => cfg.type.enumerate;
 
+        if (cfg.enumerate && !If.isFunction(cfg.enumerate)) {
+            const arr = cfg.enumerate instanceof Array;
+            const map: Map = new Map();
+            Utils.forEach(cfg.enumerate, (value, key) => {
+                if (arr) {
+                    key = value;
+                    if (value instanceof Array) {
+                        key = value[0];
+                        value = If.isDefined(value[1]) ? value[1] : key;
+                    }
+                }
+                map.set(key, value);
+            });
+            cfg.enumerate = () => map;
+        }
+
+
         if (cfg.type.units && !cfg.units)
             cfg.units = () => cfg.type.units;
+
+        If.isDefined(cfg.enumerate, e => Check.isFunction(e));
+        If.isDefined(cfg.units, e => Check.isFunction(e));
 
         if (cfg.foreign) {
             Check.instanceOf(cfg.foreign, [Repository]);
@@ -312,11 +333,15 @@ export default class Field extends FieldConfig {
      */
     get displayValue(): string | number | boolean {
 
+        const value = this.value;
+        if (value === null)
+            return null;
+
         const val = this.unitValue;
 
         // wartość przed formatowaniem jest identyczna jak po formatowaniu
         if (val === this._value)
-            return Field.formatValue(this.type.formatValue(val));
+            return Field.formatValue(this.type.formatDisplayValue(val, this.enumerate ? this.enumerate() : null));
 
         let res = Field.formatValue(val);
         if (this.unit) res += " " + this.unit[0];

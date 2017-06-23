@@ -8,6 +8,8 @@ export default class Record {
     $instanceId = Utils.randomId();
     repository: ?Repository = null;
     primaryKey: Field;
+    /** Pole, którego wartość będzie wyświetlana domyślnie (np dla kluczy obcych) */
+    displayField: Field;
     //----------- kluczowe pola --------
 
 
@@ -96,6 +98,7 @@ export default class Record {
 
 
             this.primaryKey = this.getFieldF(this.repository.config.primaryKeyColumn);
+            this.displayField = this.getFieldF(this.repository.config.displayNameColumn, false);
 
             if (!this.primaryKey.required)
                 throw new Error("Klucz główny musi mieć ustawioną flagę 'required'");
@@ -139,12 +142,12 @@ export default class Record {
         return this.displayField ? "" + this.displayField.value : this.getFullId();
     }
 
-    getFieldF(key: string): ?any {
+    getFieldF(key: string, mustExists: boolean = true): ?any {
         let result;
         if (key) {
             result = this.fields.find(f => f.key === key);
         }
-        if (!result)
+        if (mustExists && !result)
             throw new Error(`Nie znaleziono kolumny ${key} repozytorium ${this.repository ? this.repository.key : "???"}`);
         return result;
     }
@@ -185,7 +188,8 @@ export default class Record {
     _update(context: any, action: Action, source: Record) {
 
         if (this._temporary)
-            throw new Error(this.getFullId() + ": Nie można aktualizować obiektów tymczasowych");
+            return;
+        //throw new Error(this.getFullId() + ": Nie można aktualizować obiektów tymczasowych");
 
         const changes = [];
 

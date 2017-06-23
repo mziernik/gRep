@@ -29,6 +29,7 @@ public class RCatalogAttribute extends Repository<Integer> {
         c.unique = true;
         c.key = "uid";
         c.name = "UID";
+        c.hidden = true;
     });
 
     public final static Column<TDate> CREATED = new Column<>(c -> {
@@ -56,19 +57,19 @@ public class RCatalogAttribute extends Repository<Integer> {
         c.name = "Atrybut";
     }, RCatalogAttribute.ID);
 
+    public final static Column<String[]> VALUE = new Column<>(c -> {
+        c.repository = RCatalogAttribute.class;
+        c.type = new ArrayDataType<>(DataType.STRING);
+        c.key = "value";
+        c.name = "Wartość";
+    });
+
     public final static Column<Integer> ORDER = new Column<>(c -> {
         c.repository = RCatalogAttribute.class;
         c.type = DataType.INT;
         c.key = "order";
         c.daoName = "index";
         c.name = "Kolejność";
-    });
-
-    public final static Column<String[]> VALUE = new Column<>(c -> {
-        c.repository = RCatalogAttribute.class;
-        c.type = new ArrayDataType<>(DataType.STRING);
-        c.key = "value";
-        c.name = "Wartość";
     });
 
     public final static ForeignColumns<Integer, RCryptKey> CRYPT_KEY = new ForeignColumns<>(c -> {
@@ -94,6 +95,7 @@ public class RCatalogAttribute extends Repository<Integer> {
             c.daoName = "data.catalog_attribute";
             c.name = "Atrybut katalogu";
             c.primaryKey = ID;
+            c.displayName = VALUE;
             c.order(CATALOG, true);
             c.order(ORDER, true);
         });

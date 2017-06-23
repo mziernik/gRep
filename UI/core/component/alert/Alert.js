@@ -11,16 +11,45 @@ export default class Alert {
         swal('Błąd', message, 'error')
     }
 
+    static prompt() {
+        swal({
+            title: 'Submit email to run ajax request',
+            input: 'email',
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+            showLoaderOnConfirm: true,
+            preConfirm: function (email) {
+                return new Promise(function (resolve, reject) {
+                    setTimeout(function () {
+                        if (email === 'taken@example.com') {
+                            reject('This email is already taken.')
+                        } else {
+                            resolve()
+                        }
+                    }, 2000)
+                })
+            },
+            allowOutsideClick: false
+        }).then(function (email) {
+            swal({
+                type: 'success',
+                title: 'Ajax request finished!',
+                html: 'Submitted email: ' + email
+            })
+        })
+    }
+
     static confirm(sender: any, message: string, onConfirm: () => void, onReject: () => void) {
-
-        const result = window.confirm(message);
-
-        if (result && If.isFunction(onConfirm))
-            onConfirm();
-
-        if (!result && If.isFunction(onReject))
-            onReject();
-
+        swal({
+            title: message,
+            type: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Tak',
+            cancelButtonText: 'Nie',
+            allowOutsideClick: false
+        })
+            .then(() => If.isFunction(onConfirm, f => f()))
+            .catch(() => If.isFunction(onReject, f => f()));
     }
 
 }

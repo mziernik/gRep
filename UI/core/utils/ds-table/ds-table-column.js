@@ -16,7 +16,7 @@ function DsTableColumn(dsTable, name, colData) {
     this.dateFormat = colData.dateFormat;
     this.disabled = Utils.coalesce(colData.disabled, false);
     this.editable = colData.editable;
-    this.filtered = colData.filtered;
+    this.filtered = colData.filterable;
     this.hidden = Utils.coalesce(colData.hidden, false);
     this.nullable = colData.nullable;
     this.primaryKey = colData.primaryKey;

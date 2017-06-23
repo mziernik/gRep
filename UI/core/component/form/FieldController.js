@@ -92,13 +92,13 @@ export default class FieldController extends Component {
     }
 
     _setMessage(msg: ?string, icon: ?Object) {
-        let m = msg || (this.props.handleDescription ? this.field.getDescription() : null);
+        let m = msg || (this.props.handleDescription ? this.field.description : null);
         if (!m)
-            m = (this.props.handleRequired && this.field.isRequired()) ? 'Pole obowiązkowe' : null;
+            m = (this.props.handleRequired && this.field.required) ? 'Pole obowiązkowe' : null;
         this.setState({
-            defIcon: msg ? icon : this.props.handleRequired && this.field.isRequired() ? this.defReq : this.defDesc,
+            defIcon: msg ? icon : this.props.handleRequired && this.field.required ? this.defReq : this.defDesc,
             message: m,
-            render: m ? true : (this.props.handleRequired && this.field.isRequired())
+            render: m ? true : (this.props.handleRequired && this.field.required)
         });
     }
 

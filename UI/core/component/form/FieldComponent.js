@@ -191,12 +191,20 @@ export default class FieldComponent extends FormComponent {
 
     render() {
 
+        const field: Field = this.field;
+        const value: any = field.value;
+
         if (!this.field) return null;
 
+        if (this.props.preview && this.props.singleLine) {
 
-        if (this.props.preview && this.props.singleLine)
-            return <span>{this.field.displayValue}</span>;
-
+            const title = field.name + ": " + field.displayValue;
+            return value === null
+                ? <span title={title} style={{color: "#aaa"}}>null</span>
+                : typeof value === "boolean"
+                    ? <span title={title} className={value ? FontAwesome.CHECK : FontAwesome.TIMES}/>
+                    : <span title={title}>{this.field.displayValue}</span>;
+        }
 
         if (this.props.preview && this.field.enumerate) {
             const map: Map = this.field.enumerate();
@@ -325,7 +333,7 @@ class List extends Component {
                                 icon={FontAwesome.MINUS_SQUARE}
                                 onClick={(e) => {
                                     this.array.splice(rowIndex, 1);
-                                    field.value = array;
+                                    field.value = this.array;
                                     this.forceUpdate();
                                 }}/>
                         </td>

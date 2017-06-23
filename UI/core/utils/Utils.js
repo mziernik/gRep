@@ -47,6 +47,9 @@ export function forEach(object: ?any, callback: (object: ?any, index: number | s
     return result;
 }
 
+export function format(value: any, formatter: (value: any) => any): any {
+    return typeof formatter === "function" ? formatter(value) : value;
+}
 
 /**
  * Tworzy tag [style] w sekcji [head] i ustawia treść [content]

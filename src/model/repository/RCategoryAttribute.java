@@ -2,9 +2,7 @@ package model.repository;
 
 import com.model.repository.Column;
 import com.model.repository.ForeignColumn;
-import com.model.repository.ForeignColumns;
 import com.model.repository.Repository;
-import com.utils.date.TDate;
 import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
@@ -27,6 +25,7 @@ public class RCategoryAttribute extends Repository<Integer> {
         c.required = true;
         c.key = "uid";
         c.name = "UID";
+        c.hidden = true;
     });
 
     public final static ForeignColumn<Integer, RCategory> CATEGORY = new ForeignColumn<>(c -> {

@@ -1,6 +1,5 @@
-import {React, PropTypes, Record, Repository, Utils, If, CRUDE, Endpoint, AppStatus} from "../core"
-import {Component, Spinner} from "../components"
-import Field from "../repository/Field";
+import {React, PropTypes, Record, Repository, Field, Utils, If, CRUDE, Endpoint, AppStatus} from "../core"
+import {Component, Spinner, Alert} from "../components"
 
 export default class Button extends Component {
 
@@ -77,17 +76,23 @@ export default class Button extends Component {
 
                     this.props.record._action = this.props.crude;
 
-                    this.setState({disabled: true});
+                    const run = () => {
+                        this.setState({disabled: true});
 
-                    const spinner = new Spinner();
+                        const spinner = new Spinner();
 
-                    Repository.submit(this, [this.props.record])
-                        .then((e) => {
+                        Repository.submit(this, [this.props.record])
+                            .then((e) => {
+                                spinner.hide();
+                                AppStatus.success(this, "Zaktualizowano dane");
+                            }).catch((e) => {
                             spinner.hide();
-                            AppStatus.success(this, "Zaktualizowano dane");
-                        }).catch((e) => {
-                        spinner.hide();
-                    });
+                        });
+                    };
+
+                    if (this.props.confirm)
+                        Alert.confirm(this, this.props.confirm, () => run());
+                    else run();
 
                 }
             }}

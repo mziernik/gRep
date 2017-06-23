@@ -3,6 +3,7 @@ import WebApiRequest from "./Request";
 import Debug from "../Debug";
 import WebApiResponse from "./Response";
 import AppStatus from "../application/Status";
+import Dispatcher from "../utils/Dispatcher";
 export default class WebApiTransport {
 
     api: WebApi;
@@ -11,7 +12,7 @@ export default class WebApiTransport {
 
     onReceive: (data: Object) => void;
     onError: (err: Error) => void;
-    onClose: (reason: string) => void;
+    onClose: Dispatcher = new Dispatcher();
     url: string;
 
     constructor(api: WebApi) {
@@ -47,8 +48,9 @@ export default class WebApiTransport {
         this.connected = false;
     }
 
-    onClose(e: ?any) {
+    connectionClosed(reason: string) {
         this.connected = false;
+        this.onClose.dispatch(this, reason);
     }
 
     onError(e: ?any) {
@@ -90,11 +92,9 @@ export class WebSocketTransport extends WebApiTransport {
         };
 
         this.ws.onclose = (e: CloseEvent) => {
-            if (e.code) {
-                let reason = getReason(e.code);
-                AppStatus.error(this, "WebApi: " + reason);
-            }
-            this.onClose(e);
+            let reason = getReason(e.code);
+            AppStatus.error(this, "WebApi: " + reason);
+            this.connectionClosed(reason);
         };
 
         this.ws.onerror = (e: Event, f) => {

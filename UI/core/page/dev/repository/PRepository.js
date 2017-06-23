@@ -20,14 +20,17 @@ export default class PRepository extends Page {
     render() {
 
         if (!this.repo.isReady)
-            return <span>Inicjalizacja repozytorium. Proszę czekać...</span>;
+            return <div>
+                <PageTitle>Repozytorium "{this.repo.name}"</PageTitle>
+                <span>Inicjalizacja repozytorium. Proszę czekać...</span>
+            </div>;
 
         const columns = [];
 
         columns.push(<span key="#action" style={{textAlign: "center"}}>Akcje</span>);
 
         columns.addAll(this.repo.columns.map((f: Field) =>
-            <span key={f.key} style={{textAlign: "center"}}>
+            f.hidden ? null : <span key={f.key} style={{textAlign: "center"}}>
                     <div>{f.key}</div>
                     <div style={{fontWeight: "normal"}}>{f.name}</div>
                     <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.type.name}]</div>

@@ -6,9 +6,37 @@ import com.model.repository.Repository;
 import com.utils.date.TDate;
 import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
+import com.utils.reflections.datatype.EnumDataType;
+import com.utils.reflections.datatype.SetDataType;
 import java.util.UUID;
 
 public class RResource extends Repository<Integer> {
+
+    public final static String[] FORMATS = {
+        "Text",
+        "Markdown",
+        "DOC",
+        "PDF",
+        "HTML",
+        "CSS",
+        "JS",
+        "XML",
+        "JSON",
+        "Java"};
+
+    public static enum ResourceType {
+        TEXT('D', "Tekst"),
+        FILE('F', "Plik"),
+        IMAGE('I', "Obraz");
+        public final char key;
+        public final CharSequence title;
+
+        private ResourceType(char key, CharSequence name) {
+            this.key = key;
+            this.title = name;
+        }
+
+    }
 
     public final static Column<Integer> ID = new Column<>(c -> {
         c.repository = RResource.class;
@@ -28,6 +56,7 @@ public class RResource extends Repository<Integer> {
         c.unique = true;
         c.key = "uid";
         c.name = "UID";
+        c.hidden = true;
     });
 
     public final static Column<TDate> CREATED = new Column<>(c -> {
@@ -39,9 +68,10 @@ public class RResource extends Repository<Integer> {
         c.name = "Utworzono";
     });
 
-    public final static Column<String> TYPE = new Column<>(c -> {
+    public final static Column<ResourceType> TYPE = new Column<>(c -> {
         c.repository = RResource.class;
-        c.type = DataType.STRING;
+        c.type = new EnumDataType<>(ResourceType.class,
+                e -> Character.toString(e.key), e -> e.title.toString());
         c.required = true;
         c.key = "type";
         c.name = "Typ";
@@ -72,17 +102,18 @@ public class RResource extends Repository<Integer> {
 
     public final static Column<String> FORMAT = new Column<>(c -> {
         c.repository = RResource.class;
-        c.type = DataType.STRING;
+        c.type = new SetDataType(FORMATS);
         c.key = "format";
         c.name = "Format";
     });
 
-    public final static ForeignColumn<Integer, RCatalog> catalog = new ForeignColumn<>(c -> {
+    public final static ForeignColumn<Integer, RCatalog> CATALOG = new ForeignColumn<>(c -> {
         c.repository = RResource.class;
         c.type = DataType.INT;
         c.key = "cat";
         c.daoName = "catalog";
         c.name = "Katalog";
+        c.required = true;
     }, RCatalog.ID);
 
     public final static Column<String> FILE = new Column<>(c -> {
@@ -129,6 +160,7 @@ public class RResource extends Repository<Integer> {
             c.daoName = "data.resource";
             c.name = "Zasób";
             c.primaryKey = ID;
+            c.displayName = NAME;
         });
 
     }

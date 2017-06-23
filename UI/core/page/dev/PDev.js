@@ -13,11 +13,13 @@ import PRecord from "./repository/PRecord";
 import PFontAwesome from "./PFontAwesome";
 import Repository from "../../repository/Repository";
 import AppEvent from "../../application/Event";
+import Demo from "../demo/Demo";
 
 export default class DevRouter extends Endpoint {
 
     static INSTANCES: DevRouter[] = [];
 
+    DEMO: Endpoint;
     SKIN: Endpoint;
     EVENTS: Endpoint;
     PERMISSIONS: Endpoint;
@@ -34,6 +36,8 @@ export default class DevRouter extends Endpoint {
 
     constructor(baseUrl: string) {
         super("DEV", baseUrl, null);
+
+        this.DEMO = this.child("Demo", baseUrl + "/demo", Demo);
         this.SKIN = this.child("Skórka", baseUrl + "/skin", PSkin);
         this.EVENTS = this.child("Zdarzenia", baseUrl + "/events", PEvents);
         this.PERMISSIONS = this.child("Funkcjonalności", baseUrl + "/permissions", PPermissions);

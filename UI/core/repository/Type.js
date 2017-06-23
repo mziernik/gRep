@@ -12,7 +12,7 @@ export class DataType {
     simpleType: SimpleType;
     parser: (value: any) => any;
     serializer: (value: any) => any;
-    formatter: (value: any) => string;
+    formatter: (value: any, enumerate: Map) => string;
     name: string;
     single: boolean;
 
@@ -35,8 +35,15 @@ export class DataType {
         Check.instanceOf(this.simpleType, ["any", "boolean", "number", "string", "object", "array"]);
     }
 
-    formatValue(value: any): string {
-        return this.formatter ? this.formatter(value) : Utils.toString(value);
+    /** Zwraca wartość wyświetlaną */
+    formatDisplayValue(value: any, enumerate: ?Map): string {
+
+        enumerate = enumerate || this.enumerate;
+
+        if (this.formatter)
+            return this.formatter(value, enumerate);
+
+        return Utils.toString(Utils.coalesce(enumerate ? enumerate.get(value) : null, value));
     }
 
     clone(): DataType {
@@ -126,7 +133,8 @@ export class SetDataType extends DataType {
                 Check.isArray(value);
                 value = Utils.forEach(value, elm => this.type.parse(elm));
                 return value;
-            }
+            };
+            dt.formatter = (val, map) => Utils.forEach(val, v => this.type.formatDisplayValue(v, map)).join(", ");
         }, false);
         this.type = Check.instanceOf(type, [DataType]);
     }
@@ -145,7 +153,9 @@ export class ListDataType extends DataType {
                 Check.isArray(value);
                 value = Utils.forEach(value, elm => this.type.parse(elm));
                 return value;
-            }
+            };
+            dt.formatter = (val, map) => Utils.forEach(val, v => this.type.formatDisplayValue(v, map)).join(", ");
+
         }, false);
         this.type = Check.instanceOf(type, [DataType]);
     }
@@ -174,7 +184,9 @@ export class MapDataType extends DataType {
                     result.set(this.keyType.parse(key), this.valueType.parse(val));
                 });
                 return result;
-            }
+            };
+            dt.formatter = (val: Map) => Utils.forEach(val, (v, k) => this.keyType.formatDisplayValue(k) + ": " + this.valueType.formatDisplayValue(v)).join(",\n");
+
         }, false);
 
         this.keyType = key;
@@ -216,7 +228,8 @@ export const BOOLEAN: DataType = new DataType((dt: DataType) => {
     dt.simpleType = "boolean";
     dt.parser = val => {
         return val ? true : false;
-    }
+    };
+    dt.formatter = (value: boolean) => value ? "Tak" : "Nie";
 });
 
 export const STRING: DataType = new DataType((dt: DataType) => {
@@ -350,6 +363,7 @@ export const TIMESTAMP: DataType = new DataType((dt: DataType) => {
             throw new Error('Nieprawidłowa wartość czasu');
         return date;
     };
+    dt.formatter = (val: Date) => val.toLocaleString();
     dt.serializer = (val: Date) => val.getTime();
 });
 
@@ -370,3 +384,19 @@ export const DURATION: DataType = new DataType((dt: DataType) => {
         ["d", "d", 1000 * 60 * 60 * 24]
     ];
 });
+
+export const ENUM: DataType = new DataType((dt: DataType) => {
+    dt.name = "enum";
+    dt.simpleType = "string";
+    dt.parser = val => {
+        return val;
+    };
+    dt.formatter = (val, map) => frmt(val, map);
+});
+
+
+function frmt(value: any, map: ?Map): string {
+    value = map ? map.get(value) : value;
+    const val: string = JSON.stringify(Utils.toString(value));
+    return val.substring(1, val.length - 1);
+}

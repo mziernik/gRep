@@ -34,6 +34,23 @@ export default class WebApi {
     constructor(url: string) {
         this.url = url;
         this.transport = new WebSocketTransport(this);
+
+        this.transport.onClose.listen(this, reason => {
+
+            const err = new Error(reason);
+            this.processed.forEach((req: WebApiRequest) => {
+                req._reject(err, this);
+                let handled = false;
+                if (req.onError === "function") {
+                    req.onError(err, req);
+                    handled = true;
+                }
+                if (err && typeof this.onError === "function")
+                    this.onError(err, err, handled);
+            });
+
+            this.processed.clear();
+        })
     }
 
     /*

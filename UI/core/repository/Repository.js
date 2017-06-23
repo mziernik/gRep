@@ -209,7 +209,10 @@ export default class Repository {
                 return;
             }
             const repo: Repository = Repository.getF(key);
-            updatedRecords.addAll(processUpdate(context, data, repo));
+            const records: Record[] = processUpdate(context, data, repo);
+            updatedRecords.addAll(records);
+            if (!records.length)
+                repo.isReady = true;
         });
 
         const map: Map<Repository, Record[]> = Utils.agregate(updatedRecords, (rec: Record) => rec.repository);
@@ -253,7 +256,8 @@ function processUpdate(context: any, data: Object, repo: Repository): Record[] {
             if (rowData instanceof Array) {
                 const rec: Record = repo.newRecord();
                 for (let i = 0; i < rowData.length; i++) {
-                    const field: Field = rec.getFieldF(data.columns[i].key);
+                    const col = data.columns[i];
+                    const field: Field = rec.getFieldF(If.isString(col) ? col : col.key);
                     field.value = rowData[i];
                 }
                 recs.push(rec);

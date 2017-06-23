@@ -6,32 +6,26 @@ import Field from "../repository/Field";
 import FieldComponent from "./form/FieldComponent";
 import FormComponent from "./form/FormComponent";
 
-//ToDo filtrowanie
 export default class Table extends Component {
     _widths = {};
     _updateWidths = true;
     _sorted = [];
 
     static propTypes = {
+        // tablica Fieldów lub {idKolumny:nazwaKolumny,...}
         columns: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+        // tablica obiektów {idKolumny:wartośćKomórki,...}
+        // lub cokolwiek jeśli jest zdefiniowany rowMapper, który przemapuje rekordy
         rows: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+        // mapper rekordów, (row)=>{idKolumny:wartośćKomórki,...}
         rowMapper: PropTypes.func,
-        onRowClick: PropTypes.func // zdarzenie kliknięcia na komórkę (row, column, table, event)
+        // zdarzenie kliknięcia na komórkę (row, column, table, event)
+        onRowClick: PropTypes.func
     };
 
     constructor() {
         super(...arguments);
         this.state = {columns: this.columns = this._convertColumns()};
-    }
-
-    _handleSort(a, b) {
-        a = (a === null || a === undefined) ? -Infinity : a;
-        b = (b === null || b === undefined) ? -Infinity : b;
-        a = a === 'string' ? a.toLowerCase() : a;
-        b = b === 'string' ? b.toLowerCase() : b;
-        if (a > b) return 1;
-        if (a < b) return -1;
-        return 0;
     }
 
     /** mapuje kolumny pod format ReactTable
@@ -40,6 +34,8 @@ export default class Table extends Component {
      */
     _convertColumns(): [] {
         let res = Utils.forEach(this.props.columns, (col, key) => {
+            if (!col) return;
+
             let k = key;
             if (If.isNumber(key) && (col instanceof Field || col.$$typeof))
                 k = Check.nonEmptyString(col.key, new Error("Wymagana definicja atrybutu key"));
@@ -50,7 +46,7 @@ export default class Table extends Component {
                     let curr = row[k];
                     if (!curr)return;
                     if (!curr.$$typeof)return curr;
-                    return curr.props.field ? curr.props.field.value : null;
+                    return curr.props.field ? curr.props.field : null;
                 },
                 Cell: (row) => this._drawRow(row, k)
             };
@@ -59,20 +55,22 @@ export default class Table extends Component {
             if (col instanceof Field) {
                 header = col.value || col.name;
                 column.sortable = col.sortable;
-                column.filterable = col.filtered;
+                column.filterable = col.filterable;
                 column.show = !col.hidden;
                 column.id = col.key;
                 column.sortMethod = col.compare;
+                column.filterMethod = col.filter ? (filter, row) => col.filter(filter.value, row[filter.pivotId || filter.id]) : null;
                 if (col.sortOrder)
-                    this._sorted = [{id: column.accessor, desc: true}];
+                    this._sorted = [{id: column.id, desc: false}];
             }
             else header = col;
-            column.Header = header;
 
             if (this._updateWidths)
                 column.Header = () => this._drawRow(header, k);
-            else
+            else {
                 column.width = this._widths[k];
+                column.Header = header;
+            }
 
             return column;
         });
@@ -90,7 +88,7 @@ export default class Table extends Component {
     }
 
     /** rysuje komórki i nagłówki kolumn
-     * @param value - zawartość komórki
+     * @param row - zawartość komórki
      * @param accessor - identyfikator kolumny
      * @returns {XML}
      * @private
@@ -104,7 +102,7 @@ export default class Table extends Component {
         }}>
             {row.original ?
                 (row.original[accessor] !== null && row.original[accessor] !== undefined) ?
-                    row.original[accessor] : row.value : row.value}
+                    row.original[accessor] : row.value : row}
         </span>
     }
 
@@ -138,7 +136,9 @@ export default class Table extends Component {
         if (!this._updateWidths)return;
         if (!table)return;
         let sum = 0;
+        let cols = 0;
         Utils.forEach(this._widths, (value, key) => {
+            ++cols;
             Utils.forEach(value, (span, index) => {
                 if (span instanceof HTMLSpanElement)
                     value[index] = span.children[0] ? span.children[0].offsetWidth :
@@ -146,15 +146,22 @@ export default class Table extends Component {
             });
             let header = value[0];
             value.sort((a, b) => a - b);
-            let width = value[parseInt((value.length - 1) / 2)];
-            if (width < header) width = header;
-            this._widths[key] = width < this._table ? (width + 20) : (this._table / 2);
+            let idx = value.findIndex((item) => item > 0);
+            if (idx < 0) idx = 0;
+            idx += parseInt((value.length - idx) / 2);
+
+            let width = idx === (value.length - 1) ? 20 : value[idx] < header ? (header + value[idx]) / 2 : value[idx];
+            this._widths[key] = width < this._table ? (width) : (this._table / 2);
 
             sum += this._widths[key];
         });
-        let step = this._table / sum;
+        const step = this._table / sum;
+        const free = (this._table - sum) / cols;
         Utils.forEach(this._widths, (value, key) => {
-            this._widths[key] = value * step;
+            if (free > 0)
+                this._widths[key] = value + free;
+            else
+                this._widths[key] = value * step;
         });
         this._updateWidths = false;
         this.setState({columns: this._convertColumns()});
@@ -175,7 +182,9 @@ export default class Table extends Component {
             getTrGroupProps={(state, row, column, instance) => {
                 return row ? null : {style: {visibility: 'hidden'}};
             }}
-            getTbodyProps={()=>{return{style:{overflow:'visible'}}}}
+            getTbodyProps={() => {
+                return {style: {overflow: 'visible'}}
+            }}
 
             previousText="Poprzednia"
             nextText="Następna"
