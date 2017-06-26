@@ -1,6 +1,7 @@
 'use strict';
 import React from 'react';
 import Page from "../../core/page/Page";
+import Panel from "../../core/component/Panel";
 var PropTypes = require('prop-types');
 var PureRenderMixin = require('react/lib/ReactComponentWithPureRenderMixin');
 var _ = require('lodash');
@@ -29,10 +30,12 @@ export default class Dashboard extends Page {
 
         const style = {border: "1px solid red"};
 
-        return <ReactGridLayout className="layout" layout={layout} cols={2} rowHeight={80}>
-            <div style={style} key={'a'}>a</div>
-            <div style={style} key={'b'}>b</div>
-            <div style={style} key={'c'}>c</div>
-        </ReactGridLayout>
+        return <Panel noPadding fit>
+            <ReactGridLayout className="layout" layout={layout} cols={2} rowHeight={80}>
+                <div style={style} key={'a'}>a</div>
+                <div style={style} key={'b'}>b</div>
+                <div style={style} key={'c'}>c</div>
+            </ReactGridLayout>
+        </Panel>
     }
 }

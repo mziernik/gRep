@@ -1,7 +1,6 @@
 import {PermissionRecord, PERMISSIONS} from "../../repository/PermissionRepo";
-
 import {React, Field} from '../../core';
-import {Page, PageTitle, Table} from '../../components';
+import {Page, PageTitle, Table, Panel} from '../../components';
 
 
 export default class PPermissions extends Page {
@@ -24,7 +23,7 @@ export default class PPermissions extends Page {
                        height: "16px"
                    }}/>;
 
-        return <div>
+        return <Panel fit>
 
             <PageTitle>Uprawnienia / funkcjonalności</PageTitle>
 
@@ -41,8 +40,8 @@ export default class PPermissions extends Page {
                 rows={this.records}
                 rowMapper={(p: PermissionRecord) => {
                     return {
-                        id: p.ID.get(),
-                        name: p.NAME.get(),
+                        id: p.ID.value,
+                        name: p.NAME.value,
                         c: add(p, p.CREATE),
                         r: add(p, p.READ),
                         u: add(p, p.UPDATE),
@@ -51,7 +50,7 @@ export default class PPermissions extends Page {
                     }
                 }}
             />
-        </div>
+        </Panel>
     }
 
 

@@ -1,5 +1,5 @@
 import {React, PropTypes, Field, Repository, Record, Endpoint} from '../../../core';
-import {Page, FontAwesome, Link, Table, PageTitle, FieldComponent} from '../../../components';
+import {Page, Panel, FontAwesome, Link, Table, PageTitle, FieldComponent} from '../../../components';
 import ToolBar from "../../PageToolBar";
 
 export default class PRepositories extends Page {
@@ -12,7 +12,7 @@ export default class PRepositories extends Page {
     render() {
         const data = [];
 
-        return <div>
+        return <Panel fit>
             <PageTitle>Repozytoria</PageTitle>
 
             <Table
@@ -48,6 +48,6 @@ export default class PRepositories extends Page {
                 }
             />
 
-        </div>
+        </Panel>
     }
 }

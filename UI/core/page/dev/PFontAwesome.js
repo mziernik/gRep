@@ -1,5 +1,5 @@
 import {React} from "../../core";
-import {Page, PageTitle, Table, FontAwesome} from "../../components";
+import {Page, PageTitle, Table, FontAwesome, Panel} from "../../components";
 import {Section} from "../../application/Skin";
 import * as Skin from "../../application/Skin";
 
@@ -12,19 +12,23 @@ export default class PFontAwesome extends Page {
 
     render() {
 
-        return <div>
+        return <Panel noPadding>
 
             <PageTitle>FontAwesome</PageTitle>
 
-            <input
-                type="search"
-                placeholder="szukaj"
-                onChange={e => {
-                    let val = e.target.value.trim();
-                    this.setState({search: val});
-                }}/>
+            <Panel>
+                <input
+                    type="search"
+                    placeholder="szukaj"
+                    onChange={e => {
+                        let val = e.target.value.trim();
+                        this.setState({search: val});
+                    }}/>
 
-            <div>
+            </Panel>
+            <hr style={{width: "100%"}}/>
+
+            <Panel overflow="auto">
                 {FontAwesome.ALL.map((ico: FontAwesome) => {
 
                     const name = ico.className.substring(6);
@@ -35,11 +39,11 @@ export default class PFontAwesome extends Page {
                     return <span
                         key={ico.className}
                         style={ {
-                        display: "inline-block",
-                        width: "100px",
-                        margin: "16px 4px",
-                        textAlign: "center"
-                    }}>
+                            display: "inline-block",
+                            width: "100px",
+                            margin: "16px 4px",
+                            textAlign: "center"
+                        }}>
                     <div style={{
                         fontSize: "40px"
                     }} className={ico.className}></div>
@@ -55,9 +59,9 @@ export default class PFontAwesome extends Page {
                     >{name}</div>
                 </span>
                 })}
-            </div>
+            </Panel>
 
-        </div>
+        </Panel>
     }
 
 

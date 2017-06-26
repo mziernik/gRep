@@ -1,11 +1,9 @@
 // @flow
 'use strict';
 
-import {React, PropTypes, EventType} from "../core";
-import {Component} from "../components";
+import {React, PropTypes, EventType} from "../../core";
+import {Component} from "../../components";
 
-
-export const EVENT: EventType = new EventType();
 
 export default class PageTitle extends Component {
 

@@ -1,15 +1,12 @@
 //@Flow
 'use strict';
 import {React, Field, Type, FieldConfig, Utils} from '../../core';
-import {Page, FontAwesome, FieldComponent, FieldController} from '../../components';
+import {Page, FontAwesome, FieldComponent, FieldController, Panel} from '../../components';
 import {Tab, TabSet} from '../../component/TabSet';
-import ReactTable from 'react-table';
-import JsonViewer from "../../component/JsonViewer";
-import WebApiRepositoryStorage from "../../webapi/WebApiRepositoryStorage";
 import ListsTab from "./ListsTab";
 import FormTab from "./FormTab";
 import DragAndDropTab from "./DragAndDropTab";
-import PageTitle from "../PageTitle";
+import PageTitle from "../../component/application/PageTitle";
 import TablesTab from "./TablesTab";
 
 export default class Demo extends Page {
@@ -21,7 +18,7 @@ export default class Demo extends Page {
 
     render() {
         return (
-            <div>
+            <Panel fit>
                 <PageTitle>Demo</PageTitle>
 
                 <TabSet selectedIndex={this.state.selectedTab}>
@@ -53,7 +50,7 @@ export default class Demo extends Page {
                         <div>Jakaś tam zawartość 6</div>
                     </Tab>
                 </TabSet>
-            </div>);
+            </Panel>);
     }
 
 }

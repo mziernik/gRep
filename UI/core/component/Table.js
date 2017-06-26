@@ -1,4 +1,4 @@
-import {React, PropTypes, Utils, If, Check, ReactUtils} from "../core";
+import {React, PropTypes, Utils, If, Check, ReactUtils, Trigger} from "../core";
 import {Component} from "../components";
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
@@ -10,6 +10,8 @@ export default class Table extends Component {
     _widths = {};
     _updateWidths = true;
     _sorted = [];
+    _resizeTrigger: Trigger = new Trigger();
+    _element: HTMLElement;
 
     static propTypes = {
         // tablica Fieldów lub {idKolumny:nazwaKolumny,...}
@@ -23,10 +25,22 @@ export default class Table extends Component {
         onRowClick: PropTypes.func
     };
 
+
     constructor() {
         super(...arguments);
         this.state = {columns: this.columns = this._convertColumns()};
+
+        this.addEventListener("resize", () => this._resizeTrigger.call(() => {
+                //ToDo: Wojtek: Dopasowanie szerokości kolumn podczas zmiany rozmiaru okna
+                console.log("Zmiana rozmiaru okna");
+
+                //
+                // this._computeWidths()
+                // this.forceUpdate();
+            }, 300)
+        );
     }
+
 
     /** mapuje kolumny pod format ReactTable
      * @returns {*[]}
@@ -169,21 +183,22 @@ export default class Table extends Component {
 
     render() {
         return <ReactTable
-            ref={elem => this._computeWidths(elem)}
+            ref={elem => this._element = this._computeWidths(elem)}
             className="-striped -highlight"
             style={{height: '100%'}}
             defaultSorted={this._sorted}
             columns={this.state.columns}
             {...this._convertData()}
 
+            getTbodyProps={() => {
+                //wyłączenie flexa w wierszach
+                return {style: {display: 'block'}}
+            }}
             getTdProps={(state, row, column, instance) => {
-                return {onClick: If.isFunction(this.props.onRowClick) ? (e) => this.props.onRowClick(row, column, instance, e) : null}
+                return {onClick: If.isFunction(this.props.onRowClick) ? (e) => this.props.onRowClick(row, column, instance, e) : null};
             }}
             getTrGroupProps={(state, row, column, instance) => {
-                return row ? null : {style: {visibility: 'hidden'}};
-            }}
-            getTbodyProps={() => {
-                return {style: {overflow: 'visible'}}
+                return row ? null : {style: {display: 'none'}};
             }}
 
             previousText="Poprzednia"

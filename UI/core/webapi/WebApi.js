@@ -6,7 +6,7 @@ import WebApiMessage from "./Message";
 import WebApiResponse from "./Response";
 import Debug from "../Debug";
 import EError from "../utils/EError";
-import WebApiTransport, {WebSocketTransport} from "./Transport";
+import WebApiTransport, {State, WebSocketTransport} from "./Transport";
 import Dispatcher from "../utils/Dispatcher";
 
 export type OnSuccess = (data: ?any, response: WebApiResponse) => void;
@@ -18,10 +18,10 @@ export default class WebApi {
     wsUrl: string;
     hash: string;
 
-    eventHandlers = [];
     processed: Map<string, WebApiRequest> = new Map();
     transport: WebApiTransport;
     onEvent: Dispatcher = new Dispatcher(); //(source: string, event: string, data: object, context: WebApiResponse)
+    onClose: Dispatcher = new Dispatcher();
 
 
     static headers: Object = {
@@ -35,7 +35,22 @@ export default class WebApi {
         this.url = url;
         this.transport = new WebSocketTransport(this);
 
-        this.transport.onClose.listen(this, reason => {
+        const transport = this.transport;
+
+        transport.onOpen = e => {
+            State.current = State.CONNECTED;
+            transport.connected = true;
+            transport.queue.forEach(request => this.send(request));
+        };
+
+        transport.onError = e => {
+            console.error(e);
+        };
+
+        transport.onMessage = data => new WebApiResponse(this, data);
+
+        transport.onClose = reason => {
+            State.current = State.CLOSED;
 
             const err = new Error(reason);
             this.processed.forEach((req: WebApiRequest) => {
@@ -50,47 +65,9 @@ export default class WebApi {
             });
 
             this.processed.clear();
-        })
+        };
+
     }
-
-    /*
-     registerEvent (controller, sourceName, hashes, callback) {
-     if (!sourceName || !hashes)
-     return;
-
-     var h = [];
-
-     if (typeof hashes === "string")
-     h.push(hashes);
-
-     if (hashes.constructor === Array)
-     for (var i = 0; i < hashes.length; i++)
-     h.push(hashes[i]);
-
-     eventHandlers.push([controller, sourceName, h, callback]);
-     };
-
-
-
-     this.downloadFile = function (file) {
-     var a = document.createElement("a");
-     a.setAttribute("href", file.url);
-     a.setAttribute("download", file.name);
-     //    document.body.appendChild(a);
-     a.click();
-     // document.body.removeChild(a);
-
-
-     // window.location = file.url;
-
-     };
-     */
-
-    // metoda do przeciążenia
-    // onEvent (controller, sourceName, hashes, callback, data) {
-    //     if (callback)
-    //         callback(data);
-    // };
 
     onMessage(data: WebApiMessage) {
         if (window.spa && window.spa.alert)
@@ -124,6 +101,28 @@ export default class WebApi {
             hash: request.hash
         };
 
-        this.transport.send(request);
+        const transport = this.transport;
+
+        if (!transport.connected)
+            transport.connect(this.url)
+
+        if (!transport.connected) {
+            transport.queue.push(request);
+            return;
+        }
+
+        transport.send(request);
+
+        request.sendTime = new Date();
+        if (typeof request.onSent === "function")
+            request.onSent(request);
     }
+
+
+    close() {
+        this.transport.close();
+        this.transport.connected = false;
+    }
+
+
 }

@@ -1,5 +1,7 @@
-import {React, Check, If, Debug, Utils} from "../core";
+import {React, Check, If, Debug, Utils, Dispatcher} from "../core";
+
 import * as Application from "./Application";
+//import {StatusHint} from "../component/application/StatusHint";
 
 type StatusType = "debug" | "info" | "success" | "warning" | "error"
 
@@ -7,6 +9,7 @@ export default class AppStatus {
 
     static catchExceptions: boolean = Application.DEV_MODE;
     static defaultTimeout: number = 2000;
+    static onChange: Dispatcher = new Dispatcher();
 
     static factory: ?(context: any) => AppStatus = null;
 
@@ -14,6 +17,9 @@ export default class AppStatus {
     type: StatusType;
     details: ?string;
     timeout: ?number = null;
+    id: string = Utils.randomId();
+    hide: () => void;
+    _tag: HTMLElement;
 
     static debug(context: any, message: string, details: ?string = null, timeout: ?number = null) {
         return AppStatus.set(context, "debug", message, details, timeout);
@@ -45,23 +51,15 @@ export default class AppStatus {
         status.details = details;
         status.timeout = timeout;
 
-        status.publish();
+        AppStatus.onChange.dispatch(context, status);
 
-        if (timeout)
-            window.setTimeout(() => status.hide(), timeout);
-
-    }
-
-    publish() {
-        //do przeciążenia
-        Debug.log([this, context], this.message);
-    }
-
-    hide() {
+        if (timeout > 0)
+            setTimeout(() => {
+                if (status.hide)
+                    status.hide();
+            }, timeout);
 
     }
-
-
 }
 
 window.addEventListener("error", (e: any, file: ?any, line: ?number, column: ?number, ex: ?Error) => {
@@ -74,7 +72,3 @@ window.addEventListener("error", (e: any, file: ?any, line: ?number, column: ?nu
     }
 
 });
-
-
-
-

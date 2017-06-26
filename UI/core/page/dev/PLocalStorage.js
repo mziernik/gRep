@@ -1,10 +1,10 @@
 import {React} from '../../core';
-import {Page, PageTitle, Link, FontAwesome, Table} from '../../components';
+import {Page, PageTitle, Link, FontAwesome, Table, Panel} from '../../components';
 
 export default class PLocalStorage extends Page {
 
     render() {
-        return <div>
+        return <Panel fit>
             <PageTitle>Magazyn lokalny</PageTitle>
 
             <Table
@@ -25,7 +25,7 @@ export default class PLocalStorage extends Page {
                     />
                 ]}>
             </Table>
-        </div>
+        </Panel>
     }
 
 

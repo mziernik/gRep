@@ -1,8 +1,7 @@
 import {React, PropTypes, Utils, If, Field, Repository, Record, CRUDE, Endpoint, Type} from '../../../core';
-import {Page, FontAwesome, Link, Table, PageTitle, FieldComponent, FieldController} from '../../../components';
+import {Page, FontAwesome, Link, Table, PageTitle, FieldComponent, FieldController, Panel} from '../../../components';
 import Button from "../../../component/Button";
-import neatJSON from "../../../utils/NeatJSON";
-import WebApiRepositoryStorage from "../../../webapi/WebApiRepositoryStorage";
+import WebApiRepositoryStorage from "../../../repository/storage/WebApiRepoStorage";
 import JsonViewer from "../../../component/JsonViewer";
 
 
@@ -75,7 +74,7 @@ export default class PRecord extends Page {
                 </span>));
 
 
-        return <div>
+        return <Panel>
             <PageTitle>{this.isNew ? "Nowy rekord " : "Edycja rekordu " + this.record.getFullId()
             } repozytorium "{this.repo.name}"</PageTitle>
 
@@ -165,6 +164,6 @@ export default class PRecord extends Page {
                 </div>
 
             </div>
-        </div>
+        </Panel>
     }
 }

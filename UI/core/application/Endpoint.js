@@ -106,7 +106,7 @@ export default class Endpoint {
             children={(route: Object) => {
 
                 const props = {};
-                props.key = Utils.randomId(); // dodanie losowego kolucza zmsza reacta do ponownego utworzenia komponentu dziedziczącego po page
+                props.key = Utils.randomId(); // dodanie losowego klucza zmusza reacta do ponownego utworzenia komponentu dziedziczącego po page
 
                 this.onNavigate.dispatch(this, this);
 
@@ -120,8 +120,10 @@ export default class Endpoint {
 
                 route.endpoint = this;
                 props.route = route;
-                AppEvent.NAVIGATE.send(this, this);
-                return React.createElement(this._component, props, null);
+
+                const el = React.createElement(this._component, props, null);
+                AppEvent.NAVIGATE.send(this, this, props);
+                return el;
             }}
 
         />

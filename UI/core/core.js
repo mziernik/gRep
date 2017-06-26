@@ -22,7 +22,7 @@ export {default as Debug} from "./Debug";
 export {default as DOMPrototype} from "./utils/DOMPrototype";
 export {default as ErrorHandler} from  "./utils/ErrorHandler";
 
-export {default as Delayed} from "./utils/Delayed";
+export {default as Trigger} from "./utils/Trigger";
 export {default as Dispatcher} from "./utils/Dispatcher";
 
 // ------------------ React ------------------------------

@@ -4,8 +4,7 @@ import Alert from "../core/component/alert/Alert";
 import WebApiResponse from "../core/webapi/Response";
 import EError from "../core/utils/EError";
 import Repository from "../core/repository/Repository";
-import * as Utils from "../core/utils/Utils";
-import WebApiRepositoryStorage from "../core/webapi/WebApiRepositoryStorage";
+import WebApiRepositoryStorage from "../core/repository/storage/WebApiRepoStorage";
 
 const wapi: WebApi = new WebApi("http://localhost:80/api");
 export const api = new GrepApi(wapi);
@@ -14,9 +13,7 @@ wapi.onError = (error: EError, response: WebApiResponse, handled: boolean) => {
     Alert.error(this, error.message);
 };
 
-export function initialize() {
-    Repository.externalStore = new WebApiRepositoryStorage(api.repository);
-}
+Repository.defaultStorage = new WebApiRepositoryStorage(api.repository);
 
 wapi.onEvent.listen(this, (source: string, event: string, data: object, context: WebApiResponse) => {
 

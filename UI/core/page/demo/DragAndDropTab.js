@@ -5,7 +5,7 @@ import {Component, Page, FontAwesome, FieldComponent, FieldController}    from  
 import {Tab, TabSet} from '../../component/TabSet';
 import ReactTable from 'react-table';
 import JsonViewer from "../../component/JsonViewer";
-import WebApiRepositoryStorage from "../../webapi/WebApiRepositoryStorage";
+import WebApiRepositoryStorage from "../../repository/storage/WebApiRepoStorage";
 
 
 export default class DragAndDropTab extends Component {

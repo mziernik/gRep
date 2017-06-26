@@ -142,6 +142,12 @@ export default class Record {
         return this.displayField ? "" + this.displayField.value : this.getFullId();
     }
 
+    get dto(): object {
+        const dto: Object = {};
+        this.fields.forEach((field: Field) => dto[field.key] = field.type.serialize(field.value));
+        return dto;
+    }
+
     getFieldF(key: string, mustExists: boolean = true): ?any {
         let result;
         if (key) {

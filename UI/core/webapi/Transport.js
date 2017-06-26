@@ -1,87 +1,89 @@
-import WebApi from "./WebApi";
 import WebApiRequest from "./Request";
-import Debug from "../Debug";
-import WebApiResponse from "./Response";
 import AppStatus from "../application/Status";
 import Dispatcher from "../utils/Dispatcher";
+
+let _reconnect: ?() => void;
+
+export class State {
+
+    static INIT: State = new State("Nie połączony", "gray");
+    static CONNECTING: State = new State("Łączenie", "yellow");
+    static CONNECTED: State = new State("Połączone", "lime");
+    static CLOSED: State = new State("Rozłączone", "red");
+
+    static onChange: Dispatcher = new Dispatcher();
+
+    static get current(): State {
+        return currentState;
+    }
+
+    static reconnect() {
+        if (State.current !== State.CLOSED)
+            return;
+
+        if (_reconnect)
+            _reconnect();
+    }
+
+    static set current(state: State) {
+        if (state === currentState) return;
+        currentState = state;
+        State.onChange.dispatch(null, state);
+    }
+
+    name: string;
+    color: string;
+
+    constructor(name: string, color: string) {
+        this.name = name;
+        this.color = color;
+    }
+}
+
+let currentState: State = State.INIT;
+
 export default class WebApiTransport {
 
-    api: WebApi;
     connected: boolean = false;
+    /** Kolejka żądań oczekujących na  wysłanie */
     queue: WebApiRequest[] = [];
+    onMessage: (message: any) => void;
+    onClose: (reason: string) => void;
+    onError: (message: string) => void;
+    onOpen: () => void;
 
-    onReceive: (data: Object) => void;
-    onError: (err: Error) => void;
-    onClose: Dispatcher = new Dispatcher();
-    url: string;
-
-    constructor(api: WebApi) {
-        this.api = api;
+    connect(url: string) {
+        _reconnect = () => this.connect(url);
+        State.current = State.CONNECTING;
+        this.doConnect(url);
     }
 
+    doConnect(url: string) {
+        throw new Error("Unsupported operation");
+    }
 
     send(request: WebApiRequest) {
-
-        if (!this.connected) {
-            this.doConnect(this.api.url);
-        }
-
-        if (!this.connected) {
-            this.queue.push(request);
-            return;
-        }
-        this.doSend(request);
-        request.sendTime = new Date();
-        if (typeof request.onSent === "function")
-            request.onSent(request);
+        throw new Error("Unsupported operation");
     }
-
-
-    onOpen() {
-        this.connected = true;
-        this.queue.forEach(request => this.send(request));
-    }
-
 
     close() {
-        this.doClose();
-        this.connected = false;
+        throw new Error("Unsupported operation");
     }
-
-    connectionClosed(reason: string) {
-        this.connected = false;
-        this.onClose.dispatch(this, reason);
-    }
-
-    onError(e: ?any) {
-        Debug.error(this, e);
-        AppStatus.error(this, e);
-        //if (this.connected)
-        try {
-            this.connected = false;
-            this.close();
-        } catch (e) {
-            Debug.error(this, e);
-        }
-    }
-
-    onMessage(data: Object) {
-        new WebApiResponse(this.api, data);
-    }
-
 }
+
 
 export class WebSocketTransport extends WebApiTransport {
 
     ws: WebSocket;
 
-    doSend(request: WebApiRequest) {
+    send(request: WebApiRequest) {
         this.ws.send(JSON.stringify(request.transportData));
     }
 
-    doClose() {
+    close() {
         this.ws.close();
     }
+
 
     doConnect(url: string) {
 
@@ -92,9 +94,9 @@ export class WebSocketTransport extends WebApiTransport {
         };
 
         this.ws.onclose = (e: CloseEvent) => {
-            let reason = getReason(e.code);
+            let reason = getReason(e.code, this.connected);
             AppStatus.error(this, "WebApi: " + reason);
-            this.connectionClosed(reason);
+            this.onClose(reason);
         };
 
         this.ws.onerror = (e: Event, f) => {
@@ -109,7 +111,7 @@ export class WebSocketTransport extends WebApiTransport {
 
 }
 
-function getReason(code: number): string {
+function getReason(code: number, wasConnected: boolean): string {
     switch (code) {
         case  1000:
             return "Normal closure, meaning that the purpose for which the connection was established has been fulfilled.";
@@ -124,7 +126,8 @@ function getReason(code: number): string {
         case 1005:
             return "No status code was actually present.";
         case 1006:
-            return "The connection was closed abnormally, e.g., without sending or receiving a Close control frame";
+            return wasConnected ? "Utracono połączenie z serwerem" : "Nie można nawiązać połączenia z serwerem";
+        //return "The connection was closed abnormally, e.g., without sending or receiving a Close control frame";
         case 1007:
             return "An endpoint is terminating the connection because it has received data within a message that was not consistent with the type of the message (e.g., non-UTF-8 [http://tools.ietf.org/html/rfc3629] data within a text message).";
         case 1008:

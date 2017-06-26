@@ -1,4 +1,4 @@
-import {React, Delayed, Field, FieldConfig, Type} from "../../core";
+import {React, Trigger, Field, FieldConfig, Type} from "../../core";
 import {Page} from "../../components";
 import CodeMirror from "../../component/CodeMirror/CodeMirror";
 
@@ -35,7 +35,7 @@ export default class PWebTester extends Page {
         // fc.store = "WebTester_HTML";
     });
 
-    changed = new Delayed(() => this._reload(), 500);
+    changed = new Trigger(() => this._reload(), 500);
 
     constructor() {
         super(...arguments);
@@ -67,11 +67,11 @@ export default class PWebTester extends Page {
         this.console.innerHTML = "";
 
         let css = doc.createElement("style");
-        css.innerHTML = "\n" + this.css.get() + "\n";
+        css.innerHTML = "\n" + this.css.value + "\n";
         doc.head.appendChild(css);
 
         let js = doc.createElement("script");
-        js.innerHTML = `//# sourceURL=skrypcik\n (function(document, window){\n${this.js.get()}\n})(document, window)`;
+        js.innerHTML = `//# sourceURL=skrypcik\n (function(document, window){\n${this.js.value}\n})(document, window)`;
         doc.head.appendChild(js);
 
         doc.close();

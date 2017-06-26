@@ -99,7 +99,11 @@ const config = {
                 test: file => _filter("babel", file),
                 loader: 'babel-loader',
                 query: {
-                    presets: ['es2015', 'es2016', 'es2017', 'react', 'stage-2', 'flow']
+                    presets: ['es2015', /*'es2015', 'es2017', */'react', /*"stage-0", "stage-1", */'stage-2', /*'stage-3',*/ 'flow'],
+                    plugins: [
+                        "transform-function-bind"
+                    ]
+
                 }
             },
             {

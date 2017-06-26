@@ -31,13 +31,6 @@ export default class Page extends Component {
         return rec;
     }
 
-    render() {
-
-        <div>
-            {sdgasfdgsd}
-        </div>
-    }
-
     submit(...records: Record) {
         const spinner = new Spinner();
         Repository.submit(this, records).then(() => {

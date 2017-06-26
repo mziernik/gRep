@@ -3,7 +3,9 @@
  * Działanie klasy analogiczne do frame limiter
  */
 
-export default class Delayed {
+//import autobind from 'autobind-decorator';
+
+export default class Trigger {
 
     func: (...arg: ?any) => void;
     timeout: number = 0;
@@ -30,6 +32,7 @@ export default class Delayed {
         }, this.timeout);
     }
 
+  //  @autobind
     call(func: (...arg: ?any) => void, timeout: number = 0, ...arg: ?any) {
         this.cancel();
         this._timeout = window.setTimeout(() => {

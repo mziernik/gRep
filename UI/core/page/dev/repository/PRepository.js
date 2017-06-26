@@ -1,7 +1,6 @@
 import {React, PropTypes, Field, Utils, Repository, Record, Endpoint, If} from '../../../core';
-import {Page, FontAwesome, Link, Table, PageTitle, FieldComponent} from '../../../components';
+import {Page, FontAwesome, Link, Table, PageTitle, FieldComponent, Panel} from '../../../components';
 import PageToolBar from "../../PageToolBar";
-import Button from "../../../component/Button";
 
 
 export default class PRepository extends Page {
@@ -36,7 +35,7 @@ export default class PRepository extends Page {
                     <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.type.name}]</div>
                 </span>));
 
-        return <div>
+        return <Panel fit>
             <PageTitle>Repozytorium "{this.repo.name}"</PageTitle>
 
             <PageToolBar>
@@ -87,6 +86,6 @@ export default class PRepository extends Page {
                     return result;
                 }}
             />
-        </div>
+        </Panel>
     }
 }

@@ -6,45 +6,8 @@ import {Link} from 'react-router-dom';
 import Component from "../../core/component/Component";
 import Login from "../Login";
 import Breadcrumb from "../../core/component/Breadcrumbs";
+import WebApiStatus from "../../core/component/application/WebApiStatus";
 
-export type State = "init" | "connecting" | "connected" | "disconnected";
-
-class WebApiStatus extends Component<*, *, { state: ["init", "connecting", "connected", "disconnected"] }> {
-
-
-    constructor() {
-        super(...arguments);
-  //      Events.WEB_API_STATUS.listen(this, () => this.forceUpdate());
-    }
-
-    render() {
-        let color = null;
-        let name = null;
-        switch ("init") {
-            case "init":
-                color = "gray";
-                name = "oczekujące";
-                break;
-            case "connecting":
-                color = "aqua";
-                name = "łączenie"
-                break;
-            case "connected":
-                color = "lime";
-                name = "połączone";
-                break;
-            case "disconnected":
-                color = "red";
-                name = "rozłączone";
-                break;
-        }
-
-        return <a className="fa fa-rss" title={"Status połączenia WebApi: " + name}
-                  style={{color: color}}/>
-    }
-
-
-}
 
 export default class Header extends Component<*, *, { title: ?string }> {
 

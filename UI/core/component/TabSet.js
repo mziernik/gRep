@@ -119,7 +119,9 @@ export class TabSet extends Component {
 
     render() {
         return (
-            <span className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}>
+            <span className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}
+                  style={{flex: "auto", overflow: "hidden"}}
+            >
                 <div ref={() => this._showArrows()}
                      className={"tabsCtrl " + (this.props.vertical ? "tabsVertical" : "")}>
                     <span ref={(elem) => this.arrows.left = elem}
@@ -148,7 +150,12 @@ export class TabSet extends Component {
                                     </span>)
                         })}
                     </span>
-                    <span style={{borderBottom:'1px solid black', position:'relative', flex:1, alignSelf:'flex-end'}}/>
+                    <span style={{
+                        borderBottom: '1px solid black',
+                        position: 'relative',
+                        flex: 1,
+                        alignSelf: 'flex-end'
+                    }}/>
                     <span ref={(elem) => this.arrows.right = elem}
                           className={(this.props.vertical ? FontAwesome.CHEVRON_DOWN : FontAwesome.CHEVRON_RIGHT) + ' tabArrow'}
                           style={{display: 'none'}}

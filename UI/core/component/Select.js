@@ -156,6 +156,7 @@ export default class Select extends FormComponent {
                     readOnly={this.props.readOnly || this.field.readOnly}
                     placeholder={this.field.name}
                     onSelect={(value) => this._handleSelect(value)}
+                    duration={100}
                     messages={{
                         open: 'Rozwiń',
                         filterPlaceholder: 'Wyszukaj...',

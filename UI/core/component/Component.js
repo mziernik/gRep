@@ -26,7 +26,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
     /** Element drzewa dom, na którym bazuje komponent */
     element: HTMLElement;
 
-    _onDestroy: () => void = [];
+    _onDestroy: () => void[] = [];
 
     /** @type {string} Nazwa gałęzi - do celów deweloperskiech  */
     name: ?string = null;
@@ -57,6 +57,15 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         this.node.components.push(this);
     }
 
+
+    /** Podłączenie event listenera dla obiektu window z automatycznym usuwaniem w momencie zniszczenia komponentu*/
+    addEventListener(name: string, func: () => void) {
+        const callback = (...args) => func(...args);
+        let res = window.addEventListener(name, callback);
+        this.onDestroy(() => {
+            window.removeEventListener(name, callback);
+        });
+    }
 
     /**
      * Utwórz komponent reacta (wykorzystywany w metodzie render)

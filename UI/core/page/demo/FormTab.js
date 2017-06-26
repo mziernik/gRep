@@ -13,7 +13,7 @@ export default class FormTab extends Component {
     };
 
     render() {
-        return <form onSubmit={(e) => this._handleSubmit(e)}>
+        return <form onSubmit={(e) => this._handleSubmit(e)} style={{overflow: "auto"}} >
             <div style={{display: "flex"}}>
                 <table>
                     <tbody>
@@ -67,7 +67,7 @@ export default class FormTab extends Component {
         });
 
         if (!error)
-            if (DATA.login.get().toLowerCase() === 'admin') {
+            if (DATA.login.value.toLowerCase() === 'admin') {
                 DATA.login.error = 'Nazwa już zajęta.';
                 error = true;
             }

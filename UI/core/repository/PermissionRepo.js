@@ -10,6 +10,7 @@ import Action from "./Action";
 import Debug from "../Debug";
 import {Type} from  "../core";
 import * as CRUDE from "./CRUDE";
+import LocalRepoStorage from "./storage/LocalRepoStorage";
 
 export default class PermissionsRepo extends Repository {
 
@@ -22,7 +23,7 @@ export default class PermissionsRepo extends Repository {
         });
 
         Object.preventExtensions(this);
-        this.isLocal = true;
+        this.storage = new LocalRepoStorage();
     }
 
     refresh() {
@@ -110,6 +111,9 @@ export class PermissionRecord extends Record {
         }
 
         this.init();
+
+        debugger;
+        let dto = this.dto;
     }
 
     _update(context: any, action: Action, source: Record): Record {

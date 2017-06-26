@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {Check, If, React, Type, Record, Repository, Delayed, Utils, Dispatcher, Store} from "../core";
+import {Check, If, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store} from "../core";
 import {DataType} from "./Type";
 
 
@@ -12,6 +12,8 @@ export class FieldConfig {
     subtitle: ?string = null;
     hint: ?string = null;
     description: ?string = null;
+    /**  wartość zostanie wczytana na żądanie pobrania rekordu - zalecane dla dużych danych */
+    onDemand: boolean = false;
     enumerate: ?() => Map = null;
     units: ?() => {} = null;
     readOnly: ?boolean = null;
@@ -260,9 +262,10 @@ export default class Field extends FieldConfig {
     }
 
     /** walidacja wartości
-     * @param done czy jest to wywołanie na koniec edycji wartości */
-    validate(done: boolean) {
-        if (!this.changed)return null;
+     * @param done czy jest to wywołanie na koniec edycji wartości
+     * @returns true - ok, false - error
+     */
+    validate(done: boolean): boolean {
         const check = (): ?string => {
 
             if (this.isEmpty)
@@ -439,7 +442,7 @@ class FieldStore {
     /** Czy zapisywać wartość w postaci zakodowanej (base64) (np na potrzeby zapisu hasła) */
     encode: boolean = false;
 
-    _delayedSave: Delayed = new Delayed(() => this.save(), 100);
+    _delayedSave: Trigger = new Trigger(() => this.save(), 100);
 
     constructor(field: Field, key: string, store: Store = Store.local) {
         this._field = field;

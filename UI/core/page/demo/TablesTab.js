@@ -12,9 +12,9 @@ export default class TablesTab extends Component {
     render() {
         return (
             <div>
-                <div>
+                <div style={{height:'500px'}}>
                     <Table columns={COLUMNS}
-                           rows={DATA}
+                           rows={generateData(COLUMNS, 500)}
                            rowMapper={(row) => {
                                let res = {};
                                Utils.forEach(row, (cell) => {
@@ -28,6 +28,39 @@ export default class TablesTab extends Component {
     }
 }
 
+function generateData(columns: [], n: number): [] {
+    if (n < 1) return [];
+    function generateValue(type: simpleType): ?string | number | boolean {
+        const strings = ['Abecadło', 'Długopis', 'Komórka', 'Omega', 'Mikrofalówka',
+            'Klawiatura bezprzewodowa', 'Żarówka energiooszczędna', 'Królik doświadczalny',
+            'Jakieś bezużyteczne badziewie', '2076,4C', '007', 'Kwiat tlenotwórczy', 'Ósmy pasażer'];
+        const booleans = [null, false, true];
+        switch (type) {
+            case 'string':
+                return strings[parseInt(Math.random() * strings.length)];
+            case 'number':
+                return Math.random() * 10000;
+            case 'boolean':
+                return booleans[parseInt(Math.random() * booleans.length)];
+            default:
+                return strings[parseInt(Math.random() * strings.length)];
+        }
+    }
+
+    let res = [];
+    for (let i = 0; i < n; ++i) {
+        res.push(Utils.forEach(columns, (column: Field) => {
+            return new Field((fc: FieldConfig) => {
+                fc.type = column.type;
+                fc.key = column.key;
+                fc.name = column.name;
+                fc.defaultValue = generateValue(fc.type.simpleType);
+            })
+        }))
+    }
+    return res;
+}
+
 const COLUMNS = [
     new Field((fc: FieldConfig) => {
         fc.type = Type.STRING;
@@ -35,16 +68,24 @@ const COLUMNS = [
         fc.name = "Nazwa";
         fc.sortable = true;
         fc.filterable = true;
-        fc.sortOrder = true;
-        fc.filter = (filter, cell) => cell ? cell.value.contains(filter) : false;
+        fc.filter = (filter, cell) => cell ? cell.value ? cell.value.contains(filter) : false : false;
     }),
     new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
+        fc.type = Type.INT;
         fc.key = "value";
         fc.name = "Wartość";
         fc.sortable = true;
         fc.filterable = true;
-        fc.filter = (filter, cell) => cell ? cell.value.contains(filter) : false;
+        fc.filter = (filter, cell) => cell ? ("" + cell.value).contains(filter) : false;
+        fc.compare = (a, b) => a - b;
+    }),
+    new Field((fc: FieldConfig) => {
+        fc.type = Type.STRING;
+        fc.key = "hidden";
+        fc.name = "The Hidden One";
+        fc.sortable = false;
+        fc.filterable = false;
+        fc.hidden = true;
     }),
     new Field((fc: FieldConfig) => {
         fc.type = Type.STRING;
@@ -53,67 +94,11 @@ const COLUMNS = [
         fc.sortable = false;
         fc.filterable = false;
         fc.filter = (filter, cell) => cell ? cell.value.contains(filter) : false;
+    }),
+    new Field((fc: FieldConfig) => {
+        fc.type = Type.BOOLEAN;
+        fc.key = "active";
+        fc.name = "Aktywność";
+        fc.sortable = true;
     })
-];
-
-const DATA = [
-    [
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "name";
-            fc.name = "Nazwa";
-            fc.defaultValue = "Pierwszy rekord"
-        }),
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "value";
-            fc.name = "Wartość";
-            fc.defaultValue = "Pierwsza wartość"
-        }),
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "description";
-            fc.name = "Opis";
-            fc.defaultValue = "Pierwszy opis"
-        })
-    ],
-    [
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "name";
-            fc.name = "Nazwa";
-            fc.defaultValue = "Kolejny rekord"
-        }),
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "value";
-            fc.name = "Wartość";
-            fc.defaultValue = "Kolejna wartość"
-        }),
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "description";
-            fc.name = "Opis";
-        })
-    ],
-    [
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "name";
-            fc.name = "Nazwa";
-            fc.defaultValue = "Trzeci rekord"
-        }),
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "value";
-            fc.name = "Wartość";
-            fc.defaultValue = "Trzecia wartość"
-        }),
-        new Field((fc: FieldConfig) => {
-            fc.type = Type.STRING;
-            fc.key = "description";
-            fc.name = "Opis";
-            fc.defaultValue = "Trzeci opis"
-        })
-    ]
 ];

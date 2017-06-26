@@ -6,7 +6,7 @@ import * as Check from "../utils/Check";
 import * as If from "../utils/If";
 import AppNode from "./Node";
 import Dispatcher, {Observer} from "../utils/Dispatcher";
-import Delayed from "../utils/Delayed";
+import Delayed from "../utils/Trigger";
 
 
 /**
@@ -33,8 +33,8 @@ export class EventType {
         Object.preventExtensions(this);
     }
 
-    send(context: any, value: any) {
-        new AppEvent(context, this, value);
+    send(context: any, ...value: any) {
+        new AppEvent(context, this, ...value);
     }
 
     /**
@@ -86,7 +86,7 @@ export default class AppEvent {
      * @param {EventType} type
      * @param value
      */
-    constructor(sender: any, type: EventType, value: ?any = null) {
+    constructor(sender: any, type: EventType, ...value: ?any) {
         this.sender = sender;
         this.type = Check.instanceOf(type, [EventType]);
         this.value = value;
@@ -97,7 +97,7 @@ export default class AppEvent {
             while (queue.length) {
                 const event: AppEvent = queue.splice(0, 1)[0];
                 queue.remove(event);
-                event.type.dispatcher.dispatch(sender, event.value, event);
+                event.type.dispatcher.dispatch(sender, ...event.value, event);
                 event.sent = true;
                 If.isFunction(event.onSent, onSent => onSent(event));
             }

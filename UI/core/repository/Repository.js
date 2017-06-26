@@ -1,11 +1,12 @@
-import {Check, Record, Field, RecordConfig, Utils, If, Debug, Type, AppEvent} from "../core";
+import {Check, Record, Field, Utils, If, Debug, Type, AppEvent} from "../core";
 
 import Permission from "../application/Permission";
-import RepositoryStorage from "./RepositoryStorage";
+import LocalRepoStorage from "./storage/LocalRepoStorage";
 import Action from "./Action";
 import Dispatcher from "../utils/Dispatcher";
-import WebApiRepositoryStorage from "../webapi/WebApiRepositoryStorage";
+import WebApiRepositoryStorage from "./storage/WebApiRepoStorage";
 import {FieldConfig} from "./Field";
+import RepositoryStorage from "./storage/RepositoryStorage";
 
 export class RepositoryMode {
     static LOCAL: RepositoryMode = new RepositoryMode();
@@ -37,7 +38,7 @@ export class RepoConfig {
 
 export default class Repository {
 
-    static externalStore: ?WebApiRepositoryStorage;
+    static defaultStorage: ?RepositoryStorage;
 
     static all = {};
     static onChange: Dispatcher = new Dispatcher();
@@ -54,11 +55,9 @@ export default class Repository {
     permission: ?Permission;
     columns: Field[] = [];
     primaryKeyColumn: Field;
-    storage: RepositoryStorage = new RepositoryStorage(this);
+    storage: RepositoryStorage;
     /** Czy dane repozytorium zostały już wczytane */
     isReady: boolean = false;
-    /** Repozytorium lokalne, nie podlega synchronizacji */
-    isLocal: boolean = false;
     /** Czy repozytorium ma być automatycznie synchronizowane z serwerem */
     autoUpdate: boolean = true;
 
@@ -83,7 +82,7 @@ export default class Repository {
         this._recordClass = this.config.recordClass;
 
         this.permission = Permission.all["repo-" + this.key]
-            || new Permission(this, "repo-" + this.key, `Repozytorium "${name}"`, Repository.defaultCrudeRights);
+            || new Permission(this, "repo-" + this.key, `Repozytorium "${this.name}"`, Repository.defaultCrudeRights);
 
         for (let name in this.config)
             Object.defineProperty(this.config, name, {
@@ -107,6 +106,8 @@ export default class Repository {
 
         if (!this.primaryKeyColumn)
             throw new Error("Brak definicji klucza głównego");
+
+        this.storage = Repository.defaultStorage;
     }
 
     static getF(key: string): Repository {
@@ -178,7 +179,7 @@ export default class Repository {
     /**
      * Zastosuj zmiany (edycja / synchronizacja)
      */
-    static submit(context: any, records: Record[], dtoCallback: ?(dto: {}) => void): Promise {
+    static submit(context: any, records: Record[]): Promise {
         Check.instanceOf(records, [Array]);
 
         records.forEach((item: Record) => {
@@ -191,7 +192,7 @@ export default class Repository {
 
         return new Promise((resolve, reject) => {
             Repository.update(context, records);
-            resolve(dto);
+            resolve();
         });
 
     }

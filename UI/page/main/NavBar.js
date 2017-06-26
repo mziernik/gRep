@@ -6,7 +6,7 @@ import Component from "../../core/component/Component";
 import Alert from "../../core/component/alert/Alert";
 import Endpoint from "../../core/application/Endpoint";
 import Link from "react-router-dom/es/Link";
-import Delayed from "../../core/utils/Delayed";
+import Delayed from "../../core/utils/Trigger";
 
 
 const delayed: Delayed = new Delayed();
