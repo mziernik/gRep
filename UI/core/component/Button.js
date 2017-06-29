@@ -28,7 +28,7 @@ export default class Button extends Component {
         this.state.disabled = false; // tymczasowo
 
         if (this.props.crude && this.props.record)
-            (this.props.record: Record).fieldChanged.listen(this, (field: Field) => {
+            (this.props.record: Record).onFieldChange.listen(this, (field: Field) => {
                 let ok = true;
                 this.props.record.fields.forEach((field: Field) => {
                     if (!field.isValid)
@@ -81,7 +81,7 @@ export default class Button extends Component {
 
                         const spinner = new Spinner();
 
-                        Repository.submit(this, [this.props.record])
+                        Repository.commit(this, [this.props.record])
                             .then((e) => {
                                 spinner.hide();
                                 AppStatus.success(this, "Zaktualizowano dane");

@@ -32,9 +32,9 @@ export default class Dashboard extends Page {
 
         return <Panel noPadding fit>
             <ReactGridLayout className="layout" layout={layout} cols={2} rowHeight={80}>
-                <div style={style} key={'a'}>a</div>
-                <div style={style} key={'b'}>b</div>
-                <div style={style} key={'c'}>c</div>
+                <div style={style} key={'a'}>Zasoby systemu</div>
+                <div style={style} key={'b'}>Alerty</div>
+                <div style={style} key={'c'}>Zalogowani użytkownicy</div>
             </ReactGridLayout>
         </Panel>
     }

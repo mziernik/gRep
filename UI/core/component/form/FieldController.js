@@ -4,6 +4,9 @@ import {React, PropTypes, Field, Check} from '../../core';
 import {Component, FontAwesome} from '../../components';
 import Hint from "../Hint";
 
+
+//ToDo: Wojtek: Dodaj etykietę tekstową (field.name) jako nowy typ FieldController-a
+
 export default class FieldController extends Component {
 
     field: Field;

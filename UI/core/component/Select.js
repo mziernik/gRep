@@ -28,9 +28,10 @@ export default class Select extends FormComponent {
         readOnly: ?boolean
     };
 
-    static PropTypes = {
+    static propTypes = {
         /** czy jest to lista jednostek */
-        units: PropTypes.bool
+        units: PropTypes.bool,
+        readOnly: PropTypes.bool
     };
 
 
@@ -52,10 +53,6 @@ export default class Select extends FormComponent {
 
             if (!this.field.type.single)
                 this._multiselectProps = {
-                    onFocus: () => {
-                        this.setState({open: true});
-                        this._selected = true;
-                    },
                     onBlur: () => this.setState({open: false}),
                     onClick: (e) => this._handleClick(e),
                     valueComponent: (props) => this._valueRenderer(props),

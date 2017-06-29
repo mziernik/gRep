@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, Field, Type, FieldConfig, Utils} from '../../core';
+import {React, Field, Type, FieldConfig, Utils, Column} from '../../core';
 import {Component, Page, FontAwesome, FieldComponent, FieldController, Table}from '../../components';
 
 export default class TablesTab extends Component {
@@ -11,19 +11,17 @@ export default class TablesTab extends Component {
 
     render() {
         return (
-            <div>
-                <div style={{height:'500px'}}>
-                    <Table columns={COLUMNS}
-                           rows={generateData(COLUMNS, 500)}
-                           rowMapper={(row) => {
-                               let res = {};
-                               Utils.forEach(row, (cell) => {
-                                   res[cell.key] = <FieldComponent preview={true} fieldCtrl={false} field={cell}/>
-                               });
-                               return res;
-                           }}
-                    />
-                </div>
+            <div style={{width: '100%'}}>
+                <Table columns={COLUMNS}
+                       rows={generateData(COLUMNS, 500)}
+                       rowMapper={(row) => {
+                           let res = {};
+                           Utils.forEach(row, (cell) => {
+                               res[cell.key] = <FieldComponent preview={true} fieldCtrl={false} field={cell}/>
+                           });
+                           return res;
+                       }}
+                />
             </div>);
     }
 }
@@ -49,7 +47,8 @@ function generateData(columns: [], n: number): [] {
 
     let res = [];
     for (let i = 0; i < n; ++i) {
-        res.push(Utils.forEach(columns, (column: Field) => {
+        res.push(Utils.forEach(columns, (column) => {
+            if (!(column instanceof Column)) return;
             return new Field((fc: FieldConfig) => {
                 fc.type = column.type;
                 fc.key = column.key;
@@ -62,7 +61,7 @@ function generateData(columns: [], n: number): [] {
 }
 
 const COLUMNS = [
-    new Field((fc: FieldConfig) => {
+    new Column((fc: Column) => {
         fc.type = Type.STRING;
         fc.key = "name";
         fc.name = "Nazwa";
@@ -70,7 +69,7 @@ const COLUMNS = [
         fc.filterable = true;
         fc.filter = (filter, cell) => cell ? cell.value ? cell.value.contains(filter) : false : false;
     }),
-    new Field((fc: FieldConfig) => {
+    new Column((fc: Column) => {
         fc.type = Type.INT;
         fc.key = "value";
         fc.name = "Wartość";
@@ -79,7 +78,7 @@ const COLUMNS = [
         fc.filter = (filter, cell) => cell ? ("" + cell.value).contains(filter) : false;
         fc.compare = (a, b) => a - b;
     }),
-    new Field((fc: FieldConfig) => {
+    new Column((fc: Column) => {
         fc.type = Type.STRING;
         fc.key = "hidden";
         fc.name = "The Hidden One";
@@ -87,7 +86,7 @@ const COLUMNS = [
         fc.filterable = false;
         fc.hidden = true;
     }),
-    new Field((fc: FieldConfig) => {
+    new Column((fc: Column) => {
         fc.type = Type.STRING;
         fc.key = "description";
         fc.name = "Opis";
@@ -95,7 +94,7 @@ const COLUMNS = [
         fc.filterable = false;
         fc.filter = (filter, cell) => cell ? cell.value.contains(filter) : false;
     }),
-    new Field((fc: FieldConfig) => {
+    new Column((fc: Column) => {
         fc.type = Type.BOOLEAN;
         fc.key = "active";
         fc.name = "Aktywność";

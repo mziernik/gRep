@@ -20,6 +20,7 @@ export default class Link extends Component {
         style: PropTypes.object,
         onClick: PropTypes.func,
         title: PropTypes.string,
+        disabled: PropTypes.bool,
         confirm: PropTypes.string // komunikat potwierdzenia przed wykonaniem onClick lub download
     };
 
@@ -40,9 +41,13 @@ export default class Link extends Component {
 
         const className = arr.join(" ");
 
+        const disabled: boolean = !!this.props.disabled;
+        if (disabled)
+            style.cursor = "default";
+
         //-------------------------------------------------------------
 
-        if (this.props.link) {
+        if (this.props.link && !disabled) {
             let link = this.props.link;
             if (link instanceof Endpoint)
                 link = (link: Endpoint).getLink();
@@ -66,6 +71,8 @@ export default class Link extends Component {
                 className={className}
                 onClick={(e: Event) => {
                     e.preventDefault();
+
+                    if (disabled) return;
 
                     const process = () => {
                         if (If.isFunction(this.props.onClick))
@@ -95,12 +102,14 @@ export default class Link extends Component {
                 }}>{this.props.children}</span>
             </a>;
 
-        return <a href="javascript:void(0)">
+        return <a href={disabled ? null : "javascript:void(0)"}>
             <span
                 title={title}
                 style={style}
+                disabled={disabled}
                 className={className}
                 onClick={(e) => {
+                    if (disabled) return;
                     if (this.props.confirm && If.isFunction(this.props.onClick))
                         Alert.confirm(this, this.props.confirm, () => this.props.onClick(e));
                     else If.isFunction(this.props.onClick, f => f(e));

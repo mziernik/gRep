@@ -120,10 +120,12 @@ export class TabSet extends Component {
     render() {
         return (
             <span className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}
-                  style={{flex: "auto", overflow: "hidden"}}
+                  style={{display: 'flex', flexDirection: 'column', flex: "1 1 auto", overflow: "hidden"}}
             >
                 <div ref={() => this._showArrows()}
-                     className={"tabsCtrl " + (this.props.vertical ? "tabsVertical" : "")}>
+                     className={"tabsCtrl " + (this.props.vertical ? "tabsVertical" : "")}
+                     style={{flex: '0 0 auto'}}
+                >
                     <span ref={(elem) => this.arrows.left = elem}
                           className={(this.props.vertical ? FontAwesome.CHEVRON_UP : FontAwesome.CHEVRON_LEFT) + ' tabArrow'}
                           style={{display: 'none'}}
@@ -161,7 +163,7 @@ export class TabSet extends Component {
                           style={{display: 'none'}}
                           onClick={() => this._handleArrow(100)}/>
                 </div>
-                <div className="tabContent">
+                <div className="tabContent" style={{display: 'flex', flex: '1 1 auto'}}>
                     {this._isSelectable(this.props.children[this.state.selected]) ? this.props.children[this.state.selected] : null}
                 </div>
             </span>

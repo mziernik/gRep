@@ -23,24 +23,27 @@ export default class WebApiRepoStorage extends RepositoryStorage {
 
     load(repos: Repository[]): Promise {
         const list = {};
-        Utils.forEach(repos, (repo: Repository) => list[repo.key] = repo.autoUpdate);
-        return (this.methods.get({repositories: list}): WebApiRequest).promise;
+        Utils.forEach(repos, (repo: Repository) => list[repo.key] = repo.config.autoUpdate);
+        return (this.methods.get({repositories: list}, () => {
+            //sukces
+        }, (err, a, b) => {
+            // bład
+            debugger;
+        }): WebApiRequest).promise;
     }
 
     static buildDTO(records: Record[], includeUnchanged: boolean = false): {} {
         const dto: Object = {};
-        const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repository);
+        const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repo);
 
         map.forEach((records: Record[], repo: Repository) => {
 
             const obj = dto[repo.key] = [];
             records.forEach((record: Record) => {
                 const r = {};
-                r.action = record._action ? (record._action: CRUDE).name : null;
-                r.fields = {};
                 record.fields.forEach((field: Field) => {
                     if (includeUnchanged || field.changed)
-                        r.fields[field.key] = field.type.serialize(field.value);
+                        r[field.key] = field.type.serialize(field.value);
                 });
 
                 obj.push(r);

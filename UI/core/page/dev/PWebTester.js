@@ -1,4 +1,4 @@
-import {React, Trigger, Field, FieldConfig, Type} from "../../core";
+import {React, Trigger, Field, Column, Type} from "../../core";
 import {Page} from "../../components";
 import CodeMirror from "../../component/CodeMirror/CodeMirror";
 
@@ -11,7 +11,7 @@ export default class PWebTester extends Page {
     fra: HTMLIFrameElement;
     console: HTMLDivElement;
 
-    js: Field = new Field((fc: FieldConfig) => {
+    JS: Field = new Field((fc: Column) => {
         fc.type = Type.STRING;
         fc.key = "js";
         fc.name = " JavaScript";
@@ -19,7 +19,7 @@ export default class PWebTester extends Page {
         // fc.store = "WebTester_JS";
     });
 
-    css: Field = new Field((fc: FieldConfig) => {
+    CSS: Field = new Field((fc: Column) => {
         fc.type = Type.STRING;
         fc.key = "css";
         fc.name = " CSS";
@@ -27,11 +27,11 @@ export default class PWebTester extends Page {
         // fc.store = "WebTester_CSS";
     });
 
-    HTML: Field = new Field((fc: FieldConfig) => {
+    HTML: Field = new Field((fc: Column) => {
         fc.type = Type.STRING;
         fc.key = "html";
         fc.name = " HTML";
-        fc.defaultValue = JS;
+        fc.defaultValue = HTML;
         // fc.store = "WebTester_HTML";
     });
 
@@ -39,16 +39,16 @@ export default class PWebTester extends Page {
 
     constructor() {
         super(...arguments);
-        this.js.onChange.listen(this, () => this.changed.run());
-        this.css.onChange.listen(this, () => this.changed.run());
-        this.html.onChange.listen(this, () => this.changed.run());
+        this.JS.onChange.listen(this, () => this.changed.run());
+        this.CSS.onChange.listen(this, () => this.changed.run());
+        this.HTML.onChange.listen(this, () => this.changed.run());
     }
 
     _reload() {
         const wnd = this.fra.contentWindow;
         const doc = wnd.document;
         doc.open();
-        doc.write(this.html.get());
+        doc.write(this.HTML.value);
 
         wnd.console.log = (data) => {
             const div = doc.createElement("div");
@@ -59,19 +59,19 @@ export default class PWebTester extends Page {
 
         wnd.onerror = (error, file, line, col) => {
             const div = doc.createElement("div");
-            div.style.color = "#d33",
-                div.innerText = `PLik: ${file}, linia: ${line}, błąd: "${error}"`;
+            div.style.color = "#d33";
+            div.innerText = `PLik: ${file}, linia: ${line}, błąd: "${error}"`;
             this.console.appendChild(div);
         };
 
         this.console.innerHTML = "";
 
         let css = doc.createElement("style");
-        css.innerHTML = "\n" + this.css.value + "\n";
+        css.innerHTML = "\n" + this.CSS.value + "\n";
         doc.head.appendChild(css);
 
         let js = doc.createElement("script");
-        js.innerHTML = `//# sourceURL=skrypcik\n (function(document, window){\n${this.js.value}\n})(document, window)`;
+        js.innerHTML = `//# sourceURL=skrypcik\n (function(document, window){\n${this.JS.value}\n})(document, window)`;
         doc.head.appendChild(js);
 
         doc.close();
@@ -133,14 +133,9 @@ export default class PWebTester extends Page {
                     display: "flex",
                     flexDirection: "column"
                 }}>
-
-                    <CodeMirror style={cmStyle} field={this.html} mode="html"/>
-
-                    <CodeMirror style={cmStyle} field={this.js} mode="javascript"/>
-
-                    <CodeMirror style={cmStyle} field={this.css} mode="css"/>
-
-
+                    <CodeMirror style={cmStyle} field={this.HTML} mode="html"/>
+                    <CodeMirror style={cmStyle} field={this.JS} mode="javascript"/>
+                    <CodeMirror style={cmStyle} field={this.CSS} mode="css"/>
                 </div>
 
                 <div style={{

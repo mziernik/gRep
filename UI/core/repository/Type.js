@@ -222,6 +222,12 @@ function parseNumber(value: any, parsed: number) {
     return parsed;
 }
 
+export const ANY: DataType = new DataType((dt: DataType) => {
+    dt.name = "any";
+    dt.simpleType = "any";
+    dt.parser = val => val;
+    dt.formatter = val => Utils.escape(val);
+});
 
 export const BOOLEAN: DataType = new DataType((dt: DataType) => {
     dt.name = "boolean";
@@ -367,7 +373,6 @@ export const TIMESTAMP: DataType = new DataType((dt: DataType) => {
     dt.serializer = (val: Date) => val.getTime();
 });
 
-//ToDo: Wojtek: Obsługa w FieldComponent
 // upływ czasu (milisekundy)
 export const DURATION: DataType = new DataType((dt: DataType) => {
     dt.name = "duration";
@@ -376,6 +381,13 @@ export const DURATION: DataType = new DataType((dt: DataType) => {
         //ToDo: dopisać
         return val;
     };
+    dt.formatter = (val: number) => Utils.formatUnits(val, {
+        h: 1000 * 60 * 60,
+        m: 1000 * 60,
+        s: 1000,
+        ms: 0
+    });
+
     dt.units = [
         ["ms", "ms", 1],
         ["s", "s", 1000],

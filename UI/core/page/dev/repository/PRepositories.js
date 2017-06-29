@@ -6,7 +6,7 @@ export default class PRepositories extends Page {
 
     constructor() {
         super(...arguments);
-        Repository.onChange.listen(this, () => this.forceUpdate());
+        Repository.onUpdate.listen(this, () => this.forceUpdate());
     }
 
     render() {
@@ -17,19 +17,21 @@ export default class PRepositories extends Page {
 
             <Table
                 columns={{
+                    actions: "Akcje",
                     id: "ID",
                     name: "Nazwa",
                     recs: "Rekordów",
                     updates: "Ilość aktualizacji",
                     last: "Ostatnia aktualizacja",
-                    actions: "Akcje"
+                    refs: "Referencje",
+                    crude: "CRUDE"
                 }}
                 rows={Repository.all}
                 rowMapper={(repo: Repository) => {
                     return {
                         name: repo.name,
                         id: repo.key,
-                        recs: repo.items.length,
+                        recs: repo.rows.size,
                         updates: repo.updates,
                         last: repo.lastUpdated ? repo.lastUpdated.toLocaleString() : "",
                         actions: (<span>
@@ -42,7 +44,9 @@ export default class PRepositories extends Page {
                                 link={this.endpoint.REPO.getLink({repo: repo.key})}
                                 icon={FontAwesome.EYE}
                             />
-                        </span>)
+                        </span>),
+                        refs: repo.refs.length,
+                        crude: repo.config.crude
                     }
                 }
                 }

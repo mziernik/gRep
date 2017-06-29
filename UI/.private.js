@@ -8,12 +8,12 @@ module.exports = {
 
     devServer: {
         host: "localhost",
-        port: 8080
+        port: 800
     },
 
     // zmienne środowiskowe przekazywane do aplikacji
     environment: {
         NODE_ENV: "development",
-        WEB_API_URL: "http://localhost:52676/hubs/MainHub"
+      //  WEB_API_URL: "http://localhost:52676/hubs/MainHub"
     }
 };

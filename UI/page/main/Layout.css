@@ -66,6 +66,7 @@ table th {
     border-right: 1px solid #c2c2c2;
     display: flex;
     background-color: #ccc;
+    overflow: auto;
 }
 
 #app-navbar ul {

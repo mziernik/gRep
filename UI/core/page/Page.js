@@ -1,16 +1,7 @@
 // @flow
 'use strict';
-
-//FixMe: importy
-
-
-import {React} from "../components";
-import Component from "../component/Component";
-import Record from "../repository/Record";
-import Repository from "../repository/Repository";
-import Spinner from "../component/Spinner";
-import Endpoint from "../application/Endpoint";
-import * as Utils from "../utils/Utils";
+import {React, Record, Repository, Endpoint, Utils, If} from "../core";
+import {Component, Spinner} from "../components";
 
 export default class Page extends Component {
 
@@ -23,23 +14,24 @@ export default class Page extends Component {
         Utils.makeFinal(this, ["endpoint"])
     }
 
-    beginEdit(record: Record) {
-        const rec = record.beginEdit(this);
+    /** Zwraca tru jeśli repozytoria [repos] zostały zainicjowane, w przeciwnym razie czeka na inicjalizację i wywołuje forceUpdate na stronie */
+    waitForRepo(repos: Repository | Repository[], onReady: () => void): boolean {
+        repos = If.isArray(repos) ? repos : [repos];
+        const notReady: Repository[] = Utils.forEach(repos, (repo: Repository) => repo.isReady ? undefined : repo);
+        if (notReady.isEmpty())
+            return true;
 
-        this.onDestroy(() => rec.cancelEdit());
-        record.onChange.listen(this, () => this.forceUpdate());
-        return rec;
-    }
-
-    submit(...records: Record) {
-        const spinner = new Spinner();
-        Repository.submit(this, records).then(() => {
-            debugger;
-            spinner.hide();
+        notReady.forEach((repo: Repository) => {
+            repo.onChange.listen(this, () => {
+                if (notReady.isEmpty())
+                    return;
+                notReady.remove(repo);
+                if (notReady.isEmpty())
+                    onReady();
+            });
         });
-
+        return false;
     }
-
 }
 
 

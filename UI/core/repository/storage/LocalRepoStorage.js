@@ -51,7 +51,7 @@ export default class LocalRepoStorage extends RepositoryStorage {
                     val = null;
 
                 if (val instanceof Record)
-                    val = val._primaryKeyValue;
+                    val = val.pk;
 
                 row.push(val);
             });
@@ -64,14 +64,14 @@ export default class LocalRepoStorage extends RepositoryStorage {
 
         return new Promise((resolve, reject) => {
             const repos = new Set();
-            Utils.forEach(repos, (rec: Record) => repos.add(rec.repository));
+            Utils.forEach(repos, (rec: Record) => repos.add(rec.repo));
 
             Utils.forEach(repos, (repo: Repository) => {
                 this.store.set("repo-" + repo.key, this._build(repo));
             });
 
 
-            resolve(dto);
+            resolve();
         });
 
 

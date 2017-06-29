@@ -17,6 +17,7 @@ export default class PFontAwesome extends Page {
             <PageTitle>FontAwesome</PageTitle>
 
             <Panel>
+                <span>
                 <input
                     type="search"
                     placeholder="szukaj"
@@ -24,26 +25,27 @@ export default class PFontAwesome extends Page {
                         let val = e.target.value.trim();
                         this.setState({search: val});
                     }}/>
-
+                </span>
             </Panel>
             <hr style={{width: "100%"}}/>
 
-            <Panel overflow="auto">
-                {FontAwesome.ALL.map((ico: FontAwesome) => {
+            <Panel vertical overflow="auto">
+                <div>
+                    {FontAwesome.ALL.map((ico: FontAwesome) => {
 
-                    const name = ico.className.substring(6);
+                        const name = ico.className.substring(6);
 
-                    if (this.state && this.state.search && !name.contains(this.state.search))
-                        return null;
+                        if (this.state && this.state.search && !name.contains(this.state.search))
+                            return null;
 
-                    return <span
-                        key={ico.className}
-                        style={ {
-                            display: "inline-block",
-                            width: "100px",
-                            margin: "16px 4px",
-                            textAlign: "center"
-                        }}>
+                        return <span
+                            key={ico.className}
+                            style={ {
+                                display: "inline-block",
+                                width: "100px",
+                                margin: "16px 4px",
+                                textAlign: "center"
+                            }}>
                     <div style={{
                         fontSize: "40px"
                     }} className={ico.className}></div>
@@ -58,7 +60,8 @@ export default class PFontAwesome extends Page {
                         title={name}
                     >{name}</div>
                 </span>
-                })}
+                    })}
+                </div>
             </Panel>
 
         </Panel>

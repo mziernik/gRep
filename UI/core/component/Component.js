@@ -26,7 +26,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
     /** Element drzewa dom, na którym bazuje komponent */
     element: HTMLElement;
 
-    _onDestroy: () => void[] = [];
+    _onDestroy: [] = [];
 
     /** @type {string} Nazwa gałęzi - do celów deweloperskiech  */
     name: ?string = null;

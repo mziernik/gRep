@@ -1,11 +1,30 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) {
+                try {
+                    step(generator.next(value));
+                } catch (e) {
+                    reject(e);
+                }
+            }
+
+            function rejected(value) {
+                try {
+                    step(generator["throw"](value));
+                } catch (e) {
+                    reject(e);
+                }
+            }
+
+            function step(result) {
+                result.done ? resolve(result.value) : new P(function (resolve) {
+                    resolve(result.value);
+                }).then(fulfilled, rejected);
+            }
+
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
 import * as Formatters from "./Formatters";
 export var TransportType;
 (function (TransportType) {
@@ -35,16 +54,12 @@ export class WebSocketTransport {
             };
             webSocket.onclose = (event) => {
                 if (this.onClosed && this.webSocket) {
-                    if (event.wasClean === false || event.code !== 1000) {
-                        this.onClosed(new Error(`Websocket closed with status code: ${event.code} (${event.reason})`));
-                    }
-                    else {
-                        this.onClosed();
-                    }
+                    this.onClosed(event);
                 }
             };
         });
     }
+
     send(data) {
         if (this.webSocket && this.webSocket.readyState === WebSocket.OPEN) {
             this.webSocket.send(data);
@@ -52,6 +67,7 @@ export class WebSocketTransport {
         }
         return Promise.reject("WebSocket is not in the OPEN state");
     }
+
     stop() {
         if (this.webSocket) {
             this.webSocket.close();
@@ -63,6 +79,7 @@ export class ServerSentEventsTransport {
     constructor(httpClient) {
         this.httpClient = httpClient;
     }
+
     connect(url, queryString) {
         if (typeof (EventSource) === "undefined") {
             Promise.reject("EventSource not supported by the browser.");
@@ -104,11 +121,13 @@ export class ServerSentEventsTransport {
             }
         });
     }
+
     send(data) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             return send(this.httpClient, `${this.url}/send?${this.queryString}`, data);
         });
     }
+
     stop() {
         if (this.eventSource) {
             this.eventSource.close();
@@ -120,6 +139,7 @@ export class LongPollingTransport {
     constructor(httpClient) {
         this.httpClient = httpClient;
     }
+
     connect(url, queryString) {
         this.url = url;
         this.queryString = queryString;
@@ -127,6 +147,7 @@ export class LongPollingTransport {
         this.poll(url + "/poll?" + this.queryString);
         return Promise.resolve();
     }
+
     poll(url) {
         if (!this.shouldPoll) {
             return;
@@ -175,11 +196,13 @@ export class LongPollingTransport {
         this.pollXhr.timeout = 110000;
         this.pollXhr.send();
     }
+
     send(data) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             return send(this.httpClient, `${this.url}/send?${this.queryString}`, data);
         });
     }
+
     stop() {
         this.shouldPoll = false;
         if (this.pollXhr) {
@@ -191,7 +214,7 @@ export class LongPollingTransport {
 const headers = new Map();
 headers.set("Content-Type", "application/vnd.microsoft.aspnetcore.method-messages.v1+text");
 function send(httpClient, url, data) {
-    return __awaiter(this, void 0, void 0, function* () {
+    return __awaiter(this, void 0, void 0, function*() {
         let message = `T${data.length.toString()}:T:${data};`;
         yield httpClient.post(url, message, headers);
     });

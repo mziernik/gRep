@@ -262,7 +262,7 @@ export default class CodeMirror extends Component {
                     return;
 
                 const cm = this.editor = new CM(tag, {
-                    value: (this.field ? this.field.get() : this.props.value) || "",
+                    value: (this.field ? this.field.value : this.props.value) || "",
                     lineNumbers: true,
                     mode: this.props.mode,
                     theme: this.props.theme,

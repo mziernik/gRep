@@ -8,7 +8,14 @@ export default class Alert {
     static error(sender: any, message: string | Error) {
         if (message instanceof Error)
             message = message.message;
-        swal('Błąd', message, 'error')
+
+
+        swal({
+            title: message,
+            type: 'error',
+            text: "Błąd",
+            allowOutsideClick: false
+        });
     }
 
     static prompt() {

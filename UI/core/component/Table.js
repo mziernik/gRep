@@ -1,17 +1,14 @@
-import {React, PropTypes, Utils, If, Check, ReactUtils, Trigger} from "../core";
-import {Component} from "../components";
+import {React, ReactDOM, PropTypes, Utils, If, Check, ReactUtils, Column} from "../core";
+import {Component, FormComponent} from "../components";
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import Field from "../repository/Field";
-import FieldComponent from "./form/FieldComponent";
-import FormComponent from "./form/FormComponent";
 
 export default class Table extends Component {
     _widths = {};
+    _tableTag = null;
+    _prevTableWidth = 0;
     _updateWidths = true;
     _sorted = [];
-    _resizeTrigger: Trigger = new Trigger();
-    _element: HTMLElement;
 
     static propTypes = {
         // tablica Fieldów lub {idKolumny:nazwaKolumny,...}
@@ -25,22 +22,24 @@ export default class Table extends Component {
         onRowClick: PropTypes.func
     };
 
-
     constructor() {
         super(...arguments);
+        this._timeoutFunc = () => {
+            this._setWidths();
+            this._timeoutID = setTimeout(() => this._timeoutFunc(), 200);
+        };
         this.state = {columns: this.columns = this._convertColumns()};
-
-        this.addEventListener("resize", () => this._resizeTrigger.call(() => {
-                //ToDo: Wojtek: Dopasowanie szerokości kolumn podczas zmiany rozmiaru okna
-                console.log("Zmiana rozmiaru okna");
-
-                //
-                // this._computeWidths()
-                // this.forceUpdate();
-            }, 300)
-        );
     }
 
+    componentDidMount() {
+        this._timeoutID = setTimeout(() => this._timeoutFunc(), 200);
+    }
+
+    componentWillUnmount() {
+        super.componentWillUnmount(...arguments);
+        clearTimeout(this._timeoutID);
+
+    }
 
     /** mapuje kolumny pod format ReactTable
      * @returns {*[]}
@@ -51,7 +50,7 @@ export default class Table extends Component {
             if (!col) return;
 
             let k = key;
-            if (If.isNumber(key) && (col instanceof Field || col.$$typeof))
+            if (If.isNumber(key) && (col instanceof Column || col.$$typeof))
                 k = Check.nonEmptyString(col.key, new Error("Wymagana definicja atrybutu key"));
 
             let column = {
@@ -66,7 +65,7 @@ export default class Table extends Component {
             };
 
             let header = null;
-            if (col instanceof Field) {
+            if (col instanceof Column) {
                 header = col.value || col.name;
                 column.sortable = col.sortable;
                 column.filterable = col.filterable;
@@ -127,7 +126,7 @@ export default class Table extends Component {
      */
     _convertData() {
         const data = Utils.forEach(this.props.rows, (row, rowIdx) => {
-            let res = If.isFunction(this.props.rowMapper) ? this.props.rowMapper(row) : row;
+            let res = If.isFunction(this.props.rowMapper) ? this.props.rowMapper(row, rowIdx) : row;
             let cellIdx = 0;
             for (let name in res) {
                 let item = res[name];
@@ -149,6 +148,9 @@ export default class Table extends Component {
     _computeWidths(table) {
         if (!this._updateWidths)return;
         if (!table)return;
+        let tag = ReactDOM.findDOMNode(table);
+        this._tableTag = tag;
+        const tableWidth = (tag.offsetWidth - 20);
         let sum = 0;
         let cols = 0;
         Utils.forEach(this._widths, (value, key) => {
@@ -165,12 +167,13 @@ export default class Table extends Component {
             idx += parseInt((value.length - idx) / 2);
 
             let width = idx === (value.length - 1) ? 20 : value[idx] < header ? (header + value[idx]) / 2 : value[idx];
-            this._widths[key] = width < this._table ? (width) : (this._table / 2);
+            this._widths[key] = width < tableWidth ? (width) : (tableWidth / 2);
 
             sum += this._widths[key];
         });
-        const step = this._table / sum;
-        const free = (this._table - sum) / cols;
+        const step = tableWidth / sum;
+        const free = (tableWidth - sum) / cols;
+        this._visibleCols = cols;
         Utils.forEach(this._widths, (value, key) => {
             if (free > 0)
                 this._widths[key] = value + free;
@@ -178,14 +181,51 @@ export default class Table extends Component {
                 this._widths[key] = value * step;
         });
         this._updateWidths = false;
-        this.setState({columns: this._convertColumns()});
+        this._setWidths(true);
     }
+
+    _setWidths(first: boolean = false) {
+        let colDiff = 0;
+        if (!first) {
+            if (parseInt(this._tableTag.offsetWidth - this._prevTableWidth) === 0)
+                return;
+            colDiff = (this._tableTag.offsetWidth - this._prevTableWidth) / (this._visibleCols);
+            if (colDiff === 0)return;
+        }
+        this._prevTableWidth = this._tableTag.offsetWidth;
+        Utils.forEach(this.state.columns, (column, index) => {
+            if (column.id) {
+                if (colDiff !== 0) this._widths[column.id] += colDiff;
+                column.width = this._widths[column.id];
+            }
+        });
+        this.setState({columns: this.state.columns});
+    }
+
+    _swapColumns(sourceID, targetID, targetCol, mouseX) {
+        if (sourceID === targetID) return;
+        let res = this.state.columns.slice();
+        const sourceIdx = res.findIndex((column) => column.id === sourceID);
+
+        let tmp = res.splice(sourceIdx, 1)[0];
+        let targetIdx = res.findIndex((column) => column.id === targetID);
+        if (targetID) {
+            let middle = targetCol.getBoundingClientRect();
+            middle = middle.left + (middle.width / 2);
+            targetIdx = mouseX > middle ? targetIdx + 1 : targetIdx
+        }
+        res.splice(targetIdx, 0, tmp);
+
+        this.setState({columns: res});
+
+    }
+
 
     render() {
         return <ReactTable
-            ref={elem => this._element = this._computeWidths(elem)}
+            ref={elem => this._computeWidths(elem)}
             className="-striped -highlight"
-            style={{height: '100%'}}
+            style={{height: '100%', width: '100%'}}
             defaultSorted={this._sorted}
             columns={this.state.columns}
             {...this._convertData()}
@@ -201,6 +241,40 @@ export default class Table extends Component {
                 return row ? null : {style: {display: 'none'}};
             }}
 
+            getTheadThProps={(state, row, column, instance) => {
+                return {
+                    draggable: true,
+                    onDragStart: (e) => {
+                        if (!column.id) e.preventDefault();
+                        e.stopPropagation();
+                        e.DataTransfer = 'dummy';
+                        this._drag = column.id;
+                    },
+                    onDragOver: (e) => {
+                        if (!this._drag)return;
+                        e.stopPropagation();
+                        e.preventDefault();
+                    },
+                    onDrop: (e) => {
+                        if (!this._drag)return false;
+                        e.stopPropagation();
+                        e.preventDefault();
+                        this._swapColumns(this._drag, column.id, e.currentTarget, e.pageX);
+                        this._drag = null;
+                    }
+
+                };
+            }}
+
+            getResizerProps={(state, row, column, instance) => {
+                return {
+                    draggable: true,
+                    onDragStart: (e) => {
+                        e.preventDefault();
+                    },
+                }
+            }}
+
             previousText="Poprzednia"
             nextText="Następna"
             loadingText="Wczytywanie..."
@@ -208,18 +282,7 @@ export default class Table extends Component {
             pageText="Strona"
             ofText="z"
             rowsText="rekordów"
-        >
-            {(state, makeTable, instance) => {
-                if (this._updateWidths)
-                    return <div ref={elem => {
-                        if (elem) this._table = elem.offsetWidth - 20
-                    }}>
-                        {makeTable()}
-                    </div>;
-                return makeTable();
-            }}
-
-        </ReactTable>;
+        />;
     }
 }
 

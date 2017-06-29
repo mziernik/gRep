@@ -21,7 +21,7 @@ export default class Permission {
         this._context = context;
         this.id = id;
         this.name = name;
-        this.setCrude(crude);
+        this.crude = crude;
         if (Permission.all[id])
             throw new Error("Uprawnienie " + JSON.stringify(id) + " już istnieje");
         Permission.all[id] = this;
@@ -29,7 +29,7 @@ export default class Permission {
     }
 
 
-    setCrude(crude: string = "CRUDE") {
+    set crude(crude: string) {
         crude = (crude || "").toUpperCase();
         this.create(crude.indexOf("C") !== -1);
         this.read(crude.indexOf("R") !== -1);
@@ -38,7 +38,7 @@ export default class Permission {
         this.execute(crude.indexOf("E") !== -1);
     }
 
-    getCrude() {
+    get crude(): string {
         return (this._create ? "C" : "")
             + (this._read ? "R" : "")
             + (this._update ? "U" : "")

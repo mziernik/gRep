@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {Debug, React, Repository, Utils, If, Check, PropTypes, Record, Field, FieldConfig, Type} from "../../core";
+import {Debug, React, Utils, If, Check, PropTypes, Field, Column, Type} from "../../core";
 import {FontAwesome, FormComponent, Link, Component} from "../../components";
 import CheckBox from "../CheckBox";
 import DatePicker from "../DatePicker";
@@ -12,6 +12,8 @@ export default class FieldComponent extends FormComponent {
     _unitSelect: ?Select = null;
     /**@private */
     _changed: boolean = false;
+
+    _updated: boolean = false;
 
     props: {
         preview: boolean,
@@ -34,6 +36,90 @@ export default class FieldComponent extends FormComponent {
 
     constructor() {
         super(...arguments);
+
+        if (this.field)
+            this.field.onUpdate.listen(this, () => {
+                this._updated = true;
+                this.forceUpdate();
+            });
+    }
+
+    render() {
+
+        const field: Field = this.field;
+        const value: any = field.value;
+
+        if (!this.field) return null;
+
+        if (this.props.preview && this.props.singleLine) {
+
+            const title = field.name + ": " + field.displayValue;
+            return value === null
+                ? <span title={title} style={{color: "#aaa"}}>null</span>
+                : typeof value === "boolean"
+                    ? <span title={title} className={value ? FontAwesome.CHECK : FontAwesome.TIMES}/>
+                    : <span title={title}>{this.field.displayValue}</span>;
+        }
+
+        if (this.props.preview && this.field.enumerate) {
+            const map: Map = this.field.enumerate();
+            return <ul title={this.field.hint}>{
+                Utils.forEach(this.field.value, (item, i) =>
+                    <li key={i}>{Field.formatValue(map.get(item))} </li>
+                )}
+            </ul>;
+        }
+
+        if (this.field.type instanceof Type.ListDataType || this.field.type instanceof Type.MapDataType)
+            return this.renderList();
+
+        if (this.field.enumerate)
+            return this.renderSelect();
+
+        if (this.field.units)
+            this._unitSelect = <Select
+                style={{flex: 'auto', width: '10px'}}
+                field={this.field}
+                units={this.field.units()}
+                fieldCtrl={false}
+            />;
+
+        switch (this.field.type.name) {
+            case "password":
+                return this.renderInput({type: "password"});
+            case "string":
+            case "uuid":
+                return this.renderInput({type: "text"});
+            case "memo":
+                return this.renderMemo();
+            case "length":
+                return this.renderInput({type: "number", min: 0});
+            case "double":
+                return this.renderInput({type: "number", step: 0.001});
+            case "int":
+                return this.renderInput({type: "number"});
+            case "boolean":
+                return this.renderCheckbox();
+            case "date":
+                return this.renderDateTimePicker({format: "DD-MM-YYYY", time: false});
+            case "time":
+                return this.renderDateTimePicker({format: 'HH:mm', calendar: false});
+            case "timestamp":
+                return this.renderDateTimePicker({format: 'DD-MM-YYYY HH:mm'});
+
+            default:
+                switch (this.field.type.simpleType) {
+                    case "string":
+                        return this.renderInput({type: "text"});
+                    case "number":
+                        return this.renderInput({type: "number"});
+                    case "boolean":
+                        return this.renderCheckbox();
+                    default:
+                        Debug.warning(this, "Brak obsługi typu " + JSON.stringify(this.field.type.name));
+                        return this.renderInput({type: "text"});
+                }
+        }
     }
 
     renderInput(props: ? Object) {
@@ -46,12 +132,13 @@ export default class FieldComponent extends FormComponent {
             <span {...this.props.props} style={{display: 'flex'}}>
                 {super.renderChildren(this._fieldCtrlInfo)}
                 <input title={this.field.hint}
+                       key={Utils.randomId()}
                        {...props}
                        placeholder={this.field.name}
                        name={this.field.key}
                        disabled={Utils.coalesce(this.props.readOnly, this.field.readOnly)}
                        style={{
-                           textTransform: this.field.textCasing,
+                           textTransform: this.field.config.textCasing,
                            flex: 'auto',
                            padding: "3px 8px",
                            width: this._unitSelect ? '10px' : null
@@ -92,12 +179,13 @@ export default class FieldComponent extends FormComponent {
             <span {...this.props.props} style={{display: 'flex'}}>
                 {super.renderChildren(this._fieldCtrlInfo)}
                 <textarea
+                    key={Utils.randomId()}
                     title={this.field.hint}
                     placeholder={this.field.name}
                     name={this.field.key}
                     disabled={Utils.coalesce(this.props.readOnly, this.field.readOnly)}
                     style={{
-                        textTransform: this.field.textCasing,
+                        textTransform: this.field.config.textCasing,
                         flex: 'auto',
                     }}
                     onChange={e => {
@@ -189,83 +277,6 @@ export default class FieldComponent extends FormComponent {
     }
 
 
-    render() {
-
-        const field: Field = this.field;
-        const value: any = field.value;
-
-        if (!this.field) return null;
-
-        if (this.props.preview && this.props.singleLine) {
-
-            const title = field.name + ": " + field.displayValue;
-            return value === null
-                ? <span title={title} style={{color: "#aaa"}}>null</span>
-                : typeof value === "boolean"
-                    ? <span title={title} className={value ? FontAwesome.CHECK : FontAwesome.TIMES}/>
-                    : <span title={title}>{this.field.displayValue}</span>;
-        }
-
-        if (this.props.preview && this.field.enumerate) {
-            const map: Map = this.field.enumerate();
-            return <ul title={this.field.hint}>{
-                Utils.forEach(this.field.value, (item, i) =>
-                    <li key={i}>{Field.formatValue(map.get(item))} </li>
-                )}
-            </ul>;
-        }
-
-        if (this.field.type instanceof Type.ListDataType || this.field.type instanceof Type.MapDataType)
-            return this.renderList();
-
-        if (this.field.enumerate)
-            return this.renderSelect();
-
-        if (this.field.units)
-            this._unitSelect = <Select
-                style={{flex: 'auto', width: '10px'}}
-                field={this.field}
-                units={this.field.units()}
-                fieldCtrl={false}
-            />;
-
-        switch (this.field.type.name) {
-            case "password":
-                return this.renderInput({type: "password"});
-            case "string":
-            case "uuid":
-                return this.renderInput({type: "text"});
-            case "memo":
-                return this.renderMemo();
-            case "length":
-                return this.renderInput({type: "number", min: 0});
-            case "double":
-                return this.renderInput({type: "number", step: 0.001});
-            case "int":
-                return this.renderInput({type: "number"});
-            case "boolean":
-                return this.renderCheckbox();
-            case "date":
-                return this.renderDateTimePicker({format: "DD-MM-YYYY", time: false});
-            case "time":
-                return this.renderDateTimePicker({format: 'HH:mm', calendar: false});
-            case "timestamp":
-                return this.renderDateTimePicker({format: 'DD-MM-YYYY HH:mm'});
-
-            default:
-                switch (this.field.type.simpleType) {
-                    case "string":
-                        return this.renderInput({type: "text"});
-                    case "number":
-                        return this.renderInput({type: "number"});
-                    case "boolean":
-                        return this.renderCheckbox();
-                    default:
-                        Debug.warning(this, "Brak obslugi typu " + JSON.stringify(this.field.type.name));
-                        return this.renderInput({type: "text"});
-                }
-        }
-    }
 }
 
 
@@ -298,16 +309,16 @@ class List extends Component {
                 this.array.map((row: any | [], rowIndex: number) =>
                     <tr key={rowIndex}>{
                         columns.map((dataType: Type.DataType, cellIdx: number) => {
-                                const f: Field = new Field((fc: FieldConfig) => {
-                                    fc.enumerate = field.enumerate;
-                                    fc.type = dataType;
-                                    fc.key = field.key + " [" + rowIndex + "] [" + cellIdx + "]";
-                                    fc.name = field.name;
+                                const f: Field = new Field((c: Column) => {
+                                    c.enumerate = field.config.enumerate;
+                                    c.type = dataType;
+                                    c.key = field.key + "_" + rowIndex + "_" + cellIdx;
+                                    c.name = field.name;
                                 });
 
                                 f.set(multipleCells ? row[cellIdx] : row);
 
-                                f.onChange.listen(this, (f) => {
+                                f.onChange.listen(this, () => {
                                     if (multipleCells) {
                                         const arr = this.array[rowIndex];
                                         while (arr.length <= cellIdx)

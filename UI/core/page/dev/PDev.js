@@ -13,7 +13,7 @@ import PRecord from "./repository/PRecord";
 import PFontAwesome from "./PFontAwesome";
 import Repository from "../../repository/Repository";
 import AppEvent from "../../application/Event";
-import Demo from "../demo/Demo";
+import Demo from "../demo/PDemo";
 
 export default class DevRouter extends Endpoint {
 
@@ -40,7 +40,7 @@ export default class DevRouter extends Endpoint {
         this.DEMO = this.child("Demo", baseUrl + "/demo", Demo);
         this.SKIN = this.child("Skórka", baseUrl + "/skin", PSkin);
         this.EVENTS = this.child("Zdarzenia", baseUrl + "/events", PEvents);
-        this.PERMISSIONS = this.child("Funkcjonalności", baseUrl + "/permissions", PPermissions);
+        this.PERMISSIONS = this.child("Uprawnienia", baseUrl + "/permissions", PPermissions);
 
         this.JS_TESTER = this.child("WEB Tester", baseUrl + "/webtest", PWebTester);
         this.COMPONENTS = this.child("Komponenty", baseUrl + "/components", PComponents);

@@ -6,6 +6,11 @@ import "./Prototype";
 import * as Check from "./Check";
 import * as If from "./If";
 
+
+export function escape(argument: any): string {
+    return JSON.stringify(argument);
+}
+
 export function toString(argument: any): string {
     if (argument === undefined)
         return "";
@@ -220,6 +225,37 @@ export function randomId(length: number = 10) {
     return id.join("");
 }
 
+/** formatuje zapis liczbowy uwzględniając jednostkę. Jednostki muszą być zadeklarowane w kolejności malejącej!!! */
+export function formatUnits(value: number, units: {}): string {
+
+    let prevU;
+    let prevN;
+
+    for (let name in units) {
+        let u: number = units[name];
+        if (value < u) {
+            prevU = u;
+            prevN = name;
+            continue;
+        }
+        if (u === 0)
+            return "0";
+
+        let val = value / u;
+
+        if (val >= 1000) {
+            // korekta dla rozmiaru w bajtach (1024)
+            u = prevU;
+            name = prevN;
+            val = value / u;
+        }
+
+        // $FlowFixMe
+        return val.round(val >= 100 ? 0 : val >= 10 ? 1 : 2) + " " + name;
+    }
+
+    return null;
+}
 
 /**
  * Formatuje wartość numeryczną rozmiaru danych do postaci wyświetlanej
@@ -227,20 +263,12 @@ export function randomId(length: number = 10) {
  * @return {string}
  */
 export function formatFileSize(size: number): string {
-
-    function format(base: number): string {
-        const val = size / base;
-        // $FlowFixMe
-        return val.round(val >= 100 ? 0 : val >= 10 ? 1 : 2);
-    }
-
-    if (size >= 0x40000000)
-        return format(0x40000000) + " GB";
-    if (size >= 0x100000)
-        return format(0x100000) + " MB";
-    if (size >= 0x400)
-        return format(0x400) + " KB";
-    return size + " B";
+    return formatUnits(size, {
+        GB: 0x40000000,
+        MB: 0x100000,
+        KB: 0x400,
+        B: 0
+    });
 }
 
 export function trimFileName(name: string, length: number): string {

@@ -45,6 +45,13 @@ export default class Dispatcher {
         return o;
     }
 
+    removeListenerByContext(context: any) {
+        debugger;
+
+        const result = this.observers.reduce((o: Observer) => o.context === context);
+
+    }
+
     /**
      * Wywołaj funkcje wszystkich obserwatorów
      * @param args

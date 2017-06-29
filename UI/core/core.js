@@ -52,7 +52,7 @@ export {default as AppNode} from "./application/Node";
 export {default as Repository} from "./repository/Repository";
 export {default as Record} from "./repository/Record";
 export {default as Field} from "./repository/Field";
-export {FieldConfig} from "./repository/Field";
+export {default as Column} from "./repository/Column";
 export {RepoConfig} from "./repository/Repository";
 
 

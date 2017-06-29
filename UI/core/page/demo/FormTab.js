@@ -3,6 +3,7 @@
 import {React, Field, Type, FieldConfig, Utils} from '../../core';
 import {Component, Page, FontAwesome, FieldComponent, FieldController}    from        '../../components';
 import JsonViewer from "../../component/JsonViewer";
+import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
 
 export default class FormTab extends Component {
 
@@ -10,11 +11,23 @@ export default class FormTab extends Component {
         super(...arguments);
         Utils.forEach(DATA, (field: Field) =>
             field.onChange.listen(this, e => (this.viewer && this.viewer.update(getDTO()))));
+        this.state = {contextMenu: {opened: false, x: 0, y: 0}};
     };
 
+    _handleMenu(e, props) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.setState({contextMenu: {opened: true, x: e.pageX, y: e.pageY, onClickProps: props}});
+    }
+
     render() {
-        return <form onSubmit={(e) => this._handleSubmit(e)} style={{overflow: "auto"}} >
-            <div style={{display: "flex"}}>
+        return <form onSubmit={(e) => this._handleSubmit(e)} style={{overflow: "auto"}}>
+            <PopupMenu
+                {...this.state.contextMenu}
+                items={this.MENU_ITEMS}
+            />
+
+            <div style={{display: "flex"}} onContextMenu={(e) => this._handleMenu(e, {source: 'div', value: 'click'})}>
                 <table>
                     <tbody>
 
@@ -34,7 +47,8 @@ export default class FormTab extends Component {
 
                             <td style={{padding: "4px"} }>{field.name}</td>
 
-                            <td style={{paddingLeft: "20px"}}>
+                            <td style={{paddingLeft: "20px"}}
+                                onContextMenu={(e) => this._handleMenu(e, {value: field.value, source: field.name})}>
                                 <FieldComponent field={field} fieldCtrl={false} checkBoxLabel={true}
                                                 preview={false}/>
                             </td>
@@ -76,8 +90,288 @@ export default class FormTab extends Component {
             alert("Formularz zawiera błędy.");
         else
             alert('OK');
-    }
+    };
+
+    MENU_ITEMS = [
+        MenuItem.createItem((item: MenuItem) => {
+            item.name = "Zaloguj wartość";
+            item.hint = "Wpisuje do konsoli nazwę pola i jego wartość";
+            item.onClick = (e, props) => console.log(props.source, ':', props.value);
+        }),
+        MenuItem.createItem((item: MenuItem) => {
+            item.name = "Alert!";
+            item.hint = "Wyświetla domyślny alert";
+            item.onClick = (e, props) => alert(JSON.stringify(props));
+        }),
+        MenuItem.createItem((item: MenuItem) => {
+            item.name = "Bez zamykania";
+            item.hint = "Pozycja nie zamyka menu po kliknięciu";
+            item.closeOnClick = false;
+        }),
+        MenuItem.createItem((item: MenuItem) => {
+            item.name = "Nieaktywne";
+            item.hint = "Nieaktywna pozycja. Kliknięcie nie powinno działać";
+            item.disabled = true;
+            item.onClick = () => console.log("To nie powinno tu być :/");
+        }),
+        MenuItem.createSeparator(),
+        MenuItem.createItem((item: MenuItem) => {
+            item.icon = <span className={FontAwesome.BUG}/>;
+            item.name = "Pozycja z ikoną FA";
+            item.hint = "Pozycja z ikoną FontAwesome";
+        }),
+        MenuItem.createItem((item: MenuItem) => {
+            item.name = <div><span style={{color: 'red'}}>Pozycja z SPAN </span><span>Drugi SPAN</span></div>;
+            item.hint = "Nazwa pozycji zawiera tagi HTML";
+        }),
+        MenuItem.createItem((item: MenuItem) => {
+            item.icon =
+                <span><span className={FontAwesome.CHEVRON_LEFT}/><span className={FontAwesome.CHEVRON_RIGHT}/></span>;
+            item.hint = "Pozycja bez nazwy ale z dwiema ikonami";
+        }),
+        MenuItem.createSeparator("Zagnieżdżenia"),
+        MenuItem.createItem((item: MenuItem) => {
+            item.name = "Jeden poziom";
+            item.hint = "Pozycja zawierająca jeden poziom zagnieżdżenia";
+            item.subMenu = [
+                MenuItem.createItem((item: MenuItem) => {
+                    item.icon = <span className={FontAwesome.ARROW_LEFT}/>;
+                    item.name = "Lewo";
+                    item.hint = "Strzałka w lewo";
+                }),
+                MenuItem.createItem((item: MenuItem) => {
+                    item.icon = <span className={FontAwesome.ARROW_RIGHT}/>;
+                    item.name = "Prawo";
+                    item.hint = "Strzałka w prawo";
+                }),
+                MenuItem.createItem((item: MenuItem) => {
+                    item.icon = <span className={FontAwesome.ARROW_UP}/>;
+                    item.name = "Góra";
+                    item.hint = "Strzałka w górę";
+                }),
+                MenuItem.createItem((item: MenuItem) => {
+                    item.icon = <span className={FontAwesome.ARROW_DOWN}/>;
+                    item.name = "Dół";
+                    item.hint = "Strzałka w dół";
+                }),
+            ]
+        }),
+        MenuItem.createItem((item: MenuItem) => {
+            item.icon = <span className={FontAwesome.LIST}/>;
+            item.name = "Nieaktywne z jednym poziomem";
+            item.hint = "Nieaktywna pozycja z zagnieżdżeniem";
+        }),
+        MenuItem.createItem((item: MenuItem) => {
+            item.icon = <span className={FontAwesome.LIST_ALT}/>;
+            item.name = "Wiele poziomów zagnieżdżenia";
+            item.hint = "Pozycja zawierająca wiele zagnieżdżeń";
+            item.subMenu = [
+                MenuItem.createItem((item: MenuItem) => {
+                    const style = {style: {color: 'red'}};
+                    item.icon = <span className={FontAwesome.SQUARE} {...style}/>;
+                    item.name = "Czerowny";
+                    item.subMenu = [
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                            item.name = "Lewo";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_LEFT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_LEFT} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                            item.name = "Prawo";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_RIGHT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_RIGHT} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                            item.name = "Góra";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_UP} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_UP} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                            item.name = "Dół";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_DOWN} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_DOWN} {...style}/>;
+                                }),
+                            ]
+                        }),
+                    ]
+                }),
+                MenuItem.createItem((item: MenuItem) => {
+                    const style = {style: {color: 'green'}};
+                    item.icon = <span className={FontAwesome.SQUARE} {...style}/>;
+                    item.name = "Zielony";
+                    item.subMenu = [
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                            item.name = "Lewo";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_LEFT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_LEFT} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                            item.name = "Prawo";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_RIGHT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_RIGHT} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                            item.name = "Góra";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_UP} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_UP} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                            item.name = "Dół";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_DOWN} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_DOWN} {...style}/>;
+                                }),
+                            ]
+                        }),
+                    ]
+                }),
+                MenuItem.createItem((item: MenuItem) => {
+                    const style = {style: {color: 'blue'}};
+                    item.icon = <span className={FontAwesome.SQUARE} {...style}/>;
+                    item.name = "Niebieski";
+                    item.subMenu = [
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                            item.name = "Lewo";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_LEFT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_LEFT} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                            item.name = "Prawo";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_RIGHT} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_RIGHT} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                            item.name = "Góra";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_UP} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_UP} {...style}/>;
+                                }),
+                            ]
+                        }),
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.icon = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                            item.name = "Dół";
+                            item.subMenu = [
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_DOWN} {...style}/>;
+                                }),
+                                MenuItem.createItem((item: MenuItem) => {
+                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_DOWN} {...style}/>;
+                                }),
+                            ]
+                        }),
+                    ]
+                }),
+            ]
+        }),
+    ];
 }
+
 const DATA = {
 
     login: new Field((fc: FieldConfig) => {

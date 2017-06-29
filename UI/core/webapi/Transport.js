@@ -1,6 +1,9 @@
 import WebApiRequest from "./Request";
 import AppStatus from "../application/Status";
 import Dispatcher from "../utils/Dispatcher";
+import {HubConnection} from "./SignalR/HubConnection";
+import WebApiResponse from "./Response";
+import {Debug, Utils} from "../core";
 
 let _reconnect: ?() => void;
 
@@ -94,9 +97,13 @@ export class WebSocketTransport extends WebApiTransport {
         };
 
         this.ws.onclose = (e: CloseEvent) => {
-            let reason = getReason(e.code, this.connected);
-            AppStatus.error(this, "WebApi: " + reason);
-            this.onClose(reason);
+
+            if (e.wasClean && e.code === 1000) {
+                this.onClose(null);
+                return;
+            }
+
+            this.onClose(getReason(e.code, this.connected));
         };
 
         this.ws.onerror = (e: Event, f) => {
@@ -111,7 +118,64 @@ export class WebSocketTransport extends WebApiTransport {
 
 }
 
-function getReason(code: number, wasConnected: boolean): string {
+export class SignalRTransport extends WebApiTransport {
+
+    conn: HubConnection;
+
+    send(req: WebApiRequest) {
+        const args: [] = Utils.forEach(req.params, v => v);
+        this.conn.invoke(req.method, ...args)
+            .then(data => new WebApiResponse(req.webApi, data))
+            .catch(e => {
+                debugger;
+                console.err(e);
+                Debug.error(this, e);
+                // if (!p.hasCatch)
+                //     Alert.error(this, e);
+                req.reject(e);
+            });
+    }
+
+    close() {
+        this.conn.stop();
+    }
+
+
+    doConnect(url: string) {
+
+        this.conn = HubConnection.create(url);
+        this.conn.start()
+            .then((xxx) => {
+                this.onOpen();
+            })
+            .catch((e: Object) => {
+                debugger;
+                // if (e && e.status === 0 && e.statusText === "")
+                //     e = new Error("Brak połączenia z serwerem");
+                this.onClose(e);
+            });
+
+        this.conn.onClosed = (e, f, g) => {
+            debugger;
+            if (Utils.className(e) === "CloseEvent") {
+                if (e.wasClean && e.code === 1000) {
+                    this.onClose(null);
+                    return;
+                }
+                this.onClose(getReason(e.code, this.connected));
+                return;
+            }
+
+            this.onClose(e);
+        };
+
+    }
+
+
+}
+
+
+export function getReason(code: number, wasConnected: boolean): string {
     switch (code) {
         case  1000:
             return "Normal closure, meaning that the purpose for which the connection was established has been fulfilled.";

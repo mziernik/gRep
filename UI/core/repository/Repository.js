@@ -1,4 +1,4 @@
-import {Check, Record, Field, Utils, If, Debug, Type, AppEvent} from "../core";
+import {Check, Record, Field, Column, CRUDE, Utils, If, Debug, Type, AppEvent} from "../core";
 
 import Permission from "../application/Permission";
 import LocalRepoStorage from "./storage/LocalRepoStorage";
@@ -20,12 +20,12 @@ export class RepositoryMode {
 export class RepoConfig {
     static defaultCrudeRights = "CRUD"; //"CRUDE"
 
+    record: object = null;
     key: ?string = null;
     name: ?string = null;
-    primaryKeyColumn: ?string | ?Field = null;
-    displayNameColumn: ?string | ?Field = null;
+    primaryKeyColumn: Column = null;
+    displayNameColumn: ?Column = null;
 
-    recordClass: ?any = null;
     crude: string = RepoConfig.defaultCrudeRights;
     readOnly: boolean = false;
     autoUpdate: boolean = false;
@@ -38,28 +38,27 @@ export class RepoConfig {
 
 export default class Repository {
 
+    static onUpdate: Dispatcher = new Dispatcher();
+    onChange: Dispatcher = new Dispatcher();
+
     static defaultStorage: ?RepositoryStorage;
 
+    /** Lista wszystkich zarejestrowanych repozytoriów */
     static all = {};
-    static onChange: Dispatcher = new Dispatcher();
+
+    refs: Record[] = [];
+
 
     config: RepoConfig = new RepoConfig();
-    key: string;
-    name: string;
-    crude: string;
+    rows: Map<any, any[]> = new Map();
 
-    items: Record[] = [];
-    mode: RepositoryMode = RepositoryMode.LOCAL;
-    _recordClass: any;
+    columns: Column[] = [];
 
-    permission: ?Permission;
-    columns: Field[] = [];
-    primaryKeyColumn: Field;
-    storage: RepositoryStorage;
+    permission: Permission;
+
+    storage: RepositoryStorage = Repository.defaultStorage;
     /** Czy dane repozytorium zostały już wczytane */
     isReady: boolean = false;
-    /** Czy repozytorium ma być automatycznie synchronizowane z serwerem */
-    autoUpdate: boolean = true;
 
     /** Data ostatniej aktualizacji */
     lastUpdated: Date;
@@ -67,52 +66,249 @@ export default class Repository {
     lastUpdatedBy: string;
     /* Ilość aktualizacji (numer bieżącej wersji)*/
     updates: Number = 0;
-
+    /** Mapa <Klucz główny, nazwa wyświetlana> */
+    displayMap: Map<any, string> = new Map();
 
     constructor(config: (cfg: RepoConfig) => void) {
 
         Check.isFunction(config);
         config(this.config);
 
-        Check.id(this.config.key);
+        for (let name in this.constructor) {
 
-        Utils.setReadOnly(this, "key", this.config.key);
-        this.name = Check.nonEmptyString(this.config.name);
-        this.crude = this.config.crude;
-        this._recordClass = this.config.recordClass;
+            const col: Column = this.constructor[name];
+            if (!(col instanceof Column))
+                continue;
+            this.columns.push(col);
 
-        this.permission = Permission.all["repo-" + this.key]
-            || new Permission(this, "repo-" + this.key, `Repozytorium "${this.name}"`, Repository.defaultCrudeRights);
-
-        for (let name in this.config)
-            Object.defineProperty(this.config, name, {
-                value: this.config[name],
+            Object.defineProperty(this.constructor, name, {
+                value: col,
                 writable: false
             });
+        }
 
-        // utwórz tymczasowo jeden rekord i pobierz z niego listę pól a następnie listę kolumn.
-        const rec: Record = this.newRecord();
+        if (!this.config.primaryKeyColumn)
+            throw new Error("Brak definicji klucza głównego repozytorium " + Utils.escape(this.config.key));
 
+        if (!this.columns.contains(this.config.primaryKeyColumn))
+            throw new Error("Kolumna " + Utils.escape(this.config.primaryKeyColumn.key) + " nie należy do repozytorium " + Utils.escape(this.config.key));
 
-        rec.fields.forEach((src: Field) => {
-            const f: Field = new Field((fc: FieldConfig) => {
-                for (let name in fc)
-                    fc[name] = src[name];
-            });
-            if (f.key === this.config.primaryKeyColumn)
-                this.primaryKeyColumn = f;
-            this.columns.push(f);
-        });
-
-        if (!this.primaryKeyColumn)
-            throw new Error("Brak definicji klucza głównego");
-
-        this.storage = Repository.defaultStorage;
+        this.permission = Permission.all["repo-" + this.key];
+        if (!this.permission) {
+            this.permission = new Permission(this, "repo-" + this.key, `Repozytorium "${this.name}"`, Repository.defaultCrudeRights);
+            this.permission.crude = this.config.crude;
+        }
     }
 
-    static getF(key: string): Repository {
+    get key(): string {
+        return this.config.key;
+    }
+
+    get name(): string {
+        return this.config.name;
+    }
+
+    get canCreate(): boolean {
+        return this.config.crude.contains('C');
+    }
+
+    get canRead(): boolean {
+        return this.config.crude.contains('R');
+    }
+
+    get canUpdate(): boolean {
+        return this.config.crude.contains('U');
+    }
+
+    get canDelete(): boolean {
+        return this.config.crude.contains('D');
+    }
+
+    getRefs(pk: any): Record[] {
+        return Utils.forEach(this.refs, (rec: Record) => rec.pk === pk ? rec : undefined);
+    }
+
+    getColumn(key: string, mustExists: boolean = true): Column {
+        const result = this.columns.find(c => c.key === key);
+        if (!result && mustExists)
+            throw new Error("Kolumna " + this.key + "." + key + " nie istnieje");
+        return result;
+    }
+
+
+    get(context: any, pk: any, mustExists: boolean = true): Record {
+        if (If.isDefined(pk))
+            pk = this.config.primaryKeyColumn.parse(pk);
+        const row: [] = this.rows.get(pk);
+        if (!row) {
+            if (mustExists)
+                throw new Error("Nie znaleziono rekordu " + this.key + "[" + this.primaryKeyColumn.key + "=" + Utils.escape(pk) + "]");
+            return null;
+        }
+        const rec: Record = this.createRecord(context);
+        rec.row = row;
+        return rec;
+    }
+
+    createRecord(context: any): Record {
+        const rec: Record = new this.config.record(this, context);
+        this.refs.push(rec);
+        return rec;
+    }
+
+    static update(context: any, dto: Record[] | object) {
+
+        // debugger;
+        const records: Record[] = [];
+
+        const repoStats: Map<Repository, object> = new Map();
+
+        // weryfikacja, utworzenie rekordów
+        Utils.forEach(dto, (value, key) => {
+            if (value instanceof Record) {
+                records.push(value);
+                return;
+            }
+            const repo: Repository = Repository.get(key, true);
+
+            if (If.isArray(value.rows))
+                repoStats.set(repo, {
+                    crude: value.crude,
+                    lastUpdated: value.lastUpdated,
+                    lastUpdatedBy: value.lastUpdatedBy,
+                    updates: value.updates,
+                });
+
+
+            if (If.isArray(value.columns) && If.isArray(value.rows)) {
+
+                let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
+
+                Utils.forEach(value.rows, (row: []) => {
+                    const rec: Record = repo.createRecord(context);
+                    repo.refs.remove(rec); // nie traktuj jako referencję
+                    records.push(rec);
+                    for (let i = 0; i < columns.length; i++) {
+                        const field: Field = rec.get(columns[i]);
+                        field.value = row[i];
+                    }
+                });
+
+                return;
+            }
+
+            const processObject = (value) =>
+                Utils.forEach(value, obj => {
+                    const rec: Record = repo.createRecord(context);
+                    repo.refs.remove(rec); // nie traktuj jako referencję
+                    Utils.forEach(obj, (v, k) => rec.get(repo.getColumn(k)).value = v);
+                    records.push(rec);
+                });
+
+
+            if (If.isArray(value.rows)) {
+                processObject(value.rows);
+                return;
+            }
+
+            processObject(value);
+
+        });
+
+        if (!records.length)
+            return;
+
+        Utils.forEach(records, (rec: Record) => rec.validate());
+
+        // zastosowanie zmian (na tym etapie dane są zwalidowane)
+        const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repo);
+        Repository.onUpdate.dispatch(context, map);
+
+        const allChanges: [] = [];
+
+        records.forEach((rec: Record) => {
+            const pk = rec.primaryKey.value;
+            const repo: Repository = rec.repo;
+
+            let row: [] = repo.rows.get(pk);
+            const isNew = !row;
+
+            if (isNew) {
+                row = new Array(repo.columns.length);
+                repo.rows.set(pk, row);
+            }
+
+            const refs: Record[] = repo.getRefs(pk);
+
+            const changed: Map<Column, any[]> = new Map();
+            Utils.forEach(repo.columns, (col: Column, index: number) => {
+                const field: Field = rec.get(col);
+                if (!field.changed)
+                    return;
+                const val = field.value;
+
+                refs.forEach((r: Record) => r.get(col).update(context, val));
+
+                if (row[index] === val)
+                    return;
+
+                changed.set(col, [row[index], val]);
+                row[index] = val;
+            });
+
+
+            repo.displayMap.set(pk, row[repo.columns.indexOf(repo.config.displayNameColumn
+                ? repo.config.displayNameColumn : repo.config.primaryKeyColumn)]);
+
+            allChanges.push([rec, pk, changed]);
+        });
+
+
+        Utils.agregate(allChanges, a => a[0].repo).forEach((arr: [], repo: Repository) => {
+            const m = new Map();
+            m.set(arr[1], arr[2]);
+            repo.isReady = true;
+            repo.onChange.dispatch(context, m);
+        });
+
+
+    }
+
+    /**
+     * Zastosuj zmiany (edycja / synchronizacja)
+     */
+    static commit(context: any, records: Record[]): Promise {
+        Check.instanceOf(records, [Array]);
+
+        const storageMap: Map = Utils.agregate(records, (rec: Record) => rec.repo.storage);
+
+        const local: Record[] = [];
+        const result: Promise[] = [];
+
+        storageMap.forEach((records: Record[], storage: RepositoryStorage) => {
+            if (storage)
+                result.push(storage.save(context, records));
+            else
+                local.push(records);
+        });
+
+
+        local.forEach((records: Record[]) => {
+            debugger;
+            Repository.update(context, records);
+        });
+
+        return Promise.all(result);
+    }
+
+    get primaryKeyColumn(): Column {
+        return this.config.primaryKeyColumn;
+    }
+
+    /** Zwraca repozytorium na podstawie klucza, opcjonalnie wyjątek jeśli nie znaleziono obiektu */
+    static get(key: string, mustExists: boolean = true): Repository {
         const result = Repository.all[key];
-        if (!result)
+        if (mustExists && !result)
             throw new Error("Nie znaleziono repozytorium " + JSON.stringify(key));
         return result;
     }
@@ -125,208 +321,4 @@ export default class Repository {
         return repository;
     }
 
-
-    getF(key: string | number): Record {
-        const result = this.get(key);
-        if (result)
-            return result;
-        throw new Error(`Nie znaleziono rekordu ${this.key}.${key}`);
-    }
-
-    get(key: string | number): ?Record {
-        key = this.primaryKeyColumn.type.parse(key);
-        return this.items.find((record: Record) => record._primaryKeyValue === key);
-    }
-
-    /**
-     * Zaktualizuj rekordy (lub dodaj nowe)
-     */
-    _update(context: any, records: Record[], canSave: boolean = false): Record[] {
-
-        Check.instanceOf(records, [Array]);
-        if (!records || !records.length)
-            return;
-
-        records.forEach((record: Record) => {
-            if (record.repository !== this)
-                throw new Error(`Konflikt repozytoriów: ${record.repository.key} <-> ${this.key}`);
-        });
-
-        const result: Record[] = [];
-
-        records.forEach((record: Record) => {
-            let dst: Record = this.get(record._primaryKeyValue);
-            let act: Action = dst ? Action.UPDATE : Action.CREATE;
-            if (!dst)
-                dst = this.newRecord();
-
-            dst._temporary = false;
-            dst.fields.forEach((f: Field) => f._locked = true);
-            dst._update(context, act, record);
-            result.push(dst);
-
-            if (act === Action.CREATE)
-                this.items.push(dst);
-        });
-
-        if (canSave)
-            this.storage.save();
-
-        return result;
-    }
-
-
-    /**
-     * Zastosuj zmiany (edycja / synchronizacja)
-     */
-    static submit(context: any, records: Record[]): Promise {
-        Check.instanceOf(records, [Array]);
-
-        records.forEach((item: Record) => {
-            if (!item._action)
-                throw new Error(item.getFullId() + ": Brak przypisanej akcji CRUDE");
-        });
-
-        if (Repository.externalStore)
-            return Repository.externalStore.submit(context, records);
-
-        return new Promise((resolve, reject) => {
-            Repository.update(context, records);
-            resolve();
-        });
-
-    }
-
-    /** Zaktualizuj rekordy z obiektu DTO lub z listy rekordów */
-    static update(context: any, data: Object | Record[]): Map<Repository, Record[]> {
-        if (!data)
-            return;
-
-        const updatedRecords: Record[] = [];
-
-        Utils.forEach(data, (data: Object, key: string) => {
-            if (data instanceof Record) {
-                updatedRecords.push(data);
-                return;
-            }
-            const repo: Repository = Repository.getF(key);
-            const records: Record[] = processUpdate(context, data, repo);
-            updatedRecords.addAll(records);
-            if (!records.length)
-                repo.isReady = true;
-        });
-
-        const map: Map<Repository, Record[]> = Utils.agregate(updatedRecords, (rec: Record) => rec.repository);
-        const allUpdated: Record[] = [];
-
-        map.forEach((records: Record[], repo: Repository) => {
-            const updated = repo._update(context, records, false);
-            records.clear();
-            records.addAll(updated);
-            allUpdated.addAll(updated);
-            repo.isReady = true;
-        });
-
-        Repository.onChange.dispatch(context, map, allUpdated);
-        return map;
-    }
-
-    newRecord(): Record {
-        const result: Record = new this._recordClass(this, (rc: RecordConfig) => {
-            rc.primaryKey = this.primaryKeyColumn;
-        });
-        result.init();
-        result._isNew = true;
-        return result;
-    }
-
 }
-
-function processUpdate(context: any, data: Object, repo: Repository): Record[] {
-
-    const recs: Record[] = [];
-
-    if (data.rows instanceof Array) {
-
-        repo.lastUpdated = data.lastUpdated ? new Date(data.lastUpdated) : new Date();
-        repo.lastUpdatedBy = data.lastUpdatedBy;
-        repo.updates = data.updates ? data.updates : repo.updates + 1;
-
-        data.rows.forEach((rowData: {} | []) => {
-
-            if (rowData instanceof Array) {
-                const rec: Record = repo.newRecord();
-                for (let i = 0; i < rowData.length; i++) {
-                    const col = data.columns[i];
-                    const field: Field = rec.getFieldF(If.isString(col) ? col : col.key);
-                    field.value = rowData[i];
-                }
-                recs.push(rec);
-                return;
-            }
-
-            let pk = rowData[repo.primaryKeyColumn.key];
-            if (!If.isDefined(pk))
-                throw new Error("Brak klucza głównego");
-
-
-            let r: Record = repo.get(pk);
-            r = r ? r.beginEdit(this) : repo.newRecord();
-
-            r.fields.forEach((field: Field) => {
-                if (rowData[field.key] === undefined)
-                    return;
-                field.value = rowData[field.key];
-            });
-            recs.push(r);
-            if (r._sourceRecord)
-                r.cancelEdit();
-            return;
-
-        });
-
-        return recs;
-    }
-
-
-    // wariant obiektowy (kluczem obiektu jest klucz pola)
-    Utils.forEach(data, (repoData: Object, key: string) => {
-
-        const pk = repo.primaryKeyColumn.type.parse(key);
-
-        let rec: Record = repo.get(pk);
-
-        rec = rec ? rec.beginEdit() : repo.newRecord();
-
-        for (let fieldName in repoData) {
-            const fieldData = repoData[fieldName];
-
-            const field = rec.fields.find(field => field.key === fieldName);
-            if (!field) {
-                Debug.warning("Nie znaleziono pola " + JSON.stringify(fieldName));
-                continue;
-            }
-
-            let value = field.value;
-
-            if (value instanceof Repository) {
-                processUpdate(context, fieldData, value);
-                continue;
-            }
-
-            field.value = fieldData;
-        }
-
-        recs.push(rec);
-
-    });
-
-    return recs;
-}
-
-export class Change {
-    field: Field;
-    from: any;
-    to: any;
-}
-

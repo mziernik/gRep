@@ -17,11 +17,12 @@ import * as API from "./model/API";
 import "./model/Repositories";
 import StatusHint from "./core/component/application/StatusHint";
 import RepositoryStorage from "./core/repository/storage/RepositoryStorage";
-
 // nie renderuj tytułów stron
 //PageTitle.renderer = () => null;
 
 window.addEventListener("load", () => {
+
+
         PERMISSIONS.refresh();
 
         Login.display((user) => {

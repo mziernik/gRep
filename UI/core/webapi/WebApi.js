@@ -8,6 +8,7 @@ import Debug from "../Debug";
 import EError from "../utils/EError";
 import WebApiTransport, {State, WebSocketTransport} from "./Transport";
 import Dispatcher from "../utils/Dispatcher";
+import {AppStatus} from "../core";
 
 export type OnSuccess = (data: ?any, response: WebApiResponse) => void;
 export type OnError = (error: Object, response: WebApiResponse) => void;
@@ -31,9 +32,10 @@ export default class WebApi {
     };
 
 
-    constructor(url: string) {
+    constructor(url: string, transportClass) {
         this.url = url;
-        this.transport = new WebSocketTransport(this);
+
+        this.transport = new (transportClass || WebSocketTransport)(this);
 
         const transport = this.transport;
 
@@ -51,6 +53,7 @@ export default class WebApi {
 
         transport.onClose = reason => {
             State.current = State.CLOSED;
+            AppStatus.error(this, "WebApi: " + reason);
 
             const err = new Error(reason);
             this.processed.forEach((req: WebApiRequest) => {

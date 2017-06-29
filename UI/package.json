@@ -39,7 +39,6 @@
     "less": "^2.7.2",
     "less-loader": "^4.0.3",
     "moment": "^2.18.1",
-    "npm install": "^6.24.1",
     "open-browser-webpack-plugin": "0.0.5",
     "raw-loader": "^0.5.1",
     "react-grid-layout": "^0.14.6",
@@ -83,6 +82,7 @@
     "react-widgets": "^3.4.8",
     "webpack-preset": "^0.2.0",
     "webpack-preset-babel": "^0.2.0",
+    "webpack-preset-babel-stage-2": "^0.2.0",
     "whatwg-fetch": "^2.0.3"
   }
 }

@@ -9,7 +9,12 @@ export default class PPermissions extends Page {
 
     constructor() {
         super(...arguments);
-        PERMISSIONS.items.forEach((p: PermissionRecord) => this.records.push(this.beginEdit(p)));
+
+        PERMISSIONS.rows.forEach((v, k) => {
+            const rec: PermissionRecord = PERMISSIONS.get(this, k, true);
+            this.records.push(rec);
+        });
+
     }
 
     render() {

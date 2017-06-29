@@ -1,9 +1,6 @@
 //FixMe importy
 
 
-import Repository, {DATA_TYPE as DT_REPOSITORY, RepoConfig} from "./Repository";
-import Record, {RecordConfig} from "./Record";
-import Field, {FieldConfig} from "./Field";
 import Permission from "../application/Permission";
 import * as Utils from "../utils/Utils";
 import Action from "./Action";
@@ -12,23 +9,74 @@ import {Type} from  "../core";
 import * as CRUDE from "./CRUDE";
 import LocalRepoStorage from "./storage/LocalRepoStorage";
 
+import {Field, Record, Repository, RepoConfig, Column} from "../core";
+
 export default class PermissionsRepo extends Repository {
+
+    static ID: Column = new Column((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "id";
+        c.name = "ID";
+        c.unique = true;
+        c.required = true;
+        c.readOnly = true;
+    });
+
+    static NAME: Column = new Column((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "name";
+        c.name = "Nazwa";
+    });
+
+    static CREATE: Column = new Column((c: Column) => {
+        c.type = Type.BOOLEAN;
+        c.key = "create";
+        c.name = "Tworzenie";
+        c.required = true;
+    });
+
+    static READ: Column = new Column((c: Column) => {
+        c.type = Type.BOOLEAN;
+        c.key = "read";
+        c.name = "Odczyt";
+        c.required = true;
+    });
+
+    static UPDATE: Column = new Column((c: Column) => {
+        c.type = Type.BOOLEAN;
+        c.key = "update";
+        c.name = "Aktualizacja";
+        c.required = true;
+    });
+
+    static DELETE: Column = new Column((c: Column) => {
+        c.type = Type.BOOLEAN;
+        c.key = "delete";
+        c.name = "Usuwanie";
+        c.required = true;
+    });
+
+    static EXECUTE: Column = new Column((c: Column) => {
+        c.type = Type.BOOLEAN;
+        c.key = "execute";
+        c.name = "Wykonanie";
+        c.required = true;
+    });
+
 
     constructor() {
         super((rc: RepoConfig) => {
             rc.key = "permissions";
             rc.name = "Uprawnienia";
-            rc.primaryKeyColumn = "id";
-            rc.recordClass = PermissionRecord;
+            rc.primaryKeyColumn = PermissionsRepo.ID;
+            rc.record = PermissionRecord;
         });
-
-        Object.preventExtensions(this);
         this.storage = new LocalRepoStorage();
     }
 
     refresh() {
-        this._update(this, Utils.forEach(Permission.all, (p: Permission) => p.record ? undefined
-            : new PermissionRecord(this, p.id, p.name, p.getCrude(), p)), false);
+        Repository.update(this, Utils.forEach(Permission.all, (p: Permission) => p.record ? undefined
+            : new PermissionRecord(this, PermissionsRepo, p)), false);
         this.isReady = true;
     }
 }
@@ -36,94 +84,46 @@ export default class PermissionsRepo extends Repository {
 
 export class PermissionRecord extends Record {
 
-    ID: Field = new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "id";
-        fc.name = "ID";
-        fc.unique = true;
-        fc.required = true;
-        fc.readOnly = true;
-    });
-
-    NAME: Field = new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "name";
-        fc.name = "Nazwa";
-    });
-
-    CREATE: Field = new Field((fc: FieldConfig) => {
-        fc.type = Type.BOOLEAN;
-        fc.key = "create";
-        fc.name = "Tworzenie";
-        fc.required = true;
-    });
-
-    READ: Field = new Field((fc: FieldConfig) => {
-        fc.type = Type.BOOLEAN;
-        fc.key = "read";
-        fc.name = "Odczyt";
-        fc.required = true;
-    });
-
-    UPDATE: Field = new Field((fc: FieldConfig) => {
-        fc.type = Type.BOOLEAN;
-        fc.key = "update";
-        fc.name = "Aktualizacja";
-        fc.required = true;
-    });
-
-    DELETE: Field = new Field((fc: FieldConfig) => {
-        fc.type = Type.BOOLEAN;
-        fc.key = "delete";
-        fc.name = "Usuwanie";
-        fc.required = true;
-    });
-
-    EXECUTE: Field = new Field((fc: FieldConfig) => {
-        fc.type = Type.BOOLEAN;
-        fc.key = "execute";
-        fc.name = "Wykonanie";
-        fc.required = true;
-    });
-
     permission: ?Permission = null;
 
-    constructor(repo: PermissionsRepo, id: string, name: string, crude: ?string, permission: ?Permission) {
-        super(repo);
+    ID: Field = new Field(PermissionsRepo.ID, this);
+    NAME: Field = new Field(PermissionsRepo.NAME, this);
+    CREATE: Field = new Field(PermissionsRepo.CREATE, this);
+    READ: Field = new Field(PermissionsRepo.READ, this);
+    UPDATE: Field = new Field(PermissionsRepo.UPDATE, this);
+    DELETE: Field = new Field(PermissionsRepo.DELETE, this);
+    EXECUTE: Field = new Field(PermissionsRepo.EXECUTE, this);
+
+    constructor(repo: PermissionsRepo, context: any, permission: ?Permission) {
+        super(repo, context);
 
         this.permission = permission;
-        this.ID.set(id);
-        this.NAME.set(name);
-        this._action = CRUDE.UPDATE;
+        if (permission) {
+            this.ID.set(permission.id);
+            this.NAME.set(permission.name);
+            let crude = permission.crude;
+            this.CREATE.value = crude.indexOf("C") !== -1;
+            this.READ.value = crude.indexOf("R") !== -1;
+            this.UPDATE.value = crude.indexOf("U") !== -1;
+            this.DELETE.value = crude.indexOf("D") !== -1;
+            this.EXECUTE.value = crude.indexOf("E") !== -1;
 
-        this.fieldChanged.listen(this, (field: Field, prev: ?any) => {
-            if (this._editContext && this._temporary && prev !== null)
-                Repository.submit(this, [this]);
-        });
-
-        if (crude) {
-            crude = (crude || "").toUpperCase();
-            this.CREATE.set(crude.indexOf("C") !== -1);
-            this.READ.set(crude.indexOf("R") !== -1);
-            this.UPDATE.set(crude.indexOf("U") !== -1);
-            this.DELETE.set(crude.indexOf("D") !== -1);
-            this.EXECUTE.set(crude.indexOf("E") !== -1);
         }
-
-        this.init();
-
-        debugger;
-        let dto = this.dto;
+        this.action = CRUDE.UPDATE;
+        this.onFieldChange.listen(this, (field: Field, prev: ?any, curr: ?any, wasChanged: boolean) => {
+            if (!wasChanged) return;
+            Repository.commit(this, [this]);
+        });
     }
 
-    _update(context: any, action: Action, source: Record): Record {
+    _update(context: any, action: Action, source: PermissionRecord): Record {
         super._update(context, action, source);
         if (!source.permission)
             return;
         source.permission.record = this;
         this.permission = source.permission;
 
-        const crude = this.permission.getCrude();
+        const crude = this.permission.crude;
 
         this.permission.create(this.CREATE.value);
         this.permission.read(this.READ.value);
@@ -131,19 +131,14 @@ export class PermissionRecord extends Record {
         this.permission.delete(this.DELETE.value);
         this.permission.execute(this.EXECUTE.value);
 
-        if (crude !== this.permission.getCrude())
-            Debug.log(this, `Aktualizacja uprawnień  ${this.permission.id}: ${crude} -> ${this.permission.getCrude()}`);
+        if (crude !== this.permission.crude)
+            Debug.log(this, `Aktualizacja uprawnień  ${this.permission.id}: ${crude} -> ${this.permission.crude}`);
     }
 
-    beginEdit(context: any): Record {
-        const result: PermissionsRepo = super.beginEdit(context);
-        result.permission = this.permission;
-        return result;
-    }
 
-    static create(id: string, crude: string): PermissionRecord {
-        return PermissionsRepo.instance.add(new PermissionRecord(name, crude));
-    }
+    // static create(id: string, crude: string): PermissionRecord {
+    //     return PermissionsRepo.instance.add(new PermissionRecord(name, crude));
+    // }
 
     hasRight(action: string): boolean {
 
