@@ -55,5 +55,7 @@ export {default as Field} from "./repository/Field";
 export {default as Column} from "./repository/Column";
 export {RepoConfig} from "./repository/Repository";
 
+import * as ContextObject from "./application/ContextObject";
+export {ContextObject};
 
 export {default as Store} from "./Store";

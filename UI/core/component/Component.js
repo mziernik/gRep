@@ -2,6 +2,7 @@
 'use strict';
 
 import {React, PropTypes, Utils, If, AppNode} from "../core";
+import * as ContextObject from "../application/ContextObject";
 
 /**
  * Klasa bazowa, po której powinny dziedziczyć wszystkie komponenty pełniące role kontrolerów
@@ -33,6 +34,8 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 
     constructor(props: Object, context: Object, updater: Object) {
         super(...arguments);
+
+        ContextObject.contextCreated(this);
 
         if (!props || typeof (props) !== "object" || !props.constructor || props.constructor.name !== "Object")
             throw new Error("Nieprawidłowe wywołanie konstruktora klasy " + this.constructor.name);
@@ -123,6 +126,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 
     componentWillUnmount() {
         this.node.components.remove(this);
+        ContextObject.contextDestroyed(this);
         this._onDestroy.forEach(func => func());
     }
 

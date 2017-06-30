@@ -1,12 +1,15 @@
 import {React, PropTypes, If} from "../core"
 import {Component} from "../components"
+import AppNode from "../application/Node";
 
 export default class Form extends Component {
 
     static propTypes = {
 
         record: PropTypes.any,
+        style: PropTypes.any,
 
+        button: PropTypes.object
     };
 
     constructor() {
@@ -15,9 +18,8 @@ export default class Form extends Component {
     }
 
     render() {
-        return <div style={{
-            display: "inline-block"
-        }}>{this.props.children}</div>
+        return <div style={this.props.style}>{this.props.children}</div>
     };
+
 
 }

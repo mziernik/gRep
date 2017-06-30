@@ -1,8 +1,7 @@
 import './font-awesome.css';
+import Glyph from "./Glyph";
 
-export default class FontAwesome {
-    className: string;
-
+export default class FontAwesome extends Glyph {
     static ALL: FontAwesome[] = [];
 
     static GLASS = new FontAwesome("fa fa-glass");
@@ -681,11 +680,9 @@ export default class FontAwesome {
     static MEETUP = new FontAwesome("fa fa-meetup");
 
     constructor(className: string) {
-        this.className = className;
+        super(className);
         FontAwesome.ALL.push(this);
     }
 
-    toString() {
-        return this.className;
-    }
+
 }

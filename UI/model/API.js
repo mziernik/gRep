@@ -10,7 +10,8 @@ const wapi: WebApi = new WebApi("http://localhost:80/api");
 export const api = new GrepApi(wapi);
 
 wapi.onError = (error: EError, response: WebApiResponse, handled: boolean) => {
-    Alert.error(this, error.message);
+    if (!handled)
+        Alert.error(this, error.message);
 };
 
 Repository.defaultStorage = new WebApiRepositoryStorage(api.repository);

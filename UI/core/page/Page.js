@@ -15,7 +15,7 @@ export default class Page extends Component {
     }
 
     /** Zwraca tru jeśli repozytoria [repos] zostały zainicjowane, w przeciwnym razie czeka na inicjalizację i wywołuje forceUpdate na stronie */
-    waitForRepo(repos: Repository | Repository[], onReady: () => void): boolean {
+    waitForRepo(repos: Repository | Repository[], onReady: ?() => void = null): boolean {
         repos = If.isArray(repos) ? repos : [repos];
         const notReady: Repository[] = Utils.forEach(repos, (repo: Repository) => repo.isReady ? undefined : repo);
         if (notReady.isEmpty())
@@ -27,7 +27,7 @@ export default class Page extends Component {
                     return;
                 notReady.remove(repo);
                 if (notReady.isEmpty())
-                    onReady();
+                    onReady ? onReady() : this.forceUpdate();
             });
         });
         return false;

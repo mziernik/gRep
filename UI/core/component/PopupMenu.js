@@ -4,6 +4,8 @@ import {React, PropTypes, Field, Type, FieldConfig, Utils, If} from '../core';
 import {Component, Page, FontAwesome, FieldComponent, FieldController}    from        '../components';
 import './PopupMenu.css'
 
+let elm: PopupMenu;
+
 export class PopupMenu extends Component {
     /** styl menu
      * @private
@@ -20,10 +22,15 @@ export class PopupMenu extends Component {
     };
 
 
-    static _handleMenu(e, props) {
+    static createMenu(e: Event, items: [], onClick: ?(item: MenuItem) => void = null) {
+        if (!elm) {
+            const tag = document.createElement("span");
+            document.body.appendChild(tag);
+            elm = Application.render(<PopupMenu key={Utils.randomId()}/>, tag);
+        }
+        elm.setState({items: items})
         e.preventDefault();
         e.stopPropagation();
-        this.setState({contextMenu: {opened: true, x: e.pageX, y: e.pageY, onClickProps: props}});
     }
 
     static propTypes = {

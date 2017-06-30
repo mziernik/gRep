@@ -39,6 +39,9 @@ function Bar(props) {
 
     const status: AppStatus = props.status;
 
+    const message = status.message ? Utils.toString(status.message).split("\n").map(s => <div>{s}</div>) : null;
+    const details = status.details ? Utils.toString(status.details).split("\n").map(s => <div>{s}</div>) : null;
+
     let icon: FontAwesome;
     let background: string;
     let border: string;
@@ -71,21 +74,21 @@ function Bar(props) {
     }
 
     return <div style={{flex: "auto", textAlign: "right"}}>
-    <span
-        style={{
-            display: "inline-block",
-            border: "1px solid " + border,
-            backgroundColor: background,
-            opacity: "0.9",
-            padding: "10px 20px",
-            margin: "4px",
-            textAlign: "left",
-            boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-            transition: "all 0.3s",
-        }}
-        ref={id => status._tag = id}
-        onClick={(e) => status.hide()}
-    >
+        <div
+            style={{
+                display: "inline-block",
+                border: "1px solid " + border,
+                backgroundColor: background,
+                opacity: "0.9",
+                padding: "10px 20px",
+                margin: "4px",
+                textAlign: "left",
+                boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+                transition: "all 0.3s",
+            }}
+            ref={id => status._tag = id}
+            onClick={(e) => status.hide()}
+        >
                 <span style={ {
                     fontSize: "26px",
                     width: "30px",
@@ -94,15 +97,24 @@ function Bar(props) {
                     margin: "4px"
                 } } className={icon}/>
 
-        <span style={ {
-            fontSize: "14px",
-            verticalAlign: "baseline",
-            fontWeight: "bold",
-            margin: "4px",
-            paddingLeft: "4px",
-            color: "#333",
-        } }
-        >{Utils.toString(status.message)}</span>
-    </span>
+            <div style={ {
+                display: "inline-block",
+                verticalAlign: "top",
+                margin: "4px",
+                paddingLeft: "4px",
+            } }
+            >
+                <div style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    color: "#333",
+                }}>{message}</div>
+                <div style={{
+                    fontSize: "13px",
+                    color: "#444",
+                    paddingTop: "10px"
+                }}>{details}</div>
+            </div>
+        </div>
     </div>
 }

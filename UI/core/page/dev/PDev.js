@@ -14,6 +14,7 @@ import PFontAwesome from "./PFontAwesome";
 import Repository from "../../repository/Repository";
 import AppEvent from "../../application/Event";
 import Demo from "../demo/PDemo";
+import PContextObject from "./PContextObject";
 
 export default class DevRouter extends Endpoint {
 
@@ -44,6 +45,9 @@ export default class DevRouter extends Endpoint {
 
         this.JS_TESTER = this.child("WEB Tester", baseUrl + "/webtest", PWebTester);
         this.COMPONENTS = this.child("Komponenty", baseUrl + "/components", PComponents);
+        this.COMPONENTS = this.child("Obiekty kontekstu", baseUrl + "/ctxobj", PContextObject);
+
+
         this.LOCAL_STORAGE = this.child("Magazyn lokalny", baseUrl + "/localstorage", PLocalStorage);
         this.APP_TEST = this.child("Test aplikacji", baseUrl + "/apptest", PAppTest);
         this.MODULES = this.child("Moduły", baseUrl + "/modules", PModules);

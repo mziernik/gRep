@@ -9,33 +9,20 @@ export default class Button extends Component {
 
 
     static  propTypes = {
-        crude: PropTypes.any, //CRUDE
-        record: PropTypes.any, //Record
         confirm: PropTypes.string,
         type: PropTypes.oneOf(["basic", "default", "primary", "success", "info", "warning", "danger", "link"]),
         title: PropTypes.string,
         onClick: PropTypes.func,
-        link: PropTypes.any
+        link: PropTypes.any,
+        icon: PropTypes.any
     };
 
     constructor() {
         super(...arguments);
         this.state = {
-            disabled: !!this.props.crude
+            disabled: false
         };
 
-
-        this.state.disabled = false; // tymczasowo
-
-        if (this.props.crude && this.props.record)
-            (this.props.record: Record).onFieldChange.listen(this, (field: Field) => {
-                let ok = true;
-                this.props.record.fields.forEach((field: Field) => {
-                    if (!field.isValid)
-                        ok = false;
-                });
-                this.setState({disabled: !ok});
-            });
     }
 
     render() {
@@ -70,33 +57,21 @@ export default class Button extends Component {
             }}
             title={this.props.title}
             onClick={(e) => {
-                If.isFunction(this.props.onClick, f => f(e));
-
-                if (this.props.record instanceof Record) {
-
-                    this.props.record._action = this.props.crude;
-
-                    const run = () => {
-                        this.setState({disabled: true});
-
-                        const spinner = new Spinner();
-
-                        Repository.commit(this, [this.props.record])
-                            .then((e) => {
-                                spinner.hide();
-                                AppStatus.success(this, "Zaktualizowano dane");
-                            }).catch((e) => {
-                            spinner.hide();
-                        });
-                    };
-
-                    if (this.props.confirm)
-                        Alert.confirm(this, this.props.confirm, () => run());
-                    else run();
-
-                }
+                if (!If.isFunction(this.props.onClick)) return;
+                if (this.props.confirm)
+                    Alert.confirm(this, this.props.confirm, () => this.props.onClick(e));
+                else
+                    this.props.onClick(e);
             }}
 
-        >{super.renderChildren(this.props.children)}</button>
+        >
+            {this.props.icon ?
+                <span className={this.props.icon} style={{
+                    marginRight: "7px",
+                    fontSize: "1.4em",
+                    opacity: "0.8"
+
+                }}/> : null}
+            {super.renderChildren(this.props.children)}</button>
     }
 }

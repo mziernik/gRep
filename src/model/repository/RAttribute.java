@@ -135,7 +135,7 @@ public class RAttribute extends Repository<Integer> {
         onBeforeUpdate.listen(this, (records, all) -> {
             for (Record rec : records) {
                 rec.set(TEST, getUpdatesCount() + " -> " + Utils.randomId());
-                rec.set(DESCRIPTION, getUpdatesCount() + " -> " + Utils.randomId());
+              //  rec.set(DESCRIPTION, getUpdatesCount() + " -> " + Utils.randomId());
             }
         });
 

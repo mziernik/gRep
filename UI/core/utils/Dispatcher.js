@@ -9,6 +9,7 @@ import "./DOMPrototype";
 import * as Utils from "./Utils";
 import * as If from "./If";
 import * as Check from "./Check";
+import * as ContextObject from "../application/ContextObject";
 
 export default class Dispatcher {
 
@@ -41,7 +42,7 @@ export default class Dispatcher {
     listen(context: any, func: (...args: any) => ?any): Observer {
         const o = new Observer(this, context, func);
         this.observers.push(o);
-        If.instanceOf(context, ["Component"], () => context.onDestroy(() => this.observers.remove(o)));
+        ContextObject.add(context, o, () => this.observers.remove(o));
         return o;
     }
 

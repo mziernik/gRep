@@ -52,6 +52,7 @@ export default class WebApiRequest {
         this.hash = hash;
         this.method = method;
         this.onSuccess = onSuccess;
+        this.onError = onError;
         this.params = params;
         //    req.spinner = data.spinner === undefined || data.spinner !== null ?         new Spinner() : null;
 

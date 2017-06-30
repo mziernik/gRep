@@ -9,6 +9,7 @@ import EError from "../utils/EError";
 import WebApiTransport, {State, WebSocketTransport} from "./Transport";
 import Dispatcher from "../utils/Dispatcher";
 import {AppStatus} from "../core";
+import * as If from "../utils/If";
 
 export type OnSuccess = (data: ?any, response: WebApiResponse) => void;
 export type OnError = (error: Object, response: WebApiResponse) => void;
@@ -59,10 +60,10 @@ export default class WebApi {
             this.processed.forEach((req: WebApiRequest) => {
                 req._reject(err, this);
                 let handled = false;
-                if (req.onError === "function") {
-                    req.onError(err, req);
+                If.isFunction(req.onError, f => {
+                    f(err, req);
                     handled = true;
-                }
+                });
                 if (err && typeof this.onError === "function")
                     this.onError(err, err, handled);
             });

@@ -1,4 +1,4 @@
-import {Check, Record, Field, Column, CRUDE, Utils, If, Debug, Type, AppEvent} from "../core";
+import {ContextObject, Check, Record, Field, Column, CRUDE, Utils, If, Debug, Type, AppEvent} from "../core";
 
 import Permission from "../application/Permission";
 import LocalRepoStorage from "./storage/LocalRepoStorage";
@@ -151,9 +151,7 @@ export default class Repository {
     }
 
     createRecord(context: any): Record {
-        const rec: Record = new this.config.record(this, context);
-        this.refs.push(rec);
-        return rec;
+        return new this.config.record(this, context);
     }
 
     static update(context: any, dto: Record[] | object) {
@@ -256,6 +254,7 @@ export default class Repository {
                 row[index] = val;
             });
 
+            refs.forEach((r: Record) => r.onChange.dispatch(context, changed));
 
             repo.displayMap.set(pk, row[repo.columns.indexOf(repo.config.displayNameColumn
                 ? repo.config.displayNameColumn : repo.config.primaryKeyColumn)]);

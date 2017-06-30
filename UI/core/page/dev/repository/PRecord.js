@@ -1,18 +1,8 @@
-import {React, PropTypes, Utils, If, Field, Repository, Record, CRUDE, Endpoint, Type, Column} from '../../../core';
-import {
-    Component,
-    Page,
-    FontAwesome,
-    Link,
-    Table,
-    PageTitle,
-    FieldComponent,
-    FieldController,
-    Panel
-} from '../../../components';
-import Button from "../../../component/Button";
+import {React, PropTypes, Utils, Field, Repository, Record, CRUDE, Column, AppStatus} from '../../../core';
+import {Component, Page, PageTitle, FieldComponent, FieldController, Panel} from '../../../components';
 import WebApiRepositoryStorage from "../../../repository/storage/WebApiRepoStorage";
 import JsonViewer from "../../../component/JsonViewer";
+import RecordCtrl from "../../../component/form/RecordCtrl";
 
 
 export default class PRecord extends Page {
@@ -22,6 +12,8 @@ export default class PRecord extends Page {
     isNew: boolean;
     viewer: JsonViewer;
 
+
+    _saveTs: number;
 
     static propTypes = {
         repo: PropTypes.string,
@@ -46,6 +38,14 @@ export default class PRecord extends Page {
 
         this.record = this.record || this.repo.get(this, this.props.rec);
 
+        this.record.onChange.listen(this, (map: Map) => {
+            if (!this._saveTs) return;
+            let changes = Utils.forEach(map, (arr: [], col: Column) =>
+            col.key + ": " + Utils.escape(arr[0]) + " => " + Utils.escape(arr[1]));
+            AppStatus.debug(this, "Czas: " + (new Date().getTime() - this._saveTs) + " ms", changes.join("\n"), 30000);
+            this._saveTs = null;
+        });
+
         this.record.onFieldChange.listen(this, e => {
             if (!this.viewer)
                 return;
@@ -66,6 +66,8 @@ export default class PRecord extends Page {
                 </span>));
 
 
+        const ctrl: RecordCtrl = new RecordCtrl(this, this.record, this.isNew ? CRUDE.CREATE : CRUDE.UPDATE);
+
         return <Panel>
             <PageTitle>{(this.isNew ? "Nowy rekord" : "Edycja rekordu " + this.record.fullId ) + " repozytorium " + this.repo.name}</PageTitle>
 
@@ -74,15 +76,6 @@ export default class PRecord extends Page {
             }}>
 
                 <section
-                    ref={tag => {
-                        // new MutationObserver(mutations => {
-                        //     mutations.forEach((mutation: MutationRecord) => {
-                        //         console.log(mutation.type);
-                        //     });
-                        // }).observe(tag, {attributes: true, childList: true, characterData: true});
-
-                    }}
-
                     style={{
                         flex: "auto",
                         display: "inline-block",
@@ -131,19 +124,17 @@ export default class PRecord extends Page {
                         }
 
                         </tbody>
+                        <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+
+                            <td style={{textAlign: "right"}}>
+                                {ctrl.createDeleteButton(`Czy na pewno usunąć rekord ${Utils.escape(this.record.displayName)}?`)}
+                                {ctrl.createSaveButton()}</td>
+                        </tr>
+                        </tfoot>
                     </table>
-
-                    <div style={{textAlign: "right"}}>
-
-                        <Button record={this.record}
-                                crude={this.isNew ? CRUDE.CREATE : CRUDE.UPDATE}
-
-                        > {this.isNew ? "Utwórz" : "Zapisz"} </Button>
-                        {this.isNew ? null :
-                            <Button confirm={"Czy na pewno usunąć rekord?"} record={this.record}
-                                    crude={CRUDE.DELETE}>Usuń</Button>}
-                        <Button>Anuluj</Button>
-                    </div>
 
                 </section>
 

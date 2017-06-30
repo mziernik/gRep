@@ -13,13 +13,11 @@ export default class PRepository extends Page {
     constructor() {
         super(...arguments);
         this.repo = Repository.get(this.props.repo, true);
-        //ToDo: Do usunięcia
-        this.repo.onChange.listen(this, (map: Map) => this.forceUpdate());
     }
 
     render() {
 
-        if (!this.repo.isReady)
+        if (!super.waitForRepo(this.repo))
             return <div>
                 <PageTitle>Repozytorium "{this.repo.name}"</PageTitle>
                 <span>Inicjalizacja repozytorium. Proszę czekać...</span>
@@ -27,16 +25,16 @@ export default class PRepository extends Page {
 
         const columns = [];
 
-        columns.push(<span key="#action" style={{textAlign: "center"}}>Akcje</span>);
-        columns.push(<span key="#refs" style={{textAlign: "center"}}>Referencje</span>);
-
+        columns.push(<span key="#action" style={{textAlign: "center"}}/>);
         columns.addAll(this.repo.columns.map((f: Column) =>
             f.hidden ? null : <span key={f.key} style={{textAlign: "center"}}>
                     <div>{f.key}</div>
                     <div style={{fontWeight: "normal"}}>{f.name}</div>
                     <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.type.name}]</div>
                 </span>));
+        columns.push(<span key="#refs" style={{textAlign: "center"}}>#ref</span>);
 
+        let counter = 0;
         return <Panel fit>
             <PageTitle>Repozytorium "{this.repo.name}"</PageTitle>
 
@@ -81,13 +79,14 @@ export default class PRepository extends Page {
                     const result = {};
                     const rec: Record = this.repo.get(this, pk, true);
                     result["#action"] = <span>
-                            <Link
-                                link={this.endpoint.RECORD.getLink({
-                                    repo: this.repo.key,
-                                    rec: rec.primaryKey.value
-                                })}
-                                icon={FontAwesome.CREDIT_CARD}
-                            />
+                        <span> {++counter + "."}  </span>
+                        <Link
+                            link={this.endpoint.RECORD.getLink({
+                                repo: this.repo.key,
+                                rec: rec.primaryKey.value
+                            })}
+                            icon={FontAwesome.CREDIT_CARD}
+                        />
                     </span>;
                     result["#refs"] = this.repo.getRefs(pk).length;
                     rec.fields.forEach((f: Field) =>

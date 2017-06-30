@@ -1,4 +1,4 @@
-import {Utils, Check, If, Field, Repository, Dispatcher, Debug, CRUDE, Exception, Column} from "../core";
+import {Utils, Check, If, Field, Repository, Dispatcher, Debug, CRUDE, Exception, Column, ContextObject} from "../core";
 
 
 "use strict";
@@ -18,13 +18,8 @@ export default class Record {
     constructor(repo: Repository, context: any) {
         this.context = Check.isDefined(context);
         this.repo = Check.instanceOf(repo, [Repository]);
-
-        if (If.instanceOf(context, ["Component"]))
-            context.onDestroy(() => {
-                if (!repo.refs.remove(this))
-                    throw new Error("Nieprawidłowa referencja");
-            });
-
+        this.repo.refs.push(this);
+        ContextObject.add(context, this, () => this.repo.refs.remove(this));
     }
 
     set row(row: []) {
@@ -43,6 +38,10 @@ export default class Record {
             throw new Error("Repozytorium " + this.repo.key + " nie posiada kolumny " + col.key);
         return idx;
 
+    }
+
+    get displayName(): string {
+        return this.get(this.repo.config.displayNameColumn || this.repo.config.primaryKeyColumn).displayValue;
     }
 
     /** Zwraca wartość klucza głównego */

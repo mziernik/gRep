@@ -24,11 +24,7 @@ export default class WebApiRepoStorage extends RepositoryStorage {
     load(repos: Repository[]): Promise {
         const list = {};
         Utils.forEach(repos, (repo: Repository) => list[repo.key] = repo.config.autoUpdate);
-        return (this.methods.get({repositories: list}, () => {
-            //sukces
-        }, (err, a, b) => {
-            // bład
-            debugger;
+        return (this.methods.get({repositories: list}, null, (err) => {
         }): WebApiRequest).promise;
     }
 
