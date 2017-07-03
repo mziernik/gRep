@@ -1,4 +1,4 @@
-import {Utils, Record, Field, Repository, CRUDE} from "../../core";
+import {Utils, Record, Field, Repository, CRUDE, Debug, AppStatus} from "../../core";
 
 export default class RepositoryStorage {
 
@@ -22,7 +22,14 @@ export default class RepositoryStorage {
     static loadData() {
         const map: Map = Utils.agregate(Repository.all, (repo: Repository) => repo.storage);
         map.forEach((repos: Repository[], storage: RepositoryStorage) => storage.load(repos)
-            .then(data => Repository.update(storage, data)));
+            .then(data => {
+                try {
+                    Repository.update(storage, data);
+                }catch (e){
+                    Debug.error(this, e);
+                    AppStatus.error(this, e);
+                }
+            }));
     }
 
 }

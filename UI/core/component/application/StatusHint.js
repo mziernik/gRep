@@ -39,8 +39,9 @@ function Bar(props) {
 
     const status: AppStatus = props.status;
 
-    const message = status.message ? Utils.toString(status.message).split("\n").map(s => <div>{s}</div>) : null;
-    const details = status.details ? Utils.toString(status.details).split("\n").map(s => <div>{s}</div>) : null;
+    let key = 0;
+    const message = status.message ? Utils.toString(status.message).split("\n").map(s => <div key={++key}>{s}</div>) : null;
+    const details = status.details ? Utils.toString(status.details).split("\n").map(s => <div key={++key}>{s}</div>) : null;
 
     let icon: FontAwesome;
     let background: string;
@@ -93,14 +94,15 @@ function Bar(props) {
                     fontSize: "26px",
                     width: "30px",
                     color: border,
-                    verticalAlign: "baseline",
+                    verticalAlign: "top",
                     margin: "4px"
                 } } className={icon}/>
 
             <div style={ {
                 display: "inline-block",
                 verticalAlign: "top",
-                margin: "4px",
+                margin: "8px 4px 4px 4px",
+
                 paddingLeft: "4px",
             } }
             >

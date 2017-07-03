@@ -1,15 +1,17 @@
-import {Utils, Record, Field, Repository, CRUDE} from "../../core";
+import {Utils, Record, Field, Repository, CRUDE, AppStatus} from "../../core";
 import WebApiResponse from "../../webapi/Response";
 import RepositoryStorage from "./RepositoryStorage";
 import WebApiRequest from "../../webapi/Request";
+import WebApi from "../../webapi/WebApi";
 
 export default class WebApiRepoStorage extends RepositoryStorage {
 
     methods: Object;
+    api: WebApi;
 
-    constructor(methods: Object) {
+    constructor(api: WebApi, methods: Object) {
         super();
-
+        this.api = api;
         this.methods = methods;
         const repos = {};
 
@@ -25,6 +27,11 @@ export default class WebApiRepoStorage extends RepositoryStorage {
         const list = {};
         Utils.forEach(repos, (repo: Repository) => list[repo.key] = repo.config.autoUpdate);
         return (this.methods.get({repositories: list}, null, (err) => {
+
+            if (this.api && !this.api.transport.connected)
+                return;
+
+            AppStatus.error(this, err);
         }): WebApiRequest).promise;
     }
 

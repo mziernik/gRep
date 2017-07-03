@@ -61,12 +61,7 @@ CREATE TABLE data.attribute_element
     uid             UUID NOT NULL DEFAULT uuid_generate_v4(),
     created         TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     key             VARCHAR NOT NULL UNIQUE,
-    type            CHAR NOT NULL 	
-                        CHECK (type IN (
-                            'T',	-- tekst
-                            'N',  	-- numer
-                            'B' 	-- boolean
-                        )), 
+    type            VARCHAR NOT NULL,   -- DataType
     required        BOOLEAN NOT NULL DEFAULT false,
     def_val         VARCHAR[],    
     name            VARCHAR NOT NULL UNIQUE,

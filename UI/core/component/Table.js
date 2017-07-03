@@ -28,7 +28,7 @@ export default class Table extends Component {
             this._setWidths();
             this._timeoutID = setTimeout(() => this._timeoutFunc(), 200);
         };
-        this.state = {columns: this.columns = this._convertColumns()};
+        this.state = {columns: this.columns = this._convertColumns(), ...(this._convertData())};
     }
 
     componentDidMount() {
@@ -109,13 +109,17 @@ export default class Table extends Component {
     _drawRow(row, accessor) {
         if (this._updateWidths)
             if (!this._widths[accessor]) this._widths[accessor] = [];
+        const val = row.original ?
+            (row.original[accessor] !== null && row.original[accessor] !== undefined) ?
+                row.original[accessor] : row.value : row;
+        if (!val) return null;
+        if (!this._updateWidths) return val;
+
         return <span ref={elem => {
             if (this._updateWidths)
                 if (elem) this._widths[accessor].push(elem)
         }}>
-            {row.original ?
-                (row.original[accessor] !== null && row.original[accessor] !== undefined) ?
-                    row.original[accessor] : row.value : row}
+            {val}
         </span>
     }
 
@@ -193,13 +197,14 @@ export default class Table extends Component {
             if (colDiff === 0)return;
         }
         this._prevTableWidth = this._tableTag.offsetWidth;
-        Utils.forEach(this.state.columns, (column, index) => {
+        let columns = this.state.columns.slice();
+        Utils.forEach(columns, (column, index) => {
             if (column.id) {
                 if (colDiff !== 0) this._widths[column.id] += colDiff;
                 column.width = this._widths[column.id];
             }
         });
-        this.setState({columns: this.state.columns});
+        this.setState({columns: columns});
     }
 
     _swapColumns(sourceID, targetID, targetCol, mouseX) {
@@ -220,7 +225,6 @@ export default class Table extends Component {
 
     }
 
-
     render() {
         return <ReactTable
             ref={elem => this._computeWidths(elem)}
@@ -228,14 +232,18 @@ export default class Table extends Component {
             style={{height: '100%', width: '100%'}}
             defaultSorted={this._sorted}
             columns={this.state.columns}
-            {...this._convertData()}
+            data={this.state.data}
+            showPagination={this.state.showPagination}
+            pageSizeOptions={[5, 10, 20, 25, 50]}
 
             getTbodyProps={() => {
                 //wyłączenie flexa w wierszach
                 return {style: {display: 'block'}}
             }}
             getTdProps={(state, row, column, instance) => {
-                return {onClick: If.isFunction(this.props.onRowClick) ? (e) => this.props.onRowClick(row, column, instance, e) : null};
+                return {
+                    onClick: If.isFunction(this.props.onRowClick) ? (e) => this.props.onRowClick(row, column, instance, e) : null
+                };
             }}
             getTrGroupProps={(state, row, column, instance) => {
                 return row ? null : {style: {display: 'none'}};

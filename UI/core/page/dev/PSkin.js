@@ -26,18 +26,37 @@ export default class PSkin extends Page {
 
             <PageTitle>Skórki</PageTitle>
 
-            <Table
-                columns={ {
-                    sec: "Sekcja",
-                    elm: "Element",
-                    css: "CSS",
-                    val: "Wartość"
-                } }
-            >
-                <tbody>
-                {   visit(Skin.MAIN, "")    }
-                </tbody>
-            </Table>
+            {/*<Table*/}
+            {/*columns={ {*/}
+            {/*sec: "Sekcja",*/}
+            {/*elm: "Element",*/}
+            {/*css: "CSS",*/}
+            {/*val: "Wartość"*/}
+            {/*} }*/}
+            {/*>*/}
+            {/*<tbody>*/}
+            {/*{   visit(Skin.MAIN, "")    }*/}
+            {/*</tbody>*/}
+            {/*</Table>*/}
+
+
+            <div style={ {
+                resize: "both",
+                overflow: "auto",
+                border: "1px solid red",
+                display: "inline-block",
+                padding: "10px",
+                margin: "10px",
+                whiteSpace: "pre-wrap",
+                fontSize: "30pt",
+                width: "30px",
+                wordBreak: "break-all",
+            } }>
+                <div>
+                    sdfdsfgfdhgsfdlkjg;sfdkjiusdhfosiduygoisudfg
+                </div>
+            </div>
+
 
         </div>
     }

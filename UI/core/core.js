@@ -12,6 +12,9 @@ export {Utils};
 import * as If from "./utils/If";
 export {If};
 
+
+export {default as EError} from "./utils/EError";
+
 import * as ReactUtils from "./utils/ReactUtils";
 export {ReactUtils};
 

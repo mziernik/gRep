@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, PropTypes, Utils} from '../core';
+import {React, PropTypes, Utils, Type} from '../core';
 import {FormComponent, FontAwesome} from '../components';
 import {DropdownList} from 'react-widgets';
 
@@ -21,6 +21,7 @@ export default class Select extends FormComponent {
      * @private
      */
     _selected: boolean = false;
+    _multiSelect: boolean = false;
 
     props: {
         /** czy jest to lista jednostek */
@@ -38,6 +39,7 @@ export default class Select extends FormComponent {
     constructor() {
         super(...arguments);
         this.state = {open: undefined};
+        this._multiSelect = !this.field.type.single || this.field.type === Type.ENUMS;
         if (this.props.units) {
             this._enumerate = Utils.forEach(this.props.units, (item) => {
                 return {text: item[1], value: item}
@@ -51,7 +53,7 @@ export default class Select extends FormComponent {
                 })
             );
 
-            if (!this.field.type.single)
+            if (this._multiSelect)
                 this._multiselectProps = {
                     onBlur: () => this.setState({open: false}),
                     onClick: (e) => this._handleClick(e),
@@ -72,7 +74,7 @@ export default class Select extends FormComponent {
             this.field.unit = item.value;
         } else {
             let tmp = item.value;
-            if (!this.field.type.single) {
+            if (this._multiSelect) {
                 item.checked = !item.checked;
                 tmp = [];
                 Utils.forEach(this._enumerate, (item) => {
@@ -149,7 +151,7 @@ export default class Select extends FormComponent {
                     defaultValue={this.props.units ? this.field.unit : this.field.value}
                     title={this.field.hint}
                     open={this.state.open}
-                    filter={(this._enumerate.length < 10 || !this.field.type.single || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}
+                    filter={(this._enumerate.length < 10 || this._multiSelect || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}
                     readOnly={this.props.readOnly || this.field.readOnly}
                     placeholder={this.field.name}
                     onSelect={(value) => this._handleSelect(value)}

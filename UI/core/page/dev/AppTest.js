@@ -12,7 +12,7 @@ export default class PAppTest extends Page {
                 <button onClick={() => AppStatus.info(this, "Test: Info", "Szczegóły")}>Info</button>
                 <button onClick={() => AppStatus.success(this, "Test: Sukces", "Szczegóły")}>Sukces</button>
                 <button onClick={() => AppStatus.warning(this, "Test: Ostrzeżenie", "Szczegóły")}>Ostrzeżenie</button>
-                <button onClick={() => AppStatus.error(this, "Test: Błąd", "Szczegóły")}>Błąd</button>
+                <button onClick={() => AppStatus.error(this, "Test: Błąd")}>Błąd</button>
 
                 <hr/>
 

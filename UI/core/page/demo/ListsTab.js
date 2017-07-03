@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, Field, Type, FieldConfig, Utils} from '../../core';
+import {React, Field, Type, Column, Utils} from '../../core';
 import {Component, Page, FontAwesome, FieldComponent, FieldController} from '../../components';
 import JsonViewer from "../../component/JsonViewer";
 
@@ -53,6 +53,8 @@ export default class Lists extends Component {
                 <JsonViewer object={getDTO()} instance={e => this.viewer = e}/>
             </div>
 
+
+
         </div>
     }
 
@@ -66,15 +68,15 @@ const FRUITS = {
 
 const DATA = {
 
-    FRUIT_SET: new Field((fc: FieldConfig) => {
-        fc.type = new Type.SetDataType(Type.STRING);
+    FRUIT_SET: new Field((fc: Column) => {
+        fc.type = Type.ENUMS;
         fc.key = "fruitSet";
         fc.name = 'Zbiór owoców';
         fc.description = "Zbiór: Wybór wielu elementów bez powtórzeń";
         fc.enumerate = () => FRUITS;
     }),
 
-    FRUIT_LIST: new Field((fc: FieldConfig) => {
+    FRUIT_LIST: new Field((fc: Column) => {
         fc.type = new Type.ListDataType(Type.STRING);
         fc.key = "fruitList";
         fc.name = 'Lista owoców';
@@ -82,8 +84,8 @@ const DATA = {
         fc.enumerate = () => FRUITS;
     }),
 
-    FRUIT_LIST_SET: new Field((fc: FieldConfig) => {
-        fc.type = new Type.ListDataType(new Type.SetDataType(Type.STRING));
+    FRUIT_LIST_SET: new Field((fc: Column) => {
+        fc.type = new Type.ListDataType(Type.ENUMS);
         fc.key = "fruitListSet";
         fc.name = 'Lista zbiorów owoców';
         fc.description = "Lista zbiorów: Wybór wielu zbiorów elementów bez powtórzeń";
@@ -91,7 +93,7 @@ const DATA = {
         fc.defaultValue = [["orange"], ["orange", "apple"]];
     }),
 
-    FRUIT_LIST_List: new Field((fc: FieldConfig) => {
+    FRUIT_LIST_List: new Field((fc: Column) => {
         fc.type = new Type.ListDataType(new Type.ListDataType(Type.STRING));
         fc.key = "fruitListList";
         fc.name = 'Lista list owoców';

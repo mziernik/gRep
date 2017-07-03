@@ -16,17 +16,15 @@ export default class EError {
     column: ?number = null;
 
     constructor(source: any) {
-
         if (!source)
             return;
 
         try {
 
-            if (typeof source === "string") {
-                this.message = source;
+            if (source instanceof EError) {
+                Utils.clone(source, this);
                 return;
             }
-
 
             if (Utils.className(source) === "ErrorEvent") {
                 this.message = source.message;
@@ -37,10 +35,12 @@ export default class EError {
                 return;
             }
 
-            if (this.title instanceof Error) {
-                this.message = source.message;
-                this.title = source.name;
-                this.stack = source.stack || source.stacktrace || source.message;
+            if (source instanceof Error) {
+                const err: Error = source;
+                this.message = err.message;
+                this.title = err.name;
+                this.stack = err.stack || err.stacktrace || err.message;
+                return;
             }
 
             if (Utils.className(source) === "XMLHttpRequest" || (source.status && source.statusText)) {
@@ -86,11 +86,18 @@ export default class EError {
                 if (ct && ct.indexOf("text/plain") >= 0 && source.responseText)
                     msg = "Błąd " + source.status + ": " + source.responseText;
                 this.message = msg;
+                return;
             }
 
+            this.message = Utils.toString(source);
 
         } catch (ex) {
             window.console.error(ex);
         }
+    }
+
+
+    toString(): string {
+        return this.message;
     }
 }

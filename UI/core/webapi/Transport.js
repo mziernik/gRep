@@ -1,9 +1,7 @@
 import WebApiRequest from "./Request";
-import AppStatus from "../application/Status";
-import Dispatcher from "../utils/Dispatcher";
 import {HubConnection} from "./SignalR/HubConnection";
 import WebApiResponse from "./Response";
-import {Debug, Utils} from "../core";
+import {Debug, Utils, If, Dispatcher} from "../core";
 
 let _reconnect: ?() => void;
 
@@ -126,14 +124,7 @@ export class SignalRTransport extends WebApiTransport {
         const args: [] = Utils.forEach(req.params, v => v);
         this.conn.invoke(req.method, ...args)
             .then(data => new WebApiResponse(req.webApi, data))
-            .catch(e => {
-                debugger;
-                console.err(e);
-                Debug.error(this, e);
-                // if (!p.hasCatch)
-                //     Alert.error(this, e);
-                req.reject(e);
-            });
+            .catch(e => WebApiResponse.error(req, e));
     }
 
     close() {
@@ -149,14 +140,13 @@ export class SignalRTransport extends WebApiTransport {
                 this.onOpen();
             })
             .catch((e: Object) => {
-                debugger;
-                // if (e && e.status === 0 && e.statusText === "")
-                //     e = new Error("Brak połączenia z serwerem");
-                this.onClose(e);
+                if (If.isDefined(e.statusText))
+                    e = e.statusText || "Nie można nawiązać połączenia z serwerem";
+                this.onClose(e && e.code ? getReason(e.code, this.connected) : e);
             });
 
         this.conn.onClosed = (e, f, g) => {
-            debugger;
+            //  debugger;
             if (Utils.className(e) === "CloseEvent") {
                 if (e.wasClean && e.code === 1000) {
                     this.onClose(null);

@@ -14,7 +14,7 @@ wapi.onError = (error: EError, response: WebApiResponse, handled: boolean) => {
         Alert.error(this, error.message);
 };
 
-Repository.defaultStorage = new WebApiRepositoryStorage(api.repository);
+Repository.defaultStorage = new WebApiRepositoryStorage(wapi, api.repository);
 
 wapi.onEvent.listen(this, (source: string, event: string, data: object, context: WebApiResponse) => {
 

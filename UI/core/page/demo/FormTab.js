@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, Field, Type, FieldConfig, Utils} from '../../core';
+import {React, Field, Type, Column, Utils} from '../../core';
 import {Component, Page, FontAwesome, FieldComponent, FieldController}    from        '../../components';
 import JsonViewer from "../../component/JsonViewer";
 import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
@@ -15,19 +15,14 @@ export default class FormTab extends Component {
     };
 
     _handleMenu(e, props) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.setState({contextMenu: {opened: true, x: e.pageX, y: e.pageY, onClickProps: props}});
+        //e.preventDefault();
+        //e.stopPropagation();
+        //this.setState({contextMenu: {opened: true, x: e.pageX, y: e.pageY, itemEventProps: props}});
     }
 
     render() {
         return <form onSubmit={(e) => this._handleSubmit(e)} style={{overflow: "auto"}}>
-            <PopupMenu
-                {...this.state.contextMenu}
-                items={this.MENU_ITEMS}
-            />
-
-            <div style={{display: "flex"}} onContextMenu={(e) => this._handleMenu(e, {source: 'div', value: 'click'})}>
+            <div style={{display: "flex"}} onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS) }>
                 <table>
                     <tbody>
 
@@ -48,7 +43,11 @@ export default class FormTab extends Component {
                             <td style={{padding: "4px"} }>{field.name}</td>
 
                             <td style={{paddingLeft: "20px"}}
-                                onContextMenu={(e) => this._handleMenu(e, {value: field.value, source: field.name})}>
+                                onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS, {
+                                    checked: field.value ? true : false,
+                                    source: field.name,
+                                    value: field.value
+                                }) }>
                                 <FieldComponent field={field} fieldCtrl={false} checkBoxLabel={true}
                                                 preview={false}/>
                             </td>
@@ -94,14 +93,22 @@ export default class FormTab extends Component {
 
     MENU_ITEMS = [
         MenuItem.createItem((item: MenuItem) => {
+            item.checkbox = true;
             item.name = "Zaloguj wartość";
             item.hint = "Wpisuje do konsoli nazwę pola i jego wartość";
-            item.onClick = (e, props) => console.log(props.source, ':', props.value);
+            item.onBeforeOpen = (item, props) => {
+                item.onClick = !props.source ? () => alert("Brak wartości")
+                    : (e, props) => console.log(props.source, ':', props.value);
+                item.checked = props.source ? true : false;
+            };
         }),
         MenuItem.createItem((item: MenuItem) => {
+            item.checkbox = true;
+            item.checked = true;
             item.name = "Alert!";
             item.hint = "Wyświetla domyślny alert";
             item.onClick = (e, props) => alert(JSON.stringify(props));
+            item.onBeforeOpen = (item, props) => item.checked = props.checked;
         }),
         MenuItem.createItem((item: MenuItem) => {
             item.name = "Bez zamykania";
@@ -116,7 +123,7 @@ export default class FormTab extends Component {
         }),
         MenuItem.createSeparator(),
         MenuItem.createItem((item: MenuItem) => {
-            item.icon = <span className={FontAwesome.BUG}/>;
+            item.icon = FontAwesome.BUG;
             item.name = "Pozycja z ikoną FA";
             item.hint = "Pozycja z ikoną FontAwesome";
         }),
@@ -125,9 +132,8 @@ export default class FormTab extends Component {
             item.hint = "Nazwa pozycji zawiera tagi HTML";
         }),
         MenuItem.createItem((item: MenuItem) => {
-            item.icon =
-                <span><span className={FontAwesome.CHEVRON_LEFT}/><span className={FontAwesome.CHEVRON_RIGHT}/></span>;
-            item.hint = "Pozycja bez nazwy ale z dwiema ikonami";
+            item.icon = FontAwesome.FLAG;
+            item.hint = "Pozycja z ikoną i bez nazwy";
         }),
         MenuItem.createSeparator("Zagnieżdżenia"),
         MenuItem.createItem((item: MenuItem) => {
@@ -158,8 +164,31 @@ export default class FormTab extends Component {
         }),
         MenuItem.createItem((item: MenuItem) => {
             item.icon = <span className={FontAwesome.LIST}/>;
-            item.name = "Nieaktywne z jednym poziomem";
+            item.name = "Nieaktywna z poziomem";
             item.hint = "Nieaktywna pozycja z zagnieżdżeniem";
+            item.disabled = true;
+            item.subMenu = [
+                MenuItem.createItem((item: MenuItem) => {
+                    item.icon = <span className={FontAwesome.ARROW_LEFT}/>;
+                    item.name = "Lewo";
+                    item.hint = "Strzałka w lewo";
+                }),
+                MenuItem.createItem((item: MenuItem) => {
+                    item.icon = <span className={FontAwesome.ARROW_RIGHT}/>;
+                    item.name = "Prawo";
+                    item.hint = "Strzałka w prawo";
+                }),
+                MenuItem.createItem((item: MenuItem) => {
+                    item.icon = <span className={FontAwesome.ARROW_UP}/>;
+                    item.name = "Góra";
+                    item.hint = "Strzałka w górę";
+                }),
+                MenuItem.createItem((item: MenuItem) => {
+                    item.icon = <span className={FontAwesome.ARROW_DOWN}/>;
+                    item.name = "Dół";
+                    item.hint = "Strzałka w dół";
+                }),
+            ];
         }),
         MenuItem.createItem((item: MenuItem) => {
             item.icon = <span className={FontAwesome.LIST_ALT}/>;
@@ -374,90 +403,90 @@ export default class FormTab extends Component {
 
 const DATA = {
 
-    login: new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "login";
-        fc.name = "Login";
-        fc.required = true;
-        fc.regex = /^(\w+)$/;
-        fc.description = 'Może się składać jedynie z liter, cyfr i "_"\nadmin jest zajęty';
+    login: new Field((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "login";
+        c.name = "Login";
+        c.required = true;
+        c.regex = /^(\w+)$/;
+        c.description = 'Może się składać jedynie z liter, cyfr i "_"\nadmin jest zajęty';
     }),
 
-    password: new Field((fc: FieldConfig) => {
-        fc.type = Type.PASSWORD;
-        fc.key = "password";
-        fc.name = 'Hasło';
-        fc.required = true;
-        fc.min = 6;
-        fc.description = 'Minimum 6 znaków';
+    password: new Field((c: Column) => {
+        c.type = Type.PASSWORD;
+        c.key = "password";
+        c.name = 'Hasło';
+        c.required = true;
+        c.min = 6;
+        c.description = 'Minimum 6 znaków';
     }),
 
-    forename: new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "forename";
-        fc.name = 'Imię';
-        fc.defaultValue = "Jan";
-        fc.required = true;
-        fc.textCasing = "capitalize";
+    forename: new Field((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "forename";
+        c.name = 'Imię';
+        c.defaultValue = "Jan";
+        c.required = true;
+        c.textCasing = "capitalize";
     }),
 
-    middleName: new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "middlename";
-        fc.name = "Drugie imię";
-        fc.textCasing = "capitalize";
+    middleName: new Field((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "middlename";
+        c.name = "Drugie imię";
+        c.textCasing = "capitalize";
     }),
 
-    surname: new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "surname";
-        fc.name = ('Nazwisko');
-        fc.required = true;
-        fc.textCasing = "capitalize";
+    surname: new Field((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "surname";
+        c.name = ('Nazwisko');
+        c.required = true;
+        c.textCasing = "capitalize";
     }),
 
-    pesel: new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "pesel";
-        fc.name = 'PESEL';
-        fc.required = true;
-        fc.max = 11;
-        fc.min = 11;
-        fc.regex = /^\d{11}$/;
+    pesel: new Field((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "pesel";
+        c.name = 'PESEL';
+        c.required = true;
+        c.max = 11;
+        c.min = 11;
+        c.regex = /^\d{11}$/;
     }),
 
-    phone: new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "phone";
-        fc.name = 'Numer telefonu';
-        fc.description = 'Telefon kontaktowy';
+    phone: new Field((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "phone";
+        c.name = 'Numer telefonu';
+        c.description = 'Telefon kontaktowy';
     }),
 
-    number: new Field((fc: FieldConfig) => {
-        fc.type = Type.INT;
-        fc.key = "number";
-        fc.name = 'Liczba całkowita';
-        fc.min = 0;
-        fc.max = 100;
+    number: new Field((c: Column) => {
+        c.type = Type.INT;
+        c.key = "number";
+        c.name = 'Liczba całkowita';
+        c.min = 0;
+        c.max = 100;
     }),
 
-    double: new Field((fc: FieldConfig) => {
-        fc.type = Type.DOUBLE;
-        fc.key = "double";
-        fc.name = 'Liczba zmiennoprzecinkowa';
+    double: new Field((c: Column) => {
+        c.type = Type.DOUBLE;
+        c.key = "double";
+        c.name = 'Liczba zmiennoprzecinkowa';
     }),
 
-    checkbox: new Field((fc: FieldConfig) => {
-        fc.type = Type.BOOLEAN;
-        fc.key = "checkbox";
-        fc.name = 'Zgoda na sprzedaż danych';
-        fc.required = true;
+    checkbox: new Field((c: Column) => {
+        c.type = Type.BOOLEAN;
+        c.key = "checkbox";
+        c.name = 'Zgoda na sprzedaż danych';
+        c.required = true;
     }),
 
-    dropdown: new Field((fc: FieldConfig) => {
-        fc.type = Type.STRING;
-        fc.key = "dropdown";
-        fc.enumerate = () => {
+    dropdown: new Field((c: Column) => {
+        c.type = Type.STRING;
+        c.key = "dropdown";
+        c.enumerate = () => {
             return {
                 '0': 'wartość 0',
                 '1': 'wartość 1',
@@ -471,73 +500,73 @@ const DATA = {
                 '9': 'wartość 9'
             }
         };
-        fc.name = 'Lista wyboru';
-        fc.required = true;
-        fc.defaultValue = "5";
+        c.name = 'Lista wyboru';
+        c.required = true;
+        c.defaultValue = "5";
     }),
 
 
-    multdropdown: new Field((fc: FieldConfig) => {
-        fc.type = new Type.SetDataType(Type.STRING);
-        fc.key = "multipleDropdown";
-        fc.enumerate = () => {
+    multdropdown: new Field((c: Column) => {
+        c.type = Type.ENUMS;
+        c.key = "multipleDropdown";
+        c.enumerate = () => {
             return {
                 '0': 'wartość 0',
                 '1': 'wartość 1',
                 '2': 'wartość 2'
             }
         };
-        fc.name = 'Lista multi wyboru';
-        fc.required = true;
-        fc.defaultValue = ["2", "0"];
+        c.name = 'Lista multi wyboru';
+        c.required = true;
+        c.defaultValue = ["2", "0"];
     }),
 
-    size: new Field((fc: FieldConfig) => {
-        fc.type = Type.SIZE;
-        fc.key = "size";
-        fc.name = 'Rozmiar';
-    }),
-
-
-    date: new Field((fc: FieldConfig) => {
-        fc.type = Type.DATE;
-        fc.key = "date";
-        fc.name = 'Data';
-        fc.required = true;
-        fc.defaultValue = new Date();
+    size: new Field((c: Column) => {
+        c.type = Type.SIZE;
+        c.key = "size";
+        c.name = 'Rozmiar';
     }),
 
 
-    time: new Field((fc: FieldConfig) => {
-        fc.type = Type.TIME;
-        fc.key = "time";
-        fc.name = 'Czas';
-        fc.defaultValue = new Date();
-    }),
-
-    timstamp: new Field((fc: FieldConfig) => {
-        fc.type = Type.TIMESTAMP;
-        fc.key = "timestamp";
-        fc.name = 'Data i czas';
-        fc.defaultValue = new Date();
-    }),
-
-    description: new Field((fc: FieldConfig) => {
-        fc.type = Type.MEMO;
-        fc.key = "desc";
-        fc.name = 'Opis';
-        fc.required = true;
-        fc.max = 250;
-        fc.defaultValue = "Rum, beer, quest and mead\nThese are the thinks that a pirate needs\nRise the flag and let's set sail\nUnder the sign of storm of ale";
+    date: new Field((c: Column) => {
+        c.type = Type.DATE;
+        c.key = "date";
+        c.name = 'Data';
+        c.required = true;
+        c.defaultValue = new Date();
     }),
 
 
-    WEIGHT: new Field((fc: FieldConfig) => {
-        fc.type = Type.INT;
-        fc.key = "weight";
-        fc.name = 'Waga';
-        fc.max = 250000;
-        fc.units = () => [
+    time: new Field((c: Column) => {
+        c.type = Type.TIME;
+        c.key = "time";
+        c.name = 'Czas';
+        c.defaultValue = new Date();
+    }),
+
+    timstamp: new Field((c: Column) => {
+        c.type = Type.TIMESTAMP;
+        c.key = "timestamp";
+        c.name = 'Data i czas';
+        c.defaultValue = new Date();
+    }),
+
+    description: new Field((c: Column) => {
+        c.type = Type.MEMO;
+        c.key = "desc";
+        c.name = 'Opis';
+        c.required = true;
+        c.max = 250;
+        c.defaultValue = "Rum, beer, quest and mead\nThese are the thinks that a pirate needs\nRise the flag and let's set sail\nUnder the sign of storm of ale";
+    }),
+
+
+    WEIGHT: new Field((c: Column) => {
+        c.type = Type.INT;
+        c.key = "weight";
+        c.name = 'Waga';
+        c.max = 250000;
+        c.units = () => [
             ["g", "gram", 1],
             ["ct", "karat", 0.2],
             ["dag", "dekagram", 10],
@@ -547,12 +576,12 @@ const DATA = {
         ];
     }),
 
-    HRIGHT: new Field((fc: FieldConfig) => {
-        fc.type = Type.INT;
-        fc.key = "height";
-        fc.name = 'Wzrost';
-        fc.max = 3000;
-        fc.units = () => [
+    HRIGHT: new Field((c: Column) => {
+        c.type = Type.INT;
+        c.key = "height";
+        c.name = 'Wzrost';
+        c.max = 3000;
+        c.units = () => [
             ["mm", "milimetr", 1],
             ["cm", "centymetr", 10],
             ["cal", "cal", 25.4],
@@ -561,16 +590,16 @@ const DATA = {
             ["yd", "jard", 914.4],
             ["m", "metr", 1000],
         ];
-        fc.defaultValue = 1700;
-        fc.defaultUnit = ["cm", "centymetr", 10];
+        c.defaultValue = 1700;
+        c.defaultUnit = ["cm", "centymetr", 10];
     }),
 
-    DELAY: new Field((fc: FieldConfig) => {
-        fc.type = Type.DURATION;
-        fc.key = "delay";
-        fc.name = 'Opóźnienie';
-        fc.defaultValue = 10000;
-        fc.defaultUnit = ['s', 's', 1000];
+    DELAY: new Field((c: Column) => {
+        c.type = Type.DURATION;
+        c.key = "delay";
+        c.name = 'Opóźnienie';
+        c.defaultValue = 10000;
+        c.defaultUnit = ['s', 's', 1000];
     })
 };
 

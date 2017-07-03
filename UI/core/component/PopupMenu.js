@@ -1,10 +1,10 @@
 //@Flow
 'use strict';
-import {React, PropTypes, Field, Type, FieldConfig, Utils, If} from '../core';
-import {Component, Page, FontAwesome, FieldComponent, FieldController}    from        '../components';
+import {Application, React, PropTypes, Utils, If} from '../core';
+import {Component, FontAwesome} from '../components';
 import './PopupMenu.css'
 
-let elm: PopupMenu;
+let INSTANCE: PopupMenu;
 
 export class PopupMenu extends Component {
     /** styl menu
@@ -21,18 +21,6 @@ export class PopupMenu extends Component {
         whiteSpace: 'nowrap'
     };
 
-
-    static createMenu(e: Event, items: [], onClick: ?(item: MenuItem) => void = null) {
-        if (!elm) {
-            const tag = document.createElement("span");
-            document.body.appendChild(tag);
-            elm = Application.render(<PopupMenu key={Utils.randomId()}/>, tag);
-        }
-        elm.setState({items: items})
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
     static propTypes = {
         // czy menu jest otwarte
         opened: PropTypes.bool,
@@ -42,8 +30,42 @@ export class PopupMenu extends Component {
         // lista pozycji menu
         items: PropTypes.array,
         // obiekt z dodatkowymi argumentami dla zdarzenia onClick
-        onClickProps: PropTypes.object
+        itemEventProps: PropTypes.object,
+        onClick: PropTypes.func
     };
+
+    /** Otwiera menu kontekstowe
+     * @param e obiekt zdarzenia myszy (onContextMenu)
+     * @param items tablica pozycji menu
+     * @param itemEventProps obiekt z dedykowanymi danymi dla zdarzeń elementów menu
+     * @param onClick zdarzenie kliknięcia menu niezwiązane z pozycją
+     */
+    static openMenu(e: MouseEvent, items: [], itemEventProps: Object = {}, onClick: (e) => void) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!INSTANCE) {
+            const tag = document.createElement("span");
+            document.body.appendChild(tag);
+            Application.render(<PopupMenu
+                ref={elem => INSTANCE = elem}
+                opened={true}
+                x={e.pageX}
+                y={e.pageY}
+                items={items}
+                onClick={onClick}
+                itemEventProps={itemEventProps}
+            />, tag);
+            return;
+        }
+        INSTANCE.setState({
+            opened: true,
+            x: e.pageX,
+            y: e.pageY,
+            items: items,
+            itemEventProps: itemEventProps,
+            onClick: onClick
+        });
+    }
 
     constructor() {
         super(...arguments);
@@ -51,7 +73,8 @@ export class PopupMenu extends Component {
             opened: this.props.opened || false,
             x: this.props.x || 0,
             y: this.props.y || 0,
-            items: this.props.items || null
+            items: this.props.items || null,
+            itemEventProps: this.props.itemEventProps || {}
         };
 
         this._onMouseUpListener = (e) => {
@@ -73,6 +96,7 @@ export class PopupMenu extends Component {
     }
 
     componentWillReceiveProps(props) {
+        super.componentWillReceiveProps(...arguments);
         this.setState(props);
     }
 
@@ -128,21 +152,25 @@ export class PopupMenu extends Component {
      * @returns {XML}
      */
     renderItems(items: []) {
+        Utils.forEach(items, (item) => {
+            if (item.onBeforeOpen) If.isFunction(item.onBeforeOpen, item.onBeforeOpen(item, this.state.itemEventProps));
+        });
         return <table>
             <tbody>{Utils.forEach(items, (item, index) => {
-
                 // Separator
                 if (item instanceof (MenuItemSeparator)) {
                     if (item.name)
-                        return <tr key={index}>
+                        return <tr key={index} style={{color: 'lightgray'}}>
                             <td>
                                 <hr style={{margin: '5px'}}/>
                             </td>
                             <td colSpan="3">
-                                <span style={{display: 'flex'}}>
-                                    <span style={{padding: '0 5px', color: 'lightgray'}}>{item.name}</span>
-                                    <span style={{flex: '1 1 auto'}}><hr style={{margin: '5px'}}/></span>
-                                </span>
+                                <tr style={{width: '100%', display: 'block'}}>
+                                    <td>{item.name}</td>
+                                    <td style={{width: '100%'}}>
+                                        <hr style={{margin: '5px'}}/>
+                                    </td>
+                                </tr>
                             </td>
                         </tr>;
                     return <tr key={index}>
@@ -174,16 +202,27 @@ export class PopupMenu extends Component {
                             (e) => {
                                 e.stopPropagation();
                                 if (item.onClick)
-                                    If.isFunction(item.onClick, item.onClick(e, this.state.onClickProps));
+                                    If.isFunction(item.onClick, item.onClick(e, this.state.itemEventProps));
+                                else if (this.state.onClick)
+                                    If.isFunction(this.state.onClick, this.state.onClick(e));
                                 if (!item.subMenu && item.closeOnClick) this.setState({opened: false});
                             }}
                     {...subProps}
                 >
-                    <td style={{padding: '5px'}}>{item.icon}</td>
-                    <td style={{padding: '5px'}}>
+                    <td style={{
+                        padding: '5px 8px',
+                        textAlign: 'center'
+                    }}>
+                        {item.icon instanceof FontAwesome ?
+                            <span className={item.icon}/> : item.icon}
+                        {item.checkbox ?
+                            <span
+                                className={item.checked ? FontAwesome.CHECK : FontAwesome.TIMES}/> : null}
+                    </td>
+                    <td style={{padding: '5px 0'}}>
                         {item.name}
                     </td>
-                    <td style={{padding: '5px'}}>
+                    <td style={{padding: '5px 8px'}}>
                         {item.subMenu && !item.disabled ?
                             <span className={FontAwesome.CHEVRON_RIGHT}
                                   style={{
@@ -272,10 +311,22 @@ export class MenuItem {
      * @type {null}
      */
     onClick: (e, props) => void = null;
+    /** Zdarzenie wywoływane przed otwarciem menu
+     * @type {null}
+     */
+    onBeforeOpen: (item, props) => void = null;
     /** Czy menu ma się zamykać po kliknięciu na pozycję
      * @type {boolean}
      */
     closeOnClick: boolean = true;
+    /** Czy zawiera checkboxa
+     * @type {boolean}
+     */
+    checkbox: boolean = false;
+    /** stan checkboxa
+     * @type {boolean}
+     */
+    checked: boolean = false;
 
     /** Tworzy nowy obiekt MenuItem
      * @param config callback konfigurujący obiekt MenuItem

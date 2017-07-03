@@ -1,11 +1,14 @@
 package model.repository;
 
+import com.json.JObject;
 import com.model.repository.Column;
+import com.model.repository.ForeignColumn;
 import com.model.repository.Repository;
 import com.utils.date.TDate;
 import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
 import com.utils.reflections.datatype.MapDataType;
+import com.utils.reflections.datatype.EnumDataType;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -57,9 +60,11 @@ public class RAttributeElement extends Repository<Integer> {
         c.name = "Nazwa";
     });
 
-    public final static Column<String> TYPE = new Column<>(c -> {
+    public final static Column<DataType> TYPE = new Column<>(c -> {
         c.repository = RAttributeElement.class;
-        c.type = DataType.STRING;
+        c.type = new EnumDataType<DataType>(DataType.class, DataType.ALL.values(),
+                dt -> dt.name, 
+                dt -> dt.description != null ? dt.description.toString() : dt.name );
         c.key = "type";
         c.name = "Typ";
     });
@@ -108,13 +113,13 @@ public class RAttributeElement extends Repository<Integer> {
         c.name = "Wyrażenie sprawdzające";
     });
 
-    public final static Column<Integer> FOREIGN_ELM = new Column<>(c -> {
+    public final static ForeignColumn<Integer, RAttributeElement> FOREIGN_ELM = new ForeignColumn<>(c -> {
         c.repository = RAttributeElement.class;
         c.type = DataType.INT;
         c.daoName = "foreign_elm";
         c.key = "foreignElm";
         c.name = "Element zewnętrzny";
-    });
+    }, ID);
 
     public final static Column<Boolean> ENCRYPTED = new Column<>(c -> {
         c.repository = RAttributeElement.class;

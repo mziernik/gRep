@@ -19,6 +19,7 @@ export default class WebApi {
     httpUrl: string;
     wsUrl: string;
     hash: string;
+    maxRetries: number = 10;
 
     processed: Map<string, WebApiRequest> = new Map();
     transport: WebApiTransport;
@@ -36,11 +37,38 @@ export default class WebApi {
     constructor(url: string, transportClass) {
         this.url = url;
 
+        let retryCount = 0;
+
+        const retry = (): boolean => {
+            ++retryCount;
+            if (retryCount >= this.maxRetries)
+                return false;
+
+            const delay = Math.pow(50 * retryCount, 1.7);
+            setTimeout(() => {
+                if (transport.connected)
+                    return;
+                transport.connect(url);
+            }, delay);
+            return true;
+        };
+
+
         this.transport = new (transportClass || WebSocketTransport)(this);
 
         const transport = this.transport;
 
+        let wasConnected = false;
+
         transport.onOpen = e => {
+            if (wasConnected && retryCount > 0) {
+                AppStatus.warning(this, "Wznowiono połączenie z WebApi", "Przeładowuję stronę");
+                window.location.reload();
+                return;
+            }
+
+            wasConnected = true;
+            retryCount = 0;
             State.current = State.CONNECTED;
             transport.connected = true;
             transport.queue.forEach(request => this.send(request));
@@ -53,21 +81,13 @@ export default class WebApi {
         transport.onMessage = data => new WebApiResponse(this, data);
 
         transport.onClose = reason => {
+            transport.connected = false;
             State.current = State.CLOSED;
-            AppStatus.error(this, "WebApi: " + reason);
-
-            const err = new Error(reason);
-            this.processed.forEach((req: WebApiRequest) => {
-                req._reject(err, this);
-                let handled = false;
-                If.isFunction(req.onError, f => {
-                    f(err, req);
-                    handled = true;
-                });
-                if (err && typeof this.onError === "function")
-                    this.onError(err, err, handled);
-            });
-
+            AppStatus.error(this, "WebApi: " + reason, "Próba " + (retryCount + 1) + " / " + this.maxRetries);
+            if (retry())
+                return;
+            const err = new EError(reason);
+            this.processed.forEach((req: WebApiRequest) => WebApiResponse.error(req, err));
             this.processed.clear();
         };
 

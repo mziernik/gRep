@@ -154,7 +154,7 @@ export default class Repository {
         return new this.config.record(this, context);
     }
 
-    static update(context: any, dto: Record[] | object) {
+    static update(context: any, dto: Record[] | Object) {
 
         // debugger;
         const records: Record[] = [];

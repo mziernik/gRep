@@ -1,4 +1,4 @@
-import {React, Check, If, Debug, Utils, Dispatcher} from "../core";
+import {React, Check, If, Debug, Utils, Dispatcher, EError} from "../core";
 
 import * as Application from "./Application";
 //import {StatusHint} from "../component/application/StatusHint";
@@ -33,8 +33,9 @@ export default class AppStatus {
         return AppStatus.set(context, "success", message, details, timeout);
     }
 
-    static error(context: any, message: string, details: ?string = null, timeout: ?number = null) {
-        return AppStatus.set(context, "error", message, details, If.isDefined(timeout) ? timeout : 5000);
+    static error(context: any, message: string | Error | EError, details: ?string = null, timeout: ?number = null) {
+        const err = new EError(message);
+        return AppStatus.set(context, "error", err.message, details || err.details, If.isDefined(timeout) ? timeout : 5000);
     }
 
     static warning(context: any, message: string, details: ?string = null, timeout: ?number = null) {

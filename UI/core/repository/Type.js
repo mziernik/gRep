@@ -106,40 +106,14 @@ export function get(name: string): DataType {
         return new MapDataType(get(names[0].trim()), get(names[1].trim()));
     }
 
-    if (name.startsWith("[") && name.endsWith("]")) {
-        const names = name.substring(1, name.length - 1).split(",");
-        return new SetDataType(names.map(name => get(name.trim())));
-    }
-
-    if (name.startsWith("<") && name.endsWith(">")) {
+    if (name.startsWith("(") && name.endsWith(")")) {
         const names = name.substring(1, name.length - 1).split(",");
         return new MultipleDataType(names.map(name => get(name.trim())));
     }
 
-
     throw new Error("Nieznany typ danych " + JSON.stringify(name));
 }
 
-
-export class SetDataType extends DataType {
-
-    type: DataType;
-
-    constructor(type: DataType) {
-        super((dt: DataType) => {
-            dt.name = "[" + type.name + "]";
-            dt.simpleType = "array";
-            dt.parser = value => {
-                Check.isArray(value);
-                value = Utils.forEach(value, elm => this.type.parse(elm));
-                return value;
-            };
-            dt.formatter = (val, map) => Utils.forEach(val, v => this.type.formatDisplayValue(v, map)).join(", ");
-        }, false);
-        this.type = Check.instanceOf(type, [DataType]);
-    }
-
-}
 
 export class ListDataType extends DataType {
 
@@ -202,17 +176,15 @@ export class MultipleDataType extends DataType {
 
     constructor(types: DataType[]) {
         super((dt: DataType) => {
-            dt.name = "<" + types.map(c => c.name).join(", ") + ">";
+            dt.name = "(" + types.map(c => c.name).join(", ") + ")";
             dt.simpleType = "array";
             dt.parser = value => {
-                debugger;
-
+               // debugger;
                 return value;
             }
         }, false);
         this.types = types;
     }
-
 }
 
 
@@ -397,6 +369,7 @@ export const DURATION: DataType = new DataType((dt: DataType) => {
     ];
 });
 
+/** Jedna wartość z enumeraty */
 export const ENUM: DataType = new DataType((dt: DataType) => {
     dt.name = "enum";
     dt.simpleType = "string";
@@ -406,6 +379,21 @@ export const ENUM: DataType = new DataType((dt: DataType) => {
     dt.formatter = (val, map) => frmt(val, map);
 });
 
+/** Wiele wartości z enumeraty*/
+export const ENUMS: DataType = new DataType((dt: DataType) => {
+    dt.name = "enums";
+    dt.simpleType = "array";
+    dt.parser = val => {
+       // debugger;
+        return val;
+    };
+    dt.serializer = val => {
+     //   debugger;
+        return val;
+    };
+
+    dt.formatter = (val, map) => frmt(val, map);
+});
 
 function frmt(value: any, map: ?Map): string {
     value = map ? map.get(value) : value;

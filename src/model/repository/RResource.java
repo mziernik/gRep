@@ -7,7 +7,7 @@ import com.utils.date.TDate;
 import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
 import com.utils.reflections.datatype.EnumDataType;
-import com.utils.reflections.datatype.SetDataType;
+
 import java.util.UUID;
 
 public class RResource extends Repository<Integer> {
@@ -70,8 +70,9 @@ public class RResource extends Repository<Integer> {
 
     public final static Column<ResourceType> TYPE = new Column<>(c -> {
         c.repository = RResource.class;
-        c.type = new EnumDataType<>(ResourceType.class,
-                e -> Character.toString(e.key), e -> e.title.toString());
+        c.type = EnumDataType.ofEnum(ResourceType.class,
+                e -> Character.toString(e.key),
+                e -> e.title.toString());
         c.required = true;
         c.key = "type";
         c.name = "Typ";
@@ -102,7 +103,7 @@ public class RResource extends Repository<Integer> {
 
     public final static Column<String> FORMAT = new Column<>(c -> {
         c.repository = RResource.class;
-        c.type = new SetDataType(FORMATS);
+        c.type = EnumDataType.ofArray(FORMATS);
         c.key = "format";
         c.name = "Format";
     });

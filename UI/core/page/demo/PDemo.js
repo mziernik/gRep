@@ -13,7 +13,7 @@ export default class PDemo extends Page {
 
     constructor() {
         super(...arguments);
-        this.state = {selectedTab: 0};
+        this.state = {selectedTab: 1};
     };
 
     render() {

@@ -73,6 +73,9 @@ export default class FieldComponent extends FormComponent {
         if (this.field.type instanceof Type.ListDataType || this.field.type instanceof Type.MapDataType)
             return this.renderList();
 
+        if (this.field.type instanceof Type.MultipleDataType)
+            return this.renderMultiple();
+
         if (this.field.enumerate)
             return this.renderSelect();
 
@@ -141,7 +144,7 @@ export default class FieldComponent extends FormComponent {
                            textTransform: this.field.config.textCasing,
                            flex: 'auto',
                            padding: "3px 8px",
-                           width: this._unitSelect ? '10px' : null
+                           width: this._unitSelect ? '10px' : props && props.type === "number" ? "80px" : null,
                        }}
                        onChange={e => {
                            this._changed = true;
@@ -276,9 +279,51 @@ export default class FieldComponent extends FormComponent {
         return <List field={this.field}/>
     }
 
+    renderMultiple() {
+        if (!this.field) return null;
+
+        const mtypes: [] = (this.field.type: Type.MultipleDataType).types;
+
+        const array = this.field.value || [];
+        while (array.length < mtypes.length)
+            array.push(null);
+
+
+        const value: [] = Check.isArray(this.field.value);
+
+        return <div style={{
+            display: "flex"
+        }}>
+
+
+            { Utils.forEach(mtypes, (type: Type.DataType, index: number) => {
+
+                const f: Field = new Field((c: Column) => {
+                    //    c.enumerate = field.config.enumerate;
+                    c.type = type;
+                    c.key = this.field.key + "_" + index;
+                    c.name = this.field.name;
+                });
+
+                f.value = value[index];
+
+                f.onChange.listen(this, () => {
+                    const arr = this.field.value;
+                    arr[index] = f.value;
+                    this.field.value = arr.clone();
+                });
+
+                return <FieldComponent
+                    key={index}
+                    field={f}
+                    fieldCtrl={false}
+                    style={{flex: "auto"}}
+                />
+            }) }
+        </div>
+    }
 
 }
-
 
 class List extends Component {
 
@@ -296,49 +341,42 @@ class List extends Component {
             ? Utils.forEach(field.value, (v, k) => [k, v])
             : (field.value || []).clone();
 
-        const multipleCells = field.type.types instanceof Array;
-        const columns: Type[] = multipleCells ? field.type.types : [Check.instanceOf(field.type.type, [Type.DataType])];
+        function Cell(props) {
 
-        const newRow = [];
-        for (let i = 0; i < columns.length; i++)
-            newRow.push(<td key={i}/>);
+            const index = props.index;
+            const value = props.value;
 
+            const f: Field = new Field((c: Column) => {
+                c.enumerate = field.config.enumerate;
+                c.type = field.type.type;
+                c.key = field.key + "_" + index;
+                c.name = field.name;
+            });
+
+            f.set(value);
+
+            f.onChange.listen(this, () => {
+                debugger;
+                this.array[index] = f.value;
+                field.value = this.array;
+            });
+
+            return <td>
+                <FieldComponent
+                    field={f}
+                    fieldCtrl={false}
+                    style={{width: "100%"}}
+                />
+            </td>;
+        }
 
         return <table style={{width: "100%"}}>
             <tbody>{
-                this.array.map((row: any | [], rowIndex: number) =>
-                    <tr key={rowIndex}>{
-                        columns.map((dataType: Type.DataType, cellIdx: number) => {
-                                const f: Field = new Field((c: Column) => {
-                                    c.enumerate = field.config.enumerate;
-                                    c.type = dataType;
-                                    c.key = field.key + "_" + rowIndex + "_" + cellIdx;
-                                    c.name = field.name;
-                                });
+                Utils.forEach(field.value, (row: any | [], rowIndex: number) =>
+                    <tr key={rowIndex}>
 
-                                f.set(multipleCells ? row[cellIdx] : row);
+                        <Cell value={row} index={rowIndex}/>
 
-                                f.onChange.listen(this, () => {
-                                    if (multipleCells) {
-                                        const arr = this.array[rowIndex];
-                                        while (arr.length <= cellIdx)
-                                            arr.push(null);
-                                        arr[cellIdx] = f.value;
-                                    } else
-                                        this.array[rowIndex] = f.value;
-                                    field.value = this.array;
-                                });
-
-                                return <td key={cellIdx}>
-                                    <FieldComponent
-                                        field={f}
-                                        fieldCtrl={false}
-                                        style={{width: "100%"}}
-                                    />
-                                </td>
-                            }
-                        )
-                    }
                         <td style={{width: "20px"}}>
                             <Link
                                 icon={FontAwesome.MINUS_SQUARE}
@@ -351,7 +389,7 @@ class List extends Component {
                     </tr>)
             }
             <tr>
-                {newRow}
+                <td/>
                 <td style={{width: "20px"}}>
                     <Link
                         icon={FontAwesome.PLUS_SQUARE}

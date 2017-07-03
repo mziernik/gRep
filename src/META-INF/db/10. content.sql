@@ -1,24 +1,24 @@
 
 INSERT INTO data.attribute_element (type, key, name, MIN, MAX, description, enumerate) VALUES
-    ('T', 'text',   'Tekst', 1, 100, NULL, NULL), --1
-    ('N', 'size',   'Rozmiar', 0, 100000000, 'Rozmiar danych w bajtach', NULL), --2
-    ('T', 'protocol', 'Protokół', 1, 100, 'Protkół', --3
+    ('string', 'text',   'Tekst', 1, 100, NULL, NULL), --1
+    ('int', 'size',   'Rozmiar', 0, 100000000, 'Rozmiar danych w bajtach', NULL), --2
+    ('string', 'protocol', 'Protokół', 1, 100, 'Protkół', --3
         '"HTTP"=>"HTTP", "HTTPS"=>"HTTPS", "TCP"=>"TCP", "UDP"=>"UDP", "SSH"=>"SSH", 
         "FTP"=>"FTP", "SCP"=>"SCP", "FILE"=>"FILE"'),
-    ('T', 'url',    'URL', 1, 100, 'Adres URL (protokół://użytkownik:hasło@domena)', NULL), --4
-    ('T', 'domain', 'Domena', 1, 100, 'Nazwa domeny', NULL), --5
-    ('T', 'fdn',    'FDN', 1, 100, 'IP, nazwa sieciowa lub domena', NULL), --6
-    ('N', 'port',   'Port', 0, 65535, 'Numer portu TCP/UDP', NULL), --7
-    ('T', 'ip',     'IP', 1, 100, 'Adres IP', NULL), --8
-    ('T', 'mac',    'MAC', 1, 100, 'Adres MAC', NULL), --9
-    ('N', 'netMask','Maska', 0, 32, 'Maska sieci', NULL), --10
-    ('T', 'intfType', 'Typ interfejsu', 1, 100, 'Typ interfejsu sieciowego',  --11
+    ('string', 'url',    'URL', 1, 100, 'Adres URL (protokół://użytkownik:hasło@domena)', NULL), --4
+    ('string', 'domain', 'Domena', 1, 100, 'Nazwa domeny', NULL), --5
+    ('string', 'fdn',    'FDN', 1, 100, 'IP, nazwa sieciowa lub domena', NULL), --6
+    ('int', 'port',   'Port', 0, 65535, 'Numer portu TCP/UDP', NULL), --7
+    ('string', 'ip',     'IP', 1, 100, 'Adres IP', NULL), --8
+    ('string', 'mac',    'MAC', 1, 100, 'Adres MAC', NULL), --9
+    ('int', 'netMask','Maska', 0, 32, 'Maska sieci', NULL), --10
+    ('string', 'intfType', 'Typ interfejsu', 1, 100, 'Typ interfejsu sieciowego',  --11
         '"lan"=>"LAN", "wlan"=>"WiFi", "lo"=>"Loopback", "vpn"=>"VPN"'),
-    ('T', 'addrType','Typ adresu', 0, 32, 'Typ adresu',  --12
+    ('string', 'addrType','Typ adresu', 0, 32, 'Typ adresu',  --12
         '"none"=>"Brak", "static"=>"Statyczny", "dhcp"=>"DHCP"'),
-    ('T', 'login',  'Login', 1, 100, 'Login', NULL), --13
-    ('T', 'pass',   'Hasło', 1, 100, 'Hasło', NULL), --14
-    ('T', 'key',    'Klucz', 1, 100, 'Klucz, numer seryjny', NULL) --15
+    ('string', 'login',  'Login', 1, 100, 'Login', NULL), --13
+    ('string', 'pass',   'Hasło', 1, 100, 'Hasło', NULL), --14
+    ('string', 'key',    'Klucz', 1, 100, 'Klucz, numer seryjny', NULL) --15
 
 ;
 

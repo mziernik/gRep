@@ -13,6 +13,7 @@ import java.sql.*;
 import com.config.engine.interfaces.Cfg;
 import static com.lang.LConfig.*;
 import com.model.dao.DatabaseDAO;
+import com.model.repository.RTest;
 import com.model.repository.Repository;
 import com.service.status.RThreads;
 import com.utils.Unquoted;
@@ -29,6 +30,7 @@ import model.repository.RResource;
 
 public class Db extends PostgreSQL {
 
+    public final static RTest TEST = Repository.register(new RTest());
     public final static RThreads THREADS = Repository.register(new RThreads());
     public final static RAttribute ATTRIBUTE = Repository.register(new RAttribute());
     public final static RAttributeElement ATTRIBUTE_ELEMENT = Repository.register(new RAttributeElement());

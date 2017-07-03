@@ -7,8 +7,7 @@ import WebApiRequest from "./Request";
 import WebApiFile from "./File";
 import WebApiMessage from "./Message";
 import WebApi from "./WebApi";
-import Debug from "../Debug";
-import EError from "../utils/EError";
+import {EError, Debug, If} from "../core";
 
 export default class WebApiResponse {
 
@@ -127,4 +126,14 @@ export default class WebApiResponse {
         }
     }
 
+    static error(req: WebApiRequest, err: Error) {
+        req._reject(err, this);
+        let handled = false;
+        If.isFunction(req.onError, f => {
+            f(err, req);
+            handled = true;
+        });
+
+        If.isFunction(req.webApi.onError, f => f(err, null, handled))
+    }
 }
