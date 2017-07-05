@@ -816,7 +816,7 @@ export class RCatalog extends Repository {
 
     static ATTRIBUTES: Column = new Column((c: Column) => {
         c.key = "attributes";
-        c.name = "Dozwolone atrybuty";
+        c.name = "Atrybuty";
         c.type = "int[]";
         c.foreign = () => R_ATTRIBUTE;
     });
@@ -828,6 +828,8 @@ export class RCatalog extends Repository {
             c.name = "Katalog";
             c.record = RCatalogRecord;
             c.primaryKeyColumn = RCatalog.ID;
+            c.parentColumn = RCatalog.PARENT;
+            c.orderColumn = RCatalog.ORDER;
             c.displayNameColumn = RCatalog.NAME;
             c.crude = "CRUD";
             c.local = false;
@@ -888,14 +890,14 @@ export class RCatalogAttribute extends Repository {
         c.key = "cat";
         c.name = "Katalog";
         c.type = "int";
-        c.foreign = () => R_CATALOG_ATTRIBUTE;
+        c.foreign = () => R_CATALOG;
     });
 
     static ATTR: Column = new Column((c: Column) => {
         c.key = "attr";
         c.name = "Atrybut";
         c.type = "int";
-        c.foreign = () => R_CATALOG_ATTRIBUTE;
+        c.foreign = () => R_ATTRIBUTE;
     });
 
     static VALUE: Column = new Column((c: Column) => {

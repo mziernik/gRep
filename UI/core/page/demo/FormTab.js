@@ -4,6 +4,7 @@ import {React, Field, Type, Column, Utils} from '../../core';
 import {Component, Page, FontAwesome, FieldComponent, FieldController}    from        '../../components';
 import JsonViewer from "../../component/JsonViewer";
 import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
+import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
 
 export default class FormTab extends Component {
 
@@ -13,12 +14,6 @@ export default class FormTab extends Component {
             field.onChange.listen(this, e => (this.viewer && this.viewer.update(getDTO()))));
         this.state = {contextMenu: {opened: false, x: 0, y: 0}};
     };
-
-    _handleMenu(e, props) {
-        //e.preventDefault();
-        //e.stopPropagation();
-        //this.setState({contextMenu: {opened: true, x: e.pageX, y: e.pageY, itemEventProps: props}});
-    }
 
     render() {
         return <form onSubmit={(e) => this._handleSubmit(e)} style={{overflow: "auto"}}>
@@ -85,10 +80,22 @@ export default class FormTab extends Component {
                 error = true;
             }
 
-        if (error)
-            alert("Formularz zawiera błędy.");
-        else
-            alert('OK');
+        let mwin = ModalWindow.create((mw: ModalWindow) => {
+            mw.title = error ? "Bład" : "Informacja";
+            mw.icon = error ? FontAwesome.EXCLAMATION_CIRCLE : FontAwesome.INFO;
+            mw.onConfirm = () => {
+                console.log("OK");
+                return true
+            };
+            mw.onCancel = () => {
+                console.log("CANCEL");
+                return true
+            };
+            mw.onClose = (e, res) => console.log(res);
+            mw.buttons = MW_BUTTONS.OK_CANCEL;
+            mw.content = error ? "Formualrz zawiera błędy." : "Poprawnie wprowadzone dane.";
+        });
+        mwin.open();
     };
 
     MENU_ITEMS = [
@@ -107,7 +114,7 @@ export default class FormTab extends Component {
             item.checked = true;
             item.name = "Alert!";
             item.hint = "Wyświetla domyślny alert";
-            item.onClick = (e, props) => alert(JSON.stringify(props));
+            item.onClick = (e, props) => alert(Utils.escape(props));
             item.onBeforeOpen = (item, props) => item.checked = props.checked;
         }),
         MenuItem.createItem((item: MenuItem) => {

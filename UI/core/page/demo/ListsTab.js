@@ -53,8 +53,6 @@ export default class Lists extends Component {
                 <JsonViewer object={getDTO()} instance={e => this.viewer = e}/>
             </div>
 
-
-
         </div>
     }
 

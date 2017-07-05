@@ -3,6 +3,8 @@
  * Użycie: import {React, AppStatus, Page, PageTitle} from "./core/exports";
  */
 
+import "./utils/DOMPrototype";
+
 import * as Check from "./utils/Check";
 export {Check};
 
@@ -18,12 +20,13 @@ export {default as EError} from "./utils/EError";
 import * as ReactUtils from "./utils/ReactUtils";
 export {ReactUtils};
 
+import * as Ready from "./utils/Ready";
+export {Ready};
 
 export {default as Exception} from "./utils/Exception";
 
 export {default as Debug} from "./Debug";
-export {default as DOMPrototype} from "./utils/DOMPrototype";
-export {default as ErrorHandler} from  "./utils/ErrorHandler";
+
 
 export {default as Trigger} from "./utils/Trigger";
 export {default as Dispatcher} from "./utils/Dispatcher";
@@ -61,4 +64,5 @@ export {RepoConfig} from "./repository/Repository";
 import * as ContextObject from "./application/ContextObject";
 export {ContextObject};
 
-export {default as Store} from "./Store";
+import * as Store from "./Store";
+export {Store};

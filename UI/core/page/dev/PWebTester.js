@@ -98,6 +98,8 @@ export default class PWebTester extends Page {
 
     render() {
 
+        super.renderTitle("WEB Tester");
+
         this.changed.run();
 
         const cmStyle = {

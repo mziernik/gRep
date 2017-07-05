@@ -132,12 +132,14 @@ Array.prototype.insert = Array.prototype.insert || function (index: number, item
  */
 // $FlowFixMe
 Array.prototype.remove = Array.prototype.remove || function (obj: any): boolean {
-        const i = this.indexOf(obj);
-        if (i >= 0) {
+        let result = false;
+        let i = this.indexOf(obj);
+        while (i >= 0) {
             this.splice(i, 1);
-            return true;
+            result = true;
+            i = this.indexOf(obj);
         }
-        return false;
+        return result
     };
 
 /**

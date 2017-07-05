@@ -2,13 +2,16 @@
 'use strict';
 
 import Tree from './Tree';
+import TreeElement from "./TreeElement";
+import Glyph from "../glyph/Glyph";
 
-export default class TreeNode {
+export default class TreeNode extends TreeElement {
 
     id: string;
     name: string;
+    render: () => any;
     index: number = 0; // pozycja elementu względem rodzica
-    icon: ?string = null; // ikona font awesome
+    icon: ?Glyph | ?string = null; // ikona font awesome
     children: TreeNode[] = [];
     level: number = 0;
     expanded: boolean = false;
@@ -24,6 +27,8 @@ export default class TreeNode {
     tHeader: HTMLElement;
     tUl: HTMLUListElement;
 
+    //-----------------------------
+    onClick: ?(e: MouseEvent) => void;
 
     /**
      *
@@ -32,6 +37,7 @@ export default class TreeNode {
      * @param {string} name
      */
     constructor(parent: Tree | TreeNode, id: string, name: string) {
+        super();
         this.id = id;
         this.name = name;
         this.index = parent ? parent.children.length : 0;
@@ -39,8 +45,17 @@ export default class TreeNode {
         this.tree = parent instanceof Tree ? parent : parent.tree;
         this.checkbox = this.tree.checkboxes;
 
+        let p = parent;
+        while (p && p !== this.tree) {
+            ++this.level;
+            p = p.parent;
+        }
+
         if (parent && parent.children)
             parent.children.push(this);
+
+        if (id)
+            this.expanded = this.tree._expanded.contains(id);
     }
 
     select(): void {

@@ -50,7 +50,14 @@ export default class Breadcrumb extends Component {
 
         pages.forEach((page: Endpoint) => {
             if (elms.length)
-                elms.push(<span key={++idx} style={ {margin: "8px"} }>/</span>);
+                elms.push(<span className={ FontAwesome.ANGLE_DOUBLE_RIGHT}
+                                key={++idx}
+                                style={ {
+                                    fontSize: "0.8em",
+                                    display: "table-cell",
+                                    padding: "0 .5em",
+                                    verticalAlign: "middle"
+                                }}/>);
 
             elms.push(page.hasLink()
                 ? <Link key={++idx} link={page}>{page._name}</Link> :

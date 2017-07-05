@@ -3,8 +3,11 @@
  */
 
 
-import {React, AppEvent, Utils, Dispatcher} from "../core";
+import {React, AppEvent, Utils, Dispatcher, Application} from "../core";
+
 import Route from "react-router-dom/es/Route";
+import Glyph from "../component/glyph/Glyph";
+import {PageTab} from "../page/PageContainer";
 
 export default class Endpoint {
 
@@ -14,6 +17,7 @@ export default class Endpoint {
     /** domyślna strona 404 */
     static NOT_FOUND: ?Endpoint;
 
+    _icon: ?Glyph = null;
     _name: ?string = null;
     _path: ?string = null;
     _exact: boolean = true;
@@ -58,6 +62,12 @@ export default class Endpoint {
         return Endpoint.all.find((page: Endpoint) => page._component === component);
     }
 
+    navigate(params: ?Object = null, newTab: boolean = false) {
+        if (newTab)
+            new PageTab(this._name).setCurrent();
+        Application.router.history.push(this.getLink(params));
+    }
+
     hasLink() {
         return this._path && this._component;
     }
@@ -89,6 +99,12 @@ export default class Endpoint {
 
         return result;
     }
+
+    icon(icon: Glyph): Endpoint {
+        this._icon = icon;
+        return this;
+    }
+
 
     hidden(value: boolean): Endpoint {
         this._hidden = value;

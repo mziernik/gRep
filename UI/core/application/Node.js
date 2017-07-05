@@ -3,6 +3,7 @@
 
 import {React, ReactDOM, PropTypes, Application} from "../core";
 import Component from "../component/Component";
+import {PageTab} from "../page/PageContainer";
 
 
 //
@@ -20,6 +21,11 @@ import Component from "../component/Component";
 export default class AppNode extends React.Component {
 
 
+    static  propTypes = {
+        tab: PropTypes.instanceOf(PageTab),
+    };
+
+
     /** * @type {HTMLElement} - Element drzewa dom */
     element: HTMLElement = this.props.element;
 
@@ -35,9 +41,13 @@ export default class AppNode extends React.Component {
      */
     ownHtmlNode: boolean = false;
 
+    tab: PageTab;
+
     constructor() {
         super(...arguments);
+        this.tab = this.props.tab;
     }
+
 
     /**
      * Wymagane w połączeniu z static childContextTypes

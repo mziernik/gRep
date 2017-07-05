@@ -3,7 +3,7 @@
 
 /* =================================== ToDo: ===================================
  - naciśnięcie ESC powoduje zmianę rozmiaru kolumn
-- zmiana szerokosci kolumn: sprawdzac w mosusemove czy wcisniety jest klawisz
+ - zmiana szerokosci kolumn: sprawdzac w mosusemove czy wcisniety jest klawisz
  + opcja dostosowująca ilość wierszy do wysokości + przełączanie stron rolką
  + próba pokazania/ukrycia kolumny wywołuje błąd
  - zmiana rozmiaru ostatniej kolumny
@@ -11,7 +11,7 @@
  + doać metodę onOrderChanged wywoływaną w momencie zmiany kolejności wierszy 
  (kolejność wierszy powinna być zmianiona również w dsTable.rows.list)
  - optymalizacja rows.onWindowResize -> filter w przypadku automatycznej ilości wierszy na stronę
- 
+
  =============================================================================*/
 
 /**
@@ -59,8 +59,8 @@ function DsTable(optionsCallback) {
     this.controller = Utils.checkInstance(opt.controller, ["SPAController"]);
     this.id = Utils.checkId(id, ".");
     this.tblTag = Utils.checkNotNull(
-            Utils.checkInstance(opt.tag, [HTMLTableElement]),
-            "Wymagana wartość tblTag");
+        Utils.checkInstance(opt.tag, [HTMLTableElement]),
+        "Wymagana wartość tblTag");
 
     this.tblTag.dsTable = this;
 
@@ -154,7 +154,7 @@ function DsTable(optionsCallback) {
 
     // zapisz wartość w Local Storage
     this.savePublicValue = (name, value) => {
-        window.localStorage.setItem("dstbl." + name, JSON.stringify(value));
+        window.localStorage.setItem("dstbl." + name, Utils.escape(value));
     };
 
     // wczytaj wartość z Local Storage
@@ -166,7 +166,7 @@ function DsTable(optionsCallback) {
     // zapisz wartość w Local Storage
     this.savePrivateValue = (name, value) => {
         window.localStorage.setItem("dstbl." + this.id + "." + name,
-                JSON.stringify(value));
+            Utils.escape(value));
     };
 
     // wczytaj wartość z Local Storage
@@ -205,7 +205,7 @@ function DsTable(optionsCallback) {
         columns.list.forEach((col) => {
             col.getTags(true).forEach(tag => {
                 tag.cls(col.sortOrder === 1 ? "sorting_desc"
-                        : col.sortOrder === -1 ? "sorting_asc"
+                    : col.sortOrder === -1 ? "sorting_asc"
                         : "");
             });
         });

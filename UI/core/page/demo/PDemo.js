@@ -1,25 +1,26 @@
 //@Flow
 'use strict';
 import {React, Field, Type, FieldConfig, Utils} from '../../core';
-import {Page, FontAwesome, FieldComponent, FieldController, Panel, PageTitle} from '../../components';
+import {Page, FontAwesome, FieldComponent, FieldController, Panel} from '../../components';
 import {Tab, TabSet} from '../../component/TabSet';
 import FormTab from "./FormTab";
 import ListsTab from "./ListsTab";
 import TablesTab from "./TablesTab";
 import DragAndDropTab from "./DragAndDropTab";
+import ModalWindowTab from "./ModalWindowTab";
 
 
 export default class PDemo extends Page {
 
     constructor() {
         super(...arguments);
-        this.state = {selectedTab: 1};
+        this.state = {selectedTab: 0};
     };
 
     render() {
 
         return <Panel fit>
-            <PageTitle>Demo</PageTitle>
+            {super.renderTitle("Demo")}
 
             <TabSet selectedIndex={this.state.selectedTab}>
                 <Tab title="Formularz"
@@ -32,6 +33,9 @@ export default class PDemo extends Page {
                 </Tab>
                 <Tab label="ReactTable">
                     <TablesTab/>
+                </Tab>
+                <Tab label="Modal Window">
+                    <ModalWindowTab/>
                 </Tab>
                 <Tab label="Drag&Drop">
                     <DragAndDropTab/>

@@ -37,7 +37,6 @@ export default class Record {
         if (idx < 0)
             throw new Error("Repozytorium " + this.repo.key + " nie posiada kolumny " + col.key);
         return idx;
-
     }
 
     get displayName(): string {
@@ -101,4 +100,32 @@ export default class Record {
         return dto;
     }
 
+    getForeign(context: any, column: Column | Field): Record | Record[] {
+        if (column instanceof Field)
+            column = (column: Field).config;
+
+        const fk = this.get(column).value;
+        if (!If.isDefined(fk)) return null;
+
+        const frepo: Repository = column.foreign();
+
+        if (fk instanceof Array)
+            return Utils.forEach(fk, v => {
+                frepo.get(context, fk);
+            });
+
+        return frepo.get(context, fk);
+
+    }
+
+    getParent(): Record {
+        if (!this.repo.config.parentColumn)
+            return undefined;
+
+        const parentId = this.get(this.repo.config.parentColumn).value;
+        if (parentId === null)
+            return null;
+
+        return this.repo.get(this.context, parentId);
+    }
 }

@@ -1,5 +1,5 @@
 import {React, AppNode, Application, EventType, Utils, ContextObject} from "../../core";
-import {Page, Component, PageTitle, Table} from "../../components";
+import {Page, Component, Table} from "../../components";
 import {Observer} from "../../utils/Dispatcher";
 
 
@@ -19,7 +19,7 @@ export default class PContextObject extends Page {
         });
 
         return <div>
-            <PageTitle>Obiekty kontekstu</PageTitle>
+            {super.renderTitle("Obiekty kontekstu")}
 
             <Table
                 columns={{

@@ -119,7 +119,7 @@ export default class FieldComponent extends FormComponent {
                     case "boolean":
                         return this.renderCheckbox();
                     default:
-                        Debug.warning(this, "Brak obsługi typu " + JSON.stringify(this.field.type.name));
+                        Debug.warning(this, "Brak obsługi typu " + Utils.escape(this.field.type.name));
                         return this.renderInput({type: "text"});
                 }
         }
@@ -345,6 +345,7 @@ class List extends Component {
 
             const index = props.index;
             const value = props.value;
+            const array = props.array;
 
             const f: Field = new Field((c: Column) => {
                 c.enumerate = field.config.enumerate;
@@ -356,9 +357,8 @@ class List extends Component {
             f.set(value);
 
             f.onChange.listen(this, () => {
-                debugger;
-                this.array[index] = f.value;
-                field.value = this.array;
+                array[index] = f.value;
+                field.value = array;
             });
 
             return <td>
@@ -375,7 +375,7 @@ class List extends Component {
                 Utils.forEach(field.value, (row: any | [], rowIndex: number) =>
                     <tr key={rowIndex}>
 
-                        <Cell value={row} index={rowIndex}/>
+                        <Cell value={row} index={rowIndex} array={this.array}/>
 
                         <td style={{width: "20px"}}>
                             <Link

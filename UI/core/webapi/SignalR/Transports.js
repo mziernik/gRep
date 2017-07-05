@@ -39,7 +39,7 @@ export class WebSocketTransport {
             let connectUrl = url + "/ws?" + queryString;
             let webSocket = new WebSocket(connectUrl);
             webSocket.onopen = (event) => {
-                console.log(`WebSocket connected to ${connectUrl}`);
+                //    console.log(`WebSocket connected to ${connectUrl}`);
                 this.webSocket = webSocket;
                 resolve();
             };
@@ -47,7 +47,7 @@ export class WebSocketTransport {
                 reject();
             };
             webSocket.onmessage = (message) => {
-                console.log(`(WebSockets transport) data received: ${message.data}`);
+                //    console.log(`(WebSockets transport) data received: ${message.data}`);
                 if (this.onDataReceived) {
                     this.onDataReceived(message.data);
                 }

@@ -88,7 +88,7 @@ public class RCatalog extends Repository<Integer> {
         c.repository = RCatalog.class;
         c.type = DataType.INT.asArray();
         c.key = "attributes";
-        c.name = "Dozwolone atrybuty";
+        c.name = "Atrybuty";
     }, RAttribute.ID);
 
     public RCatalog() {
@@ -98,24 +98,12 @@ public class RCatalog extends Repository<Integer> {
             c.name = "Katalog";
             c.primaryKey = ID;
             c.displayName = NAME;
+            c.orderColumn = ORDER;
+            c.parentColumn = PARENT;
             c.order(PARENT, true);
             c.order(ORDER, true);
         });
 
     }
 
-    //
-    //orderColumns.add(parent, true);
-    //        orderColumns.add(index, true);
-
-    /*
-    @Override
-    protected int compare(Catalog other) {
-        Integer i1 = Utils.coalesce(this.index.get(), 0);
-        Integer p1 = Utils.coalesce(this.parent.get(), 0);
-        Integer i2 = Utils.coalesce(other.index.get(), 0);
-        Integer p2 = Utils.coalesce(other.parent.get(), 0);
-        return (p1 * 1000 + i1) - (p2 * 1000 + i2);
-    }
-     */
 }

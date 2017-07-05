@@ -1,16 +1,13 @@
 import Debug from "./Debug";
+import * as Check from "./utils/Check";
 
-export default class Store {
-
-    static local = new Store(window.localStorage);
-    static session = new Store(window.sessionStorage);
+export class Store {
 
     _base: any;
 
     constructor(base: any) {
         this._base = base;
     }
-
 
     /**
      * Wczytaj wartość zapamiętaną w Storage. Rezultatem jest wartość, obiekt lub tablica
@@ -46,5 +43,11 @@ export default class Store {
         this._base.removeItem(name);
     }
 
+    variable(key: string): StoreVariable<*> {
+        return new StoreVariable(this, key);
+    }
 }
 
+
+export const LOCAL: Store = new Store(window.localStorage);
+export const SESSION: Store = new Store(window.sessionStorage);

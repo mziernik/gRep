@@ -1,6 +1,6 @@
 import {PermissionRecord, PERMISSIONS} from "../../repository/PermissionRepo";
 import {React, Field} from '../../core';
-import {Page, PageTitle, Table, Panel} from '../../components';
+import {Page, Table, Panel} from '../../components';
 
 
 export default class PPermissions extends Page {
@@ -30,7 +30,7 @@ export default class PPermissions extends Page {
 
         return <Panel fit>
 
-            <PageTitle>Uprawnienia / funkcjonalności</PageTitle>
+            {super.renderTitle("Uprawnienia / funkcjonalności")}
 
             <Table
                 columns={{

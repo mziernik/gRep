@@ -95,7 +95,7 @@ export default class Table extends Component {
             const key = res[i].id;
             for (j = i + 1; j < res.length; ++j)
                 if (res[j].id === key)
-                    throw new Error("Zdublowany klucz kolumny (" + JSON.stringify(key) + ")");
+                    throw new Error("Zdublowany klucz kolumny (" + Utils.escape(key) + ")");
         }
         return res;
     }

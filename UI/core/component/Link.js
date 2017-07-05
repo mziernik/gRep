@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {React, PropTypes, Endpoint, If} from "../core";
+import {React, Utils, PropTypes, Endpoint, If} from "../core";
 import {Component, Alert} from "../components";
 import FileSaver from "file-saver";
 import RouteLink from "react-router-dom/es/Link";
@@ -87,7 +87,7 @@ export default class Link extends Component {
                             blob = data;
                         else {
                             if (typeof data !== "string")
-                                data = JSON.stringify(data, null, "\t");
+                                data = Utils.escape(data, null, "\t");
                             if (typeof data === "string")
                                 blob = new Blob([data], {type: "text/plain;charset=utf-8"});
                         }

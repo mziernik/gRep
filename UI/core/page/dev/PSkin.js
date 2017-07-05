@@ -1,5 +1,5 @@
 import {React} from "../../core";
-import {Page, PageTitle, Table} from "../../components";
+import {Page, Table} from "../../components";
 import {Section} from "../../application/Skin";
 import * as Skin from "../../application/Skin";
 
@@ -24,39 +24,20 @@ export default class PSkin extends Page {
 
         return <div>
 
-            <PageTitle>Skórki</PageTitle>
+            {super.renderTitle("Skórki")}
 
-            {/*<Table*/}
-            {/*columns={ {*/}
-            {/*sec: "Sekcja",*/}
-            {/*elm: "Element",*/}
-            {/*css: "CSS",*/}
-            {/*val: "Wartość"*/}
-            {/*} }*/}
-            {/*>*/}
-            {/*<tbody>*/}
-            {/*{   visit(Skin.MAIN, "")    }*/}
-            {/*</tbody>*/}
-            {/*</Table>*/}
-
-
-            <div style={ {
-                resize: "both",
-                overflow: "auto",
-                border: "1px solid red",
-                display: "inline-block",
-                padding: "10px",
-                margin: "10px",
-                whiteSpace: "pre-wrap",
-                fontSize: "30pt",
-                width: "30px",
-                wordBreak: "break-all",
-            } }>
-                <div>
-                    sdfdsfgfdhgsfdlkjg;sfdkjiusdhfosiduygoisudfg
-                </div>
-            </div>
-
+            <Table
+                columns={ {
+                    sec: "Sekcja",
+                    elm: "Element",
+                    css: "CSS",
+                    val: "Wartość"
+                } }
+            >
+                <tbody>
+                {   visit(Skin.MAIN, "")    }
+                </tbody>
+            </Table>
 
         </div>
     }

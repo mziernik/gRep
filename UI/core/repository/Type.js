@@ -26,7 +26,7 @@ export class DataType {
         this.single = single;
 
         if (single) {
-            if (all[this.name]) throw new Error("Typ danych " + JSON.stringify(this.name) + " już istnieje");
+            if (all[this.name]) throw new Error("Typ danych " + Utils.escape(this.name) + " już istnieje");
             all[this.name] = this;
         }
 
@@ -102,7 +102,7 @@ export function get(name: string): DataType {
     if (name.startsWith("{") && name.endsWith("}")) {
         const names = name.substring(1, name.length - 1).split(",");
         if (names.length !== 2)
-            throw new Error("Nieprawidłowa ilość elementów mapy: " + JSON.stringify(name));
+            throw new Error("Nieprawidłowa ilość elementów mapy: " + Utils.escape(name));
         return new MapDataType(get(names[0].trim()), get(names[1].trim()));
     }
 
@@ -111,7 +111,7 @@ export function get(name: string): DataType {
         return new MultipleDataType(names.map(name => get(name.trim())));
     }
 
-    throw new Error("Nieznany typ danych " + JSON.stringify(name));
+    throw new Error("Nieznany typ danych " + Utils.escape(name));
 }
 
 
@@ -179,7 +179,7 @@ export class MultipleDataType extends DataType {
             dt.name = "(" + types.map(c => c.name).join(", ") + ")";
             dt.simpleType = "array";
             dt.parser = value => {
-               // debugger;
+                // debugger;
                 return value;
             }
         }, false);
@@ -190,7 +190,7 @@ export class MultipleDataType extends DataType {
 
 function parseNumber(value: any, parsed: number) {
     if (value instanceof Array || isNaN(value) || isNaN(parsed))
-        throw new Error('Nieprawidłowa wartość numeryczna: ' + JSON.stringify(value));
+        throw new Error('Nieprawidłowa wartość numeryczna: ' + Utils.escape(value));
     return parsed;
 }
 
@@ -222,7 +222,7 @@ export const UUID: DataType = new DataType((dt: DataType) => {
     dt.simpleType = "string";
     dt.parser = val => {
         if (!val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
-            throw new Error(JSON.stringify(val) + " nie jest prawidłowym identyfikatorem UUID");
+            throw new Error(Utils.escape(val) + " nie jest prawidłowym identyfikatorem UUID");
         return val;
     }
 });
@@ -384,11 +384,11 @@ export const ENUMS: DataType = new DataType((dt: DataType) => {
     dt.name = "enums";
     dt.simpleType = "array";
     dt.parser = val => {
-       // debugger;
+        // debugger;
         return val;
     };
     dt.serializer = val => {
-     //   debugger;
+        //   debugger;
         return val;
     };
 
@@ -397,6 +397,6 @@ export const ENUMS: DataType = new DataType((dt: DataType) => {
 
 function frmt(value: any, map: ?Map): string {
     value = map ? map.get(value) : value;
-    const val: string = JSON.stringify(Utils.toString(value));
+    const val: string = Utils.escape(Utils.toString(value));
     return val.substring(1, val.length - 1);
 }

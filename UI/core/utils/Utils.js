@@ -8,7 +8,12 @@ import * as If from "./If";
 
 
 export function escape(argument: any): string {
-    return JSON.stringify(argument);
+    try {
+        return JSON.stringify(argument);
+    } catch (e) {
+        console.error(e);
+        return toString(argument);
+    }
 }
 
 export function toString(argument: any): string {
@@ -16,6 +21,13 @@ export function toString(argument: any): string {
         return "";
     if (argument === null)
         return "null";
+
+    if (typeof argument.toString === "function")
+        return argument.toString();
+
+    if (argument.constructor && argument.constructor.name)
+        return argument.constructor.name;
+
     return "" + argument;
 }
 

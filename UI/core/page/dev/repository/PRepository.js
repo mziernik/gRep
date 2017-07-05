@@ -1,5 +1,5 @@
 import {React, PropTypes, Field, Utils, Column, Repository, Record, Endpoint, If, CRUDE} from '../../../core';
-import {Page, FontAwesome, Link, Table, PageTitle, FieldComponent, Panel} from '../../../components';
+import {Page, FontAwesome, Link, Table, FieldComponent, Panel} from '../../../components';
 import PageToolBar from "../../PageToolBar";
 
 
@@ -19,7 +19,7 @@ export default class PRepository extends Page {
 
         if (!super.waitForRepo(this.repo))
             return <div>
-                <PageTitle>Repozytorium "{this.repo.name}"</PageTitle>
+                {super.renderTitle(`Repozytorium "${this.repo.name}"`)}
                 <span>Inicjalizacja repozytorium. Proszę czekać...</span>
             </div>;
 
@@ -36,7 +36,7 @@ export default class PRepository extends Page {
 
         let counter = 0;
         return <Panel fit>
-            <PageTitle>Repozytorium "{this.repo.name}"</PageTitle>
+            {super.renderTitle(`Repozytorium "${this.repo.name}"`)}
 
             <PageToolBar>
                 <Link

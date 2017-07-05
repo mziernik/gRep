@@ -1,5 +1,5 @@
 import {React, EventType} from '../../core';
-import {Page, PageTitle} from '../../components';
+import {Page} from '../../components';
 import Table from "../../component/Table";
 
 
@@ -7,7 +7,7 @@ export default class PEvents extends Page {
 
     render() {
         return <div>
-            <PageTitle>Zdarzenia</PageTitle>
+            {super.renderTitle("Zdarzenia")};
 
             <Table
                 columns={{

@@ -1,10 +1,10 @@
 // @flow
 'use strict';
 
-import Notify from "../../core/Notify";
+import {Utils} from "../../core";
 import SyntheticDragEvent from 'react-dom/lib/SyntheticDragEvent';
 import DragAndDropItem from "./DragAndDropItem";
-import * as Utils from "../../core/utils/DOMPrototype";
+
 
 /** * @param {DragAndDropItem} item */
 let item: ?DragAndDropItem;
@@ -43,7 +43,7 @@ export default class DragAndDropContext {
     }
 
     setStatus(text: string, timeout: ?number = null) {
-        new Notify(this, "info", text, timeout).send();
+        //  new Notify(this, "info", text, timeout).send();
     }
 
 

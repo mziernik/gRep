@@ -1,6 +1,7 @@
 /**
  * Rola w systemie (funkcjonalność)
  */
+import * as Utils from "../utils/Utils";
 export type Action = "create" | "read" | "update" | "delete" | "execute";
 
 export default class Permission {
@@ -23,7 +24,7 @@ export default class Permission {
         this.name = name;
         this.crude = crude;
         if (Permission.all[id])
-            throw new Error("Uprawnienie " + JSON.stringify(id) + " już istnieje");
+            throw new Error("Uprawnienie " + Utils.escape(id) + " już istnieje");
         Permission.all[id] = this;
         Object.preventExtensions(this);
     }

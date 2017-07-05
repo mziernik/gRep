@@ -9,8 +9,6 @@ import DragAndDropContext from "../DragAndDrop/DragAndDropContext";
 import Tree from "./Tree";
 
 
-
-
 export default class CTree extends React.Component {
 
     static propTypes = {
@@ -38,11 +36,10 @@ export default class CTree extends React.Component {
         };
 
         return (
-            <div>
-                <style>{style}</style>
-                <div>
+            <div className="x-tree-main" data-menu={this.tree.menuMode}>
+                {this.tree.search ? <div>
                     <input type="search" placeholder="Szukaj" onChange={search}/>
-                </div>
+                </div> : null}
                 <ul className="x-tree">
                     {this.tree.children.map((item) => <CTreeNode key={item.id} item={item}/>)}
                 </ul>

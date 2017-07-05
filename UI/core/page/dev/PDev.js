@@ -36,7 +36,12 @@ export default class DevRouter extends Endpoint {
     RECORD: Endpoint;
 
     constructor(baseUrl: string) {
-        super("DEV", baseUrl, null);
+        super("#dev", baseUrl, null);
+
+        this.REPOS = this.child("Repozytoria", baseUrl + "/repositories", PRepositories);
+        this.REPO = this.REPOS.child("Repozytorium", this.REPOS._path + "/:repo", PRepository)
+            .defaultParams({repo: "permissions"})
+            .hidden(true);
 
         this.DEMO = this.child("Demo", baseUrl + "/demo", Demo);
         this.SKIN = this.child("Skórka", baseUrl + "/skin", PSkin);
@@ -53,11 +58,6 @@ export default class DevRouter extends Endpoint {
         this.MODULES = this.child("Moduły", baseUrl + "/modules", PModules);
 
         this.FONT_AWESOME = this.child("Font Awesome", baseUrl + "/fontawesome", PFontAwesome);
-
-        this.REPOS = this.child("Repozytoria", baseUrl + "/repositories", PRepositories);
-        this.REPO = this.REPOS.child("Repozytorium", this.REPOS._path + "/:repo", PRepository)
-            .defaultParams({repo: "permissions"})
-            .hidden(true);
 
         this.RECORD = this.REPOS.child("Rekord", this.REPOS._path + "/:repo/:rec", PRecord)
             .defaultParams({

@@ -1,4 +1,4 @@
-import {ContextObject, Check, Record, Field, Column, CRUDE, Utils, If, Debug, Type, AppEvent} from "../core";
+import {Ready, Check, Record, Field, Column, CRUDE, Utils, If, Debug, Type, AppEvent} from "../core";
 
 import Permission from "../application/Permission";
 import LocalRepoStorage from "./storage/LocalRepoStorage";
@@ -26,6 +26,11 @@ export class RepoConfig {
     primaryKeyColumn: Column = null;
     displayNameColumn: ?Column = null;
 
+    /** Kolumna definiująca rodzica - dla struktury drzewiastej */
+    parentColumn: ?Column = null;
+    /** Kolumna definiująca wartość kolejności wyświetlania wierszy - dla repozytoriów w których można sortować wiersze*/
+    orderColumn: ?Column = null;
+
     crude: string = RepoConfig.defaultCrudeRights;
     readOnly: boolean = false;
     autoUpdate: boolean = false;
@@ -47,7 +52,6 @@ export default class Repository {
     static all = {};
 
     refs: Record[] = [];
-
 
     config: RepoConfig = new RepoConfig();
     rows: Map<any, any[]> = new Map();
@@ -128,6 +132,13 @@ export default class Repository {
         return Utils.forEach(this.refs, (rec: Record) => rec.pk === pk ? rec : undefined);
     }
 
+    getColumnIndex(column: Column) {
+        const idx = this.columns.indexOf(column);
+        if (idx < 0)
+            throw new Error(`Repozytorium ${this.key} nie posiada kolumny ${column.key}`);
+        return idx;
+    }
+
     getColumn(key: string, mustExists: boolean = true): Column {
         const result = this.columns.find(c => c.key === key);
         if (!result && mustExists)
@@ -152,6 +163,17 @@ export default class Repository {
 
     createRecord(context: any): Record {
         return new this.config.record(this, context);
+    }
+
+
+    find(context: any, filter: (cursor: RepoCursor) => boolean): Record[] {
+        const result: Record[] = [];
+        const cursor: RepoCursor = this.cursor();
+        while (cursor.next()) {
+            if (filter(cursor))
+                result.push(cursor.getRecord(context));
+        }
+        return result;
     }
 
     static update(context: any, dto: Record[] | Object) {
@@ -267,6 +289,7 @@ export default class Repository {
             const m = new Map();
             m.set(arr[1], arr[2]);
             repo.isReady = true;
+            Ready.confirm(repo);
             repo.onChange.dispatch(context, m);
         });
 
@@ -308,7 +331,7 @@ export default class Repository {
     static get(key: string, mustExists: boolean = true): Repository {
         const result = Repository.all[key];
         if (mustExists && !result)
-            throw new Error("Nie znaleziono repozytorium " + JSON.stringify(key));
+            throw new Error("Nie znaleziono repozytorium " + Utils.escape(key));
         return result;
     }
 
@@ -320,4 +343,117 @@ export default class Repository {
         return repository;
     }
 
+
+    cursor(): RepoCursor {
+        return new RepoCursor(this);
+    }
+
+    tree(parentColumn: ?Column = null): RepoTree {
+        return RepoTree.create(this, parentColumn || this.config.parentColumn);
+    }
+
+}
+
+/**
+ * Klasa prezentuje dane repozytorium w strukturze drzewiastej.
+ * onwersja następuje po zdefiniowaniu kolumny wskazującej na rodzica.
+ */
+export class RepoTree {
+
+    repo: Repository;
+    root: RepoTree;
+    parent: RepoTree;
+    children: RepoTree[] = [];
+    row: [];
+    primaryKey: any;
+    parentKey: any;
+
+    constructor(repo: Repository) {
+        this.repo = repo;
+    }
+
+    add(child: RepoTree) {
+        if (child.parent)
+            child.parent.children.remove(child);
+        child.parent = this;
+        this.children.push(child);
+    }
+
+    get(column: Column): any {
+        return this.row[this.repo.getColumnIndex(column)];
+    }
+
+    static create(repo: Repository, parentColumn: Column): RepoTree {
+
+        const map: Map = new Map();
+
+        const idx = repo.getColumnIndex(parentColumn);
+        const pkIdx: number = repo.columns.indexOf(repo.primaryKeyColumn);
+
+        const root = new RepoTree(repo);
+        root.root = root;
+
+        repo.rows.forEach((row: []) => {
+            const r: RepoTree = new RepoTree(repo);
+            r.primaryKey = row[pkIdx];
+            r.parentKey = row[idx];
+            r.row = row;
+            map.set(r.primaryKey, r);
+        });
+
+
+        map.forEach((rt: RepoTree) => {
+            if (rt.parentKey === null || rt.parentKey === undefined) {
+                root.add(rt);
+                return;
+            }
+
+            const parent: RepoTree = map.get(rt.parentKey);
+            if (!parent) throw new Error("Nie znaleziono rodzica dla " + rt.parentKey);
+
+            parent.add(rt);
+        });
+
+        return root;
+    }
+}
+
+export class RepoCursor {
+    repo: Repository;
+    _index: number = -1;
+    _rows: [] = [];
+
+    constructor(repo: Repository) {
+        this.repo = repo;
+        repo.rows.forEach(row => this._rows.push(row));
+    }
+
+    next(): boolean {
+        ++this._index;
+        return this._index < this._rows.length;
+    }
+
+    back(): boolean {
+        --this._index;
+        return this._index >= 0;
+    }
+
+    reset() {
+        this._index = 0
+    }
+
+    getRecord(context: any) {
+        const rec: Record = this.repo.createRecord(context);
+        rec.row = this._rows[this._index];
+        return rec;
+    }
+
+    get(column: Column): any {
+        const idx = this.repo.getColumnIndex(column);
+
+        if (this._index < 0 || this._index >= this._rows.length)
+            throw new Error("Kursor poza zakresem");
+
+        return this._rows[this._index][idx];
+    }
 }

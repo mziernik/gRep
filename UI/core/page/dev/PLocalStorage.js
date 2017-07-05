@@ -1,11 +1,11 @@
 import {React} from '../../core';
-import {Page, PageTitle, Link, FontAwesome, Table, Panel} from '../../components';
+import {Page, Link, FontAwesome, Table, Panel} from '../../components';
 
 export default class PLocalStorage extends Page {
 
     render() {
         return <Panel fit>
-            <PageTitle>Magazyn lokalny</PageTitle>
+            {super.renderTitle("Magazyn lokalny")}
 
             <Table
                 columns={["ID", "Nazwa", "Akcja"]}

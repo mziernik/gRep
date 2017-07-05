@@ -12,6 +12,7 @@ import Store from "../core/Store";
 import AppNode from "../core/application/Node";
 import IconEdit from "../core/component/IconEdit";
 import Button from "../core/component/Button";
+import Var from "../core/Var";
 
 
 function setError(e) {
@@ -24,8 +25,8 @@ function setError(e) {
 
 export default class Login extends Component {
 
-    static username: string = Store.local.get("login");
-    static password: string = Store.session.get("pass");
+    static username: Var<string> = new Var().localStorage("login");
+    static password: Var<string> = new Var().sessionStorage("pass");
     static spinner: Spinner;
     static onAuthorized: (data: Object) => void;
     static instance: AppNode;

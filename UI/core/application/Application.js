@@ -3,6 +3,7 @@
 
 import {React, ReactDOM, PropTypes, AppNode, AppEvent, Utils, Dispatcher} from "../core";
 import {BrowserRouter} from 'react-router-dom';
+import {PageTab} from "../page/PageContainer";
 
 export const onCreate: Dispatcher = new Dispatcher();
 
@@ -10,6 +11,7 @@ export default class Application extends React.Component {
 
     /** @type {AppNode[]} */
     static nodes: AppNode[] = [];
+    static router: Object = null;
 
     context: Application;
 
@@ -25,10 +27,11 @@ export default class Application extends React.Component {
      * @param {HTMLElement|string} element
      * @return {AppNode}
      */
-    static render(child: React.Component<*, *, *>, element: ?HTMLElement | ?string, name: ?string = null): AppNode {
+    static render(child: React.Component<*, *, *>, element: ?HTMLElement | ?string, tab: PageTab): AppNode {
 
         if (!Application.initialized) {
-            ReactDOM.render(<BrowserRouter><Application/></BrowserRouter>, document.createElement("span"));
+            ReactDOM.render(<BrowserRouter ref={e => Application.router = e}>
+                <Application/></BrowserRouter>, document.createElement("span"));
             Application.initialized = true;
             onCreate.dispatch(this);
         }
@@ -45,11 +48,10 @@ export default class Application extends React.Component {
         if (!element)
             throw new Error("Nie znaleziono elementu");
 
-        name = name || Utils.className(child.type);
 
-        const node: AppNode = ReactDOM.render(<AppNode element={element}>{child}</AppNode>, element);
+        const node: AppNode = ReactDOM.render(<AppNode tab={tab} element={element}>{child}</AppNode>, element);
         node.ownHtmlNode = own;
-        node.name = node.name || name;
+        node.name = Utils.className(child.type);
         Application.nodes.push(node);
         return node;
     }

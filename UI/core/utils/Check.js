@@ -25,8 +25,8 @@ export function oneOf<T:any>(value: T, allowed: any[], error: ?Error = null): T 
     for (let i = 0; i < allowed.length; i++)
         if (allowed[i] === value)
             return value;
-    throw error ? error : new Error("Nieprawidłowa wartość " + JSON.stringify(value) + ". Dozwolone: "
-        + allowed.map(v => JSON.stringify(v)).join(", "));
+    throw error ? error : new Error("Nieprawidłowa wartość " + Utils.escape(value) + ". Dozwolone: "
+        + allowed.map(v => Utils.escape(v)).join(", "));
 }
 
 export function isString(value: ?string, error: ?Error = null): string {

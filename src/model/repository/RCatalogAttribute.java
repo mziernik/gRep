@@ -47,7 +47,7 @@ public class RCatalogAttribute extends Repository<Integer> {
         c.key = "cat";
         c.daoName = "catalog";
         c.name = "Katalog";
-    }, RCatalogAttribute.ID);
+    }, RCatalog.ID);
 
     public final static ForeignColumn<Integer, RAttribute> ATTR = new ForeignColumn<>(c -> {
         c.repository = RCatalogAttribute.class;
@@ -55,7 +55,7 @@ public class RCatalogAttribute extends Repository<Integer> {
         c.daoName = "attribute";
         c.key = "attr";
         c.name = "Atrybut";
-    }, RCatalogAttribute.ID);
+    }, RAttribute.ID);
 
     public final static Column<String[]> VALUE = new Column<>(c -> {
         c.repository = RCatalogAttribute.class;

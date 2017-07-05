@@ -1,11 +1,11 @@
 import {React, AppStatus} from "../../core";
-import {Page, PageTitle, Spinner, Panel} from "../../components";
+import {Page, Spinner, Panel} from "../../components";
 
 export default class PAppTest extends Page {
 
     render() {
         return <Panel>
-            <PageTitle>Procedury testowe aplikacji</PageTitle>
+            {super.renderTitle("Procedury testowe aplikacji")}
             <div>
                 <button onClick={() => AppStatus.debug(this, "Test:\nDebug", "Szczegóły\n\nLinia1\nLinia2")}>Debug
                 </button>

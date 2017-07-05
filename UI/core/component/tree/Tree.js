@@ -4,18 +4,26 @@
 import React from 'react';
 import TreeItem from  './TreeNode';
 import DragAndDropContext from "../DragAndDrop/DragAndDropContext";
+import TreeElement from "./TreeElement";
+import {VarArray} from "../../Var";
 
 
-export default class Tree {
+export default class Tree extends TreeElement {
     children: Array<TreeItem> = [];
     multiple: boolean = false; // zaznacz wiele
-    checkboxes: boolean = true;
+    checkboxes: boolean = false;
     selected: Array<TreeItem> = []; // zaznaczone gałęzie
     selectMultiple: boolean = false;
     dnd: TreeDragAndDropContext = new TreeDragAndDropContext();
+    _expanded: VarArray = new VarArray();
+    rightIndicator: boolean = false;
+    menuMode: boolean = false;
+    search: boolean = false; // szukajka
 
-    constructor() {
-
+    constructor(id: string) {
+        super();
+        if (id)
+            this._expanded.localStorage("tree." + id);
     }
 
     search(value: string) {

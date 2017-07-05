@@ -75,7 +75,7 @@ export default class JsonViewer extends Component {
             switch (type) {
                 case "string":
                     color = "green";
-                    item = JSON.stringify(item);
+                    item = Utils.escape(item);
                     break;
                 case "number":
                     color = "blue";
@@ -111,7 +111,8 @@ export default class JsonViewer extends Component {
                         singleLine = false;
                 });
 
-                return <Block key={keyId.next} parent={item} intent={intent} level={level} opr="[]" singleLine={singleLine}>
+                return <Block key={keyId.next} parent={item} intent={intent} level={level} opr="[]"
+                              singleLine={singleLine}>
                     {map(item, singleLine, e => draw(e, item, true, singleLine ? 0 : level + 1))}
                 </Block>;
             }
@@ -122,7 +123,8 @@ export default class JsonViewer extends Component {
                 if (!Object.keys(item).length)
                     singleLine = true;
 
-                return <Block key={keyId.next} parent={item} intent={intent} level={level} opr="{}" singleLine={singleLine}>
+                return <Block key={keyId.next} parent={item} intent={intent} level={level} opr="{}"
+                              singleLine={singleLine}>
                     {map(item, false, (value, name) =>
                         <span key={keyId.next} style={padding(level + 1)}>
                             <span style={{color: "#880042"}}>{name}</span>

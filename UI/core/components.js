@@ -9,7 +9,6 @@ export {default as FormComponent} from "./component/form/FormComponent";
 export {default as FieldComponent} from "./component/form/FieldComponent";
 
 
-export {default as PageTitle} from "./component/application/PageTitle";
 export {default as Link} from "./component/Link";
 export {default as Table} from "./component/Table";
 export {default as Button} from "./component/Button";

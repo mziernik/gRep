@@ -1,9 +1,8 @@
 // @flow
 'use strict';
 
-import React from 'react';
+import {React, PropTypes, If, Utils} from "../../core";
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import PropTypes from 'prop-types';
 import DragAndDrop from "../DragAndDrop/DragAndDrop";
 import Tree from "./Tree";
 import TreeNode from "./TreeNode";
@@ -33,11 +32,14 @@ export default class CTreeNode extends React.Component {
         this.placeholder.className = "placeholder";
     }
 
-    _expand(state: boolean) {
-        const item = this.props.item;
+    _expand(state: boolean, e: MouseEvent) {
+        const item: TreeNode = this.props.item;
 
         if (typeof state !== "boolean")
             state = !item.expanded;
+
+        if (item.onClick)
+            item.onClick(e);
 
         item.expanded = state;
         this.expanding = true;
@@ -45,6 +47,12 @@ export default class CTreeNode extends React.Component {
             expanded: state
         });
 
+        if (item.id) {
+            if (state)
+                this.tree._expanded.push(item.id);
+            else
+                this.tree._expanded.remove(item.id);
+        }
         item.select();
     }
 
@@ -98,7 +106,9 @@ export default class CTreeNode extends React.Component {
     }
 
     render() {
-        const item = this.props.item;
+        const item: TreeNode = this.props.item;
+        const tree: Tree = item.tree;
+
         const visible = item.found !== null ? item.found : item.expanded && item.children && item.children.length;
 
         let ul = visible ?
@@ -108,21 +118,29 @@ export default class CTreeNode extends React.Component {
             : null;
 
 
-        return (
-            <li data-expanded={item.expanded}
+        let indicator = !item.children.length ? ""
+            : "fa fa-caret-" + (item.expanded ? "down" : tree.rightIndicator ? "left" : "right");
 
-                className="x-tree-node">
+        const header =
+            <div className="x-tree-header"
+                 style={{paddingLeft: ((item.level + 1) * 20) + "px"}}
+                 ref={tag => this.item.tHeader = tag}
+                 onClick={e => this._expand(null, e)}>
+
+                {tree.rightIndicator ? null : <span className={"x-tree-expand-indicator " + indicator }/>}
+                {item.checkbox ? (<input className={"x-tree-checkbox"} type="checkbox"/>) : null}
+                {item.icon ? <span className={"x-tree-icon " + item.icon}/> : null}
+
+                <span className="x-tree-header-label">
+                <span>{Utils.toString(item.name)}</span>
+            </span>
+                {tree.rightIndicator ? <span className={"x-tree-expand-indicator " + indicator }/> : null}
+            </div>;
+
+        return (
+            <li data-expanded={item.expanded} className="x-tree-node">
                 <DragAndDrop dnd={this.dnd} item={item} itemIndex={item.index}>
-                    <div className="x-tree-header"
-                         ref={tag => this.item.tHeader = tag}
-                    >
-                        {item.checkbox ? (<input className={"x-tree-checkbox"} type="checkbox"/>) : null}
-                        {item.icon ? (<span className={"x-tree-icon fa fa-" + item.icon}/>) : null}
-                        <span onClick={this._expand.bind(this)}
-                              ref={(span) => this.tHeaderLabel = span}>
-                        {item.name} ({item.level})
-                    </span>
-                    </div>
+                    {If.isFunction(item.render) ? item.render(header) : header}
                 </DragAndDrop>
                 <CSSTransitionGroup
                     transitionName="x-tree-slide"

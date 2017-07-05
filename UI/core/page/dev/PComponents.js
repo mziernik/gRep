@@ -1,5 +1,5 @@
 import {React, AppNode, Application, EventType} from "../../core";
-import {Page, Component, PageTitle, Table} from "../../components";
+import {Page, Component, Table} from "../../components";
 import {Observer} from "../../utils/Dispatcher";
 
 
@@ -16,7 +16,7 @@ export default class PComponents extends Page {
 
 
         return <div>
-            <PageTitle>Aktywne komponenty</PageTitle>
+            {super.renderTitle("Aktywne komponenty")}
 
             <Table
 

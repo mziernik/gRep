@@ -1,5 +1,5 @@
 import {React, PropTypes, Utils, Field, Repository, Record, CRUDE, Column, AppStatus} from '../../../core';
-import {Component, Page, PageTitle, FieldComponent, FieldController, Panel} from '../../../components';
+import {Component, Page, FieldComponent, FieldController, Panel} from '../../../components';
 import WebApiRepositoryStorage from "../../../repository/storage/WebApiRepoStorage";
 import JsonViewer from "../../../component/JsonViewer";
 import RecordCtrl from "../../../component/form/RecordCtrl";
@@ -69,7 +69,7 @@ export default class PRecord extends Page {
         const ctrl: RecordCtrl = new RecordCtrl(this, this.record, this.isNew ? CRUDE.CREATE : CRUDE.UPDATE);
 
         return <Panel>
-            <PageTitle>{(this.isNew ? "Nowy rekord" : "Edycja rekordu " + this.record.fullId ) + " repozytorium " + this.repo.name}</PageTitle>
+            {super.renderTitle((this.isNew ? "Nowy rekord" : "Edycja rekordu " + this.record.fullId ) + " repozytorium " + this.repo.name)}
 
             <div style={{
                 display: "flex"

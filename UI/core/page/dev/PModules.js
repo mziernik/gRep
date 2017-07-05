@@ -1,5 +1,5 @@
 import {React} from "../../core";
-import {Page, Component, PageTitle, Table} from "../../components";
+import {Page, Component, Table} from "../../components";
 
 
 export default class PModules extends Page {
@@ -36,7 +36,7 @@ export default class PModules extends Page {
         });
 
         return <div>
-            <PageTitle>Moduły</PageTitle>
+            {super.renderTitle("Moduły")}
 
             <Table
                 columns={{

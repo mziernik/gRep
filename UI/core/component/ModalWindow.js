@@ -1,5 +1,301 @@
-import Component from "../core/component/Component";
+//@Flow
+'use strict';
+import {React, ReactDOM, Application, Field, Type, FieldConfig, Utils, If} from '../core';
+import {Button, Component, Page, FontAwesome, FieldComponent, FieldController} from '../components';
+import Resizer from './Resizer';
 
-export default class ModalWindow extends Component {
+export class ModalWindow {
 
+    /** treść na belce tytułowej
+     * @type {string}
+     */
+    title: ?string = "Komunikat";
+    /** ikona z lewej strony
+     *
+     */
+    icon: ?FontAwesome = FontAwesome.INFO;
+    /** zawartość okna
+     * @type {null}
+     */
+    content: ?any = null;
+    /** czy ma być wyświetlany przycisk X na belce
+     * @type {boolean}
+     */
+    closeButton: boolean = false;
+    /** callback zamknięcia okna. Występuje zawsze przy zamknięciu
+     * @type {null}
+     */
+    onClose: ?(e: Event, result: boolean) => boolean = null;
+    /** callback OK/YES. Musi zwrócić info czy okna ma zostać zamknięte (true-tak, false-nie)
+     * @type {null}
+     */
+    onConfirm: ?(e: Event) => boolean = null;
+    /** callback CANCEL/NO. Musi zwrócić info czy okna ma zostać zamknięte (true-tak, false-nie)
+     * @type {null}
+     */
+    onCancel: ?(e: Event) => boolean = null;
+    /** wynik okna true-OK/YES, false-CANCEL/NO
+     * @type {boolean}
+     */
+    result: boolean = false;
+    /** belka z guzikami. Może być HTML lub liczba (enum MW_BUTTONS) reprezentująca predefiniowane przyciski
+     * @type {number}
+     */
+    buttons: ?any = MW_BUTTONS.OK;
+    /** czy ma zawierać resizera
+     * @type {boolean}
+     */
+    resizable: boolean = true;
+    /** styl głównego tagu
+     * @type {null}
+     */
+    mainStyle: ?object = null;
+    /** styl belki tytułowej
+     * @type {null}
+     */
+    titleStyle: ?object = null;
+    /** styl topki z guzikami
+     * @type {null}
+     */
+    footerStyle: ?object = null;
+    /** styl tagu z ikoną
+     * @type {null}
+     */
+    iconStyle: ?object = null;
+
+    /** Tworzy nową instancję ModalWindow
+     * @param config - callback konfigurujący instancję
+     * @returns {ModalWindow} - nowa instancja ModalWindow
+     */
+    static create(config: (cfg: ModalWindow) => void): ModalWindow {
+        let ins = new ModalWindow();
+        if (config) If.isFunction(config, config(ins));
+        return ins;
+    }
+
+    /** otwiera okno */
+    open() {
+        if (this._instance)return;
+        this._instance = document.createElement('span');
+        document.body.appendChild(this._instance);
+        this._instance.style.position = 'fixed';
+        this._instance.style.left = 0;
+        this._instance.style.right = 0;
+        this._instance.style.top = 0;
+        this._instance.style.bottom = 0;
+        this._instance.style.backgroundColor='rgba(0,0,0,0.5)';
+
+        Application.render(this.render(), this._instance);
+        this.result = false;
+    }
+
+    /** zamknięcie okna z statusem true
+     * @param e obiekt zdarzenia przekazywany do callbacka onConfirm
+     */
+    confirm(e: Event) {
+        let err = null;
+        this.result = true;
+        let close = true;
+        try {
+            if (this.onConfirm)
+                If.isFunction(this.onConfirm, close = this.onConfirm(e));
+        } catch (ex) {
+            err = ex;
+        }
+        if (close)
+            this.close(e);
+        if (err)throw err;
+    }
+
+    /** zamknięcie okna z statusem false
+     * @param e obiekt zdarzenia przekazywany do callback onCancel
+     */
+    cancel(e: Event) {
+        let err = null;
+        this.result = false;
+        let close = true;
+        try {
+            if (this.onCancel)
+                If.isFunction(this.onCancel, close = this.onCancel(e));
+        } catch (ex) {
+            err = ex;
+        }
+        if (close)
+            this.close(e);
+        if (err)throw err;
+    }
+
+    /** zamknięcie okna bez zmiany jego statusu
+     * @param e obiek zdarzenia przekazywany do callbacka onClose
+     */
+    close(e: Event) {
+        let err = null;
+        try {
+            if (this.onClose)
+                If.isFunction(this.onClose, this.onClose(e, this.result));
+        } catch (ex) {
+            err = ex;
+        }
+        ReactDOM.unmountComponentAtNode(this._instance);
+        this._instance.remove();
+        this._instance = null;
+        e.preventDefault();
+        e.stopPropagation();
+        if (err)throw err;
+    }
+
+    /** wyśrodkowuje okno
+     * @param elem - tag okna
+     * @private
+     */
+    _setPosition(elem) {
+        if (!elem) return;
+        const pos = elem.getBoundingClientRect();
+        const x = window.innerWidth / 2;
+        const y = window.innerHeight / 2;
+        elem.style.left = (x - pos.width / 2) + 'px';
+        elem.style.top = (y - pos.height / 2) + 'px';
+        elem.style.visibility = 'visible';
+        elem.focus();
+    }
+
+    /** generuje predefiniowane przyciski
+     * @returns {XML} tag z przyciskami
+     * @private
+     */
+    _renderButtons() {
+        let butts = [];
+        if (this.buttons & MW_BUTTONS.OK)
+            butts.push(<Button type={"default"}
+                               key="ok"
+                               onClick={(e) => this.confirm(e)}
+                               title="OK">OK</Button>);
+        if (this.buttons & MW_BUTTONS.CANCEL)
+            butts.push(<Button type={"default"}
+                               key="cancel"
+                               onClick={(e) => this.cancel(e)}
+                               title="Anuluj">Anuluj</Button>);
+        if (this.buttons & MW_BUTTONS.YES)
+            butts.push(<Button type={"success"}
+                               key="yes"
+                               onClick={(e) => this.confirm(e)}
+                               title="Tak">Tak</Button>);
+        if (this.buttons & MW_BUTTONS.NO)
+            butts.push(<Button type={"danger"}
+                               key="no"
+                               onClick={(e) => this.cancel(e)}
+                               title="Nie">Nie</Button>);
+        if (this.buttons & MW_BUTTONS.CLOSE)
+            butts.push(<Button type={"default"}
+                               key="close"
+                               onClick={(e) => this.close(e)}
+                               title="Zamknij">Zamknij</Button>);
+        return <div style={{textAlign: 'center'}}>{butts}</div>;
+    }
+
+    render() {
+        return (
+            <span ref={elem => this._setPosition(elem)}
+                  tabIndex={-1}
+                  style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      visibility: 'hidden',
+                      background: 'white',
+                      border: '1px solid black',
+                      boxShadow: '2px 2px 5px gray',
+                      zIndex: 1000,
+                      overflow: 'hidden',
+                      minWidth: '300px',
+                      minHeight: '200px',
+                      maxWidth: '85%',
+                      maxHeight: '85%',
+                      ...this.mainStyle
+                  }}
+            >
+                <div style={{
+                    flex: '0 0 auto',
+                    borderBottom: '1px solid lightgray',
+                    display: 'flex',
+                    ...this.titleStyle
+                }}>
+                    <span
+                        title={this.title}
+                        style={{
+                            cursor: 'default',
+                            fontWeight: 'bolder',
+                            flex: '1 1 auto',
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                            overflow: 'hidden',
+                            padding: '5px 20px'
+                        }}>{this.title}</span>
+                    {this.closeButton ? <span className={FontAwesome.TIMES}
+                                              title="Zamknij"
+                                              style={{
+                                                  flex: '0 0 auto',
+                                                  textAlign: 'center',
+                                                  padding: '5px 15px',
+                                                  margin: '2px',
+                                                  alignSelf: 'center',
+                                                  color: 'lightgray'
+                                              }}
+                                              onClick={(e) => this.close(e)}/> : null}
+                </div>
+                <div style={{
+                    flex: '1 1 auto',
+                    display: 'flex',
+                    overflow: 'hidden',
+                    borderBottom: '1px solid lightgray',
+                }}>
+                    {this.icon ?
+                        <span style={{padding: '20px 0px 20px 20px', ...this.iconStyle}}>
+                    {this.icon instanceof FontAwesome ?
+                        <span className={this.icon} style={{fontSize: '5em'}}/> : this.icon}
+                    </span> : null}
+                    <span style={{
+                        display: 'flex',
+                        flex: '1 1 auto',
+                        overflow: 'auto',
+                        padding: '10px'
+                    }}>{typeof(this.content) === 'string' ?
+                        <div style={{
+                            display: 'table',
+                            height: '100%',
+                            width: '100%',
+                        }}>
+                            <div style={{
+                                display: 'table-cell',
+                                textAlign: 'center',
+                                verticalAlign: 'middle'
+                            }}>{this.content}</div>
+                        </div>
+                        : this.content}</span>
+                </div>
+                <div
+                    style={{flex: '0 0 auto', width: '100%', padding: '7px 20px', ...this.footerStyle}}>
+                    {typeof(this.buttons) === 'number' ? this._renderButtons() : this.buttons}
+                </div>
+                {this.resizable ? <Resizer fromCenter={true}/> : null}
+            </span>);
+    }
 }
+/** enumerata predefioniwanych przycisków
+ * @type {{NONE: number, OK: number, CANCEL: number, YES: number, NO: number, CLOSE: number, OK_CANCEL: number, YES_NO: number, YES_NO_CLOSE: number}}
+ */
+export const MW_BUTTONS = {
+    NONE: 0,
+    OK: 1,
+    CANCEL: 2,
+    YES: 4,
+    NO: 8,
+    CLOSE: 16,
+    //kombinacje
+    OK_CANCEL: 3,
+    YES_NO: 12,
+    YES_NO_CLOSE: 28
+};
