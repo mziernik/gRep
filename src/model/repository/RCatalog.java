@@ -106,4 +106,18 @@ public class RCatalog extends Repository<Integer> {
 
     }
 
+    //
+    //orderColumns.add(parent, true);
+    //        orderColumns.add(index, true);
+
+    /*
+    @Override
+    protected int compare(Catalog other) {
+        Integer i1 = Utils.coalesce(this.index.get(), 0);
+        Integer p1 = Utils.coalesce(this.parent.get(), 0);
+        Integer i2 = Utils.coalesce(other.index.get(), 0);
+        Integer p2 = Utils.coalesce(other.parent.get(), 0);
+        return (p1 * 1000 + i1) - (p2 * 1000 + i2);
+    }
+     */
 }

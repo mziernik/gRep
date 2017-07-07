@@ -6,6 +6,11 @@ import CheckBox from "../CheckBox";
 import DatePicker from "../DatePicker";
 import Select from "../Select";
 
+addEventListener("load", () => {
+    Field.renderer = (field: Field, preview: boolean) =>
+        <FieldComponent field={field} preview={preview}/>
+});
+
 
 export default class FieldComponent extends FormComponent {
     /**@private */
@@ -18,6 +23,7 @@ export default class FieldComponent extends FormComponent {
     props: {
         preview: boolean,
         singleLine: boolean,
+        //ToDo: Zamienić na ogólną etykietę dla każdego typu komponentu
         checkBoxLabel: boolean,
         props: ?Object,
         readOnly: boolean,
@@ -64,8 +70,8 @@ export default class FieldComponent extends FormComponent {
         if (this.props.preview && this.field.enumerate) {
             const map: Map = this.field.enumerate();
             return <ul title={this.field.hint}>{
-                Utils.forEach(this.field.value, (item, i) =>
-                    <li key={i}>{Field.formatValue(map.get(item))} </li>
+                Utils.forEach(this.field.value, (item, value) =>
+                    <li key={item}>{Field.formatValue(value)} </li>
                 )}
             </ul>;
         }
@@ -133,7 +139,7 @@ export default class FieldComponent extends FormComponent {
 
         return (
             <span {...this.props.props} style={{display: 'flex'}}>
-                {super.renderChildren(this._fieldCtrlInfo)}
+                {super.renderChildren(false, this._fieldCtrlInfo)}
                 <input title={this.field.hint}
                        key={Utils.randomId()}
                        {...props}
@@ -160,7 +166,7 @@ export default class FieldComponent extends FormComponent {
                        defaultValue={this.field.units ? this.field.unitValue : this.field.simpleValue}
                 />
                 {this._unitSelect}
-                {super.renderChildren(this._fieldCtrlErr)}
+                {super.renderChildren(false, this._fieldCtrlErr)}
             </span>);
     }
 
@@ -174,13 +180,13 @@ export default class FieldComponent extends FormComponent {
                 <pre
                     style={{fontFamily: "inherit", flex: 'auto', ...singleLineStyle}}
                     disabled={true}
-                >{super.renderChildren(this.field.simpleValue)}</pre>
+                >{super.renderChildren(false, this.field.simpleValue)}</pre>
             </span>;
         }
 
         return (
             <span {...this.props.props} style={{display: 'flex'}}>
-                {super.renderChildren(this._fieldCtrlInfo)}
+                {super.renderChildren(false, this._fieldCtrlInfo)}
                 <textarea
                     key={Utils.randomId()}
                     title={this.field.hint}
@@ -200,7 +206,7 @@ export default class FieldComponent extends FormComponent {
                     }}
                     defaultValue={this.field.simpleValue}
                 />
-                {super.renderChildren(this._fieldCtrlErr)}
+                {super.renderChildren(false, this._fieldCtrlErr)}
             </span>);
     }
 
@@ -219,9 +225,9 @@ export default class FieldComponent extends FormComponent {
         const elem = <CheckBox field={this.field} label={this.props.checkBoxLabel} fieldCtrl={false}/>;
         if (this.props.fieldCtrl)
             return (<span>
-                {super.renderChildren(this._fieldCtrlInfo)}
+                {super.renderChildren(false, this._fieldCtrlInfo)}
                 {elem}
-                {super.renderChildren(this._fieldCtrlErr)}
+                {super.renderChildren(false, this._fieldCtrlErr)}
             </span>);
         return elem;
     }
@@ -245,9 +251,9 @@ export default class FieldComponent extends FormComponent {
 
         return (
             <span {...this.props.props}>
-                {super.renderChildren(this._fieldCtrlInfo)}
+                {super.renderChildren(false, this._fieldCtrlInfo)}
                 <DatePicker field={this.field} fieldCtrl={false} dtpProps={props}/>
-                {super.renderChildren(this._fieldCtrlErr)}
+                {super.renderChildren(false, this._fieldCtrlErr)}
             </span>);
     }
 
@@ -256,13 +262,13 @@ export default class FieldComponent extends FormComponent {
 
         return (
             <span {...this.props.props}>
-                {super.renderChildren(this._fieldCtrlInfo)}
+                {super.renderChildren(false, this._fieldCtrlInfo)}
                 <Select
                     readOnly={this.props.readOnly}
                     field={this.field}
                     fieldCtrl={false}
                 />
-                {super.renderChildren(this._fieldCtrlErr)}
+                {super.renderChildren(false, this._fieldCtrlErr)}
             </span>);
     }
 

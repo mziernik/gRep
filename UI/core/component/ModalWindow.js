@@ -1,8 +1,9 @@
 //@Flow
 'use strict';
-import {React, ReactDOM, Application, Field, Type, FieldConfig, Utils, If} from '../core';
-import {Button, Component, Page, FontAwesome, FieldComponent, FieldController} from '../components';
+import {React, ReactDOM, Application, FieldConfig, If} from '../core';
+import {Button, FontAwesome} from '../components';
 import Resizer from './Resizer';
+import Dragger from './Dragger';
 
 export class ModalWindow {
 
@@ -46,6 +47,10 @@ export class ModalWindow {
      * @type {boolean}
      */
     resizable: boolean = true;
+    /** czy ma być przeciągane
+     * @type {boolean}
+     */
+    draggable: boolean = true;
     /** styl głównego tagu
      * @type {null}
      */
@@ -73,6 +78,10 @@ export class ModalWindow {
         return ins;
     }
 
+    redraw() {
+        Application.render(this.render(), this._instance);
+    }
+
     /** otwiera okno */
     open() {
         if (this._instance)return;
@@ -83,7 +92,7 @@ export class ModalWindow {
         this._instance.style.right = 0;
         this._instance.style.top = 0;
         this._instance.style.bottom = 0;
-        this._instance.style.backgroundColor='rgba(0,0,0,0.5)';
+        this._instance.style.backgroundColor = 'rgba(0,0,0,0.5)';
 
         Application.render(this.render(), this._instance);
         this.result = false;
@@ -145,18 +154,17 @@ export class ModalWindow {
     }
 
     /** wyśrodkowuje okno
-     * @param elem - tag okna
+     * @param mw - tag okna
      * @private
      */
-    _setPosition(elem) {
-        if (!elem) return;
+    _setPosition(mw) {
+        if (!mw) return;
+        let elem = ReactDOM.findDOMNode(mw);
         const pos = elem.getBoundingClientRect();
         const x = window.innerWidth / 2;
         const y = window.innerHeight / 2;
         elem.style.left = (x - pos.width / 2) + 'px';
         elem.style.top = (y - pos.height / 2) + 'px';
-        elem.style.visibility = 'visible';
-        elem.focus();
     }
 
     /** generuje predefiniowane przyciski
@@ -167,26 +175,31 @@ export class ModalWindow {
         let butts = [];
         if (this.buttons & MW_BUTTONS.OK)
             butts.push(<Button type={"default"}
+                               focus={butts.length === 0}
                                key="ok"
                                onClick={(e) => this.confirm(e)}
                                title="OK">OK</Button>);
         if (this.buttons & MW_BUTTONS.CANCEL)
             butts.push(<Button type={"default"}
+                               focus={butts.length === 0}
                                key="cancel"
                                onClick={(e) => this.cancel(e)}
                                title="Anuluj">Anuluj</Button>);
         if (this.buttons & MW_BUTTONS.YES)
             butts.push(<Button type={"success"}
+                               focus={butts.length === 0}
                                key="yes"
                                onClick={(e) => this.confirm(e)}
                                title="Tak">Tak</Button>);
         if (this.buttons & MW_BUTTONS.NO)
             butts.push(<Button type={"danger"}
+                               focus={butts.length === 0}
                                key="no"
                                onClick={(e) => this.cancel(e)}
                                title="Nie">Nie</Button>);
         if (this.buttons & MW_BUTTONS.CLOSE)
             butts.push(<Button type={"default"}
+                               focus={butts.length === 0}
                                key="close"
                                onClick={(e) => this.close(e)}
                                title="Zamknij">Zamknij</Button>);
@@ -195,35 +208,37 @@ export class ModalWindow {
 
     render() {
         return (
-            <span ref={elem => this._setPosition(elem)}
-                  tabIndex={-1}
-                  style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      position: 'absolute',
-                      left: 0,
-                      top: 0,
-                      visibility: 'hidden',
-                      background: 'white',
-                      border: '1px solid black',
-                      boxShadow: '2px 2px 5px gray',
-                      zIndex: 1000,
-                      overflow: 'hidden',
-                      minWidth: '300px',
-                      minHeight: '200px',
-                      maxWidth: '85%',
-                      maxHeight: '85%',
-                      ...this.mainStyle
-                  }}
+            <Resizer resizable={this.resizable} fromCenter={true} ref={elem => this._setPosition(elem)}
+                     tabIndex={-1}
+                     style={{
+                         display: 'flex',
+                         flexDirection: 'column',
+                         position: 'absolute',
+                         left: 0,
+                         top: 0,
+                         background: '#ddd',
+                         border: '1px solid black',
+                         boxShadow: '0 0 10px gray',
+                         zIndex: 1000,
+                         overflow: 'hidden',
+                         minWidth: '300px',
+                         minHeight: '200px',
+                         maxWidth: '85%',
+                         maxHeight: '85%',
+                         ...this.mainStyle
+                     }}
             >
                 <div style={{
                     flex: '0 0 auto',
+                    background: '#303336',
+                    color: 'white',
                     borderBottom: '1px solid lightgray',
                     display: 'flex',
                     ...this.titleStyle
                 }}>
                     <span
                         title={this.title}
+                        onMouseDown={this.draggable ? (e) => Dragger.dragStart(e, e.currentTarget.parentElement.parentElement) : null}
                         style={{
                             cursor: 'default',
                             fontWeight: 'bolder',
@@ -277,11 +292,17 @@ export class ModalWindow {
                         : this.content}</span>
                 </div>
                 <div
-                    style={{flex: '0 0 auto', width: '100%', padding: '7px 20px', ...this.footerStyle}}>
+                    style={{
+                        flex: '0 0 auto',
+                        width: '100%',
+                        padding: '7px 20px',
+                        background: '#303336',
+                        color: 'white',
+                        ...this.footerStyle
+                    }}>
                     {typeof(this.buttons) === 'number' ? this._renderButtons() : this.buttons}
                 </div>
-                {this.resizable ? <Resizer fromCenter={true}/> : null}
-            </span>);
+            </Resizer>);
     }
 }
 /** enumerata predefioniwanych przycisków

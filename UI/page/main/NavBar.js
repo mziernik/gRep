@@ -33,14 +33,14 @@ export default class NavBar extends Component<*, *, *> {
             const tn: TreeNode = node.node(endp._name, endp._name);
             //   tn.render = children => endp.hasLink() ? <Link to={endp.getLink()}>{children}</Link> : <a>{children}</a>;
             tn.icon = endp._icon;
-            tn.onClick = (e: MouseEvent) => endp.navigate(null, e.ctrlKey);
+            tn.onClick = (e: MouseEvent) => endp.navigate(null, e);
 
             endp._children.forEach((e: Endpoint) => {
                 visit(e, tn);
             });
         };
 
-        Endpoint.all.forEach((endp) => visit(endp, tree));
+        Endpoint.ALL.forEach((endp: Endpoint) => visit(endp, tree));
 
 
         return (

@@ -1,7 +1,7 @@
 // @flow
 'use strict';
-import {React, PropTypes, Field, Check} from '../../core';
-import {Component, FontAwesome} from '../../components';
+import {React, PropTypes, Field, Check} from '../../core.js';
+import {Component, FontAwesome} from '../../components.js';
 import Hint from "../Hint";
 
 
@@ -123,7 +123,7 @@ export default class FieldController extends Component {
             }}
                   onMouseEnter={() => this._handleMouseEnter()}
                   onMouseLeave={() => this._handleMouseLeave()}>
-                {this.props.children || this.state.defIcon}
+                {super.renderChildren() || this.state.defIcon}
                 <Hint
                     visible={this.state.hint}
                     message={this.state.message}

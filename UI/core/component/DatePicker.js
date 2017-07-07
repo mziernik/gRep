@@ -12,7 +12,7 @@ export default class DatePicker extends FormComponent {
         dtpProps: ?Object
     };
 
-    static PropTypes = {
+    static propTypes = {
         dtpProps: PropTypes.object
     };
 

@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {React, ReactDOM, PropTypes, Application} from "../core";
+import {React, ReactComponent, ReactDOM, PropTypes, Application} from "../core";
 import Component from "../component/Component";
 import {PageTab} from "../page/PageContainer";
 
@@ -18,7 +18,7 @@ import {PageTab} from "../page/PageContainer";
  * Klasa będąca rootem dla struktury komponentów w danej strukturze aplikacji
  */
 
-export default class AppNode extends React.Component {
+export default class AppNode extends ReactComponent {
 
 
     static  propTypes = {

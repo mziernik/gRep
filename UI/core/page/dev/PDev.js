@@ -6,7 +6,6 @@ import PWebTester from "./PWebTester";
 import PComponents from "./PComponents";
 import PLocalStorage from "./PLocalStorage";
 import PEvents from "./PEvents";
-import PAppTest from "./AppTest";
 import PModules from "./PModules";
 import PRepository from "./repository/PRepository";
 import PRecord from "./repository/PRecord";
@@ -36,30 +35,29 @@ export default class DevRouter extends Endpoint {
     RECORD: Endpoint;
 
     constructor(baseUrl: string) {
-        super("#dev", baseUrl, null);
+        super("dev", "#dev", baseUrl, null);
 
-        this.REPOS = this.child("Repozytoria", baseUrl + "/repositories", PRepositories);
-        this.REPO = this.REPOS.child("Repozytorium", this.REPOS._path + "/:repo", PRepository)
+        this.REPOS = this.child("repos", "Repozytoria", baseUrl + "/repositories", PRepositories);
+        this.REPO = this.REPOS.child("repo", "Repozytorium", this.REPOS._path + "/:repo", PRepository)
             .defaultParams({repo: "permissions"})
             .hidden(true);
 
-        this.DEMO = this.child("Demo", baseUrl + "/demo", Demo);
-        this.SKIN = this.child("Skórka", baseUrl + "/skin", PSkin);
-        this.EVENTS = this.child("Zdarzenia", baseUrl + "/events", PEvents);
-        this.PERMISSIONS = this.child("Uprawnienia", baseUrl + "/permissions", PPermissions);
+        this.DEMO = this.child("demo", "Demo", baseUrl + "/demo", Demo);
+        this.SKIN = this.child("skin", "Skórka", baseUrl + "/skin", PSkin);
+        this.EVENTS = this.child("events", "Zdarzenia", baseUrl + "/events", PEvents);
+        this.PERMISSIONS = this.child("perms", "Uprawnienia", baseUrl + "/permissions", PPermissions);
 
-        this.JS_TESTER = this.child("WEB Tester", baseUrl + "/webtest", PWebTester);
-        this.COMPONENTS = this.child("Komponenty", baseUrl + "/components", PComponents);
-        this.COMPONENTS = this.child("Obiekty kontekstu", baseUrl + "/ctxobj", PContextObject);
+        this.JS_TESTER = this.child("webTester", "WEB Tester", baseUrl + "/webtest", PWebTester);
+        this.COMPONENTS = this.child("components", "Komponenty", baseUrl + "/components", PComponents);
+        this.CTX_OBJS = this.child("ctxObjs", "Obiekty kontekstu", baseUrl + "/ctxobj", PContextObject);
 
 
-        this.LOCAL_STORAGE = this.child("Magazyn lokalny", baseUrl + "/localstorage", PLocalStorage);
-        this.APP_TEST = this.child("Test aplikacji", baseUrl + "/apptest", PAppTest);
-        this.MODULES = this.child("Moduły", baseUrl + "/modules", PModules);
+        this.LOCAL_STORAGE = this.child("localStorage", "Magazyn lokalny", baseUrl + "/localstorage", PLocalStorage);
+        this.MODULES = this.child("modules", "Moduły", baseUrl + "/modules", PModules);
 
-        this.FONT_AWESOME = this.child("Font Awesome", baseUrl + "/fontawesome", PFontAwesome);
+        this.FONT_AWESOME = this.child("fontAwesome", "Font Awesome", baseUrl + "/fontawesome", PFontAwesome);
 
-        this.RECORD = this.REPOS.child("Rekord", this.REPOS._path + "/:repo/:rec", PRecord)
+        this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/:rec", PRecord)
             .defaultParams({
                 repo: "permissions",
                 rec: null
@@ -73,7 +71,7 @@ export default class DevRouter extends Endpoint {
         Object.preventExtensions(this);
 
         AppEvent.REPOSITORY_REGISTERED.listen(this, (repo: Repository) => {
-                this.REPOS.child(repo.name, this.REPOS._path + "/" + repo.key, PRepository);
+                this.REPOS.child(repo.key, repo.name, this.REPOS._path + "/" + repo.key, PRepository);
             }
         );
 

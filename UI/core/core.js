@@ -32,8 +32,13 @@ export {default as Trigger} from "./utils/Trigger";
 export {default as Dispatcher} from "./utils/Dispatcher";
 
 // ------------------ React ------------------------------
-export {default as React} from 'react';
-export {default as ReactDOM} from 'react-dom';
+export {default as React}  from 'react';
+export {Component as ReactComponent}  from "react";
+
+import * as ReactDOM from 'react-dom';
+export {ReactDOM};
+
+//import * as PropTypes from 'prop-types';
 export {default as PropTypes} from 'prop-types';
 
 
@@ -45,13 +50,16 @@ import * as CRUDE from "./repository/CRUDE";
 export {CRUDE};
 
 export {default as Application} from "./application/Application";
+
+import {DEV_MODE} from "./application/Application";
+export  {DEV_MODE};
+
 export {EventType} from "./application/Event";
 export {default as AppEvent} from "./application/Event";
 export {default as AppStatus} from "./application/Status";
 
 export {default as Endpoint} from "./application/Endpoint";
 export {default as AppNode} from "./application/Node";
-
 
 // --------------------- moduły ------------------------------
 
@@ -66,3 +74,4 @@ export {ContextObject};
 
 import * as Store from "./Store";
 export {Store};
+

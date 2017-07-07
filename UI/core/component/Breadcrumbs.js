@@ -59,8 +59,7 @@ export default class Breadcrumb extends Component {
                                     verticalAlign: "middle"
                                 }}/>);
 
-            elms.push(page.hasLink()
-                ? <Link key={++idx} link={page}>{page._name}</Link> :
+            elms.push(page.canNavigate ? <Link key={++idx} link={page}>{page._name}</Link> :
                 <a key={++idx}>{page._name}</a>
             );
         });

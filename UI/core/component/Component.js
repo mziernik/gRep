@@ -1,16 +1,17 @@
 // @flow
 'use strict';
 
-import {React, PropTypes, Utils, If, AppNode} from "../core";
+import {React, PropTypes, ReactComponent, Utils, If, AppNode, Check} from "../core.js";
 import * as ContextObject from "../application/ContextObject";
 
 /**
  * Klasa bazowa, po której powinny dziedziczyć wszystkie komponenty pełniące role kontrolerów
  */
 
+
 // $FlowFixMe
 export default class Component<DefaultProps: any, Props: any, State: any>
-    extends React.Component<*, *, *> {
+    extends ReactComponent<*, *, *> {
 
     static contextTypes = {
         router: PropTypes.object.isRequired,
@@ -102,10 +103,23 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         return this.name;
     }
 
-    renderChildren(children: ?any = null) {
+    renderChildren(onlyOne: boolean = false, children: ?any = null) {
+
+        Check.isBoolean(onlyOne);
+
+        children = children || this.props.children;
+        if (onlyOne) {
+            if (children instanceof Array) {
+                children = Utils.forEach(children, el => typeof el === "string" && el.trim() === "" ? undefined : el);
+                if (children.length > 1)
+                    throw new Error("Nieprawidłowa liczba elementów");
+                return children[0];
+            }
+            return React.Children.only(children);
+        }
 
         //ToDo weryfikacja poprawności danych
-        return children || this.props.children;
+        return children;
     }
 
 

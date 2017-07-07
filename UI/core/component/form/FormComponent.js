@@ -18,7 +18,7 @@ export default class FormComponent extends Component {
     };
 
     static propTypes = {
-        field: PropTypes.instanceOf(Field).isRequired,
+        field: PropTypes.any.isRequired,
         fieldCtrl: PropTypes.bool
     };
 

@@ -1,5 +1,5 @@
 import {React} from "../../core";
-import {Page, Component, Table} from "../../components";
+import {Page, Component, Table, Panel} from "../../components";
 
 
 export default class PModules extends Page {
@@ -8,7 +8,7 @@ export default class PModules extends Page {
     static counter: {};
 
 
-    render() {
+    draw() {
 
         const rows = [];
 
@@ -35,7 +35,7 @@ export default class PModules extends Page {
             }
         });
 
-        return <div>
+        return <Panel fit>
             {super.renderTitle("Moduły")}
 
             <Table
@@ -46,7 +46,7 @@ export default class PModules extends Page {
                 }}
                 rows={rows}
             />
-        </div>;
+        </Panel>;
     }
 
 

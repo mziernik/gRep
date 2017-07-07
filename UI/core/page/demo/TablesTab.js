@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
-import {React, Field, Type, FieldConfig, Utils, Column} from '../../core';
-import {Component, Page, FontAwesome, FieldComponent, FieldController, Table}from '../../components';
+import {React, Field, Type, Utils, Column} from '../../core';
+import {Component, FieldComponent, Table}from '../../components';
 
 export default class TablesTab extends Component {
 

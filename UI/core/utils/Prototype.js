@@ -66,6 +66,17 @@ String.prototype.convertPolishChars = String.prototype.convertPolishChars || fun
     };
 
 /**
+ * Zamień znaki w strinuu
+ */
+// $FlowFixMe
+String.prototype.replaceChars = String.prototype.replaceChars || function (from: string, to: string): string {
+        let res = '';
+        for (let i = 0; i < this.length; i++)
+            res += from.indexOf(this[i]) >= 0 ? to : this[i];
+        return res;
+    };
+
+/**
  * Zaokrąglenie wartości numerycznej do określonej ilości miejsc po przecinku
  * @param {number} places Ilość miejsc dziesiętnych
  * @return {number}

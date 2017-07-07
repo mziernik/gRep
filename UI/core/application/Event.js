@@ -6,7 +6,7 @@ import * as Check from "../utils/Check";
 import * as If from "../utils/If";
 import AppNode from "./Node";
 import Dispatcher, {Observer} from "../utils/Dispatcher";
-import Delayed from "../utils/Trigger";
+import Trigger from "../utils/Trigger";
 
 
 /**
@@ -52,7 +52,7 @@ export class EventType {
 }
 
 const queue: AppEvent[] = [];
-const delayedDispatch = new Delayed(null, 0);
+const delayedDispatch = new Trigger(null, 0);
 
 /**
  * Klasa umożliwiająca asynchroniczne przesyłanie zdarzeń
@@ -60,13 +60,17 @@ const delayedDispatch = new Delayed(null, 0);
 export default class AppEvent {
 
     /** @type {EventType}  */
-    static APPLICATION__BEFORE_UPDATE = new EventType("Aktualizacja gałęzi aplikacji")
+    static APPLICATION__BEFORE_UPDATE = new EventType("Aktualizacja gałęzi aplikacji");
 
     /** @type {EventType}  */
     static REPOSITORY_REGISTERED = new EventType("Zarejestrowano repozytorium");
 
     /** @type {EventType}  */
     static NAVIGATE = new EventType("Nawigacja do strony");
+
+    /** @type {EventType}  */
+    static RESIZE = new EventType("Zmiana rozmiaru okna lub komponentu");
+
 
     /** @type {any} Źródło zdarzenia, najczęściej klasa Component */
     sender: any;
@@ -106,7 +110,7 @@ export default class AppEvent {
 }
 
 
-
+window.addEventListener("resize", (e: Event) => AppEvent.RESIZE.send(window, e));
 
 
 

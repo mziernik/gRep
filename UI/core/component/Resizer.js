@@ -1,11 +1,21 @@
 //@Flow
 'use strict';
-import {React, PropTypes} from '../core';
+import {React, AppEvent, PropTypes} from '../core.js';
+import {Component} from '../components.js';
 
-export default class Resizer extends React.Component {
+export default class Resizer extends Component {
 
-    static PropTypes = {
-        fromCenter: PropTypes.bool.required
+    static propTypes = {
+        fromCenter: PropTypes.bool,
+        resizable: PropTypes.bool,
+        noDefaultLimits: PropTypes.bool,
+        outerProps: PropTypes.object,
+    };
+
+    static defaultProps = {
+        fromCenter: false,
+        resizable: true,
+        noDefaultLimits: false
     };
 
     constructor() {
@@ -18,7 +28,9 @@ export default class Resizer extends React.Component {
      * @private
      */
     _computeLimits(elem) {
-        this._limits = {max: {}, min: {}};
+        this._limits = {max: {x: Infinity, y: Infinity}, min: {x: 12, y: 12}};
+        if (this.props.noDefaultLimits) return;
+
         //max
         if (elem.style.maxWidth.contains("%"))
             this._limits.max.x = window.innerWidth * (parseInt(elem.style.maxWidth) / 100);
@@ -33,11 +45,12 @@ export default class Resizer extends React.Component {
         if (elem.style.minWidth.contains("%"))
             this._limits.min.x = window.innerWidth * (parseInt(elem.style.minWidth) / 100);
         else
-            this._limits.min.x = elem.style.minWidth ? parseInt(elem.style.minWidth) : (window.innerWidth * 0.2);
+            this._limits.min.x = elem.style.minWidth ? parseInt(elem.style.minWidth) : 12;
         if (elem.style.minHeight.contains("%"))
             this._limits.min.y = window.innerHeight * (parseInt(elem.style.minHeight) / 100);
         else
-            this._limits.min.y = elem.style.minHeight ? parseInt(elem.style.minHeight) : (window.innerHeight * 0.2);
+            this._limits.min.y = elem.style.minHeight ? parseInt(elem.style.minHeight) : 12;
+
     }
 
     /** Inicjalizacja zmiany wielkości. Podpina zdarzenia i wylicza limity
@@ -87,34 +100,59 @@ export default class Resizer extends React.Component {
      */
     _doResize(e: MouseEvent) {
         if (e.type === 'mousemove') {
-            this._resize.style.width = (e.pageX - this._resize.offsetLeft) + 'px';
-            this._resize.style.height = (e.pageY - this._resize.offsetTop) + 'px';
+            const diff = {x: (e.pageX - this._start.x), y: (e.pageY - this._start.y)};
+            let nw = (this._resize.offsetWidth + diff.x);
+            let nh = (this._resize.offsetHeight + diff.y);
+
+            if (nw < this._limits.max.x && nw > this._limits.min.x) {
+                this._resize.style.width = nw + 'px';
+                this._start.x = e.pageX;
+            }
+            if (nh < this._limits.max.y && nh > this._limits.min.y) {
+                this._resize.style.height = nh + 'px';
+                this._start.y = e.pageY;
+            }
         } else
-            this._stopResize();
+            this._stopResize(e);
     }
 
     /** Kończy zmaiane wielkości. Odpina zdarzenia
      * @private
      */
-    _stopResize() {
+    _stopResize(e: MouseEvent) {
         window.removeEventListener('mousemove', this.resizeEvent, false);
         window.removeEventListener('mouseup', this.resizeEvent, false);
         document.body.style.userSelect = '';
+        AppEvent.RESIZE.send(this, e);
     }
 
     render() {
-        return <div
-            style={{
-                cursor: 'se-resize',
-                width: '0',
-                height: '0',
-                border: 'solid 5px',
-                borderColor: 'transparent gray gray transparent',
-                position: 'absolute',
-                right: '2px',
-                bottom: '2px'
+        return (
+            <div style={{
+                overflow: "hidden",
+                position: this.props.from ? 'fixed' : 'relative',
+                minWidth: '12px',
+                minHeight: '12px',
+                ...this.props.style
             }}
-            onMouseDown={(e) => this._startResize(e)}
-        />
+                 {...this.props.outerProps}
+            >
+                {super.renderChildren()}
+                {this.props.resizable ?
+                    <div
+                        style={{
+                            cursor: 'se-resize',
+                            width: '0',
+                            height: '0',
+                            border: 'solid 5px',
+                            borderColor: 'transparent gray gray transparent',
+                            position: 'absolute',
+                            right: '2px',
+                            bottom: '2px'
+                        }}
+                        onMouseDown={(e) => this._startResize(e)}
+                    /> : null}
+
+            </div>);
     }
 }

@@ -1,5 +1,5 @@
 import {React, Trigger, Field, Column, Type} from "../../core";
-import {Page} from "../../components";
+import {Page, Panel} from "../../components";
 import CodeMirror from "../../component/CodeMirror/CodeMirror";
 
 //ToDo: Dodać tryb konwersji danych - panele: wejściowy, skryptu, wyjściowy)
@@ -96,7 +96,7 @@ export default class PWebTester extends Page {
         e.preventDefault();
     };
 
-    render() {
+    draw() {
 
         super.renderTitle("WEB Tester");
 
@@ -110,11 +110,7 @@ export default class PWebTester extends Page {
             margin: "2px"
         };
 
-        return <div style={ {
-            display: "flex",
-            height: "100%",
-            flexDirection: "column"
-        } }>
+        return <Panel fit noPadding>
 
             <div style={{
                 padding: "8px",
@@ -170,7 +166,7 @@ export default class PWebTester extends Page {
 
                 </div>
             </div>
-        </div>
+        </Panel>
     }
 }
 

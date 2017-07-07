@@ -3,8 +3,8 @@ import {Page, Spinner, Panel} from "../../components";
 
 export default class PAppTest extends Page {
 
-    render() {
-        return <Panel>
+    draw() {
+        return <Panel fit>
             {super.renderTitle("Procedury testowe aplikacji")}
             <div>
                 <button onClick={() => AppStatus.debug(this, "Test:\nDebug", "Szczegóły\n\nLinia1\nLinia2")}>Debug

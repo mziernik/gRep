@@ -53,6 +53,12 @@ export function isObject(value: ?Object, error: ?Error = null): Object {
     throw error ? error : new Error("Wymagany obiekt, aktualnie: " + Utils.className(value));
 }
 
+export function isBoolean(value: ?[], error: ?Error = null): Array {
+    if (typeof value === "boolean")
+        return value;
+    throw error ? error : new Error("Wymagana boolean, aktualnie: " + Utils.className(value));
+}
+
 
 export function nonEmptyString(value: ?string, error: ?Error = null): string {
     if (value === null || value === undefined)

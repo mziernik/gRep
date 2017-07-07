@@ -9,7 +9,7 @@ export default class PRepositories extends Page {
         Repository.onUpdate.listen(this, () => this.forceUpdate());
     }
 
-    render() {
+    draw() {
         const data = [];
 
         return <Panel fit>

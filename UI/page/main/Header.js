@@ -1,12 +1,8 @@
 // @flow
 'use strict';
 //FixMe importy
-import React from 'react';
-import {Link} from 'react-router-dom';
-import  {Application} from "../../core/core";
-
+import {React} from "../../core/core.js";
 import Component from "../../core/component/Component";
-import Login from "../Login";
 import Breadcrumb from "../../core/component/Breadcrumbs";
 import WebApiStatus from "../../core/component/application/WebApiStatus";
 import {MenuItem, PopupMenu} from "../../core/component/PopupMenu";

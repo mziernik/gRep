@@ -24,7 +24,7 @@ export default class PageToolBar extends Component {
                 fontSize: "24px"
             } }
         >
-            {super.renderChildren(this.props.children)}
+            {super.renderChildren()}
         </div>
     }
 

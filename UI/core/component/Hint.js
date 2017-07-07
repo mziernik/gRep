@@ -8,7 +8,7 @@ export default class Hint extends Component {
         message: ?string
     };
 
-    static PropTypes = {
+    static propTypes = {
         visible: PropTypes.bool,
         message: PropTypes.string
     };
@@ -53,7 +53,7 @@ export default class Hint extends Component {
                       //margin: '10px',
                       zIndex: 1000
                   }}>
-                {this.props.children
+                {super.renderChildren()
                 || Utils.forEach(this.props.message.split('\n'), (line, index) => {
                     return <div key={index}>{line}</div>;
                 })}

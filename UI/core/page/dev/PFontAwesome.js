@@ -7,9 +7,9 @@ export default class PFontAwesome extends Page {
         search: string;
     };
 
-    render() {
+    draw() {
 
-        return <Panel noPadding>
+        return <Panel fit noPadding>
 
             {super.renderTitle("FontAwesome")};
 

@@ -18,7 +18,7 @@ export default class Form extends Component {
     }
 
     render() {
-        return <div style={this.props.style}>{this.props.children}</div>
+        return <div style={this.props.style}>{super.renderChildren()}</div>
     };
 
 

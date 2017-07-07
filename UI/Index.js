@@ -1,6 +1,7 @@
 // @flow
 'use strict';
 
+import "./core/utils/ErrorHandler";
 import "./model/API";
 import Header from "./page/main/Header";
 import NavBar from "./page/main/NavBar";

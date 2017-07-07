@@ -1,13 +1,13 @@
 // @flow
 'use strict';
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import {React, PropTypes} from "../../core.js";
+import {Component} from "../../components.js";
 import DragAndDropContext from "./DragAndDropContext";
 import DragAndDropItem from "./DragAndDropItem";
 
 
-export default class DragAndDrop extends React.Component {
+export default class DragAndDrop extends Component {
 
     constructor() {
         super(...arguments);
@@ -19,7 +19,7 @@ export default class DragAndDrop extends React.Component {
             throw new Error("Wymagany pojedynczy obiekt potomny");
 
 
-        return React.cloneElement(this.props.children, {
+        return React.cloneElement(super.renderChildren(), {
             draggable: "true",
             onDragStart: e => new DragAndDropItem(this.props.dnd, this.props.item, this.props.itemIndex, e),
             onDragOver: e => this.props.dnd.dragOver(e),

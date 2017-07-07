@@ -15,7 +15,7 @@ export default class PRepository extends Page {
         this.repo = Repository.get(this.props.repo, true);
     }
 
-    render() {
+    draw() {
 
         if (!super.waitForRepo(this.repo))
             return <div>

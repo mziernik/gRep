@@ -1,4 +1,4 @@
-import {React, PropTypes, Record, Repository, Field, Utils, If, CRUDE, Endpoint, AppStatus} from "../core"
+import {React, PropTypes, ReactDOM, Record, Repository, Field, Utils, If, CRUDE, Endpoint, AppStatus} from "../core"
 import {Component, Spinner, Alert} from "../components"
 
 export default class Button extends Component {
@@ -14,7 +14,8 @@ export default class Button extends Component {
         title: PropTypes.string,
         onClick: PropTypes.func,
         link: PropTypes.any,
-        icon: PropTypes.any
+        icon: PropTypes.any,
+        focus: PropTypes.bool //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
     };
 
     constructor() {
@@ -22,7 +23,12 @@ export default class Button extends Component {
         this.state = {
             disabled: false
         };
+    }
 
+    componentDidMount() {
+        if (!this._tag)return;
+        if (!this.props.focus)return;
+        this._tag.focus();
     }
 
     render() {
@@ -44,6 +50,7 @@ export default class Button extends Component {
 
 
         return <button
+            ref={elem => this._tag = elem}
             className={"btn " + (type ? "btn-" + type : "")}
             disabled={this.state.disabled}
             style={ {
@@ -72,6 +79,6 @@ export default class Button extends Component {
                     opacity: "0.8"
 
                 }}/> : null}
-            {super.renderChildren(this.props.children)}</button>
+            {super.renderChildren()}</button>
     }
 }

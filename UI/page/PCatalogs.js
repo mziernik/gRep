@@ -1,8 +1,8 @@
 // @flow
 'use strict';
 
-import {React, Ready, Utils} from "../core/core";
-import {FieldComponent} from "../core/components";
+import {React, Ready, Utils, PropTypes, Field, Type, Column} from "../core/core";
+import {Component, FieldComponent, Panel, Checkbox} from "../core/components";
 import Page from "../core/page/Page";
 import * as Repositories from "../model/Repositories";
 import {RCatalogRecord} from "../model/Repositories";
@@ -12,10 +12,70 @@ import {RAttributeRecord} from "../model/Repositories";
 import {RepoCursor} from "../core/repository/Repository";
 import {RResourceRecord} from "../model/Repositories";
 import {RResource} from "../model/Repositories";
+import FormComponent from "../core/component/form/FormComponent";
+import FieldController from "../core/component/form/FieldController";
+
+class Attributes extends Component {
+
+    static propTypes: {
+        preview: PropTypes.bool
+    };
+
+    render() {
+        return <table>
+
+            <tbody>
+            {this.props.children}
+
+            </tbody>
+        </table>;
+    }
+}
+
+
+class Attr extends Component {
+
+    static propTypes: {
+        field: PropTypes.any,
+        preview: PropTypes.bool,
+        name: PropTypes.string
+    };
+
+    field: Field;
+    preview: boolean;
+
+    constructor() {
+        super(...arguments);
+        this.field = this.props.field;
+        this.preview = this.props.preview || true;
+    }
+
+    render() {
+        return <tr>
+            <td style={{padding: "2px 8px"}}>{this.props.name || this.field.name}</td>
+            <td style={{padding: "2px 8px"}}>
+                <FieldComponent field={this.field} preview={this.preview}/>
+            </td>
+            <td style={{padding: "2px 8px"}}>
+                <FieldComponent field={this.field} preview={false}/>
+            </td>
+        </tr>;
+    }
+}
 
 export default class PCatalogs extends Page {
 
     rec: RCatalogRecord;
+    showAdvanced: Field = new Field((c: Column) => {
+        c.type = Type.BOOLEAN;
+        c.key = "advanced";
+        c.name = "Zaawansowane";
+    });
+
+    constructor() {
+        super(...arguments);
+        this.showAdvanced.onChange.listen(this, () => this.forceUpdate());
+    }
 
     draw() {
 
@@ -40,38 +100,49 @@ export default class PCatalogs extends Page {
         const attrs: RCatalogAttributeRecord[] = Repositories.R_CATALOG_ATTRIBUTE.find(this, (cursor: RepoCursor) => cursor.get(RCatalogAttribute.CAT) === catalogId);
         const ress: RResourceRecord[] = Repositories.R_RESOURCE.find(this, (cursor: RepoCursor) => cursor.get(RResource.CAT) === catalogId);
 
-        return <div>
+        const adv = this.showAdvanced.value;
+        return <Panel fit>
             { super.renderTitle(path.reverse().join(" / "))}
 
-            <div>Id: {rec.ID.value}</div>
+            <label>
+                {this.showAdvanced.render(false, true)}
+                <span>Zaawansowane</span>
+            </label>
 
-            <FieldComponent field={rec.DESC}/>
 
+            <Attributes>
+                {adv ? <Attr field={rec.ID}/> : null}
+                {adv ? <Attr field={rec.UID}/> : null}
+                <Attr field={rec.NAME}/>
+                <Attr field={rec.PARENT}/>
+                <Attr field={rec.ABSTRACT}/>
+                <Attr field={rec.CATEGORY}/>
+                <Attr field={rec.CREATED}/>
+                <Attr field={rec.ORDER}/>
+                <Attr field={rec.DESC}/>
 
-            <div>Atrybuty:</div>
-            {attrs.map((catAttr: RCatalogAttributeRecord) => {
+                <tr>
+                    <td colSpan={2}><h3>Atrybuty:</h3></td>
+                </tr>
 
-                const attr: RAttributeRecord = catAttr.getForeign(this, catAttr.ATTR);
+                {attrs.map((catAttr: RCatalogAttributeRecord) => {
 
-                return <div key={catAttr.ID.value}>
-                    <span>  {Utils.toString(attr.NAME.value)} </span>
-                    <span>: </span>
-                    <span>  {Utils.toString(catAttr.VALUE.value)} </span>
+                    const attr: RAttributeRecord = catAttr.getForeign(this, catAttr.ATTR);
 
-                </div>
-            })}
+                    return <Attr key={catAttr.ID.value} name={attr.NAME.value} field={catAttr.VALUE}/>
+                })}
 
-            <hr/>
-            <div>Zasoby:</div>
-            {ress.map((res: RResourceRecord) => {
+                <hr/>
 
-                return <div key={res.ID.value}>
-                    <span>  {Utils.toString(res.NAME.value)} </span>
-                    <span>  {Utils.toString(res.FORMAT.value)} </span>
-                </div>
-            })}
+                <tr>
+                    <td colSpan={2}><h3>Zasoby:</h3></td>
+                </tr>
 
-        </div>
+                {ress.map((res: RResourceRecord) => {
+                    return <Attr key={res.ID.value} name={res.NAME.value} field={res.FORMAT}/>
+                })}
+            </Attributes>
+        </Panel>
 
     }
 }

@@ -13,5 +13,5 @@ export {default as Link} from "./component/Link";
 export {default as Table} from "./component/Table";
 export {default as Button} from "./component/Button";
 export {default as Panel} from "./component/Panel";
-
-
+export {default as Checkbox} from "./component/CheckBox";
+export {default as Resizer} from "./component/Resizer";

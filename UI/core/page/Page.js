@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {React, Record, Repository, Endpoint, Utils, If, EError, Debug} from "../core";
+import {React, Record, Repository, Endpoint, Utils, If, EError, Debug, DEV_MODE} from "../core";
 import {Component, Spinner, Panel} from "../components";
 
 export default class Page extends Component {
@@ -13,6 +13,9 @@ export default class Page extends Component {
         super(...arguments);
         this.endpoint = this.props.route.endpoint;
         Utils.makeFinal(this, ["endpoint"]);
+
+        if (DEV_MODE && this.draw.toString().replaceChars(" \t\r\n", "") === "functiondraw(){returnnull;}")
+            throw new Error("Brak implementacji funkcji " + this.constructor.name + ".draw()");
     }
 
     renderTitle(title: string) {
@@ -25,11 +28,16 @@ export default class Page extends Component {
         if (Page.pageTitleRenderer)
             return Page.pageTitleRenderer(this, title);
 
-        return <div>
+
+        return <div style={{padding: "10px 0 0 20px"}}>
+            {this.endpoint._icon ? <span className={this.endpoint._icon } style={{
+                fontSize: "2em",
+                marginRight: "10px"
+            }}/> : null  }
             <h5 style={ {
+                display: "inline-block",
                 color: "#39b",
-                fontWeight: "bold",
-                padding: "10px 0 0 20px"
+                fontWeight: "bold"
             } }>{title}</h5>
             <hr style={ {marginTop: "0"} }/>
         </div>
@@ -55,6 +63,7 @@ export default class Page extends Component {
         return false;
     }
 
+    // uwaga! nie dopisywać nid w funkcji draw()
     draw() {
         return null;
     }

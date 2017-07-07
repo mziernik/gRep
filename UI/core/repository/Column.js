@@ -15,7 +15,7 @@ export default class Column {
     description: ?string = null;
     /**  wartość zostanie wczytana na żądanie pobrania rekordu - zalecane dla dużych danych */
     onDemand: boolean = false;
-    enumerate: ?() => Map = null;
+    enumerate: ?() => Map | Object | Array = null;
     units: ?() => {} = null;
     readOnly: ?boolean = null;
     required: ?boolean = null;
@@ -34,6 +34,7 @@ export default class Column {
     sortable: ? boolean = null;
     sortOrder: ? boolean = null;
     filterable: ? boolean = null;
+    searchable: ? boolean = null;
     hidden: ? boolean = null;
     compare: ?(a: ?any, b: ?any) => number = null;
     filter: ?(filter: ?any, cell: ?any) => boolean = null;

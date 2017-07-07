@@ -5,6 +5,7 @@ import {React, Endpoint, Application, AppEvent, Utils, AppNode} from "../core";
 import {Component, FontAwesome} from "../components";
 import {Switch} from 'react-router-dom';
 import Page from "./Page";
+import {ModalWindow} from "../component/ModalWindow";
 
 
 const containers = [];
@@ -21,11 +22,18 @@ export class PageTab {
     node: AppNode;
     element: HTMLElement;
     _removed: boolean = false;
+    modal: boolean;
 
-    constructor(title: string) {
+    constructor(title: string, modal: boolean = false) {
         this.title = title;
+        this.modal = modal;
         tabs.push(this);
         this.element = document.createElement("div");
+        this.element.className = "app-tabs-page";
+        const s = this.element.style;
+        s.position = "relative";
+        s.width = "100%";
+        s.height = "100%";
     }
 
     close() {
@@ -54,9 +62,13 @@ export class PageTab {
 
     setCurrent() {
         if (this._removed || currentTab === this) return;
-        if (currentTab)
+
+        if (currentTab && !this.modal && !currentTab.modal)
             containerElement.removeChild(currentTab.element);
-        containerElement.appendChild(this.element);
+
+        if (!this.modal)
+            containerElement.appendChild(this.element);
+
         currentTab = this;
         history.push(this);
         tabsBar.forceUpdate();
@@ -65,13 +77,21 @@ export class PageTab {
     renderContent() {
 
         if (!containerElement) return null;
-
-        const map = Endpoint.all.map((page: Endpoint, idx: number) => page.route(idx));
-        const children = <Switch key={this.id}>{map}</Switch>;
+        const children = <Switch key={this.id}>{Endpoint.routeMap()}</Switch>;
 
         if (!this.node) {
-            containerElement.appendChild(this.element);
-            this.node = Application.render(children, this.element, this);
+            if (this.modal) {
+                this.node = children;
+                ModalWindow.create((mw: ModalWindow) => {
+                    mw.content = this.node;
+                    mw.closeButton = true;
+                    //       mw.icon = null;
+                    mw.onClose = (e: Event, result: boolean) => this.close() || true;
+                }).open();
+            } else {
+                containerElement.appendChild(this.element);
+                this.node = Application.render(children, this.element, this);
+            }
             return this.node;
         }
 
@@ -83,6 +103,9 @@ export class PageTab {
 
 
 export default class PageContainer extends Component {
+
+    /** Pzy najbliższym żądaniu, nawigacja zostanie skierowana do okna modalnego*/
+    static _navigateToModal: ?string = null;
 
 
     constructor() {
@@ -104,18 +127,25 @@ export default class PageContainer extends Component {
         }}>
             <TabsBar/>
 
-            <div className="app-page-container" ref={e => {
-                if (containerElement)
-                    return;
-                containerElement = e;
-                if (!currentTab)
-                    if (tabs.length)
-                        tabs[0].setCurrent();
-                    else
-                        new PageTab(null).setCurrent();
+            <div
+                className="app-page-container"
+                style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%"
+                }}
+                ref={e => {
+                    if (containerElement)
+                        return;
+                    containerElement = e;
+                    if (!currentTab)
+                        if (tabs.length)
+                            tabs[0].setCurrent();
+                        else
+                            new PageTab(null).setCurrent();
 
-                currentTab.renderContent();
-            } }>
+                    currentTab.renderContent();
+                } }>
 
             </div>
         </div>
@@ -123,6 +153,7 @@ export default class PageContainer extends Component {
 };
 
 class TabsBar extends Component {
+
     constructor() {
         super(...arguments);
         tabsBar = this;
@@ -131,7 +162,10 @@ class TabsBar extends Component {
 
     render() {
 
-        if (tabs.length <= 1)
+        let tabsCount = 0;
+        tabs.forEach((tab: PageTab) => tabsCount += tab.modal ? 0 : 1);
+
+        if (tabsCount <= 1)
             return null;
 
         return <div
@@ -140,7 +174,7 @@ class TabsBar extends Component {
                 color: "#fff",
                 paddingLeft: "4px"
             }}>
-            { tabs.map((tab: PageTab) => <span
+            { tabs.map((tab: PageTab) => tab.modal ? null : <span
                 key={tab.id}
                 style={{
                     fontSize: "13px",

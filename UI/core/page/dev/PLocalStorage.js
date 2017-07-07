@@ -3,7 +3,7 @@ import {Page, Link, FontAwesome, Table, Panel} from '../../components';
 
 export default class PLocalStorage extends Page {
 
-    render() {
+    draw() {
         return <Panel fit>
             {super.renderTitle("Magazyn lokalny")}
 

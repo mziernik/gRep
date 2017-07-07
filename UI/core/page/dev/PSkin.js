@@ -1,12 +1,12 @@
 import {React} from "../../core";
-import {Page, Table} from "../../components";
+import {Page, Table, Panel} from "../../components";
 import {Section} from "../../application/Skin";
 import * as Skin from "../../application/Skin";
 
 
 export default class PSkin extends Page {
 
-    render() {
+    draw() {
 
 
         function visit(section: Section, parentName: string) {
@@ -22,7 +22,7 @@ export default class PSkin extends Page {
 
         }
 
-        return <div>
+        return <Panel fit>
 
             {super.renderTitle("Skórki")}
 
@@ -39,7 +39,7 @@ export default class PSkin extends Page {
                 </tbody>
             </Table>
 
-        </div>
+        </Panel>
     }
 
 

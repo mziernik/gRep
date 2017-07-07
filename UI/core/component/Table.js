@@ -1,7 +1,9 @@
-import {React, ReactDOM, PropTypes, Utils, If, Check, ReactUtils, Column} from "../core";
+import {React, ReactDOM, PropTypes, Utils, If, Check, ReactUtils, Column, AppEvent, Trigger} from "../core";
 import {Component, FormComponent} from "../components";
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+
+const resizeTrigger: Trigger = new Trigger();
 
 export default class Table extends Component {
     _widths = {};
@@ -24,21 +26,11 @@ export default class Table extends Component {
 
     constructor() {
         super(...arguments);
-        this._timeoutFunc = () => {
-            this._setWidths();
-            this._timeoutID = setTimeout(() => this._timeoutFunc(), 200);
-        };
         this.state = {columns: this.columns = this._convertColumns(), ...(this._convertData())};
-    }
 
-    componentDidMount() {
-        this._timeoutID = setTimeout(() => this._timeoutFunc(), 200);
-    }
-
-    componentWillUnmount() {
-        super.componentWillUnmount(...arguments);
-        clearTimeout(this._timeoutID);
-
+        AppEvent.RESIZE.listen(this, (e: Event, source: AppEvent) => resizeTrigger.call(() => {
+            this._setWidths();
+        }, 100));
     }
 
     /** mapuje kolumny pod format ReactTable
@@ -293,11 +285,3 @@ export default class Table extends Component {
         />;
     }
 }
-
-class TestSpan extends FormComponent {
-    render() {
-        console.log("test ", this.props.field.value);
-        return <span>{this.props.field.displayValue}</span>;
-    }
-}
-

@@ -9,7 +9,7 @@ export class TabSet extends Component {
         selectedIndex: number
     };
 
-    static PropTypes = {
+    static propTypes = {
         vertical: PropTypes.bool,
         selectedIndex: PropTypes.number
     };
@@ -118,6 +118,10 @@ export class TabSet extends Component {
     }
 
     render() {
+
+
+        const children = super.renderChildren();
+
         return (
             <span className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}
                   style={{display: 'flex', flexDirection: 'column', flex: "1 1 auto", overflow: "hidden"}}
@@ -133,22 +137,22 @@ export class TabSet extends Component {
                     <span ref={(elem) => this.tabs = elem}
                           className={"tabs " + (this.props.vertical ? "tabsVertical" : "")}
                           style={{position: 'relative'}}>
-                        {Utils.forEach(this.props.children, (child, index) => {
-                            if (child.props.hidden)return null;
-                            if (!child.props.disabled && this.state.selected === index)
+                        {Utils.forEach(children, (chld, index) => {
+                            if (chld.props.hidden)return null;
+                            if (!chld.props.disabled && this.state.selected === index)
                                 return <span ref={(elem) => this._setScroll(elem)}
-                                             title={child.props.title}
+                                             title={chld.props.title}
                                              tabIndex="0"
                                              key={index}
                                              className="tab tab_selected">
-                                        {child.props.label}
+                                        {chld.props.label}
                                     </span>;
                             return (<span tabIndex="0"
-                                          title={child.props.title}
+                                          title={chld.props.title}
                                           key={index}
-                                          className={"tab " + (child.props.disabled ? "tab_disabled" : "")}
-                                          onFocus={child.props.disabled ? null : (e) => this._handleSelect(e, index, child.props.onSelect)}>
-                                    {child.props.label}
+                                          className={"tab " + (chld.props.disabled ? "tab_disabled" : "")}
+                                          onFocus={chld.props.disabled ? null : (e) => this._handleSelect(e, index, chld.props.onSelect)}>
+                                    {chld.props.label}
                                     </span>)
                         })}
                     </span>
@@ -164,7 +168,7 @@ export class TabSet extends Component {
                           onClick={() => this._handleArrow(100)}/>
                 </div>
                 <div className="tabContent" style={{display: 'flex', flex: '1 1 auto'}}>
-                    {this._isSelectable(this.props.children[this.state.selected]) ? this.props.children[this.state.selected] : null}
+                    {this._isSelectable(children[this.state.selected]) ? children[this.state.selected] : null}
                 </div>
             </span>
         );
@@ -174,15 +178,15 @@ export class TabSet extends Component {
 /** Klasa zakładki. Przyjmuje tylko jedno dziecko */
 export class Tab extends Component {
     props: {
-        label: Object,
+        label: any,
         title: ?string,
         disabled: boolean,
         hidden: boolean,
         onSelect: ?(e: ?Event, index: number) => void
     };
 
-    static PropTypes = {
-        label: PropTypes.object,
+    static propTypes = {
+        label: PropTypes.oneOfType([PropTypes.node, PropTypes.element]),
         title: PropTypes.string,
         disabled: PropTypes.bool,
         hidden: PropTypes.bool,
@@ -191,6 +195,6 @@ export class Tab extends Component {
 
 
     render() {
-        return React.Children.only(this.props.children);
+        return super.renderChildren(true);
     }
 }

@@ -7,12 +7,17 @@ import Column, {TEXT_CASING} from "./Column";
 
 export default class Field {
 
+    static renderer: (field: Field, preview: boolean) => any;
+
     _locked: boolean = false; // blokada możliwości zmiany edycji (tryb REMOTE i SYNCHRONIZED)
     _parent: ?Object = null;
     _error: ?string = null; // błędy walidacji
     _warning: ?string = null; // ostrzeżenie (np. pole wymagane)
     _store: ?FieldStore = null;
     _unit: ?[] = null;
+
+    /** Lista kontrolerów (FCtrl) powiązanych z polem, kontrolery usuwają się z listy automatycznie w momencie zniszczenia komponentu*/
+    _fctrls: [] = [];
 
     config: Column;
 
@@ -87,8 +92,8 @@ export default class Field {
         return this.config.type;
     }
 
-    get enumerate(): ?() => Map {
-        return this.config.enumerate;
+    get enumerate(): Map {
+        return DataType.getMap(this.config.enumerate);
     }
 
     get units(): ?() => {} {
@@ -375,6 +380,12 @@ export default class Field {
 
         return [];
     }
+
+    render(preview: boolean): any {
+        return Field.renderer(this, preview);
+    }
+
+
 }
 
 class FieldStore {

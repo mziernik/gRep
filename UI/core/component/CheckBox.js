@@ -10,7 +10,8 @@ export default class CheckBox extends FormComponent {
     };
 
     static propTypes = {
-        label: PropTypes.bool
+        label: PropTypes.bool,
+        threeState: PropTypes.bool
     };
 
     constructor() {
@@ -27,7 +28,7 @@ export default class CheckBox extends FormComponent {
         if (value === null || value === undefined)
             value = true;
         else
-            value = value ? false : null;
+            value = value ? false : this.props.threeState || e.ctrlKey || e.shiftKey ? null : true;
 
         let exception = null;
         try {

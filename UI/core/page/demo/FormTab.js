@@ -5,6 +5,7 @@ import {Component, Page, FontAwesome, FieldComponent, FieldController}    from  
 import JsonViewer from "../../component/JsonViewer";
 import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
+import FCtrl from "../../component/form/FCtrl.js";
 
 export default class FormTab extends Component {
 
@@ -18,20 +19,27 @@ export default class FormTab extends Component {
     render() {
         return <form onSubmit={(e) => this._handleSubmit(e)} style={{overflow: "auto"}}>
             <div style={{display: "flex"}} onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS) }>
-                <table>
+                <table className="tbl">
+                    <thead>
+                    <tr>
+                        <th>Nazwa</th>
+                        <th>Wartość</th>
+                        <th>Podgląd</th>
+                        <th>Tekst</th>
+                    </tr>
+
+                    </thead>
                     <tbody>
 
                     {Object.keys(DATA).map((prop, index) => {
                         let field = DATA[prop];
                         return <tr key={index}>
                             <td style={{width: '20px'}}>
-                                <FieldController field={field}
-                                                 handleRequired={true}
-                                                 handleDescription={true}
-                                                 defReq={<span className={FontAwesome.ASTERISK}
-                                                               style={{color: '#ff6e00'}}/>}
-                                                 defDesc={<span className={FontAwesome.QUESTION_CIRCLE}
-                                                                style={{color: '#0071ff'}}/>}
+                                <FCtrl field={field}
+                                       defReq={<span className={FontAwesome.ASTERISK}
+                                                     style={{color: '#ff6e00'}}/>}
+                                       defDesc={<span className={FontAwesome.QUESTION_CIRCLE}
+                                                      style={{color: '#0071ff'}}/>}
                                 />
                             </td>
 
@@ -47,7 +55,18 @@ export default class FormTab extends Component {
                                                 preview={false}/>
                             </td>
                             <td >
-                                <FieldController field={field} handleFieldError={true}/>
+                                <FCtrl field={field} error/>
+                            </td>
+                            <td >
+                                <FieldComponent field={field} fieldCtrl={false} checkBoxLabel={true} preview={true}/>
+                            </td>
+
+                            <td style={{
+                                maxWidth: "200px",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                            }}>
+                                <FieldComponent field={field} fieldCtrl={false} preview={true} singleLine={true}/>
                             </td>
                         </tr>
                     })}
@@ -516,13 +535,11 @@ const DATA = {
     multdropdown: new Field((c: Column) => {
         c.type = Type.ENUMS;
         c.key = "multipleDropdown";
-        c.enumerate = () => {
-            return {
-                '0': 'wartość 0',
-                '1': 'wartość 1',
-                '2': 'wartość 2'
-            }
-        };
+        c.enumerate = [
+            'wartość 0',
+            'wartość 1',
+            'wartość 2'
+        ];
         c.name = 'Lista multi wyboru';
         c.required = true;
         c.defaultValue = ["2", "0"];

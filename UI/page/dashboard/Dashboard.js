@@ -20,7 +20,7 @@ export default class Dashboard extends Page {
     }
 
 
-    render() {
+    draw() {
         // layout is an array of objects, see the demo for more complete usage
         var layout = [
             {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},

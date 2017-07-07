@@ -1,12 +1,10 @@
 import {React, EventType} from '../../core';
-import {Page} from '../../components';
-import Table from "../../component/Table";
-
+import {Page, Panel, Table} from '../../components';
 
 export default class PEvents extends Page {
 
-    render() {
-        return <div>
+    draw() {
+        return <Panel fit>
             {super.renderTitle("Zdarzenia")};
 
             <Table
@@ -29,7 +27,7 @@ export default class PEvents extends Page {
                 }}
             />
 
-        </div>
+        </Panel>
     }
 }
 

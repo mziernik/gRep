@@ -32,7 +32,7 @@ export function isNumber(object: ?any, then: ?(object: number) => void, otherwis
 }
 
 export function isDefined(object: ?any, then: ?(object: any) => void, otherwise: ?(object: any) => void): boolean {
-    return result(typeof object !== undefined && object !== null, object, then, otherwise);
+    return result(object !== undefined && object !== null, object, then, otherwise);
 }
 
 export function condition(condition: boolean, then: ?(object: any) => void, otherwise: ?(object: any) => void): boolean {

@@ -1,5 +1,5 @@
 import {React, AppNode, Application, EventType, Utils, ContextObject} from "../../core";
-import {Page, Component, Table} from "../../components";
+import {Page, Component, Table, Panel} from "../../components";
 import {Observer} from "../../utils/Dispatcher";
 
 
@@ -9,7 +9,7 @@ export default class PContextObject extends Page {
     static counter: {};
 
 
-    render() {
+    draw() {
 
         const objects = Utils.forEach(ContextObject.getMap(), (arr, ctx) => {
             return {
@@ -18,7 +18,7 @@ export default class PContextObject extends Page {
             }
         });
 
-        return <div>
+        return <Panel fit>
             {super.renderTitle("Obiekty kontekstu")}
 
             <Table
@@ -28,7 +28,7 @@ export default class PContextObject extends Page {
                 }}
                 rows={objects}
             />
-        </div>;
+        </Panel>;
     }
 
 

@@ -15,6 +15,7 @@ export class DataType {
     formatter: (value: any, enumerate: Map) => string;
     name: string;
     single: boolean;
+    description: string;
 
     enumerate: ?[] = null; // np.: [['tekst',{wartość}],['tekst2',{wartość2}],...]
 
@@ -39,6 +40,8 @@ export class DataType {
     formatDisplayValue(value: any, enumerate: ?Map): string {
 
         enumerate = enumerate || this.enumerate;
+
+        if (enumerate) enumerate = DataType.getMap(enumerate)();
 
         if (this.formatter)
             return this.formatter(value, enumerate);
@@ -68,6 +71,23 @@ export class DataType {
         return this instanceof MultipleDataType;
     }
 
+
+    /** Formatuje dane enumeraty z mapy, obiektu lub tablicy do postaci funkcji zwrotnej */
+    static getMap(source: any): () => Map {
+        if (!source) return null;
+
+        return () => {
+            if (If.isFunction(source))
+                source = source();
+
+            if (source instanceof Map)
+                return source;
+
+            const map = new Map();
+            Utils.forEach(source, (v, k) => map.set(k, v));
+            return map;
+        };
+    }
 
     // /** @private */
     // setEnumerate(enumerate: [], multiple: boolean = false): DataType {
@@ -257,6 +277,45 @@ export const MEMO: DataType = new DataType((dt: DataType) => {
     dt.simpleType = "string";
     dt.parser = val => "" + val;
 });
+
+export const EMAIL: DataType = new DataType((dt: DataType) => {
+    dt.name = "email";
+    dt.simpleType = "email";
+    dt.description = "Adres e-mail";
+    //ToDo: walidacja emaila
+    dt.parser = val => {
+        return val;
+    };
+});
+
+export const IMAGE: DataType = new DataType((dt: DataType) => {
+    dt.name = "image";
+    dt.simpleType = "string";
+    dt.description = "Obrazek";
+    dt.parser = val => {
+        return val;
+    };
+});
+
+export const PHONE: DataType = new DataType((dt: DataType) => {
+    dt.name = "phone";
+    dt.simpleType = "string";
+    dt.description = "Numer telefonu";
+    dt.parser = val => {
+        return val;
+    };
+});
+
+
+export const ICON: DataType = new DataType((dt: DataType) => {
+    dt.name = "icon";
+    dt.simpleType = "string";
+    dt.description = "Ikona"; //FontAwesome
+    dt.parser = val => {
+        return val;
+    };
+});
+
 
 export const BYTE: DataType = new DataType((dt: DataType) => {
     dt.name = "byte";

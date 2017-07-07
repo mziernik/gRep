@@ -4,15 +4,23 @@ import {React, Utils} from '../../core';
 import {Component, Button, FontAwesome} from '../../components';
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
 import FormTab from "./FormTab";
+import Resizer from "../../component/Resizer";
 
 export default class ModalWindowTab extends Component {
 
     render() {
         return (
             <div style={{overflow: 'auto'}}>
-                {Utils.forEach(this.MODAL_WINDOWS, (mw, index) => {
-                    return <Button key={index} onClick={() => mw.modalWindow.open()}>{mw.name}</Button>
-                })}
+                <div>
+                    {Utils.forEach(this.MODAL_WINDOWS, (mw, index) => {
+                        return <Button key={index} onClick={() => mw.modalWindow.open()}>{mw.name}</Button>
+                    })}
+                </div>
+                <Resizer
+                    style={{position: 'relative', border: '1px solid black', width: '300px', height: '200px'}}
+                    noDefaultLimits={true}
+                >
+                </Resizer>
             </div>
         )
     }
@@ -162,7 +170,15 @@ export default class ModalWindowTab extends Component {
                 mw.footerStyle = {background: 'red'};
                 mw.resizable = false;
             })
+        },
+        {
+            name: "Bez przeciągania",
+            modalWindow: ModalWindow.create((mw: ModalWindow) => {
+                mw.content="Okno bez możliwości zmiany pozycji";
+                mw.draggable=false;
+            })
         }
+
         /* wzorzec
          {
          name: "",

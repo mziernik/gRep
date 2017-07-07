@@ -98,8 +98,7 @@ table th {
 #app-pages-container {
     flex: auto;
     overflow: hidden;
-    width: 100%;
-
+    position: relative;
 }
 
 .app-page-container {
@@ -133,3 +132,4 @@ table th {
 #app-navbar .x-tree {
     width: 200px;
 }
+

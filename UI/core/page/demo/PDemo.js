@@ -8,7 +8,9 @@ import ListsTab from "./ListsTab";
 import TablesTab from "./TablesTab";
 import DragAndDropTab from "./DragAndDropTab";
 import ModalWindowTab from "./ModalWindowTab";
+import AlertsTab from "./AlertsTab";
 
+//ToDo: Wojtek : Przenieś funkcje testowe popup menu do oddzielnej karty
 
 export default class PDemo extends Page {
 
@@ -17,7 +19,7 @@ export default class PDemo extends Page {
         this.state = {selectedTab: 0};
     };
 
-    render() {
+    draw() {
 
         return <Panel fit>
             {super.renderTitle("Demo")}
@@ -37,9 +39,9 @@ export default class PDemo extends Page {
                 <Tab label="Modal Window">
                     <ModalWindowTab/>
                 </Tab>
-                <Tab label="Drag&Drop">
-                    <DragAndDropTab/>
-                </Tab>
+
+                <Tab label="Alerty"> <AlertsTab/> </Tab>
+                <Tab label="Drag&Drop"><DragAndDropTab/></Tab>
                 <Tab label="Dodatkowe Opcje">
                     <div>różne opcje</div>
                 </Tab>

@@ -31,7 +31,7 @@ export default class Select extends FormComponent {
 
     static propTypes = {
         /** czy jest to lista jednostek */
-        units: PropTypes.bool,
+        units: PropTypes.array,
         readOnly: PropTypes.bool
     };
 

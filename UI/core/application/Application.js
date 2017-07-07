@@ -1,13 +1,14 @@
 // @flow
 'use strict';
 
-import {React, ReactDOM, PropTypes, AppNode, AppEvent, Utils, Dispatcher} from "../core";
+import {React, ReactComponent, ReactDOM, PropTypes, AppNode, AppEvent, Utils, Dispatcher} from "../core.js";
 import {BrowserRouter} from 'react-router-dom';
 import {PageTab} from "../page/PageContainer";
 
+
 export const onCreate: Dispatcher = new Dispatcher();
 
-export default class Application extends React.Component {
+export default class Application extends ReactComponent {
 
     /** @type {AppNode[]} */
     static nodes: AppNode[] = [];

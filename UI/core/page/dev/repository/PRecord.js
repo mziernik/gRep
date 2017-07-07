@@ -1,5 +1,5 @@
 import {React, PropTypes, Utils, Field, Repository, Record, CRUDE, Column, AppStatus} from '../../../core';
-import {Component, Page, FieldComponent, FieldController, Panel} from '../../../components';
+import {Component, Page, FieldComponent, FieldController, Panel, Resizer} from '../../../components';
 import WebApiRepositoryStorage from "../../../repository/storage/WebApiRepoStorage";
 import JsonViewer from "../../../component/JsonViewer";
 import RecordCtrl from "../../../component/form/RecordCtrl";
@@ -31,7 +31,7 @@ export default class PRecord extends Page {
     }
 
 
-    render() {
+    draw() {
 
         if (!this.isNew && !this.waitForRepo(this.repo, () => this.forceUpdate()))
             return <span>Inicjalizacja repozytorium. Proszę czekać...</span>;
@@ -68,14 +68,14 @@ export default class PRecord extends Page {
 
         const ctrl: RecordCtrl = new RecordCtrl(this, this.record, this.isNew ? CRUDE.CREATE : CRUDE.UPDATE);
 
-        return <Panel>
+        return <Panel fit>
             {super.renderTitle((this.isNew ? "Nowy rekord" : "Edycja rekordu " + this.record.fullId ) + " repozytorium " + this.repo.name)}
 
             <div style={{
                 display: "flex"
             }}>
 
-                <section
+                <Panel resizable
                     style={{
                         flex: "auto",
                         display: "inline-block",
@@ -136,7 +136,7 @@ export default class PRecord extends Page {
                         </tfoot>
                     </table>
 
-                </section>
+                </Panel>
 
                 <div style={{flex: "auto", padding: "8px"}}>
                     <div>DTO:</div>
@@ -144,6 +144,7 @@ export default class PRecord extends Page {
                 </div>
 
             </div>
+
         </Panel>
     }
 

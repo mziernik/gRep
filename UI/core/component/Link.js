@@ -47,20 +47,6 @@ export default class Link extends Component {
 
         //-------------------------------------------------------------
 
-        if (this.props.link && !disabled) {
-            let link = this.props.link;
-            if (link instanceof Endpoint)
-                link = (link: Endpoint).getLink();
-
-            return <RouteLink to={link}>
-                <span
-                    title={title}
-                    style={style}
-                    className={className}
-                >{this.props.children}</span>
-            </RouteLink>
-        }
-
         if (If.isFunction(this.props.downloadData))
             return <a
                 href="javascript:void(0)"
@@ -99,23 +85,36 @@ export default class Link extends Component {
                     else
                         process();
 
-                }}>{this.props.children}</span>
+                }}>{super.renderChildren()}</span>
             </a>;
 
-        return <a href={disabled ? null : "javascript:void(0)"}>
+        let link = this.props.link;
+
+
+        return <a href={disabled ? null : link ? link : "javascript:void(0)"}>
             <span
                 title={title}
                 style={style}
                 disabled={disabled}
                 className={className}
-                onClick={(e) => {
+                onClick={(e: MouseEvent) => {
+
+                    if (link)
+                        e.preventDefault();
+
                     if (disabled) return;
                     if (this.props.confirm && If.isFunction(this.props.onClick))
                         Alert.confirm(this, this.props.confirm, () => this.props.onClick(e));
                     else If.isFunction(this.props.onClick, f => f(e));
 
+                    if (link instanceof Endpoint)
+                        (link: Endpoint).navigate(null, e);
+
+                    if (typeof link === "string")
+                        Endpoint.navigate(link, e);
+
                 }}
-            >{this.props.children}</span>
+            >{super.renderChildren()}</span>
         </a>;
 
     }
