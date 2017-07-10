@@ -71,7 +71,8 @@ export default class DevRouter extends Endpoint {
         Object.preventExtensions(this);
 
         AppEvent.REPOSITORY_REGISTERED.listen(this, (repo: Repository) => {
-                this.REPOS.child(repo.key, repo.name, this.REPOS._path + "/" + repo.key, PRepository);
+                this.REPOS.child(repo.key, repo.name, this.REPOS._path + "/" + repo.key, PRepository)
+                    .icon(repo.config.icon);
             }
         );
 

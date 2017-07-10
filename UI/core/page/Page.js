@@ -1,12 +1,14 @@
 // @flow
 'use strict';
-import {React, Record, Repository, Endpoint, Utils, If, EError, Debug, DEV_MODE} from "../core";
+import {React, Record, Repository, Endpoint, Utils, If, EError, Debug, DEV_MODE, Ready} from "../core";
 import {Component, Spinner, Panel} from "../components";
 
 export default class Page extends Component {
 
+    /** @private */
+    __render: () => any;
 
-    static pageTitleRenderer: (page: Page, title: string) => any = null
+    static pageTitleRenderer: (page: Page, title: string) => any = null;
     endpoint: Endpoint;
 
     constructor(scrollable: boolean) {
@@ -14,8 +16,14 @@ export default class Page extends Component {
         this.endpoint = this.props.route.endpoint;
         Utils.makeFinal(this, ["endpoint"]);
 
-        if (DEV_MODE && this.draw.toString().replaceChars(" \t\r\n", "") === "functiondraw(){returnnull;}")
-            throw new Error("Brak implementacji funkcji " + this.constructor.name + ".draw()");
+        this.render = () => {
+            try {
+                return this.__render();
+            } catch (e) {
+                Debug.error(this, e);
+                return Page.renderError(e);
+            }
+        }
     }
 
     renderTitle(title: string) {
@@ -46,37 +54,10 @@ export default class Page extends Component {
 
     /** Zwraca tru jeśli repozytoria [repos] zostały zainicjowane, w przeciwnym razie czeka na inicjalizację i wywołuje forceUpdate na stronie */
     waitForRepo(repos: Repository | Repository[], onReady: ?() => void = null): boolean {
-        repos = If.isArray(repos) ? repos : [repos];
-        const notReady: Repository[] = Utils.forEach(repos, (repo: Repository) => repo.isReady ? undefined : repo);
-        if (notReady.isEmpty())
-            return true;
+        if (!(If.isArray(repos))) repos = [repos];
+        const result = Ready.waitFor(repos, () => If.isFunction(onReady, f => f(), this.forceUpdate()));
 
-        notReady.forEach((repo: Repository) => {
-            repo.onChange.listen(this, () => {
-                if (notReady.isEmpty())
-                    return;
-                notReady.remove(repo);
-                if (notReady.isEmpty())
-                    onReady ? onReady() : this.forceUpdate();
-            });
-        });
-        return false;
-    }
-
-    // uwaga! nie dopisywać nid w funkcji draw()
-    draw() {
-        return null;
-    }
-
-    render() {
-
-        try {
-            return this.draw();
-        } catch (e) {
-            Debug.error(this, e);
-            return Page.renderError(e);
-        }
-
+        return result;
     }
 
     static renderError(e: string | Error | EError) {

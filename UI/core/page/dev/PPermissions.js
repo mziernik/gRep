@@ -17,7 +17,7 @@ export default class PPermissions extends Page {
 
     }
 
-    draw() {
+    render() {
         PERMISSIONS.refresh();
         const add = (record: PermissionRecord, field: Field) =>
             <input type="checkbox"

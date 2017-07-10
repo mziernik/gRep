@@ -9,7 +9,7 @@ export default class PContextObject extends Page {
     static counter: {};
 
 
-    draw() {
+    render() {
 
         const objects = Utils.forEach(ContextObject.getMap(), (arr, ctx) => {
             return {

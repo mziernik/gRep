@@ -9,7 +9,7 @@ export default class PComponents extends Page {
     static counter: {};
 
 
-    draw() {
+    render() {
 
         const components = [];
         Application.nodes.forEach((node: AppNode) => node.components.forEach(c => components.push(c)));

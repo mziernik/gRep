@@ -3,6 +3,8 @@ CREATE EXTENSION IF NOT EXISTS "hstore";
 
 CREATE SCHEMA IF NOT EXISTS data;
 
+
+
 /*
 Tabela przechowuje klucze szyfrujące. Każde hasło tabeli accounts zaszyfrowane jest wygenerowanym guid-em. 
 Guid ten natomiast zaszyfrowany na dwa sposoby:
@@ -86,6 +88,7 @@ CREATE TABLE data.attribute
     def_val         VARCHAR[],
     required        BOOLEAN[], -- null oznacza, że wszyskie wartości są wymagane
     name            VARCHAR NOT NULL,
+    display_mask    VARCHAR,
     icon            VARCHAR,
     description     VARCHAR
 );

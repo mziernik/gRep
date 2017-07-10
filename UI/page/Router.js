@@ -10,11 +10,11 @@ import PDev from "../core/page/dev/PDev";
 import PCatalogs from "./PCatalogs";
 
 
-export const CATALOGS = new Endpoint("Katalog", "/cat/:id", PCatalogs).defaultParams({id: "all"});
-export const DASHBOARD = new Endpoint("Dashboard", "/", Dashboard);
+export const CATALOGS = new Endpoint("catalog", "Katalog", "/cat/:id", PCatalogs).defaultParams({id: "all"});
+export const DASHBOARD = new Endpoint("dashboard", "Dashboard", "/", Dashboard);
 export const DEV = new PDev("/dev");
 
-export const NOT_FOUND = Endpoint.NOT_FOUND = new Endpoint("Nie znaleziono...", "*", NotFound).hidden(true)
+export const NOT_FOUND = Endpoint.NOT_FOUND = new Endpoint("notFound", "Nie znaleziono...", "*", NotFound).hidden(true)
 
 
 Endpoint.homePage = DASHBOARD;

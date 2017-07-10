@@ -3,7 +3,7 @@ import {Page, Spinner, Panel} from "../../components";
 
 export default class PAppTest extends Page {
 
-    draw() {
+    render() {
         return <Panel fit>
             {super.renderTitle("Procedury testowe aplikacji")}
             <div>

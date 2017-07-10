@@ -62,6 +62,15 @@ public class RAttribute extends Repository<Integer> {
         c.name = "Nazwa";
         c.required = true;
     });
+    
+        public final static Column<String> MASK = new Column<>(c -> {
+        c.repository = RAttribute.class;
+        c.type = DataType.STRING;
+        c.key = "mask";
+        c.name = "Maska wy swietlania";
+        c.hidden = true;
+        c.daoName = "display_mask";
+    });
 
     public final static ForeignColumn<Integer, RCategory> PARENT = new ForeignColumn<>(c -> {
         c.repository = RAttribute.class;

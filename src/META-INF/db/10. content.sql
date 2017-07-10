@@ -22,16 +22,16 @@ INSERT INTO data.attribute_element (type, key, name, MIN, MAX, description, enum
 
 ;
 
-INSERT INTO data.attribute (key, name, elements, required, icon) VALUES
-    ('name',    'Nazwa',        '{1}', null, null),
-    ('model',   'Model',        '{1}', null, null),
-    ('vendor',  'Producent',    '{1}', null, null),
-    ('ip',      'Adres IP',     '{8, 5}', '{true, false}', null),
-    ('account', 'Konto',        '{13, 14}', '{true, false}', 'user'),
-    ('url',     'URL',          '{4}', null, 'external-link'),
-    ('intf',    'Interfejs sieciowy', '{11, 12, 9, 8, 5}', null, null),
-    ('sshAccount','Konto SSH',  '{6, 7, 13, 14}', null, 'user'),
-    ('wiFi',      'WiFi',       '{1, 14}', null, 'wifi')
+INSERT INTO data.attribute (key, name, elements, required, display_mask, icon) VALUES
+    ('name',    'Nazwa',        '{1}', null, null, null),
+    ('model',   'Model',        '{1}', null, null, null),
+    ('vendor',  'Producent',    '{1}', null, null, null),
+    ('ip',      'Adres IP',     '{8, 5}', '{true, false}', '%1 (%2)', null),
+    ('account', 'Konto',        '{13, 14}', '{true, false}', '%1:*****', user),
+    ('url',     'URL',          '{4}', null, null, 'external-link'),
+    ('intf',    'Interfejs sieciowy', '{11, 12, 9, 8, 5}', null, '%1, %2, %3, %4, %5', null),
+    ('sshAccount','Konto SSH',  '{6, 7, 13, 14}', null, '%3:%4@%1:%2', 'user'),
+    ('wiFi',      'WiFi',       '{1, 14}', null, '%1:*****', 'wifi')
 
 ;
 

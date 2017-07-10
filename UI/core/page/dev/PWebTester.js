@@ -96,7 +96,7 @@ export default class PWebTester extends Page {
         e.preventDefault();
     };
 
-    draw() {
+    render() {
 
         super.renderTitle("WEB Tester");
 

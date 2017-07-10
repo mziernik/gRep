@@ -195,6 +195,6 @@ export class Tab extends Component {
 
 
     render() {
-        return super.renderChildren(true);
+        return super.renderChildren(null, true);
     }
 }

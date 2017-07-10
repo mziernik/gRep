@@ -28,7 +28,7 @@ export default class Column {
     defaultValue: ?any = null;
     defaultUnit: ?[] = null; //domyślna jednostka [klucz, tekst, mnożnik]
     //ToDo: Parsowanie ze stringa
-    textCasing: ?string = TEXT_CASING.NONE; // określa formatowanie tekstu (uppercase/lowercase/capitalize)
+    textCasing: ?string = null; // określa formatowanie tekstu (uppercase/lowercase/capitalize)
     validator: ?(value: any) => void = null;
 
     sortable: ? boolean = null;
@@ -38,7 +38,6 @@ export default class Column {
     hidden: ? boolean = null;
     compare: ?(a: ?any, b: ?any) => number = null;
     filter: ?(filter: ?any, cell: ?any) => boolean = null;
-
     foreign: ?() => Repository = null;
 
     constructor(config: (c: Column) => void) {
@@ -52,6 +51,8 @@ export default class Column {
         if (!(this.type instanceof DataType))
             this.type = Type.get(this.type);
 
+        if (this.trimmed === null && this.type.single === "string" && this.type !== Type.PASSWORD)
+            this.trimmed = true;
 
         If.isString(this.type, t => this.type = Type.get(t));
         Check.instanceOf(this.type, [Type.DataType]);

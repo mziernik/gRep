@@ -12,6 +12,7 @@ import RouteLink from "react-router-dom/es/Link";
 export default class Link extends Component {
 
     static propTypes = {
+        ignore: PropTypes.any,
         downloadName: PropTypes.string,
         downloadData: PropTypes.func,
         className: PropTypes.string,

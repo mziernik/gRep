@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {React, PropTypes, ReactComponent, Utils, If, AppNode, Check} from "../core.js";
+import {React, ReactUtils, PropTypes, ReactComponent, Utils, If, AppNode, Check, Field} from "../core.js";
 import * as ContextObject from "../application/ContextObject";
 
 /**
@@ -13,13 +13,21 @@ import * as ContextObject from "../application/ContextObject";
 export default class Component<DefaultProps: any, Props: any, State: any>
     extends ReactComponent<*, *, *> {
 
+    /** @private */
+    __render: () => any;
+
     static contextTypes = {
         router: PropTypes.object.isRequired,
         node: PropTypes.instanceOf(AppNode).isRequired,
     };
 
+    static propTypes = {
+        ignore: PropTypes.bool, // warunek wykluczający rysowanie
+    };
 
-    static defaultProps = {};
+    static defaultProps = {
+        ignore: false
+    };
 
     _compoenntIsRendering: boolean = false;
 
@@ -59,6 +67,18 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         this.name = Utils.className(this);
 
         this.node.components.push(this);
+
+        this.__render = this.render;
+
+        this.render = () => {
+            if (this.props.ignore)
+                return null;
+            try {
+                return this.__render();
+            } catch (e) {
+                throw e;
+            }
+        }
     }
 
 
@@ -103,9 +123,10 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         return this.name;
     }
 
-    renderChildren(onlyOne: boolean = false, children: ?any = null) {
+    renderChildren(children: ?any = null, onlyOne: boolean = false,) {
 
         Check.isBoolean(onlyOne);
+
 
         children = children || this.props.children;
         if (onlyOne) {
@@ -115,11 +136,25 @@ export default class Component<DefaultProps: any, Props: any, State: any>
                     throw new Error("Nieprawidłowa liczba elementów");
                 return children[0];
             }
-            return React.Children.only(children);
+            children = React.Children.only(children);
         }
 
-        //ToDo weryfikacja poprawności danych
-        return children;
+        const process = (child: any) => {
+
+            if (child instanceof Field)
+                return (child: Field).displayValue;
+
+            // if (!If.isString(child) && !ReactUtils.isReactElement(child))
+            //     debugger;
+
+            return child;
+        };
+
+        if (children instanceof Array)
+            return Utils.forEach(children, c => process(c))
+
+
+        return process(children);
     }
 
 
@@ -166,9 +201,6 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         this._compoenntIsRendering = true;
     }
 
-    render() {
-        return null;
-    }
 
     componentDidUpdate() {
         this._compoenntIsRendering = false;

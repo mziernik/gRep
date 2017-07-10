@@ -22,8 +22,10 @@ export default class FormTab extends Component {
                 <table className="tbl">
                     <thead>
                     <tr>
+                        <th/>
                         <th>Nazwa</th>
                         <th>Wartość</th>
+                        <th/>
                         <th>Podgląd</th>
                         <th>Tekst</th>
                     </tr>

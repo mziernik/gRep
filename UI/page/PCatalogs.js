@@ -1,8 +1,8 @@
 // @flow
 'use strict';
 
-import {React, Ready, Utils, PropTypes, Field, Type, Column} from "../core/core";
-import {Component, FieldComponent, Panel, Checkbox} from "../core/components";
+import {React, Ready, Utils, PropTypes, Field, Type, Column, Repository} from "../core/core";
+import {Component, FieldComponent, Panel, Checkbox, FontAwesome, Link} from "../core/components";
 import Page from "../core/page/Page";
 import * as Repositories from "../model/Repositories";
 import {RCatalogRecord} from "../model/Repositories";
@@ -12,17 +12,15 @@ import {RAttributeRecord} from "../model/Repositories";
 import {RepoCursor} from "../core/repository/Repository";
 import {RResourceRecord} from "../model/Repositories";
 import {RResource} from "../model/Repositories";
-import FormComponent from "../core/component/form/FormComponent";
-import FieldController from "../core/component/form/FieldController";
 
 class Attributes extends Component {
 
-    static propTypes: {
+    static propTypes = {
         preview: PropTypes.bool
     };
 
     render() {
-        return <table>
+        return <table className="tbl">
 
             <tbody>
             {this.props.children}
@@ -32,32 +30,70 @@ class Attributes extends Component {
     }
 }
 
-
 class Attr extends Component {
 
-    static propTypes: {
+    static propTypes = {
         field: PropTypes.any,
-        preview: PropTypes.bool,
-        name: PropTypes.string
+        value: PropTypes.any,
+        name: PropTypes.string,
+        edit: PropTypes.bool, // ikona edycji
+        ignore: PropTypes.bool, // warunek wykluczający rysowanie
     };
 
+    static defaultProps = {
+        edit: false
+    };
+
+
+    /** Wartość jest aktualnie edytowana */
+    edit: boolean = false;
     field: Field;
-    preview: boolean;
+
 
     constructor() {
         super(...arguments);
         this.field = this.props.field;
-        this.preview = this.props.preview || true;
     }
 
     render() {
+
+        const field: Field = this.edit ? new Field(this.field.config) : this.field;
+        if (this.edit)
+            field._value = this.field.value;
+
         return <tr>
-            <td style={{padding: "2px 8px"}}>{this.props.name || this.field.name}</td>
+            <td style={{padding: "2px 8px"}}>{super.renderChildren(this.props.name || field.name)}</td>
             <td style={{padding: "2px 8px"}}>
-                <FieldComponent field={this.field} preview={this.preview}/>
-            </td>
-            <td style={{padding: "2px 8px"}}>
-                <FieldComponent field={this.field} preview={false}/>
+                {this.props.value ? super.renderChildren(this.props.value) : <span style={{display: "inline-block"}}>
+                    <FieldComponent
+                        key={(this.edit ? "#edt" : "") + field.key}
+                        field={field}
+                        preview={!this.props.edit || !this.edit}/>
+                </span>
+                }
+
+                <Link ignore={!this.props.edit || !field || this.edit}
+                      icon={FontAwesome.PENCIL}
+                      onClick={() => {
+                          this.edit = true;
+                          this.forceUpdate();
+                      }}/>
+
+                <Link ignore={!this.props.edit || !field || !this.edit}
+                      icon={FontAwesome.FLOPPY_O}
+                      onClick={() => {
+                          this.edit = false;
+                          this.props.field.value = field.value;
+                          Repository.commit(this, [this.field.record]);
+                          this.forceUpdate();
+                      }}/>
+                <Link ignore={!this.props.edit || !field || !this.edit}
+                      icon={FontAwesome.TIMES}
+                      onClick={() => {
+                          this.edit = false;
+                          this.forceUpdate();
+                      }}/>
+
             </td>
         </tr>;
     }
@@ -66,18 +102,19 @@ class Attr extends Component {
 export default class PCatalogs extends Page {
 
     rec: RCatalogRecord;
-    showAdvanced: Field = new Field((c: Column) => {
+    showDetails: Field = new Field((c: Column) => {
         c.type = Type.BOOLEAN;
         c.key = "advanced";
         c.name = "Zaawansowane";
+        c.defaultValue = false;
     });
 
     constructor() {
         super(...arguments);
-        this.showAdvanced.onChange.listen(this, () => this.forceUpdate());
+        this.showDetails.onChange.listen(this, () => this.forceUpdate());
     }
 
-    draw() {
+    render() {
 
         if (!Ready.waitFor([Repositories.R_CATALOG], () => this.forceUpdate()))
             return <div>Oczekiwanie na gotowość repozytorium katalogów</div>;
@@ -100,48 +137,74 @@ export default class PCatalogs extends Page {
         const attrs: RCatalogAttributeRecord[] = Repositories.R_CATALOG_ATTRIBUTE.find(this, (cursor: RepoCursor) => cursor.get(RCatalogAttribute.CAT) === catalogId);
         const ress: RResourceRecord[] = Repositories.R_RESOURCE.find(this, (cursor: RepoCursor) => cursor.get(RResource.CAT) === catalogId);
 
-        const adv = this.showAdvanced.value;
+        const adv = this.showDetails.value;
         return <Panel fit>
             { super.renderTitle(path.reverse().join(" / "))}
 
             <label>
-                {this.showAdvanced.render(false, true)}
+                {this.showDetails.render(false, true)}
                 <span>Zaawansowane</span>
             </label>
 
 
-            <Attributes>
-                {adv ? <Attr field={rec.ID}/> : null}
-                {adv ? <Attr field={rec.UID}/> : null}
-                <Attr field={rec.NAME}/>
-                <Attr field={rec.PARENT}/>
-                <Attr field={rec.ABSTRACT}/>
-                <Attr field={rec.CATEGORY}/>
-                <Attr field={rec.CREATED}/>
-                <Attr field={rec.ORDER}/>
-                <Attr field={rec.DESC}/>
+            <Panel fit vertical>
 
-                <tr>
-                    <td colSpan={2}><h3>Atrybuty:</h3></td>
-                </tr>
+                <Attributes>
+                    <Attr ignore={!adv} field={rec.ID}/>
+                    <Attr ignore={!adv} field={rec.UID}/>
+                    <Attr field={rec.NAME} edit/>
+                    <Attr ignore={!adv} field={rec.PARENT}/>
+                    <Attr ignore={!adv} field={rec.ABSTRACT}/>
+                    <Attr ignore={!adv} field={rec.CATEGORY}/>
+                    <Attr ignore={!adv} field={rec.CREATED}/>
+                    <Attr ignore={!adv} field={rec.ORDER}/>
+                    <Attr field={rec.DESC} edit/>
 
-                {attrs.map((catAttr: RCatalogAttributeRecord) => {
+                    <tr>
+                        <td colSpan={2}><h3>Atrybuty:</h3></td>
+                    </tr>
 
-                    const attr: RAttributeRecord = catAttr.getForeign(this, catAttr.ATTR);
+                    {attrs.map((catAttr: RCatalogAttributeRecord) => {
 
-                    return <Attr key={catAttr.ID.value} name={attr.NAME.value} field={catAttr.VALUE}/>
-                })}
+                        const attr: RAttributeRecord = catAttr.getForeign(this, catAttr.ATTR);
 
-                <hr/>
+                        let val = Utils.asArray(catAttr.VALUE.value).map(elm => Utils.toString(elm)).join(", ");
 
-                <tr>
-                    <td colSpan={2}><h3>Zasoby:</h3></td>
-                </tr>
 
-                {ress.map((res: RResourceRecord) => {
-                    return <Attr key={res.ID.value} name={res.NAME.value} field={res.FORMAT}/>
-                })}
-            </Attributes>
+                        if (attr.MASK.value) {
+
+                            let str = attr.MASK.value;
+
+                            Utils.forEach(Utils.asArray(catAttr.VALUE.value), (v, idx) => {
+                                str = str.replaceAll("%" + (idx + 1), Utils.toString(v));
+                            });
+                            val = str;
+
+                        }
+
+                        return <Attr key={catAttr.ID.value}
+                                     name={ "[" + attr.ID.value + "] " + attr.NAME.value}
+                                     value={val}/>
+                    })}
+
+                    <hr/>
+
+                    <tr>
+                        <td colSpan={2}><h3>Zasoby:</h3></td>
+                    </tr>
+
+                    {ress.map((res: RResourceRecord) => {
+                        return <Attr
+                            key={res.ID.value}
+                            name={res.NAME.value}
+                            field={res.FORMAT}/>
+                    })}
+                </Attributes>
+
+                <div style={{borderLeft: "1px solid red", flex: "auto"}}>
+aaasd
+                </div>
+            </Panel>
         </Panel>
 
     }

@@ -6,7 +6,7 @@ import * as Skin from "../../application/Skin";
 
 export default class PSkin extends Page {
 
-    draw() {
+    render() {
 
 
         function visit(section: Section, parentName: string) {

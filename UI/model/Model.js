@@ -11,10 +11,10 @@ export function init() {
 
     function visit(tree: RepoTree, ep: Endpoint) {
 
-        if (tree !== tree.root) {
+        if (tree !== tree.root)
+            ep = ep.child("" + tree.get(RCatalog.ID), tree.get(RCatalog.NAME), Router.CATALOGS._path, PCatalogs)
+                .defaultParams({id: tree.get(RCatalog.ID)});
 
-            ep = ep.child(tree.get(RCatalog.NAME), Router.CATALOGS._path, PCatalogs).defaultParams({id: tree.get(RCatalog.ID)});
-        }
         tree.children.forEach((rt: RepoTree) => visit(rt, ep));
     }
 

@@ -19,7 +19,7 @@ export default class PDemo extends Page {
         this.state = {selectedTab: 0};
     };
 
-    draw() {
+    render() {
 
         return <Panel fit>
             {super.renderTitle("Demo")}

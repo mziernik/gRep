@@ -12,9 +12,11 @@ import com.utils.collections.TList;
 import java.sql.*;
 import com.config.engine.interfaces.Cfg;
 import static com.lang.LConfig.*;
+import com.model.RRepoHistory;
 import com.model.dao.DatabaseDAO;
-import com.model.repository.RTest;
+import com.model.RTest;
 import com.model.repository.Repository;
+import com.service.RUsers;
 import com.service.status.RThreads;
 import com.utils.Unquoted;
 import main.GRep;
@@ -30,7 +32,9 @@ import model.repository.RResource;
 
 public class Db extends PostgreSQL {
 
+    public final static RRepoHistory HISTORY = Repository.register(new RRepoHistory());
     public final static RTest TEST = Repository.register(new RTest());
+    public final static RUsers USERS = Repository.register(new RUsers());
     public final static RThreads THREADS = Repository.register(new RThreads());
     public final static RAttribute ATTRIBUTE = Repository.register(new RAttribute());
     public final static RAttributeElement ATTRIBUTE_ELEMENT = Repository.register(new RAttributeElement());
@@ -40,7 +44,7 @@ public class Db extends PostgreSQL {
     public final static RCategoryAttribute CATEGORY_ATTRIBUTE = Repository.register(new RCategoryAttribute());
     public final static RResource RESOURCE = Repository.register(new RResource());
     public final static RCryptKey CRYPT_KEY = Repository.register(new RCryptKey());
-    
+
 //    public final static Files files = new Files();
     //   public final static Documents documents = new Documents();
     public static class CDatabase extends ConfigNode {

@@ -31,9 +31,9 @@ export default class PRecord extends Page {
     }
 
 
-    draw() {
+    render() {
 
-        if (!this.isNew && !this.waitForRepo(this.repo, () => this.forceUpdate()))
+        if (!this.isNew && !super.waitForRepo(this.repo))
             return <span>Inicjalizacja repozytorium. Proszę czekać...</span>;
 
         this.record = this.record || this.repo.get(this, this.props.rec);
@@ -76,14 +76,14 @@ export default class PRecord extends Page {
             }}>
 
                 <Panel resizable
-                    style={{
-                        flex: "auto",
-                        display: "inline-block",
-                        // resize: "horizontal",
-                        // overflow: "auto",
-                        padding: "8px",
-                        border: "1px solid #aaa"
-                    }}>
+                       style={{
+                           flex: "auto",
+                           display: "inline-block",
+                           // resize: "horizontal",
+                           // overflow: "auto",
+                           padding: "8px",
+                           border: "1px solid #aaa"
+                       }}>
 
                     <table className="tbl" style={{width: "100%"}}>
                         <tbody>

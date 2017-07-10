@@ -62,9 +62,7 @@ public class RAttributeElement extends Repository<Integer> {
 
     public final static Column<DataType> TYPE = new Column<>(c -> {
         c.repository = RAttributeElement.class;
-        c.type = new EnumDataType<DataType>(DataType.class, DataType.ALL.values(),
-                dt -> dt.name, 
-                dt -> dt.description != null ? dt.description.toString() : dt.name );
+        c.type = DataType.DATA_TYPE;
         c.key = "type";
         c.name = "Typ";
     });
@@ -130,7 +128,7 @@ public class RAttributeElement extends Repository<Integer> {
 
     public final static Column<LinkedHashMap<String, String>> ENUMERATE = new Column<>(c -> {
         c.repository = RAttributeElement.class;
-        c.type = new MapDataType<>(DataType.STRING, DataType.STRING);
+        c.type = new MapDataType<>(DataType.STRING);
         c.name = "Enumerata";
         c.key = "enumerate";
     });

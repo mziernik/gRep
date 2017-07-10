@@ -8,7 +8,7 @@ export default class PModules extends Page {
     static counter: {};
 
 
-    draw() {
+    render() {
 
         const rows = [];
 

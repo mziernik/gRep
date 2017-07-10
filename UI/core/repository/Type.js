@@ -117,14 +117,11 @@ export function get(name: string): DataType {
         return result;
 
     if (name.endsWith("[]"))
-        return new ListDataType(get(name.substring(0, name.length - 2)));
+        return new ListDataType(get(name.substring(0, name.length - 2).trim()));
 
-    if (name.startsWith("{") && name.endsWith("}")) {
-        const names = name.substring(1, name.length - 1).split(",");
-        if (names.length !== 2)
-            throw new Error("Nieprawidłowa ilość elementów mapy: " + Utils.escape(name));
-        return new MapDataType(get(names[0].trim()), get(names[1].trim()));
-    }
+    if (name.startsWith("{") && name.endsWith("}"))
+        return new MapDataType(get(name.substring(1, name.length - 1).trim()));
+
 
     if (name.startsWith("(") && name.endsWith(")")) {
         const names = name.substring(1, name.length - 1).split(",");
@@ -158,13 +155,12 @@ export class ListDataType extends DataType {
 
 export class MapDataType extends DataType {
 
-    keyType: DataType;
-    valueType: DataType;
+    type: DataType;
     types: DataType[];
 
-    constructor(key: DataType, value: DataType) {
+    constructor(type: DataType) {
         super((dt: DataType) => {
-            dt.name = "{" + key.name + ", " + value.name + "}";
+            dt.name = "{" + type.name + "}";
             dt.simpleType = "object";
             dt.parser = value => {
                 Check.isObject(value);
@@ -175,17 +171,16 @@ export class MapDataType extends DataType {
                         val = val instanceof Array ? val[1] : null;
                     }
 
-                    result.set(this.keyType.parse(key), this.valueType.parse(val));
+                    result.set(Utils.toString(key).trim(), this.type.parse(val));
                 });
                 return result;
             };
-            dt.formatter = (val: Map) => Utils.forEach(val, (v, k) => this.keyType.formatDisplayValue(k) + ": " + this.valueType.formatDisplayValue(v)).join(",\n");
+            dt.formatter = (val: Map) => Utils.forEach(val, (v, k) => Utils.toString(k) + ": " + this.type.formatDisplayValue(v)).join(",\n");
 
         }, false);
 
-        this.keyType = key;
-        this.valueType = value;
-        this.types = [key, value];
+        this.type = type;
+        this.types = [STRING, type];
     }
 
 }
@@ -316,6 +311,20 @@ export const ICON: DataType = new DataType((dt: DataType) => {
     };
 });
 
+
+export const DATA_TYPE: DataType = new DataType((dt: DataType) => {
+    dt.name = "dataType";
+    dt.simpleType = "string";
+    dt.description = "Typ danych";
+    dt.enumerate = () => {
+        const map = new Map();
+        Utils.forEach(all, (d: DataType) => map.set(d.name, d.name));
+        return map;
+    };
+    dt.parser = val => {
+        return val;
+    };
+});
 
 export const BYTE: DataType = new DataType((dt: DataType) => {
     dt.name = "byte";

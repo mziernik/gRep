@@ -6,7 +6,7 @@ import Page from "../core/page/Page";
 
 export default class NotFound extends Page {
 
-    draw() {
+    render() {
         return <div style={{
             marginTop: "10%",
             textAlign: "center",

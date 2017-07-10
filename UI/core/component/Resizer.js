@@ -128,14 +128,16 @@ export default class Resizer extends Component {
 
     render() {
         return (
-            <div style={{
-                overflow: "hidden",
-                position: this.props.from ? 'fixed' : 'relative',
-                minWidth: '12px',
-                minHeight: '12px',
-                ...this.props.style
-            }}
-                 {...this.props.outerProps}
+            <div
+                data-name="resizer"
+                style={{
+                    overflow: "hidden",
+                    position: this.props.from ? 'fixed' : 'relative',
+                    minWidth: '12px',
+                    minHeight: '12px',
+                    ...this.props.style
+                }}
+                {...this.props.outerProps}
             >
                 {super.renderChildren()}
                 {this.props.resizable ?

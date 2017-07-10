@@ -69,11 +69,8 @@ export default class FieldComponent extends FormComponent {
 
         if (this.props.preview && this.field.enumerate) {
             const map: Map = this.field.enumerate();
-            return <ul title={this.field.hint}>{
-                Utils.forEach(this.field.value, (item, value) =>
-                    <li key={item}>{Field.formatValue(value)} </li>
-                )}
-            </ul>;
+            const v = map.get(value);
+            return <span>{Field.formatValue(If.isDefined(v) ? v : value)}</span>
         }
 
         if (this.field.type instanceof Type.ListDataType || this.field.type instanceof Type.MapDataType)
@@ -139,7 +136,7 @@ export default class FieldComponent extends FormComponent {
 
         return (
             <span {...this.props.props} style={{display: 'flex'}}>
-                {super.renderChildren(false, this._fieldCtrlInfo)}
+                {super.renderChildren(this._fieldCtrlInfo)}
                 <input title={this.field.hint}
                        key={Utils.randomId()}
                        {...props}
@@ -166,7 +163,7 @@ export default class FieldComponent extends FormComponent {
                        defaultValue={this.field.units ? this.field.unitValue : this.field.simpleValue}
                 />
                 {this._unitSelect}
-                {super.renderChildren(false, this._fieldCtrlErr)}
+                {super.renderChildren(this._fieldCtrlErr)}
             </span>);
     }
 
@@ -180,13 +177,13 @@ export default class FieldComponent extends FormComponent {
                 <pre
                     style={{fontFamily: "inherit", flex: 'auto', ...singleLineStyle}}
                     disabled={true}
-                >{super.renderChildren(false, this.field.simpleValue)}</pre>
+                >{super.renderChildren(this.field.simpleValue)}</pre>
             </span>;
         }
 
         return (
             <span {...this.props.props} style={{display: 'flex'}}>
-                {super.renderChildren(false, this._fieldCtrlInfo)}
+                {super.renderChildren(this._fieldCtrlInfo)}
                 <textarea
                     key={Utils.randomId()}
                     title={this.field.hint}
@@ -206,7 +203,7 @@ export default class FieldComponent extends FormComponent {
                     }}
                     defaultValue={this.field.simpleValue}
                 />
-                {super.renderChildren(false, this._fieldCtrlErr)}
+                {super.renderChildren(this._fieldCtrlErr)}
             </span>);
     }
 
@@ -225,9 +222,9 @@ export default class FieldComponent extends FormComponent {
         const elem = <CheckBox field={this.field} label={this.props.checkBoxLabel} fieldCtrl={false}/>;
         if (this.props.fieldCtrl)
             return (<span>
-                {super.renderChildren(false, this._fieldCtrlInfo)}
+                {super.renderChildren(this._fieldCtrlInfo)}
                 {elem}
-                {super.renderChildren(false, this._fieldCtrlErr)}
+                {super.renderChildren(this._fieldCtrlErr)}
             </span>);
         return elem;
     }
@@ -251,9 +248,9 @@ export default class FieldComponent extends FormComponent {
 
         return (
             <span {...this.props.props}>
-                {super.renderChildren(false, this._fieldCtrlInfo)}
+                {super.renderChildren(this._fieldCtrlInfo)}
                 <DatePicker field={this.field} fieldCtrl={false} dtpProps={props}/>
-                {super.renderChildren(false, this._fieldCtrlErr)}
+                {super.renderChildren(this._fieldCtrlErr)}
             </span>);
     }
 
@@ -262,13 +259,13 @@ export default class FieldComponent extends FormComponent {
 
         return (
             <span {...this.props.props}>
-                {super.renderChildren(false, this._fieldCtrlInfo)}
+                {super.renderChildren(this._fieldCtrlInfo)}
                 <Select
                     readOnly={this.props.readOnly}
                     field={this.field}
                     fieldCtrl={false}
                 />
-                {super.renderChildren(false, this._fieldCtrlErr)}
+                {super.renderChildren(this._fieldCtrlErr)}
             </span>);
     }
 

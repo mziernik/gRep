@@ -7,7 +7,7 @@ export default class PFontAwesome extends Page {
         search: string;
     };
 
-    draw() {
+    render() {
 
         return <Panel fit noPadding>
 

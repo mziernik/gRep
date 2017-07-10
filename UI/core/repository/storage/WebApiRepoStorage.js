@@ -45,7 +45,7 @@ export default class WebApiRepoStorage extends RepositoryStorage {
             records.forEach((record: Record) => {
                 const r = {};
                 record.fields.forEach((field: Field) => {
-                    if (includeUnchanged || field.changed)
+                    if (includeUnchanged || field.changed || record.primaryKey === field)
                         r[field.key] = field.type.serialize(field.value);
                 });
 

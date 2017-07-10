@@ -24,8 +24,11 @@ export default class Record {
 
     set row(row: []) {
         this._row = new Array(this.repo.columns.length);
-        for (let i = 0; i < this._row.length; i++)
-            this.fields.get(this.repo.columns[i]).value = row[i];
+        for (let i = 0; i < this._row.length; i++) {
+            const field: Field = this.fields.get(this.repo.columns[i]);
+            field.value = row[i];
+            field.changed = false;
+        }
     }
 
     get fullId(): string {

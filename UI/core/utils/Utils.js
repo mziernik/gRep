@@ -16,6 +16,13 @@ export function escape(argument: any): string {
     }
 }
 
+
+export function asArray(elm: any): [] {
+    if (elm === undefined) return [];
+    if (elm instanceof Array)
+        return elm;
+    return [elm];
+}
 export function toString(argument: any): string {
     if (argument === undefined)
         return "";

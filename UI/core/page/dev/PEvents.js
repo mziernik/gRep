@@ -3,7 +3,7 @@ import {Page, Panel, Table} from '../../components';
 
 export default class PEvents extends Page {
 
-    draw() {
+    render() {
         return <Panel fit>
             {super.renderTitle("Zdarzenia")};
 

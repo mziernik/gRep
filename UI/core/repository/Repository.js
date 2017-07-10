@@ -25,6 +25,8 @@ export class RepoConfig {
     name: ?string = null;
     primaryKeyColumn: Column = null;
     displayNameColumn: ?Column = null;
+    actions: ?Object = null;
+    onDemand: boolean = false;
 
     /** Kolumna definiująca rodzica - dla struktury drzewiastej */
     parentColumn: ?Column = null;
@@ -35,6 +37,7 @@ export class RepoConfig {
     readOnly: boolean = false;
     autoUpdate: boolean = false;
     local: ?boolean = null;
+    icon: ?string = null;
 
     constructor() {
         Object.preventExtensions(this);
@@ -180,6 +183,7 @@ export default class Repository {
 
         // debugger;
         const records: Record[] = [];
+        const repositories: Repository[] = [];
 
         const repoStats: Map<Repository, object> = new Map();
 
@@ -190,6 +194,7 @@ export default class Repository {
                 return;
             }
             const repo: Repository = Repository.get(key, true);
+            repositories.push(repo);
 
             if (If.isArray(value.rows))
                 repoStats.set(repo, {
@@ -284,16 +289,17 @@ export default class Repository {
             allChanges.push([rec, pk, changed]);
         });
 
-
         Utils.agregate(allChanges, a => a[0].repo).forEach((arr: [], repo: Repository) => {
             const m = new Map();
             m.set(arr[1], arr[2]);
-            repo.isReady = true;
-            Ready.confirm(repo);
             repo.onChange.dispatch(context, m);
         });
 
-
+        // zaktualizuj flagę gotowości dla wszystkich odebranych repozytoriów (włącznie z pustymi)
+        repositories.forEach(repo => {
+            repo.isReady = true;
+            Ready.confirm(repo);
+        });
     }
 
     /**

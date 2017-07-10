@@ -72,8 +72,7 @@ CREATE TABLE users.users
 	password_changed TIMESTAMP WITHOUT TIME ZONE, 
 	last_login 	TIMESTAMP WITHOUT TIME ZONE, 
     fields      HSTORE NOT NULL DEFAULT '',
-	config 		TEXT,
-    accounts    INT[] NOT NULL DEFAULT '{}' 
+	config 		TEXT
 );
 
 --------------------------------------------------------------------------------

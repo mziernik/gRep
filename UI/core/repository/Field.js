@@ -15,6 +15,7 @@ export default class Field {
     _warning: ?string = null; // ostrzeżenie (np. pole wymagane)
     _store: ?FieldStore = null;
     _unit: ?[] = null;
+    record: Record;
 
     /** Lista kontrolerów (FCtrl) powiązanych z polem, kontrolery usuwają się z listy automatycznie w momencie zniszczenia komponentu*/
     _fctrls: [] = [];
@@ -62,6 +63,7 @@ export default class Field {
         If.isDefined(cfg.defaultUnit, unit => this._unit = unit);
 
         if (record) {
+            this.record = record;
             record.fields.set(this.config, this);
             this.onChange.listen(this, (...args) => record.onFieldChange.dispatch(this, this, ...args));
         }

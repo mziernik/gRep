@@ -25,8 +25,7 @@ export default class Panel extends Component {
             resizable={this.props.resizable}
             style={{
                 boxSizing: "border-box",
-                display: "flex",
-                flexDirection: this.props.vertical ? "row" : "column",
+
                 height: this.props.fit ? "100%" : null,
                 width: this.props.fit ? "100%" : null,
                 overflow: this.props.scrollable ? "auto" : undefined,
@@ -41,10 +40,11 @@ export default class Panel extends Component {
             }}
             outerProps={{
                 title: this.props.title
-            }}
-        >
+            }}>
             <div style={{
                 overflow: this.props.scrollable || this.props.resizable ? "auto" : null,
+                display: "flex",
+                flexDirection: this.props.vertical ? "row" : "column",
                 width: '100%',
                 height: '100%',
             }}>
