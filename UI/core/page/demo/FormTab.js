@@ -1,11 +1,10 @@
 //@Flow
 'use strict';
 import {React, Field, Type, Column, Utils} from '../../core';
-import {Component, Page, FontAwesome, FieldComponent, FieldController}    from        '../../components';
+import {Component, Page, FontAwesome, FCtrl}    from        '../../components';
 import JsonViewer from "../../component/JsonViewer";
 import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
-import FCtrl from "../../component/form/FCtrl.js";
 
 export default class FormTab extends Component {
 
@@ -18,14 +17,12 @@ export default class FormTab extends Component {
 
     render() {
         return <form onSubmit={(e) => this._handleSubmit(e)} style={{overflow: "auto"}}>
-            <div style={{display: "flex"}} onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS) }>
+            <div style={{display: "flex"}} /*onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS) }*/>
                 <table className="tbl">
                     <thead>
                     <tr>
-                        <th/>
                         <th>Nazwa</th>
                         <th>Wartość</th>
-                        <th/>
                         <th>Podgląd</th>
                         <th>Tekst</th>
                     </tr>
@@ -37,38 +34,26 @@ export default class FormTab extends Component {
                         let field = DATA[prop];
                         return <tr key={index}>
                             <td style={{width: '20px'}}>
-                                <FCtrl field={field}
-                                       defReq={<span className={FontAwesome.ASTERISK}
-                                                     style={{color: '#ff6e00'}}/>}
-                                       defDesc={<span className={FontAwesome.QUESTION_CIRCLE}
-                                                      style={{color: '#0071ff'}}/>}
-                                />
+                                <FCtrl field={field} name required description/>
                             </td>
-
-                            <td style={{padding: "4px"} }>{field.name}</td>
 
                             <td style={{paddingLeft: "20px"}}
-                                onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS, {
-                                    checked: field.value ? true : false,
-                                    source: field.name,
-                                    value: field.value
-                                }) }>
-                                <FieldComponent field={field} fieldCtrl={false} checkBoxLabel={true}
-                                                preview={false}/>
+                                /*onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS, {
+                                 checked: field.value ? true : false,
+                                 source: field.name,
+                                 value: field.value
+                                 }) }*/>
+                                <FCtrl field={field} mode="block" value error/>
                             </td>
-                            <td >
-                                <FCtrl field={field} error/>
-                            </td>
-                            <td >
-                                <FieldComponent field={field} fieldCtrl={false} checkBoxLabel={true} preview={true}/>
-                            </td>
+
+                            <td style={{padding: "4px"} }><FCtrl field={field} preview value/></td>
 
                             <td style={{
                                 maxWidth: "200px",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis"
                             }}>
-                                <FieldComponent field={field} fieldCtrl={false} preview={true} singleLine={true}/>
+                                <FCtrl field={field} preview inline value/>
                             </td>
                         </tr>
                     })}
@@ -537,11 +522,16 @@ const DATA = {
     multdropdown: new Field((c: Column) => {
         c.type = Type.ENUMS;
         c.key = "multipleDropdown";
-        c.enumerate = [
-            'wartość 0',
-            'wartość 1',
-            'wartość 2'
-        ];
+        c.enumerate = () => {
+            return {
+                '0': 'wartość 0',
+                '1': 'wartość 1',
+                '2': 'wartość 2',
+                '3': 'wartość 3',
+                '4': 'wartość 4',
+                '5': 'wartość 5'
+            }
+        };
         c.name = 'Lista multi wyboru';
         c.required = true;
         c.defaultValue = ["2", "0"];

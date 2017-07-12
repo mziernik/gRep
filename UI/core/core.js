@@ -49,17 +49,12 @@ export {Type};
 import * as CRUDE from "./repository/CRUDE";
 export {CRUDE};
 
-export {default as Application} from "./application/Application";
-
 import {DEV_MODE} from "./application/Application";
 export  {DEV_MODE};
-
 export {EventType} from "./application/Event";
 export {default as AppEvent} from "./application/Event";
 export {default as AppStatus} from "./application/Status";
-
 export {default as Endpoint} from "./application/Endpoint";
-export {default as AppNode} from "./application/Node";
 
 // --------------------- moduły ------------------------------
 
@@ -75,3 +70,7 @@ export {ContextObject};
 import * as Store from "./Store";
 export {Store};
 
+
+// te moduły muszą być na końcu listy importów bo są powiązane z komponentami
+export {default as Application} from "./application/Application";
+export {default as AppNode} from "./application/Node";

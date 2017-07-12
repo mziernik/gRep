@@ -1,7 +1,6 @@
 import {Field, Column, RepoConfig, Type, Repository, Record} from "../core/core";
 
 
-
 //--------------------------------- Status ----------------------------------------------
 
 export class RStatus extends Repository {
@@ -513,6 +512,7 @@ export class RUsers extends Repository {
         c.key = "displayName";
         c.name = "Nazwa wyświetlana";
         c.type = "string";
+        c.required = true;
     });
 
     static EMAIL: Column = new Column((c: Column) => {
@@ -648,7 +648,11 @@ export class RThreads extends Repository {
             c.local = true;
             c.autoUpdate = true;
             c.actions = {
-                term: {name: "Zatrzymaj", confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?", icon: "fa fa-times"}
+                term: {
+                    name: "Zatrzymaj",
+                    confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?",
+                    icon: "fa fa-times"
+                }
             };
         });
     }

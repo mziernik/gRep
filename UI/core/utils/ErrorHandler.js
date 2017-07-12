@@ -18,7 +18,7 @@ function sendLog(err: EError) {
 }
 
 
-function onError(msg: any, file: ?any, line: ?number, column: ?number, ex: ?Error) {
+export function onError(msg: any, file: ?any, line: ?number, column: ?number, ex: ?Error) {
     const err: EError = new EError(msg || ex);
     let sendLog: boolean = true;
     let jserr: ?JsError = null;

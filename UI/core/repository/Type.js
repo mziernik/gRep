@@ -242,6 +242,12 @@ export const UUID: DataType = new DataType((dt: DataType) => {
     }
 });
 
+export const GUID: DataType = new DataType((dt: DataType) => {
+    dt.name = "guid";
+    dt.simpleType = UUID.simpleType;
+    dt.parser = UUID.parser;
+});
+
 export const REGEX: DataType = new DataType((dt: DataType) => {
     dt.name = "regex";
     dt.simpleType = "string";

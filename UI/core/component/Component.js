@@ -1,13 +1,16 @@
 // @flow
 'use strict';
 
-import {React, ReactUtils, PropTypes, ReactComponent, Utils, If, AppNode, Check, Field} from "../core.js";
+import {React, ReactUtils, PropTypes, ReactComponent, Utils, If, AppNode, Check, Field, EError} from "../core.js";
 import * as ContextObject from "../application/ContextObject";
 
 /**
  * Klasa bazowa, po której powinny dziedziczyć wszystkie komponenty pełniące role kontrolerów
  */
 
+
+
+let renderCount = 0; // ilość aktualnie renderowanych komponentów
 
 // $FlowFixMe
 export default class Component<DefaultProps: any, Props: any, State: any>
@@ -18,7 +21,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 
     static contextTypes = {
         router: PropTypes.object.isRequired,
-        node: PropTypes.instanceOf(AppNode).isRequired,
+        node: PropTypes.any.isRequired, //AppNode
     };
 
     static propTypes = {
@@ -29,12 +32,12 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         ignore: false
     };
 
-    _compoenntIsRendering: boolean = false;
-
     /** @type {AppNode}*/
     node: AppNode;
     /** Element drzewa dom, na którym bazuje komponent */
     element: HTMLElement;
+
+    children: Children;
 
     _onDestroy: [] = [];
 
@@ -56,6 +59,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
             throw new Error("Nieprawidłowe wywołanie konstruktora klasy " + this.constructor.name);
 
         this.node = this.context.node;
+        this.children = new Children(this);
 
         this.roles = this.props.roles;
         if (!this.node && this instanceof AppNode)
@@ -74,9 +78,17 @@ export default class Component<DefaultProps: any, Props: any, State: any>
             if (this.props.ignore)
                 return null;
             try {
+                ++renderCount;
                 return this.__render();
             } catch (e) {
-                throw e;
+                if (this.node && this.node.currentPage) {
+                    this.node.currentPage.__error = new EError(e);
+                    this.node.currentPage.forceUpdate();
+                }
+                window.console.error(e);
+                return null;
+            } finally {
+                --renderCount;
             }
         }
     }
@@ -123,7 +135,8 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         return this.name;
     }
 
-    renderChildren(children: ?any = null, onlyOne: boolean = false,) {
+
+    renderChildren(children: ?any = null, onlyOne: boolean = false) {
 
         Check.isBoolean(onlyOne);
 
@@ -173,6 +186,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         return this;
     }
 
+
     componentWillUnmount() {
         this.node.components.remove(this);
         ContextObject.contextDestroyed(this);
@@ -180,8 +194,11 @@ export default class Component<DefaultProps: any, Props: any, State: any>
     }
 
     forceUpdate() {
-
-        super.forceUpdate();
+        // zabezpieczenie przed błędem "Cannot update during an existing state transition..."
+        if (ReactUtils.getCurrentlyRenderedComponent())
+            setTimeout(() => super.forceUpdate());
+        else
+            super.forceUpdate();
     }
 
     setState(object: ?Object) {
@@ -197,15 +214,169 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         return true;
     }
 
-    componentWillUpdate() {
-        this._compoenntIsRendering = true;
+    componentWillMount() {
+
     }
 
 
+    componentWillUpdate() {
+
+    }
+
+
+    componentDidMount() {
+
+    }
+
     componentDidUpdate() {
-        this._compoenntIsRendering = false;
+
     }
 
 
 }
 
+export class Children {
+
+    component: Component;
+    _nonEmpty: boolean = false;
+    _filter: ?(child: Child) => boolean;
+    _props: Object;
+    _instances: [];
+
+    constructor(component: Component) {
+        this.component = component;
+    }
+
+    props(props: Object): Children {
+        this._props = props;
+        return this;
+    }
+
+    /** Weryfikacja typów komponentów */
+    instanceOf(instances: any | any[]): Children {
+        this._instances = Utils.asArray(instances);
+        return this;
+    }
+
+    filter(filter: (child: Child) => boolean): Children {
+        this._filter = filter;
+        return this;
+    }
+
+    nonEmpty(): Children {
+        this._nonEmpty = true;
+        return this;
+    }
+
+    render(children: Object | Array) {
+
+        children = children || this.component.props.children;
+
+        let childrenList = [];
+
+
+        const list = [];
+
+        const visit = (children: Object | Array) =>
+            Utils.forEach(Utils.asArray(children), el => {
+
+                if (el instanceof Array) {
+                    visit(el);
+                    return;
+                }
+
+                const child: Child = new Child(this, el);
+
+                if (this.nonEmpty && child.isEmptyString)
+                    return undefined;
+
+                if (this._filter && this._filter(child) === false)
+                    return undefined;
+
+                list.push(child);
+            });
+
+        visit(children);
+
+        const result = Utils.forEach(list, (child: Child) => {
+            let changed = false;
+            // weryfikacja czy obiekt właściwości uległ zmianie
+            if (child._propsChanged) {
+                const oryginalProps = child.element.props;
+                const currProps = child.props;
+
+
+                changed = (Object.values(oryginalProps).length !== Object.values(currProps));
+                if (!changed)
+                    for (let key in oryginalProps) {
+                        const src = oryginalProps[key];
+                        const dst = currProps[key];
+                        if (src !== dst) {
+                            changed = true;
+                            break;
+                        }
+                    }
+            }
+
+            if (changed) {
+                const props = {};
+                child.allowedProps.forEach((name: string) => {
+                    if (child.props[name] !== undefined)
+                        props[name] = child.props[name];
+                });
+                return React.cloneElement(child.element, props);
+
+            }
+            return child.element;
+        });
+
+        return result.length > 1 ? result : result[0];
+
+    }
+}
+
+export class Child {
+    children: Children;
+    element: any;
+    props: {} = {};
+    _propsChanged: boolean;
+
+
+    constructor(children: Children, element: any) {
+        this.children = children;
+        this.element = element;
+
+        if (this.isReactComponent) {
+            this.props = Utils.clone(this.element.props);
+            this._propsChanged = true;
+        }
+
+        Utils.forEach(children._props, (v, k) => {
+            if (v !== undefined)
+                this.props[k] = v;
+        });
+        this._propsChanged = this._propsChanged || Object.values(this.props).length;
+    }
+
+    get allowedProps(): string[] {
+        const allowed: string[] = this.element.type && this.element.type.propTypes
+            ? Object.keys(this.element.type.propTypes)
+            : [];
+        allowed.push("key");
+        return allowed;
+    }
+
+    get type(): string {
+        return Utils.className(this.isReactComponent ? this.element.type : this.element);
+    }
+
+    get isReactComponent(): boolean {
+        return !!(this.element && this.element.$$typeof && this.element.props);
+    }
+
+    get isEmptyString(): boolean {
+        return typeof this.element === "string" && (this.element: string).trim() === "";
+    }
+
+
+}

@@ -5,8 +5,7 @@ export default class PEvents extends Page {
 
     render() {
         return <Panel fit>
-            {super.renderTitle("Zdarzenia")};
-
+            {super.renderTitle("Zdarzenia")}
             <Table
                 columns={{
                     name: "Nazwa",

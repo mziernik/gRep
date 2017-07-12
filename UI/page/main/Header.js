@@ -11,7 +11,7 @@ import FontAwesome from "../../core/component/glyph/FontAwesome";
 
 let context;
 
-export default class Header extends Component<*, *, { title: ?string }> {
+export default class Header extends Component {
 
     constructor() {
         super(...arguments);

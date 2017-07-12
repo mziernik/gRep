@@ -3,6 +3,7 @@ import {Component, FormComponent} from "../components";
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
+
 const resizeTrigger: Trigger = new Trigger();
 
 export default class Table extends Component {
@@ -220,13 +221,13 @@ export default class Table extends Component {
     render() {
         return <ReactTable
             ref={elem => this._computeWidths(elem)}
-            className="-striped -highlight"
+            className="c-table -striped -highlight"
             style={{height: '100%', width: '100%'}}
             defaultSorted={this._sorted}
             columns={this.state.columns}
             data={this.state.data}
             showPagination={this.state.showPagination}
-            pageSizeOptions={[5, 10, 20, 25, 50]}
+            pageSizeOptions={[5, 10, 25, 50]}
 
             getTbodyProps={() => {
                 //wyłączenie flexa w wierszach

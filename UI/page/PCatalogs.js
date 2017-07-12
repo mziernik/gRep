@@ -2,7 +2,7 @@
 'use strict';
 
 import {React, Ready, Utils, PropTypes, Field, Type, Column, Repository} from "../core/core";
-import {Component, FieldComponent, Panel, Checkbox, FontAwesome, Link} from "../core/components";
+import {Component, FCtrl, Panel, Checkbox, FontAwesome, Link, Attributes, Attr} from "../core/components";
 import Page from "../core/page/Page";
 import * as Repositories from "../model/Repositories";
 import {RCatalogRecord} from "../model/Repositories";
@@ -12,92 +12,6 @@ import {RAttributeRecord} from "../model/Repositories";
 import {RepoCursor} from "../core/repository/Repository";
 import {RResourceRecord} from "../model/Repositories";
 import {RResource} from "../model/Repositories";
-
-class Attributes extends Component {
-
-    static propTypes = {
-        preview: PropTypes.bool
-    };
-
-    render() {
-        return <table className="tbl">
-
-            <tbody>
-            {this.props.children}
-
-            </tbody>
-        </table>;
-    }
-}
-
-class Attr extends Component {
-
-    static propTypes = {
-        field: PropTypes.any,
-        value: PropTypes.any,
-        name: PropTypes.string,
-        edit: PropTypes.bool, // ikona edycji
-        ignore: PropTypes.bool, // warunek wykluczający rysowanie
-    };
-
-    static defaultProps = {
-        edit: false
-    };
-
-
-    /** Wartość jest aktualnie edytowana */
-    edit: boolean = false;
-    field: Field;
-
-
-    constructor() {
-        super(...arguments);
-        this.field = this.props.field;
-    }
-
-    render() {
-
-        const field: Field = this.edit ? new Field(this.field.config) : this.field;
-        if (this.edit)
-            field._value = this.field.value;
-
-        return <tr>
-            <td style={{padding: "2px 8px"}}>{super.renderChildren(this.props.name || field.name)}</td>
-            <td style={{padding: "2px 8px"}}>
-                {this.props.value ? super.renderChildren(this.props.value) : <span style={{display: "inline-block"}}>
-                    <FieldComponent
-                        key={(this.edit ? "#edt" : "") + field.key}
-                        field={field}
-                        preview={!this.props.edit || !this.edit}/>
-                </span>
-                }
-
-                <Link ignore={!this.props.edit || !field || this.edit}
-                      icon={FontAwesome.PENCIL}
-                      onClick={() => {
-                          this.edit = true;
-                          this.forceUpdate();
-                      }}/>
-
-                <Link ignore={!this.props.edit || !field || !this.edit}
-                      icon={FontAwesome.FLOPPY_O}
-                      onClick={() => {
-                          this.edit = false;
-                          this.props.field.value = field.value;
-                          Repository.commit(this, [this.field.record]);
-                          this.forceUpdate();
-                      }}/>
-                <Link ignore={!this.props.edit || !field || !this.edit}
-                      icon={FontAwesome.TIMES}
-                      onClick={() => {
-                          this.edit = false;
-                          this.forceUpdate();
-                      }}/>
-
-            </td>
-        </tr>;
-    }
-}
 
 export default class PCatalogs extends Page {
 
@@ -112,13 +26,10 @@ export default class PCatalogs extends Page {
     constructor() {
         super(...arguments);
         this.showDetails.onChange.listen(this, () => this.forceUpdate());
+        this.waitForRepo(Repositories.R_CATALOG);
     }
 
     render() {
-
-        if (!Ready.waitFor([Repositories.R_CATALOG], () => this.forceUpdate()))
-            return <div>Oczekiwanie na gotowość repozytorium katalogów</div>;
-
         if (this.props.id === "all")
             return <div>Wszystkie</div>;
 
@@ -142,14 +53,14 @@ export default class PCatalogs extends Page {
             { super.renderTitle(path.reverse().join(" / "))}
 
             <label>
-                {this.showDetails.render(false, true)}
+                <FCtrl field={this.showDetails} value/>
                 <span>Zaawansowane</span>
             </label>
 
 
             <Panel fit vertical>
 
-                <Attributes>
+                <Attributes preview edit>
                     <Attr ignore={!adv} field={rec.ID}/>
                     <Attr ignore={!adv} field={rec.UID}/>
                     <Attr field={rec.NAME} edit/>
@@ -160,9 +71,8 @@ export default class PCatalogs extends Page {
                     <Attr ignore={!adv} field={rec.ORDER}/>
                     <Attr field={rec.DESC} edit/>
 
-                    <tr>
-                        <td colSpan={2}><h3>Atrybuty:</h3></td>
-                    </tr>
+                    <h3>Atrybuty:</h3>
+
 
                     {attrs.map((catAttr: RCatalogAttributeRecord) => {
 
@@ -188,11 +98,7 @@ export default class PCatalogs extends Page {
                     })}
 
                     <hr/>
-
-                    <tr>
-                        <td colSpan={2}><h3>Zasoby:</h3></td>
-                    </tr>
-
+                    <h3>Zasoby:</h3>
                     {ress.map((res: RResourceRecord) => {
                         return <Attr
                             key={res.ID.value}
@@ -202,7 +108,7 @@ export default class PCatalogs extends Page {
                 </Attributes>
 
                 <div style={{borderLeft: "1px solid red", flex: "auto"}}>
-aaasd
+                    aaasd
                 </div>
             </Panel>
         </Panel>

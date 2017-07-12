@@ -1,13 +1,9 @@
 /**
  * Definicja strony na potrzeby routingu
  */
-
-
-import {React, ReactComponent, AppEvent, Utils, Dispatcher, Application, Check, If} from "../core";
-
+import {React, ReactComponent, AppEvent, Utils, Dispatcher, Check} from "../core";
 import Route from "react-router-dom/es/Route";
 import Glyph from "../component/glyph/Glyph";
-import {PageTab} from "../page/PageContainer";
 
 export const ENDPOINT_TARGET_TAB = "tab";
 export const ENDPOINT_TARGET_POPUP = "popup";
@@ -69,18 +65,7 @@ export default class Endpoint {
     }
 
     static navigate(link: string, target: string | MouseEvent = null) {
-        if (If.instanceOf(target, ["MouseEvent", "SyntheticMouseEvent"]))
-            target = (target: MouseEvent).ctrlKey ? "tab" : (target: MouseEvent).shiftKey ? "popup" : null;
-
-        Check.oneOf(target, [null, ENDPOINT_TARGET_TAB, ENDPOINT_TARGET_POPUP]);
-
-        if (target === ENDPOINT_TARGET_TAB)
-            new PageTab(this._name, false).setCurrent();
-
-        if (target === ENDPOINT_TARGET_POPUP)
-            new PageTab(this._name, true).setCurrent();
-
-        Application.router.history.push(link);
+        throw new Error("Metoda nie została nadpisana przez PageContainer.navigate");
     }
 
     navigate(params: ?Object = null, target: string | MouseEvent = null) {

@@ -50,6 +50,7 @@ export default class Application extends ReactComponent {
             throw new Error("Nie znaleziono elementu");
 
 
+
         const node: AppNode = ReactDOM.render(<AppNode tab={tab} element={element}>{child}</AppNode>, element);
         node.ownHtmlNode = own;
         node.name = Utils.className(child.type);

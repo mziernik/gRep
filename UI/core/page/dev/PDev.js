@@ -14,6 +14,7 @@ import Repository from "../../repository/Repository";
 import AppEvent from "../../application/Event";
 import Demo from "../demo/PDemo";
 import PContextObject from "./PContextObject";
+import PRepoDetails from "./repository/PRepoDetails";
 
 export default class DevRouter extends Endpoint {
 
@@ -27,21 +28,19 @@ export default class DevRouter extends Endpoint {
     JS_TESTER: Endpoint;
     COMPONENTS: Endpoint;
     LOCAL_STORAGE: Endpoint;
-    APP_TEST: Endpoint;
     MODULES: Endpoint;
     FONT_AWESOME: Endpoint;
 
     REPO: Endpoint;
+    REPO_DETAILS: Endpoint;
     RECORD: Endpoint;
 
     constructor(baseUrl: string) {
         super("dev", "#dev", baseUrl, null);
 
         this.REPOS = this.child("repos", "Repozytoria", baseUrl + "/repositories", PRepositories);
-        this.REPO = this.REPOS.child("repo", "Repozytorium", this.REPOS._path + "/:repo", PRepository)
-            .defaultParams({repo: "permissions"})
-            .hidden(true);
-
+        this.REPO = this.REPOS.child("repo", "Repozytorium", this.REPOS._path + "/:repo", PRepository).hidden(true);
+        this.REPO_DETAILS = this.REPOS.child("repodetails", "Szczegóły", this.REPOS._path + "/:repo/details", PRepoDetails).hidden(true);
         this.DEMO = this.child("demo", "Demo", baseUrl + "/demo", Demo);
         this.SKIN = this.child("skin", "Skórka", baseUrl + "/skin", PSkin);
         this.EVENTS = this.child("events", "Zdarzenia", baseUrl + "/events", PEvents);
@@ -57,7 +56,7 @@ export default class DevRouter extends Endpoint {
 
         this.FONT_AWESOME = this.child("fontAwesome", "Font Awesome", baseUrl + "/fontawesome", PFontAwesome);
 
-        this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/:rec", PRecord)
+        this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/edit/:rec", PRecord)
             .defaultParams({
                 repo: "permissions",
                 rec: null
@@ -65,6 +64,7 @@ export default class DevRouter extends Endpoint {
 
         this.REPOS.REPO = this.REPO;
         this.REPO.RECORD = this.RECORD;
+        this.REPO.REPO_DETAILS = this.REPO_DETAILS;
 
         DevRouter.INSTANCES.push(this);
 

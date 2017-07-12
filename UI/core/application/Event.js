@@ -1,10 +1,8 @@
 // @flow
 'use strict';
 
-import * as Utils from "../utils/Utils";
 import * as Check from "../utils/Check";
 import * as If from "../utils/If";
-import AppNode from "./Node";
 import Dispatcher, {Observer} from "../utils/Dispatcher";
 import Trigger from "../utils/Trigger";
 

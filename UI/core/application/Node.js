@@ -2,7 +2,7 @@
 'use strict';
 
 import {React, ReactComponent, ReactDOM, PropTypes, Application} from "../core";
-import Component from "../component/Component";
+import {Component, Page} from "../components";
 import {PageTab} from "../page/PageContainer";
 
 
@@ -25,6 +25,8 @@ export default class AppNode extends ReactComponent {
         tab: PropTypes.instanceOf(PageTab),
     };
 
+    /** ostatnio wyrenderowana strona */
+    currentPage: Page;
 
     /** * @type {HTMLElement} - Element drzewa dom */
     element: HTMLElement = this.props.element;

@@ -62,8 +62,8 @@ public class RAttribute extends Repository<Integer> {
         c.name = "Nazwa";
         c.required = true;
     });
-    
-        public final static Column<String> MASK = new Column<>(c -> {
+
+    public final static Column<String> MASK = new Column<>(c -> {
         c.repository = RAttribute.class;
         c.type = DataType.STRING;
         c.key = "mask";
@@ -109,7 +109,6 @@ public class RAttribute extends Repository<Integer> {
         c.type = DataType.STRING;
         c.key = "icon";
         c.name = "Ikona";
-        c.required = true;
         c.defaultValue = Boolean.TRUE;
     });
 

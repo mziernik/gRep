@@ -65,7 +65,8 @@ export default class Breadcrumb extends Component {
         });
 
 
-        return <span className="breadcrumbs">
+        //ToDo: Przemek
+        return <span className="c-breadcrumbs">
             { elms }
         </span>
     }

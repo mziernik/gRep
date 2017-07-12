@@ -1,9 +1,7 @@
 //@Flow
 'use strict';
-import {React, ReactDOM, Application, FieldConfig, If} from '../core';
-import {Button, FontAwesome} from '../components';
-import Resizer from './Resizer';
-import Dragger from './Dragger';
+import {React, ReactDOM, Application, If} from '../core';
+import {Button, FontAwesome, Resizer, Dragger} from '../components';
 
 export class ModalWindow {
 
@@ -206,27 +204,32 @@ export class ModalWindow {
         return <div style={{textAlign: 'center'}}>{butts}</div>;
     }
 
+    //ToDo: Przemek
     render() {
         return (
-            <Resizer resizable={this.resizable} fromCenter={true} ref={elem => this._setPosition(elem)}
-                     tabIndex={-1}
-                     style={{
-                         display: 'flex',
-                         flexDirection: 'column',
-                         position: 'absolute',
-                         left: 0,
-                         top: 0,
-                         background: '#ddd',
-                         border: '1px solid black',
-                         boxShadow: '0 0 10px gray',
-                         zIndex: 1000,
-                         overflow: 'hidden',
-                         minWidth: '300px',
-                         minHeight: '200px',
-                         maxWidth: '85%',
-                         maxHeight: '85%',
-                         ...this.mainStyle
-                     }}
+            <Resizer
+                className="c-modal-window"
+                resizable={this.resizable}
+                fromCenter={true}
+                ref={elem => this._setPosition(elem)}
+                tabIndex={-1}
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    background: '#ddd',
+                    border: '1px solid black',
+                    boxShadow: '0 0 10px gray',
+                    zIndex: 1000,
+                    overflow: 'hidden',
+                    minWidth: '300px',
+                    minHeight: '200px',
+                    maxWidth: '85%',
+                    maxHeight: '85%',
+                    ...this.mainStyle
+                }}
             >
                 <div style={{
                     flex: '0 0 auto',

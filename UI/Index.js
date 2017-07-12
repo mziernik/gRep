@@ -3,13 +3,13 @@
 
 import "./core/utils/ErrorHandler";
 import "./model/API";
+import "./core/core";
 import Header from "./page/main/Header";
 import NavBar from "./page/main/NavBar";
 import PageContainer from "./core/page/PageContainer";
 import StatusBar from "./page/main/StatusBar";
 import "./page/Router";
 import Login from "./page/Login";
-import './core/component/bootstrap/bootstrap.min.css';
 import'./page/main/Layout.css';
 
 import {React, Application, Utils, Repository, Store} from "./core/core";

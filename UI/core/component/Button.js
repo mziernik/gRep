@@ -1,6 +1,7 @@
 import {React, PropTypes, ReactDOM, Record, Repository, Field, Utils, If, CRUDE, Endpoint, AppStatus} from "../core"
 import {Component, Spinner, Alert} from "../components"
 
+
 export default class Button extends Component {
 
     state: {
@@ -9,19 +10,21 @@ export default class Button extends Component {
 
 
     static  propTypes = {
+        ignore: PropTypes.bool, // warunek wykluczający rysowanie
         confirm: PropTypes.string,
         type: PropTypes.oneOf(["basic", "default", "primary", "success", "info", "warning", "danger", "link"]),
         title: PropTypes.string,
         onClick: PropTypes.func,
         link: PropTypes.any,
         icon: PropTypes.any,
+        disabled: PropTypes.bool,
         focus: PropTypes.bool //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
     };
 
     constructor() {
         super(...arguments);
         this.state = {
-            disabled: false
+            disabled: this.props.disabled
         };
     }
 
@@ -51,34 +54,31 @@ export default class Button extends Component {
 
         return <button
             ref={elem => this._tag = elem}
-            className={"btn " + (type ? "btn-" + type : "")}
+            className={"btn " + (type ? "btn-" + type : "") + " c-button"}
             disabled={this.state.disabled}
-            style={ {
-                boxSizing: "border-box",
-                fontSize: "11pt",
-                padding: "6px 12px",
-                marginRight: "10px",
-                marginTop: "10px",
-                cursor: this.state.disabled ? "not-allowed" : "pointer",
-                border: "1px solid #444"
-            }}
             title={this.props.title}
             onClick={(e) => {
-                if (!If.isFunction(this.props.onClick)) return;
-                if (this.props.confirm)
+                if (this.state.disabled) return;
+                if (this.props.confirm && If.isFunction(this.props.onClick))
                     Alert.confirm(this, this.props.confirm, () => this.props.onClick(e));
-                else
-                    this.props.onClick(e);
+                else If.isFunction(this.props.onClick, f => f(e));
+
+                if (this.props.link instanceof Endpoint)
+                    (this.props.link: Endpoint).navigate(null, e);
+
+                if (typeof this.props.link === "string")
+                    Endpoint.navigate(this.props.link, e);
             }}
 
         >
-            {this.props.icon ?
-                <span className={this.props.icon} style={{
+            {
+                this.props.icon ?
+                <span className={"c-button-icon " + this.props.icon} style={{
                     marginRight: "7px",
                     fontSize: "1.4em",
                     opacity: "0.8"
 
                 }}/> : null}
-            {super.renderChildren()}</button>
+            {this.children.render()}</button>
     }
-}
+}  //ToDo: Przemek

@@ -16,7 +16,8 @@ export default class IconEdit extends Component {
 
         const size = "40px";
 
-        return <div style={{
+        //ToDo: Przemek
+        return <div className="c-icon-edit" style={{
             margin: "8px"
         }}>
 

@@ -1,13 +1,13 @@
-import {React, Check, If, Debug, Utils, Dispatcher, EError} from "../core";
+import {React, Check, If, Debug, Utils, Dispatcher, EError, DEV_MODE} from "../core";
 
-import * as Application from "./Application";
+
 //import {StatusHint} from "../component/application/StatusHint";
 
 type StatusType = "debug" | "info" | "success" | "warning" | "error"
 
 export default class AppStatus {
 
-    static catchExceptions: boolean = Application.DEV_MODE;
+    static catchExceptions: boolean = DEV_MODE;
     static defaultTimeout: number = 2000;
     static onChange: Dispatcher = new Dispatcher();
 

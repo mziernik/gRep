@@ -99,11 +99,7 @@ const config = {
                 test: file => _filter("babel", file),
                 loader: 'babel-loader',
                 query: {
-                    presets: ['es2015', /*'es2015', 'es2017', */'react', /*"stage-0", "stage-1", */'stage-2', /*'stage-3',*/ 'flow'],
-                    plugins: [
-                        "transform-function-bind"
-                    ]
-
+                    presets: ['es2015', 'es2016', 'react', 'stage-2', 'flow']
                 }
             },
             {
@@ -163,22 +159,18 @@ for (let name in environment)
 config.plugins.push(new webpack.DefinePlugin({'process.env': _env}));
 
 
-/*
- * If bundling for production, optimize output
- */
-/*
- if (process.env.NODE_ENV === 'production') {
- config.devtool = false;
- config.plugins = [
- new webpack.optimize.OccurenceOrderPlugin(),
- new webpack.optimize.UglifyJsPlugin({comments: false}),
- new webpack.DefinePlugin({
- 'process.env': {NODE_ENV: JSON.stringify('production')}
- })
- ];
- }
+if (process.env.NODE_ENV === 'production') {
+    config.devtool = false;
+    config.plugins = [
+     //   new webpack.optimize.OccurenceOrderPlugin(),
+        new webpack.optimize.UglifyJsPlugin({
+            mangle: false,
+            comments: false
+        })
+    ];
+}
 
- */
+
 module.exports = config;
 
 function _filter(loader, file) {

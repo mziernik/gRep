@@ -123,7 +123,10 @@ export class SignalRTransport extends WebApiTransport {
     send(req: WebApiRequest) {
         const args: [] = Utils.forEach(req.params, v => v);
         this.conn.invoke(req.method, ...args)
-            .then(data => new WebApiResponse(req.webApi, data))
+            .then(data => {
+                data.id = req.id;
+                new WebApiResponse(req.webApi, data);
+            })
             .catch(e => WebApiResponse.error(req, e));
     }
 

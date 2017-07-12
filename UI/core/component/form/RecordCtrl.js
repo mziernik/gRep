@@ -9,10 +9,10 @@ import {
     Debug,
     CRUDE,
     Record,
-    Column,
+    EError,
     ContextObject
 } from "../../core";
-import {Component, Button, Page, FontAwesome, Spinner} from "../../components";
+import {Component, Button, Page, FontAwesome, Spinner, Alert} from "../../components";
 import AppStatus from "../../application/Status";
 
 export default class RecordCtrl {
@@ -44,9 +44,12 @@ export default class RecordCtrl {
     onReponse(object: any, spinner: Spinner) {
         if (spinner) spinner.hide();
         this.buttons.forEach(btn => btn.setState({disabled: false}));
+
+        if (object instanceof Error || object instanceof EError)
+            Alert.error(this, object);
     }
 
-    commit(crude: CRUDE) {
+    commit(crude: CRUDE, onSuccess: () => void) {
 
         this.buttons.forEach(btn => btn.setState({disabled: true}));
 
@@ -54,25 +57,36 @@ export default class RecordCtrl {
 
         const ts = new Date().getTime();
 
-        Repository.commit(this, [this.record])
-            .then((e, f, g) => {
-                this.onReponse(e, spinner)
-                AppStatus.success(this, "Zaktualizowano dane", "Czas: " + (new Date().getTime() - ts) + " ms");
-            })
-            .catch((e) => this.onReponse(e, spinner));
+        Utils.forEach(this.record.fields, (f: Field) => f.validate(true));
+
+        try {
+            Repository.commit(this, [this.record], crude)
+                .then((e, f, g) => {
+                    this.onReponse(e, spinner);
+                    AppStatus.success(this, "Zaktualizowano dane", "Czas: " + (new Date().getTime() - ts) + " ms");
+                    if (onSuccess)
+                        onSuccess();
+                })
+                .catch((e) => this.onReponse(e, spinner));
+        } catch (e) {
+            this.onReponse(e, spinner);
+        }
     }
 
-    createSaveButton() {
+    createSaveButton(onSuccess: () => void) {
         return <Button
+            key="btnSave"
             ref={btn => this.buttons.push(btn)}
             icon={FontAwesome.CHECK}
             type="success"
-            onClick={e => this.commit(this.crude)}> {this.crude === CRUDE.CREATE ? "Utwórz" : "Zapisz"} </Button>
+            onClick={e => this.commit(this.crude, onSuccess)}
+        > {this.crude === CRUDE.CREATE ? "Utwórz" : "Zapisz"} </Button>
     }
 
     createDeleteButton(confirm: string) {
         return this.crude === CRUDE.CREATE ? null :
             <Button
+                key="btnDelete"
                 ref={btn => this.buttons.push(btn)}
                 icon={FontAwesome.TIMES}
                 type="danger"

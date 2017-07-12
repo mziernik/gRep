@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, Utils, Column} from '../../core';
-import {Component, FieldComponent, Table}from '../../components';
+import {Component, FCtrl, Table}from '../../components';
 
 export default class TablesTab extends Component {
 
@@ -17,7 +17,7 @@ export default class TablesTab extends Component {
                        rowMapper={(row) => {
                            let res = {};
                            Utils.forEach(row, (cell) => {
-                               res[cell.key] = <FieldComponent preview={true} fieldCtrl={false} field={cell}/>
+                               res[cell.key] = <FCtrl field={cell}/>
                            });
                            return res;
                        }}

@@ -127,9 +127,10 @@ export default class Resizer extends Component {
     }
 
     render() {
+        //ToDo: Przemek
         return (
             <div
-                data-name="resizer"
+                className="c-resizer"
                 style={{
                     overflow: "hidden",
                     position: this.props.from ? 'fixed' : 'relative',

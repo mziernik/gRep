@@ -120,7 +120,7 @@ export class TabSet extends Component {
     render() {
 
 
-        const children = super.renderChildren();
+        const children = Utils.asArray(super.renderChildren());
 
         return (
             <span className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}

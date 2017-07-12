@@ -1,15 +1,13 @@
 // @flow
 'use strict';
-import {React, PropTypes} from '../core';
-import {FormComponent, FontAwesome} from '../components';
+import {React, PropTypes, Field} from '../../core';
+import {FormComponent, FontAwesome} from '../../components';
 
-export default class CheckBox extends FormComponent {
-
-    props: {
-        label: boolean
-    };
+export default class Checkbox extends FormComponent {
 
     static propTypes = {
+        field: PropTypes.instanceOf(Field).isRequired,
+        preview: PropTypes.bool,
         label: PropTypes.bool,
         threeState: PropTypes.bool
     };
@@ -61,9 +59,19 @@ export default class CheckBox extends FormComponent {
     }
 
     render() {
+        if (!this.field)return null;
+
+        if (this.props.preview)
+            return (
+                <span>
+                    <span style={{marginRight: '10px'}}
+                          title={this.field.name}
+                          className={this.field.value ? FontAwesome.CHECK : FontAwesome.TIMES}/>
+                </span>);
+
+        //ToDo: Wojtek: Przerób _highlight na c-check-box:hover (w innych klasach również)
         return (
-            <span>
-                {this._fieldCtrlInfo}
+            <span className="c-check-box">
                 <span className={this.state.icon}
                       title={this.field.hint}
                       tabIndex="0"
@@ -79,8 +87,8 @@ export default class CheckBox extends FormComponent {
                           color: this.state.color
                       }}/>
                 {this.props.label ? this.field.name : null}
-                {this._fieldCtrlErr}
             </span>);
+        //ToDo: Przemek
 
     }
 }

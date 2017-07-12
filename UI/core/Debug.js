@@ -1,5 +1,6 @@
 // @flow
 import * as Utils from "./utils/Utils";
+import * as ErroHandler from "./utils/ErrorHandler";
 'use strict';
 
 
@@ -22,6 +23,7 @@ export default class Debug {
 
     static error(context: ?any | any[], value: ?mixed, ...args: any) {
         window.console.error(value instanceof Error ? value : format(context, value), ...args);
+        ErroHandler.onError(Utils.getContextName(context) + ": " + value);
     }
 
     static dir(value: ?mixed, ...args: any) {

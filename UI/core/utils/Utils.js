@@ -11,12 +11,12 @@ export function escape(argument: any): string {
     try {
         return JSON.stringify(argument);
     } catch (e) {
-        console.error(e);
+        window.console.warn(e);
         return toString(argument);
     }
 }
 
-
+/** Zwraca [arg] jeśli jest tablicą, w przeciwnym razie opakowuje go w tablicę*/
 export function asArray(elm: any): [] {
     if (elm === undefined) return [];
     if (elm instanceof Array)

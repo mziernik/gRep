@@ -1,6 +1,5 @@
 import {React, PropTypes, Field, Utils, Column, Repository, Record, Endpoint, If, CRUDE} from '../../../core';
-import {Page, FontAwesome, Link, Table, FieldComponent, Panel} from '../../../components';
-import PageToolBar from "../../PageToolBar";
+import {Page, FontAwesome, Link, Table, FCtrl, Panel, Button} from '../../../components';
 
 
 export default class PRepository extends Page {
@@ -27,10 +26,17 @@ export default class PRepository extends Page {
 
         columns.push(<span key="#action" style={{textAlign: "center"}}/>);
         columns.addAll(this.repo.columns.map((f: Column) =>
-            f.hidden ? null : <span key={f.key} style={{textAlign: "center"}}>
-                    <div>{f.key}</div>
-                    <div style={{fontWeight: "normal"}}>{f.name}</div>
-                    <div style={{fontWeight: "normal", fontStyle: "italic"}}>[{f.type.name}]</div>
+            f.hidden ? null : <span key={f.key} style={{
+                textAlign: "center",
+                fontWeight: "normal",
+
+            }}>
+                   <div style={{
+                       overflow: "hidden",
+                       textOverflow: "ellipsis"
+                   }}>{f.name}</div>
+                    <div style={{fontSize: "0.8em"}}>{f.key}</div>
+                    <div style={{fontSize: "0.8em"}}>[{f.type.name}]</div>
                 </span>));
         columns.push(<span key="#refs" style={{textAlign: "center"}}>#ref</span>);
 
@@ -38,38 +44,23 @@ export default class PRepository extends Page {
         return <Panel fit>
             {super.renderTitle(`Repozytorium "${this.repo.name}"`)}
 
-            <PageToolBar>
-                <Link
-                    link={this.endpoint.RECORD.getLink({
-                        repo: this.repo.key,
-                        rec: "~new"
-                    })}
-                    title="Dodaj nowy rekord"
-                    disabled={!this.repo.canCreate}
-                    icon={FontAwesome.PLUS_SQUARE}
-                />
-            </PageToolBar>
-
-            <div>
-                <table>
-                    <tbody>
-                    <tr>
-                        <td>Ilość aktualizacji</td>
-                        <td>{this.repo.updates}</td>
-                    </tr>
-                    <tr>
-                        <td>Ostatnia aktualizacja</td>
-                        <td>{this.repo.lastUpdated ? this.repo.lastUpdated.toLocaleString() : null}
-                            ({this.repo.lastUpdatedBy})
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Uprawnienia</td>
-                        <td>{CRUDE.parse(this.repo.config.crude).map(c => c.title).join(", ")}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            {this.renderToolBar([
+                <Button type="default"
+                        link={this.endpoint.REPO_DETAILS.getLink({
+                            repo: this.repo.key
+                        })}
+                        title="Szczegóły repozytorium"
+                        icon={FontAwesome.INFO}>Szczegóły</Button>,
+                <Button type="primary"
+                        link={this.endpoint.RECORD.getLink({
+                            repo: this.repo.key,
+                            rec: "~new"
+                        })}
+                        title="Dodaj nowy rekord"
+                        disabled={!this.repo.canCreate}
+                        icon={FontAwesome.PLUS}
+                >Dodaj</Button>
+            ])}
 
             <Table
                 columns={columns}
@@ -90,7 +81,7 @@ export default class PRepository extends Page {
                     </span>;
                     result["#refs"] = this.repo.getRefs(pk).length;
                     rec.fields.forEach((f: Field) =>
-                        result[f.key] = <FieldComponent preview={true} singleLine={true} field={f}/>);
+                        result[f.key] = <FCtrl preview inline field={f}/>);
                     return result;
                 }}
             />

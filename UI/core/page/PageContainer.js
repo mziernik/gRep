@@ -1,11 +1,12 @@
 // @flow
 'use strict';
 
-import {React, Endpoint, Application, AppEvent, Utils, AppNode} from "../core";
+import {React, Endpoint, Application, AppEvent, Utils, AppNode, If, Check} from "../core";
 import {Component, FontAwesome} from "../components";
 import {Switch} from 'react-router-dom';
 import Page from "./Page";
 import {ModalWindow} from "../component/ModalWindow";
+import * as E from "../application/Endpoint";
 
 
 const containers = [];
@@ -55,6 +56,8 @@ export class PageTab {
     }
 
     setTitle(title: string) {
+        if (title === this.title) return;
+
         this.title = title;
         if (tabsBar)
             tabsBar.forceUpdate();
@@ -205,3 +208,21 @@ class TabsBar extends Component {
         </div>
     }
 }
+
+
+Endpoint.navigate = (link: string, target: string | MouseEvent = null) => {
+    if (target && target.ctrlKey !== undefined && target.shiftKey !== undefined)
+        target = (target: MouseEvent).ctrlKey ? "tab" : (target: MouseEvent).shiftKey ? "popup" : null;
+
+    if (!target) target = null;
+
+    Check.oneOf(target, [null, E.ENDPOINT_TARGET_TAB, E.ENDPOINT_TARGET_POPUP]);
+
+    if (target === E.ENDPOINT_TARGET_TAB)
+        new PageTab(this._name, false).setCurrent();
+
+    if (target === E.ENDPOINT_TARGET_POPUP)
+        new PageTab(this._name, true).setCurrent();
+
+    Application.router.history.push(link);
+};

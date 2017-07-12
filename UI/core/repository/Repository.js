@@ -305,8 +305,15 @@ export default class Repository {
     /**
      * Zastosuj zmiany (edycja / synchronizacja)
      */
-    static commit(context: any, records: Record[]): Promise {
+    static commit(context: any, records: Record[], crude: CRUDE): Promise {
         Check.instanceOf(records, [Array]);
+
+        Utils.forEach(records, (rec: Record) =>
+            Utils.forEach(rec.fields, (f: Field) => {
+                if (!f.validate(true))
+                    throw new Error(Utils.escape(f.name) + ": " + f.error);
+            })
+        );
 
         const storageMap: Map = Utils.agregate(records, (rec: Record) => rec.repo.storage);
 
@@ -315,7 +322,7 @@ export default class Repository {
 
         storageMap.forEach((records: Record[], storage: RepositoryStorage) => {
             if (storage)
-                result.push(storage.save(context, records));
+                result.push(storage.save(context, records, crude));
             else
                 local.push(records);
         });

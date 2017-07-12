@@ -1,12 +1,29 @@
 // @flow
 'use strict';
-import {React, Record, Repository, Endpoint, Utils, If, EError, Debug, DEV_MODE, Ready} from "../core";
+import {
+    React,
+    PropTypes,
+    ReactComponent,
+    Repository,
+    Endpoint,
+    Utils,
+    If,
+    EError,
+    Debug,
+    DEV_MODE,
+    Ready,
+} from "../core";
 import {Component, Spinner, Panel} from "../components";
+import ToolBar from "../component/ToolBar";
+import {TitleBar} from "../component/TitleBar";
 
 export default class Page extends Component {
 
     /** @private */
     __render: () => any;
+    __error: EError;
+    _toolBar: any;
+    _waitingForRepo: boolean;
 
     static pageTitleRenderer: (page: Page, title: string) => any = null;
     endpoint: Endpoint;
@@ -18,6 +35,17 @@ export default class Page extends Component {
 
         this.render = () => {
             try {
+                this.node.currentPage = this;
+                if (this.__error)
+                    try {
+                        return Page.renderError(this.__error);
+                    } catch (e) {
+                        window.console.error(e);
+                    }
+
+                if (this._waitingForRepo)
+                    return <div>Oczekiwanie na gotowość repozytorium</div>;
+
                 return this.__render();
             } catch (e) {
                 Debug.error(this, e);
@@ -26,7 +54,7 @@ export default class Page extends Component {
         }
     }
 
-    renderTitle(title: string) {
+    renderTitle(title: string): ReactComponent {
 
         title = Utils.toString(title);
         document.title = title;
@@ -36,28 +64,50 @@ export default class Page extends Component {
         if (Page.pageTitleRenderer)
             return Page.pageTitleRenderer(this, title);
 
+        return <TitleBar page={this} title={title} toolbar={() => this._toolBar}/>
 
-        return <div style={{padding: "10px 0 0 20px"}}>
-            {this.endpoint._icon ? <span className={this.endpoint._icon } style={{
-                fontSize: "2em",
-                marginRight: "10px"
-            }}/> : null  }
-            <h5 style={ {
-                display: "inline-block",
-                color: "#39b",
-                fontWeight: "bold"
-            } }>{title}</h5>
-            <hr style={ {marginTop: "0"} }/>
-        </div>
     }
 
+    renderToolBar(...items: Component): ReactComponent {
+        this._toolBar = <ToolBar>{items}</ToolBar>;
+        return null;
+    }
 
     /** Zwraca tru jeśli repozytoria [repos] zostały zainicjowane, w przeciwnym razie czeka na inicjalizację i wywołuje forceUpdate na stronie */
     waitForRepo(repos: Repository | Repository[], onReady: ?() => void = null): boolean {
         if (!(If.isArray(repos))) repos = [repos];
-        const result = Ready.waitFor(repos, () => If.isFunction(onReady, f => f(), this.forceUpdate()));
+        const ready = Ready.waitFor(repos, () => {
+                this._waitingForRepo = false;
+                If.isFunction(onReady, f => f(), this.forceUpdate())
+            },
+            (e: Error) => {
+                this.__error = new EError(e);
+                this.forceUpdate();
+            }
+        );
+        this._waitingForRepo = !ready;
+        return ready;
+    }
 
-        return result;
+
+    componentWillMount() {
+        super.componentWillMount();
+        //  this._watcher.watch(true);
+    }
+
+    componentDidMount() {
+        super.componentDidMount();
+        //   this._watcher.watch(false);
+    }
+
+    componentWillUpdate() {
+        super.componentWillUpdate();
+        //   this._watcher.watch(true);
+    }
+
+    componentDidUpdate() {
+        super.componentDidUpdate();
+        //    this._watcher.watch(false);
     }
 
     static renderError(e: string | Error | EError) {
@@ -71,7 +121,7 @@ export default class Page extends Component {
             fontWeight: "bold",
             color: "#c00",
         }}>
-            <span>{err.message}</span>
+            <span>{Utils.toString(err.message)}</span>
         </div>
     }
 }

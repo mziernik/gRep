@@ -49,24 +49,6 @@ table th {
     color: white;
 }
 
-.breadcrumbs {
-
-}
-
-/* zerowanie styli tagu a*/
-.breadcrumbs a,
-.breadcrumbs a:visited,
-.breadcrumbs a:hover,
-.breadcrumbs a:focus,
-.breadcrumbs a:active {
-    white-space: nowrap;
-    color: inherit;
-    text-decoration: none;
-}
-
-.breadcrumbs a:hover {
-    color: #f53;
-}
 
 #app-body {
     display: flex;

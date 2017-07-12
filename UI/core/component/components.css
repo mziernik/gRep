@@ -1,0 +1,94 @@
+/*================================================== Przycisk ToolBa ==================================================*/
+
+.c-tool-bar {
+    display: inline-block;
+}
+
+.app .c-tool-bar .c-button {
+    margin: 0 4px;
+}
+
+.c-tool-bar > button:hover {
+
+}
+
+/*===================================================== Button =====================================================*/
+
+.app .c-button {
+    box-sizing: border-box;
+    font-size: 11pt;
+    padding: 6px 12px;
+    margin: 4px;
+    cursor: pointer;
+}
+
+.app .c-button[disabled] {
+    cursor: not-allowed;
+}
+
+/*===================================================== TitleBar =====================================================*/
+
+.c-title-bar {
+    padding: 8px;
+    display: flex;
+}
+
+.c-title-bar-icon {
+    font-size: 2em;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.c-title-bar h5 {
+    display: inline-block;
+    color: #39b;
+    font-weight: bold;
+    line-height: 1.5em;
+}
+
+/*==================================================== Attributes ====================================================*/
+
+.c-attributes-row > td {
+    padding: 4px 8px;
+    vertical-align: top;
+}
+
+.c-attributes-row td:first-child {
+    font-weight: bold;
+}
+
+/*==================================================== BreadCrumbs ===================================================*/
+
+.c-breadcrumbs a,
+.c-breadcrumbs a:visited,
+.c-breadcrumbs a:hover,
+.c-breadcrumbs a:focus,
+.c-breadcrumbs a:active {
+    white-space: nowrap;
+    color: inherit;
+    text-decoration: none;
+}
+
+.c-breadcrumbs a:hover {
+    color: #f53;
+}
+
+/*======================================================= Table ======================================================*/
+
+.c-table .rt-thead .rt-th {
+    padding: 8px 4px;
+    font-weight: normal;
+    background-color: #505356;
+    color: #bbb
+}
+
+.c-table .rt-thead .rt-th.-sort-asc,
+.c-table .rt-thead .rt-td.-sort-asc {
+    box-shadow: inset 0 3px 0 0 #f53
+}
+
+.c-table .rt-thead .rt-th.-sort-desc,
+.c-table .rt-thead .rt-td.-sort-desc {
+    box-shadow: inset 0 -3px 0 0 #f53;
+}
+

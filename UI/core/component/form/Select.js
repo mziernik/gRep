@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
-import {React, PropTypes, Utils, Type} from '../core';
-import {FormComponent, FontAwesome} from '../components';
+import {React, PropTypes, Utils, Type} from '../../core';
+import {FormComponent, FontAwesome} from '../../components';
 import {DropdownList} from 'react-widgets';
 
 export default class Select extends FormComponent {
@@ -23,14 +23,8 @@ export default class Select extends FormComponent {
     _selected: boolean = false;
     _multiSelect: boolean = false;
 
-    props: {
-        /** czy jest to lista jednostek */
-            units: ?boolean,
-        readOnly: ?boolean
-    };
-
     static propTypes = {
-        /** czy jest to lista jednostek */
+        /** ista jednostek */
         units: PropTypes.array,
         readOnly: PropTypes.bool
     };
@@ -139,10 +133,12 @@ export default class Select extends FormComponent {
             this._selected = false;
     }
 
+    //ToDo: Przemek
+
     render() {
+        if (!this.field)return null;
         return (
-            <span style={{...this.props.style}}>
-                {this._fieldCtrlInfo}
+            <span className="c-select" style={{...this.props.style}}>
                 <DropdownList
                     {...this._multiselectProps}
                     textField='text'
@@ -163,7 +159,6 @@ export default class Select extends FormComponent {
                         emptyFilter: 'Brak wyników.'
                     }}
                 />
-                {this._fieldCtrlErr}
             </span>
         )
     }

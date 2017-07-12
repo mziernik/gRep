@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, FieldConfig, Utils} from '../../core';
-import {Page, FontAwesome, FieldComponent, FieldController, Panel} from '../../components';
+import {Page, FontAwesome, FCtrl, Panel} from '../../components';
 import {Tab, TabSet} from '../../component/TabSet';
 import FormTab from "./FormTab";
 import ListsTab from "./ListsTab";
@@ -16,12 +16,12 @@ export default class PDemo extends Page {
 
     constructor() {
         super(...arguments);
-        this.state = {selectedTab: 0};
+        this.state = {selectedTab: 4};
     };
 
     render() {
 
-        return <Panel fit>
+        return <Panel fit noPadding>
             {super.renderTitle("Demo")}
 
             <TabSet selectedIndex={this.state.selectedTab}>

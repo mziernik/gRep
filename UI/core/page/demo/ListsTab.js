@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, Column, Utils} from '../../core';
-import {Component, Page, FontAwesome, FieldComponent, FieldController} from '../../components';
+import {Component, Page, FontAwesome, FCtrl} from '../../components';
 import JsonViewer from "../../component/JsonViewer";
 
 
@@ -24,24 +24,22 @@ export default class Lists extends Component {
                     let field = DATA[prop];
                     return <tr key={index}>
                         <td style={{width: '20px'}}>
-                            <FieldController field={field}
-                                             handleRequired={true}
-                                             handleDescription={true}
-                                             defReq={<span className={FontAwesome.ASTERISK}
-                                                           style={{color: '#ff6e00'}}/>}
-                                             defDesc={<span className={FontAwesome.QUESTION_CIRCLE}
-                                                            style={{color: '#0071ff'}}/>}
+                            <FCtrl field={field}
+                                   required
+                                   description
+                                   name
+                                   defReq={<span className={FontAwesome.ASTERISK}
+                                                 style={{color: '#ff6e00'}}/>}
+                                   defDesc={<span className={FontAwesome.QUESTION_CIRCLE}
+                                                  style={{color: '#0071ff'}}/>}
                             />
                         </td>
 
-                        <td style={{padding: "4px"} }>{field.name}</td>
-
                         <td style={{paddingLeft: "20px"}}>
-                            <FieldComponent field={field} fieldCtrl={false} checkBoxLabel={true}
-                                            preview={false}/>
+                            <FCtrl field={field} value/>
                         </td>
                         <td >
-                            <FieldController field={field} handleFieldError={true}/>
+                            <FCtrl field={field} error/>
                         </td>
                     </tr>
                 })}

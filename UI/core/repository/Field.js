@@ -7,8 +7,6 @@ import Column, {TEXT_CASING} from "./Column";
 
 export default class Field {
 
-    static renderer: (field: Field, preview: boolean) => any;
-
     _locked: boolean = false; // blokada możliwości zmiany edycji (tryb REMOTE i SYNCHRONIZED)
     _parent: ?Object = null;
     _error: ?string = null; // błędy walidacji
@@ -149,10 +147,10 @@ export default class Field {
         this._value = value;
         this.validate(done);
 
-        if (this._store && !this._store.validatedOnly)
-            this._store.onChange(value);
-        if (this._store && this._store.validatedOnly)
-            this._store.onChange(value);
+        // if (this._store && !this._store.validatedOnly)
+        //     this._store.onChange(value);
+        // if (this._store && this._store.validatedOnly && )
+        //     this._store.onChange(value);
 
         this.onChange.dispatch(this._parent, prev, value, wasChanged);
         return this;
@@ -382,11 +380,6 @@ export default class Field {
 
         return [];
     }
-
-    render(preview: boolean): any {
-        return Field.renderer(this, preview);
-    }
-
 
 }
 

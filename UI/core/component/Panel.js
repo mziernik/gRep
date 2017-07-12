@@ -20,8 +20,10 @@ export default class Panel extends Component {
         scrollable: false
     };
 
+    //ToDo: Przemek
     render() {
         return <Resizer
+            className="c-panel"
             resizable={this.props.resizable}
             style={{
                 boxSizing: "border-box",
@@ -41,13 +43,17 @@ export default class Panel extends Component {
             outerProps={{
                 title: this.props.title
             }}>
-            <div style={{
-                overflow: this.props.scrollable || this.props.resizable ? "auto" : null,
-                display: "flex",
-                flexDirection: this.props.vertical ? "row" : "column",
-                width: '100%',
-                height: '100%',
-            }}>
+            <div
+                className={"c-panel"}
+                data-fit={!!this.props.fit}
+                data-vertical={!!this.props.vertical}
+                style={{
+                    overflow: this.props.scrollable || this.props.resizable ? "auto" : null,
+                    display: "flex",
+                    flexDirection: this.props.vertical ? "row" : "column",
+                    width: '100%',
+                    height: '100%',
+                }}>
                 {super.renderChildren()}
             </div>
         </Resizer>

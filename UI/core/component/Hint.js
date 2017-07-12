@@ -1,4 +1,4 @@
-import {React, PropTypes, Utils} from "../core"
+import {React, PropTypes, Application, AppNode, Utils} from "../core"
 import {Component} from "../components"
 
 export default class Hint extends Component {
@@ -15,6 +15,22 @@ export default class Hint extends Component {
 
     constructor() {
         super(...arguments);
+    }
+
+    /** Wyświetla hinta. UWAGA! Nadpisuje zawartość rodzica
+     * @param parent element w którym ma się narysować hint. Zawartość zostanie nadpisana
+     * @param msg treść komunikatu hinta
+     * @returns {AppNode} uchwyt do hinta, który należy przekazać w hide lub usunąć ręcznie
+     */
+    static show(parent, msg): AppNode {
+        return Application.render(<Hint visible={true} message={msg}/>, parent);
+    }
+
+    /** ukrywa hinta
+     * @param hint uchwyt wyświetlonego hinta
+     */
+    static hide(hint: AppNode) {
+        hint.remove();
     }
 
     _setPosition(elem) {
@@ -39,8 +55,9 @@ export default class Hint extends Component {
         if (!this.props.visible) {
             return null;
         }
+        //ToDo: Przemek
         return (
-            <span ref={(elem) => this._setPosition(elem)}
+            <span className="c-hint" ref={(elem) => this._setPosition(elem)}
                   style={{
                       ...this.props.style,
                       visibility: 'hidden',
@@ -54,9 +71,9 @@ export default class Hint extends Component {
                       zIndex: 1000
                   }}>
                 {super.renderChildren()
-                || Utils.forEach(this.props.message.split('\n'), (line, index) => {
+                || this.props.message ? Utils.forEach(this.props.message.split('\n'), (line, index) => {
                     return <div key={index}>{line}</div>;
-                })}
+                }) : null}
             </span>
         )
     }

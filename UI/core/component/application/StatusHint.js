@@ -24,7 +24,7 @@ export default class StatusHint extends Component {
         setTimeout(() => {
             this.statuses.remove(status);
             this.forceUpdate();
-        }, 300);
+        }, 500);
     }
 
     render() {
@@ -40,8 +40,10 @@ function Bar(props) {
     const status: AppStatus = props.status;
 
     let key = 0;
-    const message = status.message ? Utils.toString(status.message).split("\n").map(s => <div key={++key}>{s}</div>) : null;
-    const details = status.details ? Utils.toString(status.details).split("\n").map(s => <div key={++key}>{s}</div>) : null;
+    const message = status.message ? Utils.toString(status.message).split("\n").map(s => <div
+        key={++key}>{s}</div>) : null;
+    const details = status.details ? Utils.toString(status.details).split("\n").map(s => <div
+        key={++key}>{s}</div>) : null;
 
     let icon: FontAwesome;
     let background: string;
@@ -74,49 +76,65 @@ function Bar(props) {
             break;
     }
 
-    return <div style={{flex: "auto", textAlign: "right"}}>
-        <div
+    //ToDo: Przemek
+    return <div className="c-status-hint" style={{flex: "auto", textAlign: "right"}}>
+        <table
             style={{
-                display: "inline-block",
+                display: "inline-table",
                 border: "1px solid " + border,
                 backgroundColor: background,
                 opacity: "0.9",
-                padding: "10px 20px",
+
                 margin: "4px",
                 textAlign: "left",
                 boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
                 transition: "all 0.3s",
+                maxWidth: "60vw",
+                minWidth: "250px"
             }}
             ref={id => status._tag = id}
             onClick={(e) => status.hide()}
         >
-                <span style={ {
-                    fontSize: "26px",
-                    width: "30px",
-                    color: border,
-                    verticalAlign: "top",
-                    margin: "4px"
-                } } className={icon}/>
+            <tbody>
+            <tr>
+                <td className="c-status-hint-icon"
+                    style={ {
+                        padding: "10px",
+                        paddingLeft: "20px",
+                        fontSize: "30px",
+                        width: "30px",
+                        color: border,
+                        verticalAlign: "top",
+                    } }>
+                    <span className={icon}/>
+                </td>
 
-            <div style={ {
-                display: "inline-block",
-                verticalAlign: "top",
-                margin: "8px 4px 4px 4px",
-
-                paddingLeft: "4px",
-            } }
-            >
-                <div style={{
-                    fontSize: "14px",
-                    fontWeight: "bold",
-                    color: "#333",
-                }}>{message}</div>
-                <div style={{
-                    fontSize: "13px",
-                    color: "#444",
-                    paddingTop: "10px"
-                }}>{details}</div>
-            </div>
-        </div>
+                <td className="c-status-content"
+                    style={ {
+                        display: "inline-block",
+                        verticalAlign: "top",
+                        margin: "8px 4px 4px 4px",
+                        padding: "10px 20px",
+                        paddingLeft: "4px",
+                    } }
+                >
+                    <div
+                        className="c-status-hint-message"
+                        style={{
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            color: "#333",
+                        }}>{message}</div>
+                    <div
+                        className="c-status-hint-details"
+                        style={{
+                            fontSize: "13px",
+                            color: "#444",
+                            paddingTop: "10px"
+                        }}>{details}</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 }

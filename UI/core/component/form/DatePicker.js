@@ -1,25 +1,23 @@
 // @flow
 'use strict';
-import {React, PropTypes} from '../core';
-import {FormComponent} from '../components'
+import {React, PropTypes} from '../../core';
+import {FormComponent} from '../../components'
 import {DateTimePicker} from "react-widgets";
-import moment from "react-widgets/lib/localizers/moment";
+import momentLocalizer from 'react-widgets/lib/localizers/moment';
 import Moment from "moment";
 import "react-widgets/dist/css/react-widgets.css";
 
 export default class DatePicker extends FormComponent {
-    props: {
-        dtpProps: ?Object
-    };
 
     static propTypes = {
-        dtpProps: PropTypes.object
+        dtpProps: PropTypes.object,
+        preview:PropTypes.bool
     };
 
     constructor() {
         super(...arguments);
         Moment.locale('pl');
-        moment(Moment);
+        momentLocalizer(Moment);
     }
 
     /** Funkcja rysująca dni
@@ -46,9 +44,23 @@ export default class DatePicker extends FormComponent {
     }
 
     render() {
+        if (!this.field)return null;
+
+        if (this.props.preview) {
+            if (this.field.isEmpty)
+                return null;
+
+            switch (this.field.type.name) {
+                case "date":
+                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleDateString()}</span>;
+                case "time":
+                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleTimeString()}</span>;
+                case "timestamp":
+                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleString()}</span>;
+            }
+        }
+
         return (
-            <span>
-                {this._fieldCtrlInfo}
                 <DateTimePicker
                     {...this.props.dtpProps}
                     title={this.field.hint}
@@ -64,8 +76,6 @@ export default class DatePicker extends FormComponent {
                     defaultValue={this.field.value}
                     duration={100}
                     onChange={(d, s) => this._handleChange(false, null, d)}/>
-                {this._fieldCtrlErr}
-            </span>
         );
     }
 }

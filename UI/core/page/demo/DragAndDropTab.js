@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, FieldConfig, Utils} from '../../core';
-import {Component, Page, FontAwesome, FieldComponent, FieldController}    from        '../../components';
+import {Component, Page, FontAwesome, FCtrl}    from        '../../components';
 import {Tab, TabSet} from '../../component/TabSet';
 import ReactTable from 'react-table';
 import JsonViewer from "../../component/JsonViewer";
