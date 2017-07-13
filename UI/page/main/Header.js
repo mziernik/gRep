@@ -2,11 +2,10 @@
 'use strict';
 //FixMe importy
 import {React} from "../../core/core.js";
-import Component from "../../core/component/Component";
+import {Component, Icon} from "../../core/components.js";
 import Breadcrumb from "../../core/component/Breadcrumbs";
 import WebApiStatus from "../../core/component/application/WebApiStatus";
 import {MenuItem, PopupMenu} from "../../core/component/PopupMenu";
-import FontAwesome from "../../core/component/glyph/FontAwesome";
 
 
 let context;
@@ -67,7 +66,7 @@ const MENU_ITEMS = [
 
     MenuItem.createItem((item: MenuItem) => {
         item.name = "Wyloguj";
-        item.icon = FontAwesome.POWER_OFF;
+        item.icon = Icon.POWER_OFF;
         //  item.hint = "Wpisuje do konsoli nazwę pola i jego wartość";
         item.onClick = () => {
             alert("aaaaaaaaaa");

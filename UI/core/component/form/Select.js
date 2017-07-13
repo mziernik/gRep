@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, PropTypes, Utils, Type} from '../../core';
-import {FormComponent, FontAwesome} from '../../components';
+import {FormComponent, Icon} from '../../components';
 import {DropdownList} from 'react-widgets';
 
 export default class Select extends FormComponent {
@@ -106,7 +106,7 @@ export default class Select extends FormComponent {
             props.item.checked = this.field.value.contains(props.item.value);
         return (
             <span>
-                <span className={props.item.checked ? FontAwesome.CHECK_SQUARE_O : FontAwesome.SQUARE_O}
+                <span className={props.item.checked ? Icon.CHECK_SQUARE_O : Icon.SQUARE_O}
                       style={{width: '20px'}}/>
                 {props.item.text}
             </span>);
@@ -132,8 +132,6 @@ export default class Select extends FormComponent {
         else
             this._selected = false;
     }
-
-    //ToDo: Przemek
 
     render() {
         if (!this.field)return null;

@@ -1,8 +1,7 @@
 //@Flow
 'use strict';
 import {Application, React, PropTypes, Utils, If} from '../core';
-import {Component, FontAwesome} from '../components';
-import './PopupMenu.css'
+import {Component, Icon} from '../components';
 
 let INSTANCE: PopupMenu;
 
@@ -12,13 +11,7 @@ export class PopupMenu extends Component {
      */
     _style = {
         visibility: 'hidden',
-        boxShadow: '2px 2px 5px gray',
         position: 'absolute',
-        background: 'white',
-        border: '1px solid gray',
-        cursor: 'default',
-        userSelect: 'none',
-        whiteSpace: 'nowrap'
     };
 
     static propTypes = {
@@ -213,18 +206,18 @@ export class PopupMenu extends Component {
                         padding: '5px 8px',
                         textAlign: 'center'
                     }}>
-                        {item.icon instanceof FontAwesome ?
+                        {item.icon instanceof Icon ?
                             <span className={item.icon}/> : item.icon}
                         {item.checkbox ?
                             <span
-                                className={item.checked ? FontAwesome.CHECK : FontAwesome.TIMES}/> : null}
+                                className={item.checked ? Icon.CHECK : Icon.TIMES}/> : null}
                     </td>
                     <td style={{padding: '5px 0'}}>
                         {item.name}
                     </td>
                     <td style={{padding: '5px 8px'}}>
                         {item.subMenu && !item.disabled ?
-                            <span className={FontAwesome.CHEVRON_RIGHT}
+                            <span className={Icon.CHEVRON_RIGHT}
                                   style={{
                                       fontSize: '0.8em'
                                   }}/>
@@ -247,7 +240,7 @@ export class PopupMenu extends Component {
      */
     renderSubmenu(items: [], opened: boolean) {
         if (!opened)return null;
-        return <span ref={elem => this._setPosition(elem, true)}
+        return <span className="f-popup-menu" ref={elem => this._setPosition(elem, true)}
                      style={{
                          ...this._style,
                          left: '100%'
@@ -257,7 +250,7 @@ export class PopupMenu extends Component {
     }
 
     render() {
-        return <span ref={elem => {
+        return <span className="f-popup-menu" ref={elem => {
             if (elem) this._menu = elem;
             this._setPosition(elem, false);
         }}

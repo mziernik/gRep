@@ -3,7 +3,8 @@
  */
 import {React, ReactComponent, AppEvent, Utils, Dispatcher, Check} from "../core";
 import Route from "react-router-dom/es/Route";
-import Glyph from "../component/glyph/Glyph";
+import {Icon} from "../component/glyph/Icon";
+
 
 export const ENDPOINT_TARGET_TAB = "tab";
 export const ENDPOINT_TARGET_POPUP = "popup";
@@ -16,7 +17,7 @@ export default class Endpoint {
     /** domyślna strona 404 */
     static NOT_FOUND: ?Endpoint;
 
-    _icon: ?Glyph = null;
+    _icon: ?Icon = null;
     _name: ?string = null;
     _path: ?string = null;
     _exact: boolean = true;
@@ -105,7 +106,7 @@ export default class Endpoint {
         return result;
     }
 
-    icon(icon: Glyph): Endpoint {
+    icon(icon: Icon): Endpoint {
         this._icon = icon;
         return this;
     }

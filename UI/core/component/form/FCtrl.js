@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 import {React, PropTypes, Field, Check, Utils, If, Debug, Type} from '../../core.js';
-import {Component, FontAwesome, Input, Memo, List, Multiple, DatePicker, Select, Checkbox} from '../../components.js';
+import {Component, Icon, Input, Memo, List, Multiple, DatePicker, Select, Checkbox} from '../../components.js';
 import Hint from "../Hint";
 
 /**
@@ -48,13 +48,13 @@ export default class FCtrl extends Component {
     description: boolean;
 
     /* domyślne ikony */
-    defError: Object = <span className={FontAwesome.EXCLAMATION_CIRCLE.className}
+    defError: Object = <span className={Icon.EXCLAMATION_CIRCLE.className}
                              style={{color: 'red'}}/>;
-    defWarning: Object = <span className={FontAwesome.EXCLAMATION_TRIANGLE.className}
+    defWarning: Object = <span className={Icon.EXCLAMATION_TRIANGLE.className}
                                style={{color: '#ffad00'}}/>;
-    defDesc: Object = <span className={FontAwesome.QUESTION_CIRCLE.className}
+    defDesc: Object = <span className={Icon.QUESTION_CIRCLE.className}
                             style={{color: '#0091ff'}}/>;
-    defReq: Object = <span className={FontAwesome.ASTERISK.className}
+    defReq: Object = <span className={Icon.ASTERISK.className}
                            style={{fontSize: '.7em', verticalAlign: 'top', color: 'red'}}/>;
 
     props: {
@@ -210,7 +210,7 @@ export default class FCtrl extends Component {
             return value === null
                 ? <span title={title} style={{color: "#aaa"}}>null</span>
                 : typeof value === "boolean"
-                    ? <span title={title} className={value ? FontAwesome.CHECK : FontAwesome.TIMES}/>
+                    ? <span title={title} className={value ? Icon.CHECK : Icon.TIMES}/>
                     : <span title={title}>{this.field.displayValue}</span>;
         }
 

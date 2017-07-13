@@ -127,15 +127,13 @@ export default class Resizer extends Component {
     }
 
     render() {
-        //ToDo: Przemek
+        //
         return (
             <div
                 className="c-resizer"
                 style={{
-                    overflow: "hidden",
                     position: this.props.from ? 'fixed' : 'relative',
-                    minWidth: '12px',
-                    minHeight: '12px',
+
                     ...this.props.style
                 }}
                 {...this.props.outerProps}
@@ -143,13 +141,11 @@ export default class Resizer extends Component {
                 {super.renderChildren()}
                 {this.props.resizable ?
                     <div
+                        className="c-resizer-content"
                         style={{
-                            cursor: 'se-resize',
+                            position: 'absolute',
                             width: '0',
                             height: '0',
-                            border: 'solid 5px',
-                            borderColor: 'transparent gray gray transparent',
-                            position: 'absolute',
                             right: '2px',
                             bottom: '2px'
                         }}

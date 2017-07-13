@@ -2,7 +2,7 @@
 'use strict';
 
 import {React, Ready, Utils, PropTypes, Field, Type, Column, Repository, AppNode} from "../../core";
-import {Component, FCtrl, Panel, Checkbox, FontAwesome, Link} from "../../components";
+import {Component, FCtrl, Panel, Checkbox, Icon, Link} from "../../components";
 import {Child} from "../Component";
 
 /**
@@ -95,7 +95,7 @@ export class Attr extends Component {
 
                     <span style={{display: "table-cell", whiteSpace: "nowrap"}}>
                              <Link ignore={!mixedMode || this.edit}
-                                   icon={FontAwesome.PENCIL}
+                                   icon={Icon.PENCIL}
                                    onClick={() => {
                                        this.edit = true;
                                        this.forceUpdate();
@@ -103,7 +103,7 @@ export class Attr extends Component {
 
                     <Link ignore={!mixedMode || !this.edit}
                           style={{verticalAlign: "sub"}}
-                          icon={FontAwesome.FLOPPY_O}
+                          icon={Icon.FLOPPY_O}
                           onClick={() => {
                               this.edit = false;
                               this.props.field.value = field.value;
@@ -112,7 +112,7 @@ export class Attr extends Component {
                           }}/>
                     <Link ignore={!mixedMode || !this.edit}
                           style={{verticalAlign: "sub"}}
-                          icon={FontAwesome.TIMES}
+                          icon={Icon.TIMES}
                           onClick={() => {
                               this.edit = false;
                               this.forceUpdate();

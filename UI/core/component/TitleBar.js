@@ -8,7 +8,7 @@ import "./components.css";
 export class TitleBar extends Component {
 
     static propTypes = {
-        page: PropTypes.instanceOf(Page).isRequired,
+        page: PropTypes.any.isRequired, //Page
         title: PropTypes.string.isRequired,
         toolbar: PropTypes.func,
     };

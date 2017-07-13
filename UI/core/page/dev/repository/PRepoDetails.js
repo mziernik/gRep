@@ -1,5 +1,5 @@
 import {React, PropTypes, Field, Utils, Column, Repository, Record, Type, If, CRUDE} from '../../../core';
-import {Page, FontAwesome, Link, Table, FCtrl, Panel, Button} from '../../../components';
+import {Page, Icon, Link, Table, FCtrl, Panel, Button} from '../../../components';
 
 
 export default class PRepoDetails extends Page {

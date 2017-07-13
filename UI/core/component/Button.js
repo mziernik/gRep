@@ -73,12 +73,7 @@ export default class Button extends Component {
         >
             {
                 this.props.icon ?
-                <span className={"c-button-icon " + this.props.icon} style={{
-                    marginRight: "7px",
-                    fontSize: "1.4em",
-                    opacity: "0.8"
-
-                }}/> : null}
+                <span className={"c-button-icon " + this.props.icon} /> : null}
             {this.children.render()}</button>
     }
-}  //ToDo: Przemek
+}  //

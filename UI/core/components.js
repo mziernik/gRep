@@ -1,8 +1,7 @@
 export {default as Alert} from "./component/alert/Alert";
 export {default as Spinner} from "./component/Spinner";
+export {default as Icon} from "./component/glyph/Icon"
 
-export {default as Glyph} from "./component/glyph/Glyph";
-export {default as FontAwesome} from "./component/glyph/FontAwesome";
 
 export {default as Component} from "./component/Component";
 export {default as Page} from "./page/Page";

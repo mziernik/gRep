@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 import {React, PropTypes, Field} from '../../core';
-import {FormComponent, FontAwesome} from '../../components';
+import {FormComponent, Icon} from '../../components';
 
 export default class Checkbox extends FormComponent {
 
@@ -41,11 +41,11 @@ export default class Checkbox extends FormComponent {
     /** Określa jaka ikona powinna być wyświetlona
      * @private
      */
-    _setIcon(): FontAwesome {
+    _setIcon(): Icon {
         const val = this.field.value;
-        let icon = FontAwesome.CHECK_SQUARE;
+        let icon = Icon.CHECK_SQUARE;
         if (val !== null && val !== undefined)
-            icon = val ? FontAwesome.CHECK_SQUARE_O : FontAwesome.SQUARE_O;
+            icon = val ? Icon.CHECK_SQUARE_O : Icon.SQUARE_O;
         return icon;
     }
 
@@ -66,7 +66,7 @@ export default class Checkbox extends FormComponent {
                 <span>
                     <span style={{marginRight: '10px'}}
                           title={this.field.name}
-                          className={this.field.value ? FontAwesome.CHECK : FontAwesome.TIMES}/>
+                          className={this.field.value ? Icon.CHECK : Icon.TIMES}/>
                 </span>);
 
         //ToDo: Wojtek: Przerób _highlight na c-check-box:hover (w innych klasach również)
@@ -82,13 +82,11 @@ export default class Checkbox extends FormComponent {
                       onMouseEnter={() => this._highlight(true)}
                       onMouseLeave={() => this._highlight(false)}
                       style={{
-                          width: '16px',
-                          marginRight: '10px',
                           color: this.state.color
                       }}/>
                 {this.props.label ? this.field.name : null}
             </span>);
-        //ToDo: Przemek
+        //
 
     }
 }

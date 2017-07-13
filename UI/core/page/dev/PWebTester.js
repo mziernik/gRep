@@ -1,6 +1,8 @@
 import {React, Trigger, Field, Column, Type} from "../../core";
 import {Page, Panel} from "../../components";
 import CodeMirror from "../../component/CodeMirror/CodeMirror";
+import {SplitPanel, Splitter} from "../../component/Splitter";
+//https://jsfiddle.net/
 
 //ToDo: Dodać tryb konwersji danych - panele: wejściowy, skryptu, wyjściowy)
 
@@ -35,7 +37,7 @@ export default class PWebTester extends Page {
         // fc.store = "WebTester_HTML";
     });
 
-    changed = new Trigger(() => this._reload(), 500);
+    changed = new Trigger(() => this._reload(), 1500);
 
     constructor() {
         super(...arguments);
@@ -103,69 +105,46 @@ export default class PWebTester extends Page {
         this.changed.run();
 
         const cmStyle = {
-            flex: "100",
+            width: '100%',
+            height: '100%',
             color: "#bbb",
-            border: "1px solid #666",
             resize: "none",
-            margin: "2px"
         };
 
         return <Panel fit noPadding>
 
-            <div style={{
-                padding: "8px",
-                height: "40px"
-            }}>
-                <button>Zapisz</button>
-                <button>Uruchom</button>
-            </div>
+            <Splitter>
 
-
-            <div style={{
-                flex: "auto",
-                display: "flex",
-            }}>
-
-                <div style={{
-                    flex: "50%",
-                    display: "flex",
-                    flexDirection: "column"
-                }}>
+                <Splitter horizontal>
                     <CodeMirror style={cmStyle} field={this.HTML} mode="html"/>
                     <CodeMirror style={cmStyle} field={this.JS} mode="javascript"/>
                     <CodeMirror style={cmStyle} field={this.CSS} mode="css"/>
-                </div>
+                </Splitter>
 
-                <div style={{
-                    flex: "50%",
-                    display: "flex",
-                    flexDirection: "column"
-                }}>
+                <Splitter horizontal>
                     <iframe ref={(e) => this.fra = e}
                             style={{
+                                border: "none",
                                 backgroundColor: "#fff",
                                 width: "100%",
-                                flex: "auto",
+                                height: "100%",
                                 border: "none",
-                                margin: "2px"
                             }}/>
 
                     <div ref={(e) => this.console = e}
                          style={{
                              backgroundColor: "#222",
-                             margin: "2px",
                              color: "#ddd",
                              font: "10pt Consolas",
                              padding: "8px",
-                             border: "1px solid #aaa",
                              width: "100%",
-                             height: "40%",
+                             height: "100%",
                              overflow: "auto"
                          }}
                     />
 
-                </div>
-            </div>
+                </Splitter>
+            </Splitter>
         </Panel>
     }
 }

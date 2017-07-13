@@ -1,5 +1,5 @@
 import {React} from '../../core';
-import {Page, Link, FontAwesome, Table, Panel} from '../../components';
+import {Page, Link, Icon, Table, Panel} from '../../components';
 
 export default class PLocalStorage extends Page {
 
@@ -15,7 +15,7 @@ export default class PLocalStorage extends Page {
                     key,
                     window.localStorage.getItem(key),
                     <Link
-                        icon={FontAwesome.TIMES}
+                        icon={Icon.TIMES}
                         title="Usuń"
                         confirm="Czy na pewno usunąć?"
                         onClick={() => {

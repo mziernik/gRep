@@ -24,15 +24,26 @@ export default class WebApiRepoStorage extends RepositoryStorage {
     }
 
     load(repos: Repository[]): Promise {
-        const list = {};
-        Utils.forEach(repos, (repo: Repository) => list[repo.key] = repo.config.autoUpdate);
-        return (this.methods.get({repositories: list}, null, (err) => {
+        return new Promise((resolve, reject) => {
 
-            if (this.api && !this.api.transport.connected)
-                return;
+            const list = {};
+            Utils.forEach(repos, (repo: Repository) => list[repo.key] = repo.config.autoUpdate);
 
-            AppStatus.error(this, err);
-        }): WebApiRequest).promise;
+            this.methods.list(data => {
+                Repository.processList(data);
+                this.methods.get({repositories: list}, ok => {
+                    resolve(ok);
+                }, (err) => {
+                    if (this.api && !this.api.transport.connected)
+                        return;
+                    AppStatus.error(this, err);
+                    reject(err);
+                });
+
+            }, err => {
+                reject(err);
+            });
+        });
     }
 
     static buildDTO(records: Record[], includeUnchanged: boolean = false, crude: CRUDE): {} {

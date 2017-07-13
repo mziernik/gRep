@@ -38,6 +38,9 @@ export class RepoConfig {
     autoUpdate: boolean = false;
     local: ?boolean = null;
     icon: ?string = null;
+    columns: Column[] = [];
+    /** Repozytorium utworzone dynamicznie (rezultat metody [list] z webapi)*/
+    dynamic: boolean = false;
 
     constructor() {
         Object.preventExtensions(this);
@@ -81,18 +84,21 @@ export default class Repository {
         Check.isFunction(config);
         config(this.config);
 
-        for (let name in this.constructor) {
+        if (this.config.dynamic) {
+            this.columns.addAll(this.config.columns);
+        } else
+            for (let name in this.constructor) {
 
-            const col: Column = this.constructor[name];
-            if (!(col instanceof Column))
-                continue;
-            this.columns.push(col);
+                const col: Column = this.constructor[name];
+                if (!(col instanceof Column))
+                    continue;
+                this.columns.push(col);
 
-            Object.defineProperty(this.constructor, name, {
-                value: col,
-                writable: false
-            });
-        }
+                Object.defineProperty(this.constructor, name, {
+                    value: col,
+                    writable: false
+                });
+            }
 
         if (!this.config.primaryKeyColumn)
             throw new Error("Brak definicji klucza głównego repozytorium " + Utils.escape(this.config.key));
@@ -177,6 +183,66 @@ export default class Repository {
                 result.push(cursor.getRecord(context));
         }
         return result;
+    }
+
+    /** Przetwarzanie listy repozytoriów zwróconych przez serwer */
+    static processList(response: Object) {
+
+
+        Utils.forEach(response, data => {
+            let repo: Repository = Repository.all[data.key];
+
+            if (!repo) {
+
+                debugger;
+
+
+                repo = new Repository((c: RepoConfig) => {
+
+                    Utils.forEach(data.columns, cdata => c.columns.push(new Column((c: Column) => {
+                            for (let name in c)
+                                if (cdata[name] !== undefined)
+                                    c[name] = cdata[name];
+                        }))
+                    );
+
+                    const getColumn = (key) => Utils.forEach(c.columns, c => c.key === key ? c : undefined)[0];
+
+                    c.dynamic = true;
+                    c.key = data.key;
+                    c.name = data.name;
+                    c.record = () => {
+                        debugger;
+                    };
+                    c.primaryKeyColumn = getColumn(data.primaryKeyColumn);
+                    c.displayNameColumn = getColumn(data.primaryKeyColumn);
+                    c.orderColumn = getColumn(data.orderColumn);
+                    c.parentColumn = getColumn(data.parentColumn);
+                    c.crude = data.crude;
+                    c.local = data.local;
+                    c.autoUpdate = data.autoUpdate;
+                });
+
+                Repository.register(repo);
+            }
+
+
+            //
+            // constructor() {
+            //     super((c: RepoConfig) => {
+            //         c.key = "status";
+            //         c.name = "Status";
+            //         c.record = RStatusRecord;
+            //         c.primaryKeyColumn = RStatus.KEY;
+            //         c.displayNameColumn = RStatus.NAME;
+            //         c.crude = "R";
+            //         c.local = true;
+            //         c.autoUpdate = true;
+            //     });
+            //
+
+        });
+
     }
 
     static update(context: any, dto: Record[] | Object) {

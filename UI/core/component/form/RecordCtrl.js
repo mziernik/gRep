@@ -12,7 +12,7 @@ import {
     EError,
     ContextObject
 } from "../../core";
-import {Component, Button, Page, FontAwesome, Spinner, Alert} from "../../components";
+import {Component, Button, Page, Icon, Spinner, Alert} from "../../components";
 import AppStatus from "../../application/Status";
 
 export default class RecordCtrl {
@@ -77,7 +77,7 @@ export default class RecordCtrl {
         return <Button
             key="btnSave"
             ref={btn => this.buttons.push(btn)}
-            icon={FontAwesome.CHECK}
+            icon={Icon.CHECK}
             type="success"
             onClick={e => this.commit(this.crude, onSuccess)}
         > {this.crude === CRUDE.CREATE ? "Utwórz" : "Zapisz"} </Button>
@@ -88,7 +88,7 @@ export default class RecordCtrl {
             <Button
                 key="btnDelete"
                 ref={btn => this.buttons.push(btn)}
-                icon={FontAwesome.TIMES}
+                icon={Icon.TIMES}
                 type="danger"
                 confirm={confirm} onClick={e => this.commit(CRUDE.DELETE)}>Usuń</Button>
     }

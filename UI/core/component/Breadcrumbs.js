@@ -5,7 +5,7 @@
 
 
 import {React, PropTypes, AppEvent, Endpoint} from "../core";
-import {Component, FontAwesome, Link} from "../components";
+import {Component, Icon, Link} from "../components";
 
 
 export default class Breadcrumb extends Component {
@@ -46,11 +46,11 @@ export default class Breadcrumb extends Component {
 
         if (this.props.home)
             elms.push(<Link key={0} link={Endpoint.homePage ? Endpoint.homePage.getLink() : "/"}><span
-                className={FontAwesome.HOME.className}/></Link>);
+                className={Icon.HOME.className}/></Link>);
 
         pages.forEach((page: Endpoint) => {
             if (elms.length)
-                elms.push(<span className={ FontAwesome.ANGLE_DOUBLE_RIGHT}
+                elms.push(<span className={ Icon.ANGLE_DOUBLE_RIGHT}
                                 key={++idx}
                                 style={ {
                                     fontSize: "0.8em",
@@ -64,8 +64,6 @@ export default class Breadcrumb extends Component {
             );
         });
 
-
-        //ToDo: Przemek
         return <span className="c-breadcrumbs">
             { elms }
         </span>

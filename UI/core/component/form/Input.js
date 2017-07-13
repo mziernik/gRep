@@ -7,9 +7,12 @@ export default class Input extends FormComponent {
 
     static propTypes = {
         //   field: PropTypes.instanceOf(Field).isRequired,
-        inputProps: PropTypes.object, // propsy dla <input>
-        preview: PropTypes.bool, // czy podgląd
-        units: PropTypes.element // select z jednostkami
+        /** propsy dla <input> */
+        inputProps: PropTypes.object,
+        /** czy podgląd */
+        preview: PropTypes.bool,
+        /** select z jednostkami */
+        units: PropTypes.element
     };
 
     render() {
@@ -18,7 +21,7 @@ export default class Input extends FormComponent {
         if (this.props.preview)
             return <span title={this.field.name}>{this.field.displayValue}</span>;
 
-        //ToDo: Przemek
+        //
         return (
             <span className="c-input" style={{display: 'flex'}}>
                 <input title={this.field.hint}
@@ -28,8 +31,6 @@ export default class Input extends FormComponent {
                        disabled={this.field.readOnly}
                        style={{
                            textTransform: this.field.config.textCasing,
-                           flex: 'auto',
-                           padding: "3px 8px",
                            width: this.props.units ? '10px' : this.props.inputProps && this.props.inputProps.type === "number" ? "80px" : null,
                        }}
                        onChange={e => {

@@ -92,3 +92,188 @@
     box-shadow: inset 0 -3px 0 0 #f53;
 }
 
+/*======================================================= StatusHint =================================================*/
+
+.c-status-hint {
+    flex: auto;
+    text-align: right;
+}
+
+.c-status-hint > table {
+    margin: 4px;
+    text-align: left;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s;
+    max-width: 60vw;
+    min-width: 250px;
+}
+
+.c-status-hint-icon {
+    padding: 10px 10px 10px 20px;
+    font-size: 30px;
+    width: 30px;
+    vertical-align: top;
+}
+
+.c-status-hint-content {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.c-status-hint-details{
+    font-size: 13px;
+    color: #444;
+    padding-top: 10px;
+}
+
+/*======================================================= Button =================================================*/
+
+.c-button-icon
+{
+    margin-right: 7px;
+    font-size: 1.4em;
+    opacity: 0.8;
+}
+
+/*======================================================== Hint ===================================================*/
+
+.c-hint {
+    visibility: hidden;
+    white-space: nowrap;
+    position: fixed;
+    background: #585858;
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 5px 20px 5px 20px;
+    /*margin: 10px;*/
+    z-index: 1000
+}
+
+/*======================================================== IconEdit ===============================================*/
+
+.c-icon-edit {
+    margin: 8px;
+}
+
+.c-icon-edit-btn {
+    box-sizing: border-box;
+    font-size: 26px;
+    padding: 7px 10px;
+    vertical-align: middle;
+    color: white;
+    border-radius: 4px 0 0 4px;
+    border: 1px solid #444;
+    border-right: none;
+}
+
+.c-icon-edit-input {
+    box-sizing: border-box;
+    width: 300px;
+    padding: 4px 16px;
+    font-size: 16px;
+    vertical-align: middle;
+    color: #666;
+    border: 1px solid #444;
+}
+
+/*======================================================== ModalWindow ===============================================*/
+
+.c-modal-window {
+    background: #DDDDDD;
+    border: 1px solid black;
+    box-shadow: 0 0 10px gray;
+    z-index: 1000;
+    overflow: hidden;
+    min-width: 300px;
+    min-height: 200px;
+    max-width: 85%;
+    max-height: 85%;
+}
+
+.c-modal-window-title {
+    background: #303336;
+    color: white;
+    border-bottom: 1px solid lightgray;
+}
+
+.c-modal-window-exit {
+    text-align: center;
+    padding: 5px 15px;
+    margin: 2px;
+    align-self: center;
+    color: lightgray;
+}
+
+.c-modal-window-footer {
+    padding: 7px 20px;
+    background: #303336;
+    color: white;
+}
+
+/*========================================================= Panel ====================================================*/
+
+.c-panel {
+    font-size: 16px;
+    padding: 6px 12px;
+    margin-right: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/*========================================================= Resizer ==================================================*/
+
+.c-resizer {
+    overflow: hidden;
+    min-width: 12px;
+    min-height: 12px;
+}
+
+.c-resizer-content {
+    cursor: se-resize;
+    border: solid 5px;
+    border-color: transparent gray gray transparent;
+}
+
+/*========================================================= CheckBox =================================================*/
+
+.c-check-box {
+    width: 16px;
+    margin-right: 10px;
+}
+
+/*========================================================= Input ====================================================*/
+
+.c-input {
+    flex: auto;
+    padding: 3px 8px;
+}
+
+/*========================================================= List =====================================================*/
+
+.c-field-list {
+    width: 100%;
+}
+
+.c-field-list-data {
+    width: 20px;
+}
+
+/*========================================================= Memo =====================================================*/
+
+.c-memo {
+
+}
+
+/*======================================================= Multiple ===================================================*/
+
+.c-multiple-fields {
+
+}
+
+/*======================================================== Select =====================================================*/
+
+.c-select {
+
+}

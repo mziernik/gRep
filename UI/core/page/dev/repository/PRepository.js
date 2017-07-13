@@ -1,5 +1,5 @@
 import {React, PropTypes, Field, Utils, Column, Repository, Record, Endpoint, If, CRUDE} from '../../../core';
-import {Page, FontAwesome, Link, Table, FCtrl, Panel, Button} from '../../../components';
+import {Page, Icon, Link, Table, FCtrl, Panel, Button} from '../../../components';
 
 
 export default class PRepository extends Page {
@@ -50,7 +50,7 @@ export default class PRepository extends Page {
                             repo: this.repo.key
                         })}
                         title="Szczegóły repozytorium"
-                        icon={FontAwesome.INFO}>Szczegóły</Button>,
+                        icon={Icon.INFO}>Szczegóły</Button>,
                 <Button type="primary"
                         link={this.endpoint.RECORD.getLink({
                             repo: this.repo.key,
@@ -58,7 +58,7 @@ export default class PRepository extends Page {
                         })}
                         title="Dodaj nowy rekord"
                         disabled={!this.repo.canCreate}
-                        icon={FontAwesome.PLUS}
+                        icon={Icon.PLUS}
                 >Dodaj</Button>
             ])}
 
@@ -76,7 +76,7 @@ export default class PRepository extends Page {
                                 repo: this.repo.key,
                                 rec: rec.primaryKey.value
                             })}
-                            icon={FontAwesome.CREDIT_CARD}
+                            icon={Icon.CREDIT_CARD}
                         />
                     </span>;
                     result["#refs"] = this.repo.getRefs(pk).length;

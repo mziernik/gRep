@@ -3,7 +3,7 @@
 
 import Tree from './Tree';
 import TreeElement from "./TreeElement";
-import Glyph from "../glyph/Glyph";
+import {Icon} from "../glyph/Icon";
 
 export default class TreeNode extends TreeElement {
 
@@ -11,7 +11,7 @@ export default class TreeNode extends TreeElement {
     name: string;
     render: () => any;
     index: number = 0; // pozycja elementu względem rodzica
-    icon: ?Glyph | ?string = null; // ikona font awesome
+    icon: ?Icon | ?string = null; // ikona font awesome
     children: TreeNode[] = [];
     level: number = 0;
     expanded: boolean = false;

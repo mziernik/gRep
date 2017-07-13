@@ -20,23 +20,16 @@ export default class Panel extends Component {
         scrollable: false
     };
 
-    //ToDo: Przemek
+    //
     render() {
         return <Resizer
             className="c-panel"
             resizable={this.props.resizable}
             style={{
-                boxSizing: "border-box",
-
                 height: this.props.fit ? "100%" : null,
                 width: this.props.fit ? "100%" : null,
                 overflow: this.props.scrollable ? "auto" : undefined,
                 padding: this.props.noPadding ? null : "8px",
-                // fontSize: "16px",
-                // padding: "6px 12px",
-                // marginRight: "10px",
-                // marginTop: "10px",
-                // cursor: "pointer",
                 border: this.props.border ? "1px solid #444" : null,
                 ...this.props.style
             }}
@@ -44,7 +37,6 @@ export default class Panel extends Component {
                 title: this.props.title
             }}>
             <div
-                className={"c-panel"}
                 data-fit={!!this.props.fit}
                 data-vertical={!!this.props.vertical}
                 style={{

@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 import {React, PropTypes, Field, Column, Utils, Check, Type} from '../../core.js';
-import {FormComponent, Link, FCtrl, FontAwesome} from '../../components.js';
+import {FormComponent, Link, FCtrl, Icon} from '../../components.js';
 
 export default class Multiple extends FormComponent {
 
@@ -19,11 +19,10 @@ export default class Multiple extends FormComponent {
             array.push(null);
 
         const value: [] = Check.isArray(this.field.value);
-        //ToDo: Przemek
+
         return <div className="c-multiple-fields" style={{
             display: "flex"
         }}>
-
 
             { Utils.forEach(mtypes, (type: Type.DataType, index: number) => {
 

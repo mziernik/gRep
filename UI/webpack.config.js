@@ -51,7 +51,7 @@ function filter(loader, file, ext) {
             return result;
 
         case "url":
-            return ["jpg", "png", "gif", "svg", "cur", "ttf", "eot", "woff"].indexOf(ext) >= 0;
+            return ["jpg", "png", "gif", "svg", "cur", "ttf", "eot", "woff", "woff2"].indexOf(ext) >= 0;
 
         case "css":
             return ext === "css";

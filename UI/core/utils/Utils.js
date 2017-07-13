@@ -442,6 +442,17 @@ export function verifyObjectInstance(object: any, instances: any[]): ?string[] {
     return names;
 }
 
+/** zaokrągla liczbę do określonej precyzji
+ * @param a liczba do zaokrąglenia
+ * @param precision liczba cyfr po przecinku
+ * @returns {number}
+ */
+export function round(a: number, precision: number = 2): number {
+    precision = Math.pow(10, precision);
+    a = Math.round(a * precision);
+    return a / precision;
+}
+
 export class AtomicNumber {
 
     value = 0;

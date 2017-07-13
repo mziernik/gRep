@@ -1,6 +1,5 @@
 import {React, Utils, Application, AppStatus} from "../../core";
-import {Component, FontAwesome} from "../../components";
-
+import {Component, Icon} from "../../components";
 
 export default class StatusHint extends Component {
 
@@ -45,52 +44,44 @@ function Bar(props) {
     const details = status.details ? Utils.toString(status.details).split("\n").map(s => <div
         key={++key}>{s}</div>) : null;
 
-    let icon: FontAwesome;
+    let icon: Icon;
     let background: string;
     let border: string;
     switch (status.type) {
         case "debug":
-            icon = FontAwesome.BUG;
+            icon = Icon.BUG;
             border = "#555";
             background = "#ccc";
             break;
         case "info":
-            icon = FontAwesome.INFO;
+            icon = Icon.INFO;
             border = "#459";
             background = "#ade";
             break;
         case "success":
-            icon = FontAwesome.CHECK;
+            icon = Icon.CHECK;
             border = "#595";
             background = "#aea";
             break;
         case "warning" :
-            icon = FontAwesome.EXCLAMATION_TRIANGLE;
+            icon = Icon.EXCLAMATION_TRIANGLE;
             border = "#963";
             background = "#eda";
             break;
         case "error":
-            icon = FontAwesome.TIMES;
+            icon = Icon.TIMES;
             border = "#b55";
             background = "#eaa";
             break;
     }
 
-    //ToDo: Przemek
-    return <div className="c-status-hint" style={{flex: "auto", textAlign: "right"}}>
+    return <div className="c-status-hint" >
         <table
             style={{
                 display: "inline-table",
                 border: "1px solid " + border,
                 backgroundColor: background,
                 opacity: "0.9",
-
-                margin: "4px",
-                textAlign: "left",
-                boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-                transition: "all 0.3s",
-                maxWidth: "60vw",
-                minWidth: "250px"
             }}
             ref={id => status._tag = id}
             onClick={(e) => status.hide()}
@@ -98,18 +89,11 @@ function Bar(props) {
             <tbody>
             <tr>
                 <td className="c-status-hint-icon"
-                    style={ {
-                        padding: "10px",
-                        paddingLeft: "20px",
-                        fontSize: "30px",
-                        width: "30px",
-                        color: border,
-                        verticalAlign: "top",
-                    } }>
+                    style={ {color: border} }>
                     <span className={icon}/>
                 </td>
 
-                <td className="c-status-content"
+                <td className="c-status-hint-content"
                     style={ {
                         display: "inline-block",
                         verticalAlign: "top",
@@ -119,19 +103,9 @@ function Bar(props) {
                     } }
                 >
                     <div
-                        className="c-status-hint-message"
-                        style={{
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                            color: "#333",
-                        }}>{message}</div>
+                        className="c-status-hint-message">{message}</div>
                     <div
-                        className="c-status-hint-details"
-                        style={{
-                            fontSize: "13px",
-                            color: "#444",
-                            paddingTop: "10px"
-                        }}>{details}</div>
+                        className="c-status-hint-details">{details}</div>
                 </td>
             </tr>
             </tbody>

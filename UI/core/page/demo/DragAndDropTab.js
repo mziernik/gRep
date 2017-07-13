@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, FieldConfig, Utils} from '../../core';
-import {Component, Page, FontAwesome, FCtrl}    from        '../../components';
+import {Component, Page, Icon, FCtrl}    from        '../../components';
 import {Tab, TabSet} from '../../component/TabSet';
 import ReactTable from 'react-table';
 import JsonViewer from "../../component/JsonViewer";
@@ -26,7 +26,7 @@ export default class DragAndDropTab extends Component {
             <div style={{border: '1px solid black'}}>
                 <div draggable
                      style={{color: 'white', backgroundColor: '#008dff', padding: '5px'}}
-                     className={FontAwesome.ARROWS_ALT}
+                     className={Icon.ARROWS_ALT}
                      onDragStart={(e) => {
                          this.drag = e.currentTarget.parentElement;
                      }}

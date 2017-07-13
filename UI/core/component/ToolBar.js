@@ -2,7 +2,7 @@
 'use strict';
 
 import {React, PropTypes, EventType} from "../core";
-import {Component, Page, Glyph} from "../components";
+import {Component, Page} from "../components";
 import "./components.css";
 
 

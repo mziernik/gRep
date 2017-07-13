@@ -9,12 +9,12 @@ import PEvents from "./PEvents";
 import PModules from "./PModules";
 import PRepository from "./repository/PRepository";
 import PRecord from "./repository/PRecord";
-import PFontAwesome from "./PFontAwesome";
 import Repository from "../../repository/Repository";
 import AppEvent from "../../application/Event";
 import Demo from "../demo/PDemo";
 import PContextObject from "./PContextObject";
 import PRepoDetails from "./repository/PRepoDetails";
+import PIcons from "./PIcons";
 
 export default class DevRouter extends Endpoint {
 
@@ -29,7 +29,8 @@ export default class DevRouter extends Endpoint {
     COMPONENTS: Endpoint;
     LOCAL_STORAGE: Endpoint;
     MODULES: Endpoint;
-    FONT_AWESOME: Endpoint;
+    CTX_OBJS: Endpoint;
+    ICONS: Endpoint;
 
     REPO: Endpoint;
     REPO_DETAILS: Endpoint;
@@ -50,11 +51,10 @@ export default class DevRouter extends Endpoint {
         this.COMPONENTS = this.child("components", "Komponenty", baseUrl + "/components", PComponents);
         this.CTX_OBJS = this.child("ctxObjs", "Obiekty kontekstu", baseUrl + "/ctxobj", PContextObject);
 
-
         this.LOCAL_STORAGE = this.child("localStorage", "Magazyn lokalny", baseUrl + "/localstorage", PLocalStorage);
         this.MODULES = this.child("modules", "Moduły", baseUrl + "/modules", PModules);
+        this.ICONS = this.child("icons", "Ikony", `${baseUrl}/icons`, PIcons);
 
-        this.FONT_AWESOME = this.child("fontAwesome", "Font Awesome", baseUrl + "/fontawesome", PFontAwesome);
 
         this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/edit/:rec", PRecord)
             .defaultParams({

@@ -1,5 +1,5 @@
 import {React, PropTypes, Field, Repository, Record, Endpoint} from '../../../core';
-import {Page, Panel, FontAwesome, Link, Table, FCtrl} from '../../../components';
+import {Page, Panel, Icon, Link, Table, FCtrl} from '../../../components';
 import ToolBar from "../../../component/ToolBar";
 
 export default class PRepositories extends Page {
@@ -38,11 +38,11 @@ export default class PRepositories extends Page {
                             <Link
                                 downloadName={repo.key + ".json"}
                                 downloadData={() => repo.storage.build()}
-                                icon={FontAwesome.DOWNLOAD}
+                                icon={Icon.DOWNLOAD}
                             />
                             <Link
                                 link={this.endpoint.REPO.getLink({repo: repo.key})}
-                                icon={FontAwesome.EYE}
+                                icon={Icon.EYE}
                             />
                         </span>),
                         refs: repo.refs.length,

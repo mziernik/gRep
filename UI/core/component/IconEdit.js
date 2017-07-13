@@ -16,28 +16,19 @@ export default class IconEdit extends Component {
 
         const size = "40px";
 
-        //ToDo: Przemek
-        return <div className="c-icon-edit" style={{
-            margin: "8px"
-        }}>
+        //
+        return <div className="c-icon-edit">
 
-            <span className={"btn btn-primary fa fa-" + this.props.icon}
+            <span className={"btn btn-primary c-icon-edit-btn fa fa-" + this.props.icon}
                   style={{
-                      boxSizing: "border-box",
                       display: "inline-block",
                       width: size,
-                      height: size,
-                      fontSize: "26px",
-                      padding: "7px 10px",
-                      verticalAlign: "middle",
-                      color: "white",
-                      borderRadius: "4px 0 0 4px",
-                      border: "1px solid #444",
-                      borderRight: "none"
+                      height: size
                   }}
             />
 
-            <input type={this.props.type}
+            <input className="c-icon-edit-input"
+                   type={this.props.type}
                    placeholder={this.props.placeholder}
                    onChange={this.props.onChange}
                    defaultValue={this.props.value}
@@ -47,14 +38,7 @@ export default class IconEdit extends Component {
                    }
                    }
                    style={{
-                       boxSizing: "border-box",
-                       width: "300px",
                        height: size,
-                       padding: "4px 16px",
-                       fontSize: "16px",
-                       verticalAlign: "middle",
-                       color: "#666",
-                       border: "1px solid #444",
                    }}/>
         </div>
     }

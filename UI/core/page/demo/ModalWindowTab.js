@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Utils} from '../../core';
-import {Component, Button, FontAwesome} from '../../components';
+import {Component, Button, Icon} from '../../components';
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
 import FormTab from "./FormTab";
 import Resizer from "../../component/Resizer";
@@ -104,9 +104,9 @@ export default class ModalWindowTab extends Component {
             modalWindow: ModalWindow.create((mw: ModalWindow) => {
                 mw.content = "W miejsce ikony wstawiony HTML";
                 mw.icon = <div style={{background: 'lightgray', padding: '10px', fontSize: '2.5em'}}>
-                    <div className={FontAwesome.STOP_CIRCLE_O} style={{color: "red", display: 'block'}}/>
-                    <div className={FontAwesome.PAUSE_CIRCLE_O} style={{color: "orange", display: 'block'}}/>
-                    <div className={FontAwesome.PLAY_CIRCLE_O} style={{color: "green", display: 'block'}}/>
+                    <div className={Icon.STOP_CIRCLE_O} style={{color: "red", display: 'block'}}/>
+                    <div className={Icon.PAUSE_CIRCLE_O} style={{color: "orange", display: 'block'}}/>
+                    <div className={Icon.PLAY_CIRCLE_O} style={{color: "green", display: 'block'}}/>
                 </div>
             })
         },
@@ -123,8 +123,8 @@ export default class ModalWindowTab extends Component {
                         paddingBottom: '10px',
                         textAlign: 'right'
                     }}>
-                        <Button type="success" onClick={(e) => mw.confirm(e)} icon={FontAwesome.CHECK}/>
-                        <Button type="danger" onClick={(e) => mw.cancel(e)} icon={FontAwesome.TIMES}/>
+                        <Button type="success" onClick={(e) => mw.confirm(e)} icon={Icon.CHECK}/>
+                        <Button type="danger" onClick={(e) => mw.cancel(e)} icon={Icon.TIMES}/>
                     </div>
             })
         },

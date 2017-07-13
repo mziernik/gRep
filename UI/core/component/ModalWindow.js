@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, ReactDOM, Application, If} from '../core';
-import {Button, FontAwesome, Resizer, Dragger} from '../components';
+import {Button, Icon, Resizer, Dragger} from '../components';
 
 export class ModalWindow {
 
@@ -12,7 +12,7 @@ export class ModalWindow {
     /** ikona z lewej strony
      *
      */
-    icon: ?FontAwesome = FontAwesome.INFO;
+    icon: ?Icon = Icon.INFO;
     /** zawartość okna
      * @type {null}
      */
@@ -52,15 +52,15 @@ export class ModalWindow {
     /** styl głównego tagu
      * @type {null}
      */
-    mainStyle: ?object = null;
+    mainStyle: ?Object = null;
     /** styl belki tytułowej
      * @type {null}
      */
-    titleStyle: ?object = null;
+    titleStyle: ?Object = null;
     /** styl topki z guzikami
      * @type {null}
      */
-    footerStyle: ?object = null;
+    footerStyle: ?Object = null;
     /** styl tagu z ikoną
      * @type {null}
      */
@@ -204,11 +204,10 @@ export class ModalWindow {
         return <div style={{textAlign: 'center'}}>{butts}</div>;
     }
 
-    //ToDo: Przemek
+    //
     render() {
         return (
             <Resizer
-                className="c-modal-window"
                 resizable={this.resizable}
                 fromCenter={true}
                 ref={elem => this._setPosition(elem)}
@@ -217,25 +216,13 @@ export class ModalWindow {
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    background: '#ddd',
-                    border: '1px solid black',
-                    boxShadow: '0 0 10px gray',
-                    zIndex: 1000,
-                    overflow: 'hidden',
-                    minWidth: '300px',
-                    minHeight: '200px',
-                    maxWidth: '85%',
-                    maxHeight: '85%',
+                    left: '0',
+                    top: '0',
                     ...this.mainStyle
                 }}
             >
-                <div style={{
+                <div className="c-modal-window-title" style={{
                     flex: '0 0 auto',
-                    background: '#303336',
-                    color: 'white',
-                    borderBottom: '1px solid lightgray',
                     display: 'flex',
                     ...this.titleStyle
                 }}>
@@ -252,19 +239,12 @@ export class ModalWindow {
                             overflow: 'hidden',
                             padding: '5px 20px'
                         }}>{this.title}</span>
-                    {this.closeButton ? <span className={FontAwesome.TIMES}
+                    {this.closeButton ? <span className={"c-modal-window-exit " + Icon.TIMES}
                                               title="Zamknij"
-                                              style={{
-                                                  flex: '0 0 auto',
-                                                  textAlign: 'center',
-                                                  padding: '5px 15px',
-                                                  margin: '2px',
-                                                  alignSelf: 'center',
-                                                  color: 'lightgray'
-                                              }}
+                                              style={ {flex: '0 0 auto'} }
                                               onClick={(e) => this.close(e)}/> : null}
                 </div>
-                <div style={{
+                <div className="c-modal-window" style={{
                     flex: '1 1 auto',
                     display: 'flex',
                     overflow: 'hidden',
@@ -272,7 +252,7 @@ export class ModalWindow {
                 }}>
                     {this.icon ?
                         <span style={{padding: '20px 0px 20px 20px', ...this.iconStyle}}>
-                    {this.icon instanceof FontAwesome ?
+                    {this.icon instanceof Icon ?
                         <span className={this.icon} style={{fontSize: '5em'}}/> : this.icon}
                     </span> : null}
                     <span style={{
@@ -294,13 +274,10 @@ export class ModalWindow {
                         </div>
                         : this.content}</span>
                 </div>
-                <div
+                <div className="c-modal-window-footer"
                     style={{
                         flex: '0 0 auto',
                         width: '100%',
-                        padding: '7px 20px',
-                        background: '#303336',
-                        color: 'white',
                         ...this.footerStyle
                     }}>
                     {typeof(this.buttons) === 'number' ? this._renderButtons() : this.buttons}

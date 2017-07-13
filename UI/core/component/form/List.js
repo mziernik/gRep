@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 import {React, PropTypes, Field, Column, Utils} from '../../core.js';
-import {FormComponent, Link, FCtrl, FontAwesome} from '../../components.js';
+import {FormComponent, Link, FCtrl, Icon} from '../../components.js';
 
 export default class List extends FormComponent {
 
@@ -54,8 +54,8 @@ export default class List extends FormComponent {
             </td>;
         }
 
-        //ToDo: Przemek
-        return <table className="c-field-list" style={{width: "100%"}}>
+        //
+        return <table className="c-field-list">
             <tbody>{
                 Utils.forEach(this.field.value, (row: any | [], rowIndex: number) =>
                     <tr key={rowIndex}>
@@ -64,7 +64,7 @@ export default class List extends FormComponent {
 
                         <td style={{width: "20px"}}>
                             <Link
-                                icon={FontAwesome.MINUS_SQUARE}
+                                icon={Icon.MINUS_SQUARE}
                                 onClick={(e) => {
                                     this.array.splice(rowIndex, 1);
                                     this.field.value = this.array;
@@ -75,9 +75,9 @@ export default class List extends FormComponent {
             }
             <tr>
                 <td/>
-                <td style={{width: "20px"}}>
+                <td className="c-field-list-data">
                     <Link
-                        icon={FontAwesome.PLUS_SQUARE}
+                        icon={Icon.PLUS_SQUARE}
                         onClick={(e) => {
                             this.array.push(null);
                             this.field.value = this.array;

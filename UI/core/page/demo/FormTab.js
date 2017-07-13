@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, Column, Utils} from '../../core';
-import {Component, Page, FontAwesome, FCtrl}    from        '../../components';
+import {Component, Page, Icon, FCtrl}    from        '../../components';
 import JsonViewer from "../../component/JsonViewer";
 import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
@@ -88,7 +88,7 @@ export default class FormTab extends Component {
 
         let mwin = ModalWindow.create((mw: ModalWindow) => {
             mw.title = error ? "Bład" : "Informacja";
-            mw.icon = error ? FontAwesome.EXCLAMATION_CIRCLE : FontAwesome.INFO;
+            mw.icon = error ? Icon.EXCLAMATION_CIRCLE : Icon.INFO;
             mw.onConfirm = () => {
                 console.log("OK");
                 return true
@@ -136,7 +136,7 @@ export default class FormTab extends Component {
         }),
         MenuItem.createSeparator(),
         MenuItem.createItem((item: MenuItem) => {
-            item.icon = FontAwesome.BUG;
+            item.icon = Icon.BUG;
             item.name = "Pozycja z ikoną FA";
             item.hint = "Pozycja z ikoną FontAwesome";
         }),
@@ -145,7 +145,7 @@ export default class FormTab extends Component {
             item.hint = "Nazwa pozycji zawiera tagi HTML";
         }),
         MenuItem.createItem((item: MenuItem) => {
-            item.icon = FontAwesome.FLAG;
+            item.icon = Icon.FLAG;
             item.hint = "Pozycja z ikoną i bez nazwy";
         }),
         MenuItem.createSeparator("Zagnieżdżenia"),
@@ -154,122 +154,122 @@ export default class FormTab extends Component {
             item.hint = "Pozycja zawierająca jeden poziom zagnieżdżenia";
             item.subMenu = [
                 MenuItem.createItem((item: MenuItem) => {
-                    item.icon = <span className={FontAwesome.ARROW_LEFT}/>;
+                    item.icon = <span className={Icon.ARROW_LEFT}/>;
                     item.name = "Lewo";
                     item.hint = "Strzałka w lewo";
                 }),
                 MenuItem.createItem((item: MenuItem) => {
-                    item.icon = <span className={FontAwesome.ARROW_RIGHT}/>;
+                    item.icon = <span className={Icon.ARROW_RIGHT}/>;
                     item.name = "Prawo";
                     item.hint = "Strzałka w prawo";
                 }),
                 MenuItem.createItem((item: MenuItem) => {
-                    item.icon = <span className={FontAwesome.ARROW_UP}/>;
+                    item.icon = <span className={Icon.ARROW_UP}/>;
                     item.name = "Góra";
                     item.hint = "Strzałka w górę";
                 }),
                 MenuItem.createItem((item: MenuItem) => {
-                    item.icon = <span className={FontAwesome.ARROW_DOWN}/>;
+                    item.icon = <span className={Icon.ARROW_DOWN}/>;
                     item.name = "Dół";
                     item.hint = "Strzałka w dół";
                 }),
             ]
         }),
         MenuItem.createItem((item: MenuItem) => {
-            item.icon = <span className={FontAwesome.LIST}/>;
+            item.icon = <span className={Icon.LIST}/>;
             item.name = "Nieaktywna z poziomem";
             item.hint = "Nieaktywna pozycja z zagnieżdżeniem";
             item.disabled = true;
             item.subMenu = [
                 MenuItem.createItem((item: MenuItem) => {
-                    item.icon = <span className={FontAwesome.ARROW_LEFT}/>;
+                    item.icon = <span className={Icon.ARROW_LEFT}/>;
                     item.name = "Lewo";
                     item.hint = "Strzałka w lewo";
                 }),
                 MenuItem.createItem((item: MenuItem) => {
-                    item.icon = <span className={FontAwesome.ARROW_RIGHT}/>;
+                    item.icon = <span className={Icon.ARROW_RIGHT}/>;
                     item.name = "Prawo";
                     item.hint = "Strzałka w prawo";
                 }),
                 MenuItem.createItem((item: MenuItem) => {
-                    item.icon = <span className={FontAwesome.ARROW_UP}/>;
+                    item.icon = <span className={Icon.ARROW_UP}/>;
                     item.name = "Góra";
                     item.hint = "Strzałka w górę";
                 }),
                 MenuItem.createItem((item: MenuItem) => {
-                    item.icon = <span className={FontAwesome.ARROW_DOWN}/>;
+                    item.icon = <span className={Icon.ARROW_DOWN}/>;
                     item.name = "Dół";
                     item.hint = "Strzałka w dół";
                 }),
             ];
         }),
         MenuItem.createItem((item: MenuItem) => {
-            item.icon = <span className={FontAwesome.LIST_ALT}/>;
+            item.icon = <span className={Icon.LIST_ALT}/>;
             item.name = "Wiele poziomów zagnieżdżenia";
             item.hint = "Pozycja zawierająca wiele zagnieżdżeń";
             item.subMenu = [
                 MenuItem.createItem((item: MenuItem) => {
                     const style = {style: {color: 'red'}};
-                    item.icon = <span className={FontAwesome.SQUARE} {...style}/>;
+                    item.icon = <span className={Icon.SQUARE} {...style}/>;
                     item.name = "Czerowny";
                     item.subMenu = [
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_LEFT} {...style}/>;
                             item.name = "Lewo";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_LEFT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_LEFT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_LEFT} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_RIGHT} {...style}/>;
                             item.name = "Prawo";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_RIGHT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_RIGHT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_RIGHT} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_UP} {...style}/>;
                             item.name = "Góra";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_UP} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_UP} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_UP} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_DOWN} {...style}/>;
                             item.name = "Dół";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_DOWN} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_DOWN} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_DOWN} {...style}/>;
                                 }),
                             ]
                         }),
@@ -277,66 +277,66 @@ export default class FormTab extends Component {
                 }),
                 MenuItem.createItem((item: MenuItem) => {
                     const style = {style: {color: 'green'}};
-                    item.icon = <span className={FontAwesome.SQUARE} {...style}/>;
+                    item.icon = <span className={Icon.SQUARE} {...style}/>;
                     item.name = "Zielony";
                     item.subMenu = [
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_LEFT} {...style}/>;
                             item.name = "Lewo";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_LEFT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_LEFT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_LEFT} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_RIGHT} {...style}/>;
                             item.name = "Prawo";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_RIGHT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_RIGHT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_RIGHT} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_UP} {...style}/>;
                             item.name = "Góra";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_UP} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_UP} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_UP} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_DOWN} {...style}/>;
                             item.name = "Dół";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_DOWN} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_DOWN} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_DOWN} {...style}/>;
                                 }),
                             ]
                         }),
@@ -344,66 +344,66 @@ export default class FormTab extends Component {
                 }),
                 MenuItem.createItem((item: MenuItem) => {
                     const style = {style: {color: 'blue'}};
-                    item.icon = <span className={FontAwesome.SQUARE} {...style}/>;
+                    item.icon = <span className={Icon.SQUARE} {...style}/>;
                     item.name = "Niebieski";
                     item.subMenu = [
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_LEFT} {...style}/>;
                             item.name = "Lewo";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_LEFT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_LEFT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_LEFT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_LEFT} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_RIGHT} {...style}/>;
                             item.name = "Prawo";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_RIGHT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_RIGHT} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_RIGHT} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_RIGHT} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_UP} {...style}/>;
                             item.name = "Góra";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_UP} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_UP} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_UP} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_UP} {...style}/>;
                                 }),
                             ]
                         }),
                         MenuItem.createItem((item: MenuItem) => {
-                            item.icon = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                            item.icon = <span className={Icon.ARROW_DOWN} {...style}/>;
                             item.name = "Dół";
                             item.subMenu = [
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_DOWN} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_DOWN} {...style}/>;
                                 }),
                                 MenuItem.createItem((item: MenuItem) => {
-                                    item.name = <span className={FontAwesome.ARROW_CIRCLE_O_DOWN} {...style}/>;
+                                    item.name = <span className={Icon.ARROW_CIRCLE_O_DOWN} {...style}/>;
                                 }),
                             ]
                         }),

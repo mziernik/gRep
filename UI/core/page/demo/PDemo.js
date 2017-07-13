@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, FieldConfig, Utils} from '../../core';
-import {Page, FontAwesome, FCtrl, Panel} from '../../components';
+import {Page, Icon, FCtrl, Panel} from '../../components';
 import {Tab, TabSet} from '../../component/TabSet';
 import FormTab from "./FormTab";
 import ListsTab from "./ListsTab";
@@ -9,6 +9,7 @@ import TablesTab from "./TablesTab";
 import DragAndDropTab from "./DragAndDropTab";
 import ModalWindowTab from "./ModalWindowTab";
 import AlertsTab from "./AlertsTab";
+import SplitterTab from "./SplitterTab";
 
 //ToDo: Wojtek : Przenieś funkcje testowe popup menu do oddzielnej karty
 
@@ -16,7 +17,7 @@ export default class PDemo extends Page {
 
     constructor() {
         super(...arguments);
-        this.state = {selectedTab: 4};
+        this.state = {selectedTab: 5};
     };
 
     render() {
@@ -26,11 +27,11 @@ export default class PDemo extends Page {
 
             <TabSet selectedIndex={this.state.selectedTab}>
                 <Tab title="Formularz"
-                     label={<span><span className={FontAwesome.USER_CIRCLE_O}/><span>Formularz</span></span>}>
+                     label={<span><span className={Icon.USER_CIRCLE_O}/><span>Formularz</span></span>}>
                     <FormTab/>
                 </Tab>
                 <Tab title="Listy"
-                     label={<span><span className={FontAwesome.LIST}/><span>Listy</span></span>}>
+                     label={<span><span className={Icon.LIST}/><span>Listy</span></span>}>
                     <ListsTab/>
                 </Tab>
                 <Tab label="ReactTable">
@@ -41,6 +42,7 @@ export default class PDemo extends Page {
                 </Tab>
 
                 <Tab label="Alerty"> <AlertsTab/> </Tab>
+                <Tab label="Splitter"><SplitterTab/></Tab>
                 <Tab label="Drag&Drop"><DragAndDropTab/></Tab>
                 <Tab label="Dodatkowe Opcje">
                     <div>różne opcje</div>

@@ -1,5 +1,5 @@
 import {React, PropTypes, Utils, If} from '../core';
-import {Component, FontAwesome} from '../components';
+import {Component, Icon} from '../components';
 import './TabSet.css';
 
 /** Klasa do obsługi zakładek */
@@ -131,7 +131,7 @@ export class TabSet extends Component {
                      style={{flex: '0 0 auto'}}
                 >
                     <span ref={(elem) => this.arrows.left = elem}
-                          className={(this.props.vertical ? FontAwesome.CHEVRON_UP : FontAwesome.CHEVRON_LEFT) + ' tabArrow'}
+                          className={(this.props.vertical ? Icon.CHEVRON_UP : Icon.CHEVRON_LEFT) + ' tabArrow'}
                           style={{display: 'none'}}
                           onClick={() => this._handleArrow(-100)}/>
                     <span ref={(elem) => this.tabs = elem}
@@ -163,7 +163,7 @@ export class TabSet extends Component {
                         alignSelf: 'flex-end'
                     }}/>
                     <span ref={(elem) => this.arrows.right = elem}
-                          className={(this.props.vertical ? FontAwesome.CHEVRON_DOWN : FontAwesome.CHEVRON_RIGHT) + ' tabArrow'}
+                          className={(this.props.vertical ? Icon.CHEVRON_DOWN : Icon.CHEVRON_RIGHT) + ' tabArrow'}
                           style={{display: 'none'}}
                           onClick={() => this._handleArrow(100)}/>
                 </div>

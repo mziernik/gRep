@@ -55,20 +55,11 @@ export default class Hint extends Component {
         if (!this.props.visible) {
             return null;
         }
-        //ToDo: Przemek
+        //
         return (
             <span className="c-hint" ref={(elem) => this._setPosition(elem)}
                   style={{
                       ...this.props.style,
-                      visibility: 'hidden',
-                      whiteSpace: 'nowrap',
-                      position: 'fixed',
-                      background: '#585858',
-                      color: '#ffffff',
-                      borderRadius: '5px',
-                      padding: '5px 20px 5px 20px',
-                      //margin: '10px',
-                      zIndex: 1000
                   }}>
                 {super.renderChildren()
                 || this.props.message ? Utils.forEach(this.props.message.split('\n'), (line, index) => {

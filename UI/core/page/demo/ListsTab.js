@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, Column, Utils} from '../../core';
-import {Component, Page, FontAwesome, FCtrl} from '../../components';
+import {Component, Page, Icon, FCtrl} from '../../components';
 import JsonViewer from "../../component/JsonViewer";
 
 
@@ -28,9 +28,9 @@ export default class Lists extends Component {
                                    required
                                    description
                                    name
-                                   defReq={<span className={FontAwesome.ASTERISK}
+                                   defReq={<span className={Icon.ASTERISK}
                                                  style={{color: '#ff6e00'}}/>}
-                                   defDesc={<span className={FontAwesome.QUESTION_CIRCLE}
+                                   defDesc={<span className={Icon.QUESTION_CIRCLE}
                                                   style={{color: '#0071ff'}}/>}
                             />
                         </td>

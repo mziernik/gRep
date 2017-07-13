@@ -2,7 +2,7 @@
 'use strict';
 
 import {React, Endpoint, Application, AppEvent, Utils, AppNode, If, Check} from "../core";
-import {Component, FontAwesome} from "../components";
+import {Component, Icon} from "../components";
 import {Switch} from 'react-router-dom';
 import Page from "./Page";
 import {ModalWindow} from "../component/ModalWindow";
@@ -202,7 +202,7 @@ class TabsBar extends Component {
                      padding: "5px",
                      margin: "-5px"
                  }}
-                       onClick={e => tab.close()} className={FontAwesome.TIMES}/>
+                       onClick={e => tab.close()} className={Icon.TIMES}/>
 
             </span>)}
         </div>

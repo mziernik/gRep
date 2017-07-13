@@ -24,7 +24,7 @@ export default class Memo extends FormComponent {
             </span>;
         }
 
-        //ToDo: Przemek
+        //
         return (
             <span className="c-memo" style={{display: 'flex'}}>
                 <textarea
