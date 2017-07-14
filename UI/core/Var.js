@@ -17,14 +17,16 @@ export default class Var<T> {
         Object.preventExtensions(this);
     }
 
-    localStorage(key: string) {
+    localStorage(key: string): Var<T> {
         this._store = Store.LOCAL;
         this._key = Check.nonEmptyString(key);
+        return this;
     }
 
-    sessionStorage(key: string) {
+    sessionStorage(key: string): Var<T> {
         this._store = Store.SESSION;
         this._key = Check.nonEmptyString(key);
+        return this;
     }
 
     instanceOf(instances: []): Var<T> {

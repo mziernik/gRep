@@ -1,7 +1,19 @@
 // @flow
 'use strict';
 
-import {React, Ready, Utils, PropTypes, Field, Type, Column, Repository, AppNode} from "../../core";
+import {
+    React,
+    ReactComponent,
+    Ready,
+    Utils,
+    PropTypes,
+    Field,
+    Type,
+    Column,
+    Repository,
+    AppNode,
+    Record
+} from "../../core";
 import {Component, FCtrl, Panel, Checkbox, Icon, Link} from "../../components";
 import {Child} from "../Component";
 
@@ -20,6 +32,15 @@ export class Attributes extends Component {
         edit: PropTypes.bool,
         style: PropTypes.object
     };
+
+
+    static renderRecord(rec: Record, edit: boolean): ReactComponent {
+        return <Attributes>
+            {Utils.forEach(rec.fields, (f: Field) =>
+                f.config.hidden ? undefined : <Attr edit={edit} field={f}/>
+            )}
+        </Attributes>
+    }
 
     render() {
 

@@ -90,7 +90,6 @@ export class RStatus extends Repository {
             c.displayNameColumn = RStatus.NAME;
             c.crude = "R";
             c.local = true;
-            c.autoUpdate = true;
         });
     }
 
@@ -213,8 +212,7 @@ export class RRepoHistory extends Repository {
             c.displayNameColumn = RRepoHistory.NAME;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
-        });
+         });
     }
 
 }
@@ -426,7 +424,6 @@ export class RTest extends Repository {
             c.primaryKeyColumn = RTest.ID;
             c.displayNameColumn = RTest.NAME;
             c.crude = "CRUD";
-            c.autoUpdate = true;
         });
     }
 
@@ -532,7 +529,6 @@ export class RUsers extends Repository {
             c.crude = "CRU";
             c.local = false;
             c.icon = "fa fa-users";
-            c.autoUpdate = true;
         });
     }
 
@@ -646,7 +642,6 @@ export class RThreads extends Repository {
             c.displayNameColumn = RThreads.NAME;
             c.crude = "R";
             c.local = true;
-            c.autoUpdate = true;
             c.actions = {
                 term: {
                     name: "Zatrzymaj",
@@ -783,7 +778,6 @@ export class RAttribute extends Repository {
             c.displayNameColumn = RAttribute.NAME;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
         });
     }
 
@@ -947,7 +941,6 @@ export class RAttributeElement extends Repository {
             c.displayNameColumn = RAttributeElement.NAME;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
         });
     }
 
@@ -1061,7 +1054,6 @@ export class RCatalog extends Repository {
             c.displayNameColumn = RCatalog.NAME;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
         });
     }
 
@@ -1163,7 +1155,6 @@ export class RCatalogAttribute extends Repository {
             c.displayNameColumn = RCatalogAttribute.VALUE;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
         });
     }
 
@@ -1265,7 +1256,6 @@ export class RCategory extends Repository {
             c.displayNameColumn = RCategory.NAME;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
         });
     }
 
@@ -1367,7 +1357,6 @@ export class RCategoryAttribute extends Repository {
             c.primaryKeyColumn = RCategoryAttribute.ID;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
         });
     }
 
@@ -1520,7 +1509,6 @@ export class RResource extends Repository {
             c.displayNameColumn = RResource.NAME;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
         });
     }
 
@@ -1610,7 +1598,6 @@ export class RCryptKey extends Repository {
             c.primaryKeyColumn = RCryptKey.ID;
             c.crude = "CRUD";
             c.local = false;
-            c.autoUpdate = true;
         });
     }
 

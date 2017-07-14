@@ -1,21 +1,11 @@
 import {Ready, Check, Record, Field, Column, CRUDE, Utils, If, Debug, Type, AppEvent} from "../core";
 
 import Permission from "../application/Permission";
-import LocalRepoStorage from "./storage/LocalRepoStorage";
-import Action from "./Action";
 import Dispatcher from "../utils/Dispatcher";
-import WebApiRepositoryStorage from "./storage/WebApiRepoStorage";
-import {FieldConfig} from "./Field";
 import RepositoryStorage from "./storage/RepositoryStorage";
 
-export class RepositoryMode {
-    static LOCAL: RepositoryMode = new RepositoryMode();
-    static REMOTE: RepositoryMode = new RepositoryMode();
-    static SYNCHRONIZED: RepositoryMode = new RepositoryMode();
-}
 
 //ToDo: Opcja inline - edycja rekordów podobnie jak w uprawnieniach
-
 
 export class RepoConfig {
     static defaultCrudeRights = "CRUD"; //"CRUDE"
@@ -35,7 +25,6 @@ export class RepoConfig {
 
     crude: string = RepoConfig.defaultCrudeRights;
     readOnly: boolean = false;
-    autoUpdate: boolean = false;
     local: ?boolean = null;
     icon: ?string = null;
     columns: Column[] = [];
@@ -185,63 +174,25 @@ export default class Repository {
         return result;
     }
 
-    /** Przetwarzanie listy repozytoriów zwróconych przez serwer */
-    static processList(response: Object) {
+    /**
+     * Przetwarzanie listy repozytoriów zwróconych przez serwer
+     * @return Lista nowych (dynamicznych) repozytoriów
+     * */
+    static processList(response: Object): Repository[] {
 
+        const list: Repository[] = [];
 
         Utils.forEach(response, data => {
-            let repo: Repository = Repository.all[data.key];
+                let repo: Repository = Repository.all[data.key];
 
-            if (!repo) {
-
-                debugger;
-
-
-                repo = new Repository((c: RepoConfig) => {
-
-                    Utils.forEach(data.columns, cdata => c.columns.push(new Column((c: Column) => {
-                            for (let name in c)
-                                if (cdata[name] !== undefined)
-                                    c[name] = cdata[name];
-                        }))
-                    );
-
-                    const getColumn = (key) => Utils.forEach(c.columns, c => c.key === key ? c : undefined)[0];
-
-                    c.dynamic = true;
-                    c.key = data.key;
-                    c.name = data.name;
-                    c.record = () => {
-                        debugger;
-                    };
-                    c.primaryKeyColumn = getColumn(data.primaryKeyColumn);
-                    c.displayNameColumn = getColumn(data.primaryKeyColumn);
-                    c.orderColumn = getColumn(data.orderColumn);
-                    c.parentColumn = getColumn(data.parentColumn);
-                    c.crude = data.crude;
-                    c.local = data.local;
-                    c.autoUpdate = data.autoUpdate;
-                });
-
-                Repository.register(repo);
+                if (!repo) {
+                    repo = new DynamicRepo(data);
+                    list.push(repo);
+                }
             }
+        );
 
-
-            //
-            // constructor() {
-            //     super((c: RepoConfig) => {
-            //         c.key = "status";
-            //         c.name = "Status";
-            //         c.record = RStatusRecord;
-            //         c.primaryKeyColumn = RStatus.KEY;
-            //         c.displayNameColumn = RStatus.NAME;
-            //         c.crude = "R";
-            //         c.local = true;
-            //         c.autoUpdate = true;
-            //     });
-            //
-
-        });
+        return list;
 
     }
 
@@ -261,48 +212,53 @@ export default class Repository {
             }
             const repo: Repository = Repository.get(key, true);
             repositories.push(repo);
+            try {
 
-            if (If.isArray(value.rows))
-                repoStats.set(repo, {
-                    crude: value.crude,
-                    lastUpdated: value.lastUpdated,
-                    lastUpdatedBy: value.lastUpdatedBy,
-                    updates: value.updates,
-                });
+                if (If.isArray(value.rows))
+                    repoStats.set(repo, {
+                        crude: value.crude,
+                        lastUpdated: value.lastUpdated,
+                        lastUpdatedBy: value.lastUpdatedBy,
+                        updates: value.updates,
+                    });
 
 
-            if (If.isArray(value.columns) && If.isArray(value.rows)) {
+                if (If.isArray(value.columns) && If.isArray(value.rows)) {
 
-                let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
+                    let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
 
-                Utils.forEach(value.rows, (row: []) => {
-                    const rec: Record = repo.createRecord(context);
-                    repo.refs.remove(rec); // nie traktuj jako referencję
-                    records.push(rec);
-                    for (let i = 0; i < columns.length; i++) {
-                        const field: Field = rec.get(columns[i]);
-                        field.value = row[i];
-                    }
-                });
+                    Utils.forEach(value.rows, (row: []) => {
+                        const rec: Record = repo.createRecord(context);
+                        repo.refs.remove(rec); // nie traktuj jako referencję
+                        records.push(rec);
+                        for (let i = 0; i < columns.length; i++) {
+                            const field: Field = rec.get(columns[i]);
+                            field.value = row[i];
+                        }
+                    });
 
-                return;
+                    return;
+                }
+
+                const processObject = (value) =>
+                    Utils.forEach(value, obj => {
+                        const rec: Record = repo.createRecord(context);
+                        repo.refs.remove(rec); // nie traktuj jako referencję
+                        Utils.forEach(obj, (v, k) => rec.get(repo.getColumn(k)).value = v);
+                        records.push(rec);
+                    });
+
+
+                if (If.isArray(value.rows)) {
+                    processObject(value.rows);
+                    return;
+                }
+
+                processObject(value);
+
+            } catch (e) {
+                throw new Error(repo.key + ": " + e.message);
             }
-
-            const processObject = (value) =>
-                Utils.forEach(value, obj => {
-                    const rec: Record = repo.createRecord(context);
-                    repo.refs.remove(rec); // nie traktuj jako referencję
-                    Utils.forEach(obj, (v, k) => rec.get(repo.getColumn(k)).value = v);
-                    records.push(rec);
-                });
-
-
-            if (If.isArray(value.rows)) {
-                processObject(value.rows);
-                return;
-            }
-
-            processObject(value);
 
         });
 
@@ -364,7 +320,7 @@ export default class Repository {
         // zaktualizuj flagę gotowości dla wszystkich odebranych repozytoriów (włącznie z pustymi)
         repositories.forEach(repo => {
             repo.isReady = true;
-            Ready.confirm(repo);
+            Ready.confirm(Repository, repo);
         });
     }
 
@@ -535,4 +491,37 @@ export class RepoCursor {
 
         return this._rows[this._index][idx];
     }
+}
+
+class DynamicRepo extends Repository {
+
+    constructor(data: Object) {
+        super((c: RepoConfig) => {
+
+            Utils.forEach(data.columns, cdata => c.columns.push(new Column((c: Column) => {
+                    for (let name in c)
+                        if (cdata[name] !== undefined)
+                            c[name] = cdata[name];
+                }))
+            );
+
+            const getColumn = (key) => Utils.forEach(c.columns, c => c.key === key ? c : undefined)[0];
+
+            c.dynamic = true;
+            c.key = data.key;
+            c.name = data.name;
+            c.record = (repo, context) => {
+                const rec = new Record(repo, context);
+                Utils.forEach(c.columns, (c: Column) => new Field(c, rec));
+                return rec;
+            };
+            c.primaryKeyColumn = getColumn(data.primaryKeyColumn);
+            c.displayNameColumn = getColumn(data.displayNameColumn);
+            c.orderColumn = getColumn(data.orderColumn);
+            c.parentColumn = getColumn(data.parentColumn);
+            c.crude = data.crude;
+            c.local = data.local;
+        });
+    }
+
 }

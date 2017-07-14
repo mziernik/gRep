@@ -236,7 +236,7 @@ export const UUID: DataType = new DataType((dt: DataType) => {
     dt.name = "uid";
     dt.simpleType = "string";
     dt.parser = val => {
-        if (!val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
+        if (!If.isString(val) || !val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
             throw new Error(Utils.escape(val) + " nie jest prawidłowym identyfikatorem UUID");
         return val;
     }

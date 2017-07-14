@@ -208,6 +208,7 @@ export class ModalWindow {
     render() {
         return (
             <Resizer
+                className="c-modal-window"
                 resizable={this.resizable}
                 fromCenter={true}
                 ref={elem => this._setPosition(elem)}
@@ -218,6 +219,10 @@ export class ModalWindow {
                     position: 'absolute',
                     left: '0',
                     top: '0',
+                    minWidth: '300px',
+                    minHeight: '200px',
+                    maxWidth: '85%',
+                    maxHeight: '85%',
                     ...this.mainStyle
                 }}
             >
@@ -244,12 +249,12 @@ export class ModalWindow {
                                               style={ {flex: '0 0 auto'} }
                                               onClick={(e) => this.close(e)}/> : null}
                 </div>
-                <div className="c-modal-window" style={{
-                    flex: '1 1 auto',
-                    display: 'flex',
-                    overflow: 'hidden',
-                    borderBottom: '1px solid lightgray',
-                }}>
+                <div className="c-modal-window-content"
+                     style={{
+                         flex: '1 1 auto',
+                         display: 'flex',
+                         overflow: 'hidden'
+                     }}>
                     {this.icon ?
                         <span style={{padding: '20px 0px 20px 20px', ...this.iconStyle}}>
                     {this.icon instanceof Icon ?
@@ -275,11 +280,11 @@ export class ModalWindow {
                         : this.content}</span>
                 </div>
                 <div className="c-modal-window-footer"
-                    style={{
-                        flex: '0 0 auto',
-                        width: '100%',
-                        ...this.footerStyle
-                    }}>
+                     style={{
+                         flex: '0 0 auto',
+                         width: '100%',
+                         ...this.footerStyle
+                     }}>
                     {typeof(this.buttons) === 'number' ? this._renderButtons() : this.buttons}
                 </div>
             </Resizer>);

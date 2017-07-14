@@ -228,6 +228,7 @@ export default class Table extends Component {
             data={this.state.data}
             showPagination={this.state.showPagination}
             pageSizeOptions={[5, 10, 25, 50]}
+            defaultPageSize={25}
 
             getTbodyProps={() => {
                 //wyłączenie flexa w wierszach

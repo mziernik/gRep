@@ -3,7 +3,7 @@ import {Utils, Debug, Check, If, EError} from "../core";
 const confirmed: any[] = [];
 const awaiting: [] = [];
 
-export function confirm(object: any) {
+export function confirm(context: any, object: any) {
     if (object === null || object === undefined)
         return;
 
@@ -11,7 +11,7 @@ export function confirm(object: any) {
     const toRemove: [] = [];
 
     awaiting.forEach((awt, idx) => {
-        if (!waitFor(awt[0], null)) return;
+        if (!waitFor(context, awt[0], null)) return;
         try {
             awt[1]();
         } catch (e) {
@@ -24,7 +24,7 @@ export function confirm(object: any) {
     toRemove.forEach(idx => awaiting.splice(idx, 1));
 }
 
-export function waitFor(objects: [], onReady: () => void, onError: (e: Error) => void): boolean {
+export function waitFor(context: any, objects: [], onReady: () => void, onError: (e: Error) => void): boolean {
     let ready = true;
     Check.isArray(objects).forEach(obj => {
         if (confirmed.indexOf(obj) === -1)
@@ -36,4 +36,10 @@ export function waitFor(objects: [], onReady: () => void, onError: (e: Error) =>
     return false;
 }
 
+export function onReady(context: any, objects: [], onReady: () => void, onError: (e: Error) => void): boolean {
+    const result = waitFor(context, objects, onReady, onError);
+    if (result && onReady)
+        onReady();
+    return result;
+}
 

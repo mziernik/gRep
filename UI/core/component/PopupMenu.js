@@ -184,7 +184,7 @@ export class PopupMenu extends Component {
                 }
                 return <tr
                     title={item.hint}
-                    className={item.disabled ? null : "menuItem"}
+                    className={item.disabled ? null : "c-popup-menu-item"}
                     key={index}
                     style={{
                         color: item.disabled ? 'lightgray' : null,
@@ -240,7 +240,7 @@ export class PopupMenu extends Component {
      */
     renderSubmenu(items: [], opened: boolean) {
         if (!opened)return null;
-        return <span className="f-popup-menu" ref={elem => this._setPosition(elem, true)}
+        return <span className="c-popup-menu" ref={elem => this._setPosition(elem, true)}
                      style={{
                          ...this._style,
                          left: '100%'
@@ -250,7 +250,7 @@ export class PopupMenu extends Component {
     }
 
     render() {
-        return <span className="f-popup-menu" ref={elem => {
+        return <span className="c-popup-menu" ref={elem => {
             if (elem) this._menu = elem;
             this._setPosition(elem, false);
         }}

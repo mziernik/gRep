@@ -11,8 +11,6 @@ export default class PRecord extends Page {
     repo: Repository;
     isNew: boolean;
     viewer: JsonViewer;
-
-
     _saveTs: number;
 
     static propTypes = {
@@ -22,19 +20,18 @@ export default class PRecord extends Page {
 
     constructor() {
         super(...arguments);
+        this.waitForRepo(this.props.repo);
+    }
+
+
+    render() {
+
         this.repo = Repository.get(this.props.repo, true);
 
         this.isNew = !this.props.rec || this.props.rec === "~new";
 
         if (this.isNew)
             this.record = this.repo.createRecord(this);
-    }
-
-
-    render() {
-
-        if (!this.isNew && !super.waitForRepo(this.repo))
-            return <span>Inicjalizacja repozytorium. Proszę czekać...</span>;
 
         this.record = this.record || this.repo.get(this, this.props.rec);
 

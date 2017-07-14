@@ -16,6 +16,7 @@ import {
 import {Component, Spinner, Panel} from "../components";
 import ToolBar from "../component/ToolBar";
 import {TitleBar} from "../component/TitleBar";
+import WebApiRepoStorage from "../repository/storage/WebApiRepoStorage";
 
 export default class Page extends Component {
 
@@ -73,18 +74,34 @@ export default class Page extends Component {
         return null;
     }
 
-    /** Zwraca tru jeśli repozytoria [repos] zostały zainicjowane, w przeciwnym razie czeka na inicjalizację i wywołuje forceUpdate na stronie */
-    waitForRepo(repos: Repository | Repository[], onReady: ?() => void = null): boolean {
-        if (!(If.isArray(repos))) repos = [repos];
-        const ready = Ready.waitFor(repos, () => {
-                this._waitingForRepo = false;
-                If.isFunction(onReady, f => f(), this.forceUpdate())
-            },
-            (e: Error) => {
-                this.__error = new EError(e);
-                this.forceUpdate();
-            }
-        );
+    /**
+     * Zwraca tru jeśli repozytoria [repos] zostały zainicjowane, w przeciwnym razie czeka na inicjalizację i wywołuje forceUpdate na stronie
+     * @param {Repository | String | function} repos (może to być również tablica)
+     * @param {function} onReady
+     * */
+
+    waitForRepo(repos: Repository | Repository[] | string | () => Repository, onReady: ?() => void = null): boolean {
+
+        let ready = false;
+
+
+        Ready.onReady(this, [WebApiRepoStorage], () => {
+
+            const list = Utils.forEach(Utils.asArray(repos), r => If.isFunction(r) ? r()
+                : If.isString(r) ? Repository.get(r, true) : r);
+
+            ready = Ready.waitFor(this, list, () => {
+                    this._waitingForRepo = false;
+                    If.isFunction(onReady, f => f(), this.forceUpdate());
+                },
+                (e: Error) => {
+                    this.__error = new EError(e);
+                    this.forceUpdate();
+                }
+            );
+
+        });
+
         this._waitingForRepo = !ready;
         return ready;
     }

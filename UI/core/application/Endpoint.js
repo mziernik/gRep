@@ -90,6 +90,11 @@ export default class Endpoint {
         return this;
     }
 
+    props(value: Object): Endpoint {
+        this._props = value;
+        return this;
+    }
+
     defaultParams(value: Object): Endpoint {
         this._defaultParams = value;
         return this;

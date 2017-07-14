@@ -6,6 +6,7 @@ import {Component, Icon} from "../../core/components.js";
 import Breadcrumb from "../../core/component/Breadcrumbs";
 import WebApiStatus from "../../core/component/application/WebApiStatus";
 import {MenuItem, PopupMenu} from "../../core/component/PopupMenu";
+import Login from "../Login";
 
 
 let context;
@@ -39,10 +40,7 @@ export default class Header extends Component {
 
                     <WebApiStatus/>
                      <a className="fa fa-user" onClick={(e) => {
-
-
-
-                         //PopupMenu.openMenu(e, MENU_ITEMS);
+                         PopupMenu.openMenu(e, MENU_ITEMS);
                      }}/>
                 </span>
 
@@ -69,7 +67,7 @@ const MENU_ITEMS = [
         item.icon = Icon.POWER_OFF;
         //  item.hint = "Wpisuje do konsoli nazwę pola i jego wartość";
         item.onClick = () => {
-            alert("aaaaaaaaaa");
+            Login.logout();
         }
     }),
 ];

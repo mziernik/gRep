@@ -121,7 +121,7 @@
     color: #333;
 }
 
-.c-status-hint-details{
+.c-status-hint-details {
     font-size: 13px;
     color: #444;
     padding-top: 10px;
@@ -129,8 +129,7 @@
 
 /*======================================================= Button =================================================*/
 
-.c-button-icon
-{
+.c-button-icon {
     margin-right: 7px;
     font-size: 1.4em;
     opacity: 0.8;
@@ -180,15 +179,9 @@
 /*======================================================== ModalWindow ===============================================*/
 
 .c-modal-window {
-    background: #DDDDDD;
     border: 1px solid black;
     box-shadow: 0 0 10px gray;
-    z-index: 1000;
     overflow: hidden;
-    min-width: 300px;
-    min-height: 200px;
-    max-width: 85%;
-    max-height: 85%;
 }
 
 .c-modal-window-title {
@@ -203,6 +196,11 @@
     margin: 2px;
     align-self: center;
     color: lightgray;
+}
+
+.c-modal-window-content {
+    background: #DDDDDD;
+    border-bottom: 1px solid lightgray;
 }
 
 .c-modal-window-footer {
@@ -245,7 +243,7 @@
 
 /*========================================================= Input ====================================================*/
 
-.c-input {
+.c-input > input {
     flex: auto;
     padding: 3px 8px;
 }
@@ -276,4 +274,19 @@
 
 .c-select {
 
+}
+
+/*====================================================== PopupMenu ====================================================*/
+
+.c-popup-menu-item {
+    box-shadow: 2px 2px 5px gray;
+    background: white;
+    border: 1px solid gray;
+    cursor: default;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.c-popup-menu-item:hover {
+    background-color: #c4c4c4;
 }

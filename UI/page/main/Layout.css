@@ -49,7 +49,6 @@ table th {
     color: white;
 }
 
-
 #app-body {
     display: flex;
     flex-direction: row;
@@ -81,13 +80,15 @@ table th {
     flex: auto;
     overflow: hidden;
     position: relative;
+    background: url('/res/background.jpg') round;
+    background-size: auto;
 }
 
 .app-page-container {
     flex: auto;
     display: flex;
     flex-direction: column;
-    background-color: #ddd;
+    background-color: rgba(255, 255, 255, 0.3);
     overflow: auto;
 }
 
@@ -109,9 +110,10 @@ table th {
     right: 0;
     bottom: 0;
     z-index: 10;
+    pointer-events: none; /* aby mo¿na by³o klikaæ miêdzy warstwami*/
 }
 
 #app-navbar .x-tree {
-    width: 200px;
+    width: 250px;
 }
 

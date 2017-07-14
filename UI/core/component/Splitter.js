@@ -127,6 +127,7 @@ export class SplitPanel extends Component {
 
     render() {
         let style = {
+            position: 'relative',
             width: this.props.horizontal ? '100%' : this.props.size,
             height: this.props.horizontal ? this.props.size : '100%',
             display: this.props.horizontal ? 'block' : 'inline-block',
@@ -135,8 +136,10 @@ export class SplitPanel extends Component {
 
         let contentStyle = {
             overflow: 'hidden',
-            width: this.props.splitHandle && !this.props.horizontal ? 'calc(100% - 4px)' : '100%',
-            height: this.props.splitHandle && this.props.horizontal ? 'calc(100% - 4px)' : '100%',
+            //width: this.props.splitHandle && !this.props.horizontal ? 'calc(100% - 4px)' : '100%',
+            //height: this.props.splitHandle && this.props.horizontal ? 'calc(100% - 4px)' : '100%',
+            width: '100%',
+            height: '100%',
             display: this.props.horizontal ? 'block' : 'inline-block',
             verticalAlign: this.props.horizontal ? null : 'top'
         };
@@ -158,20 +161,22 @@ class SplitterHandle extends Component {
 
     render() {
         let style = {
-            background: 'gray',
-            position: 'realative'
+            background: 'none',
+            position: 'absolute',
         };
         if (this.props.horizontal) {
             style.display = 'block';
             style.width = '100%';
-            style.height = '4px';
+            style.height = '14px';
             style.cursor = 'row-resize';
+            style.top = '-8px';
         } else {
             style.display = 'inline-block';
             style.verticalAlign = 'top';
-            style.width = '4px';
+            style.width = '14px';
             style.height = '100%';
             style.cursor = 'col-resize';
+            style.left = '-8px';
         }
         return <div style={style}
                     onMouseDown={(e) => this.props.onMouseDown(e)}

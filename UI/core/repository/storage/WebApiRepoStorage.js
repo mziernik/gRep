@@ -1,4 +1,4 @@
-import {Utils, Record, Field, Repository, CRUDE, AppStatus} from "../../core";
+import {Utils, Record, Field, Repository, CRUDE, AppStatus, Ready} from "../../core";
 import WebApiResponse from "../../webapi/Response";
 import RepositoryStorage from "./RepositoryStorage";
 import WebApiRequest from "../../webapi/Request";
@@ -14,23 +14,29 @@ export default class WebApiRepoStorage extends RepositoryStorage {
         this.api = api;
         this.methods = methods;
         const repos = {};
-
-        // Utils.forEach(Repository.all, (repo: Repository) => {
-        //     if (repo.isLocal) return;
-        //     repos[repo.key] = repo.autoUpdate;
-        // });
-        //
-        // methods.get({repositories: repos}, (data: Object, response: WebApiResponse) => Repository.update(this, data));
     }
 
     load(repos: Repository[]): Promise {
         return new Promise((resolve, reject) => {
 
-            const list = {};
-            Utils.forEach(repos, (repo: Repository) => list[repo.key] = repo.config.autoUpdate);
+            const list = [];
+
+            const add = (repo: Repository) => !repo.config.onDemand && list.push(repo.key);
+
+            Utils.forEach(repos, repo => add(repo));
 
             this.methods.list(data => {
-                Repository.processList(data);
+                const dynamic: Repository[] = Repository.processList(data);
+
+                Utils.forEach(dynamic, (repo: Repository) => {
+                    if (!(repo.config.dynamic)) return;
+                    add(repo);
+                    Repository.register(repo)
+                });
+
+                // potwierdzenie gotowości repozytoriów dynamicznych
+                Ready.confirm(WebApiRepoStorage, WebApiRepoStorage);
+
                 this.methods.get({repositories: list}, ok => {
                     resolve(ok);
                 }, (err) => {

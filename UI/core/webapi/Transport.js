@@ -95,13 +95,18 @@ export class WebSocketTransport extends WebApiTransport {
         };
 
         this.ws.onclose = (e: CloseEvent) => {
-
-            if (e.wasClean && e.code === 1000) {
-                this.onClose(null);
+            if (!e) {
+                this.onClose(null, null);
                 return;
             }
-
-            this.onClose(getReason(e.code, this.connected));
+            if (e.wasClean && e.code === 1000) {
+                this.onClose(null, e);
+                return;
+            }
+            let msg = e;
+            if (If.isDefined(e.statusText))
+                msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
+            this.onClose(e.code ? getReason(e.code, this.connected) : msg, e);
         };
 
         this.ws.onerror = (e: Event, f) => {
@@ -116,6 +121,7 @@ export class WebSocketTransport extends WebApiTransport {
 
 }
 
+
 export class SignalRTransport extends WebApiTransport {
 
     conn: HubConnection;
@@ -124,6 +130,8 @@ export class SignalRTransport extends WebApiTransport {
         const args: [] = Utils.forEach(req.params, v => v);
         this.conn.invoke(req.method, ...args)
             .then(data => {
+                if (!this.connected) return;
+                data = data || {};
                 data.id = req.id;
                 new WebApiResponse(req.webApi, data);
             })
@@ -143,23 +151,29 @@ export class SignalRTransport extends WebApiTransport {
                 this.onOpen();
             })
             .catch((e: Object) => {
-                if (If.isDefined(e.statusText))
-                    e = e.statusText || "Nie można nawiązać połączenia z serwerem";
-                this.onClose(e && e.code ? getReason(e.code, this.connected) : e);
-            });
-
-        this.conn.onClosed = (e, f, g) => {
-            //  debugger;
-            if (Utils.className(e) === "CloseEvent") {
-                if (e.wasClean && e.code === 1000) {
-                    this.onClose(null);
+                if (!e) {
+                    this.onClose(null, null);
                     return;
                 }
-                this.onClose(getReason(e.code, this.connected));
+                let msg = e;
+                if (If.isDefined(e.statusText))
+                    msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
+                this.onClose(e && e.code ? getReason(e.code, this.connected) : msg, e);
+            });
+
+        this.conn.onClosed = (e) => {
+            if (!e) {
+                this.onClose(null, null);
                 return;
             }
-
-            this.onClose(e);
+            if (e.wasClean && e.code === 1000) {
+                this.onClose(null, e);
+                return;
+            }
+            let msg = e;
+            if (If.isDefined(e.statusText))
+                msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
+            this.onClose(e && e.code ? getReason(e.code, this.connected) : msg, e);
         };
 
     }

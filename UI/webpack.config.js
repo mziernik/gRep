@@ -5,7 +5,7 @@ const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const StringReplacePlugin = require("string-replace-webpack-plugin");
 //const ExtractTextPlugin = require('extract-text-webpack-plugin');
-let _private;
+
 
 // lista katalogów w node_modules, które będą obsługiwane
 const nodeModulesWhiteList = [
@@ -17,16 +17,24 @@ const nodeModulesWhiteList = [
 
 
 // ------------ konfiguracja prywatna (dla danego dewelopera) ----------------
-try {
-    _private = require('./.private.js');
-} catch (e) {
-    // jeśli plik nie istnieje, ignorujemy to i zwracamy domyślną strukturę
-    console.error(e);
-    _private = {
-        devServer: {},
-        environment: {}
+
+let _private = {
+    devServer: {},
+    environment: {
+        AUTH: true,
+        //  NODE_ENV: "development",
+        //   WEB_API_URL: "http://localhost:52676/hubs/MainHub"
     }
-}
+};
+
+if (process.env.NODE_ENV === "development")
+    try {
+        _private = require('./.private.js');
+    } catch (e) {
+        // jeśli plik nie istnieje, ignorujemy to i zwracamy domyślną strukturę
+        console.warn(e);
+    }
+
 
 const environment = _private.environment;
 
@@ -162,7 +170,7 @@ config.plugins.push(new webpack.DefinePlugin({'process.env': _env}));
 if (process.env.NODE_ENV === 'production') {
     config.devtool = false;
     config.plugins = [
-     //   new webpack.optimize.OccurenceOrderPlugin(),
+        //   new webpack.optimize.OccurenceOrderPlugin(),
         new webpack.optimize.UglifyJsPlugin({
             mangle: false,
             comments: false

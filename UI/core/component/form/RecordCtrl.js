@@ -83,6 +83,17 @@ export default class RecordCtrl {
         > {this.crude === CRUDE.CREATE ? "Utwórz" : "Zapisz"} </Button>
     }
 
+
+    createCancelButton(onSuccess: () => void) {
+        return <Button
+            key="btnCancel"
+            ref={btn => this.buttons.push(btn)}
+            icon={Icon.BACKWARD}
+            type="default"
+            onClick={e => window.history.back()}
+        >Anuluj</Button>
+    }
+
     createDeleteButton(confirm: string) {
         return this.crude === CRUDE.CREATE ? null :
             <Button

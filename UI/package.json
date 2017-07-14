@@ -5,10 +5,10 @@
   "author": "Miłosz Ziernik",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack-dev-server",
-    "build": "cross-env NODE_ENV=production webpack",
-    "prod": "cross-env NODE_ENV=production webpack -p",
+    "build DEV": "cross-env NODE_ENV=test webpack",
+    "build PROD": "cross-env NODE_ENV=production webpack",
     "flow": "flow",
-    "sync": "xcopy /Y /S /I \"public\" \"../CKTechnik/CKTechnik/wwwroot\"",
+    "CKTechnik sync": "xcopy /Y /S /I \"public\" \"../CKTechnik/CKTechnik/wwwroot\"",
     "doc": "esdoc",
     "devtool": "devtool.cmd \"node_modules/webpack-dev-server/bin/webpack-dev-server.js\" webpack-dev-server --progress"
   },

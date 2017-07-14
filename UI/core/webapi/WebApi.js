@@ -80,11 +80,12 @@ export default class WebApi {
 
         transport.onMessage = data => new WebApiResponse(this, data);
 
-        transport.onClose = reason => {
+        transport.onClose = (reason, e) => {
             transport.connected = false;
             State.current = State.CLOSED;
-            AppStatus.error(this, "WebApi: " + reason, "Próba " + (retryCount + 1) + " / " + this.maxRetries);
-            if (retry())
+            const canRetry = e && e.code === 1006;
+            AppStatus.error(this, "WebApi: " + reason, canRetry ? "Próba " + (retryCount + 1) + " / " + this.maxRetries : null);
+            if (canRetry && retry())
                 return;
             const err = new EError(reason);
             this.processed.forEach((req: WebApiRequest) => WebApiResponse.error(req, err));

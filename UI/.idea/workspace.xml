@@ -28,28 +28,7 @@
     <option name="OUTPUT_DIRECTORY" value="C:\Users\miloszz\Desktop" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Repository.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/core/repository/Repository.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="220">
-              <caret line="88" column="0" lean-forward="false" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Repositories.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/model/Repositories.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -61,25 +40,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>draw() {</find>
-      <find>renderChildren(true)</find>
-      <find>renderChildren(fe)</find>
-      <find>renderChildren(fae)</find>
-      <find>renderChildren(falsee)</find>
-      <find>renderChildren(false)</find>
-      <find>this.props.f</find>
-      <find>commi</find>
-      <find>map =</find>
-      <find>mapy</find>
-      <find>render</find>
-      <find>displa</find>
-      <find>tool</find>
-      <find>c-bu</find>
-      <find>boo</find>
-      <find>COLUMNS</find>
-      <find>breadc</find>
-      <find>style</find>
-      <find>ReactTable</find>
       <find>dis</find>
       <find>fct</find>
       <find>flex</find>
@@ -88,9 +48,28 @@
       <find>new Glyph(</find>
       <find>page</find>
       <find>TitleBar</find>
-      <find>new Promise</find>
       <find>newIns</find>
       <find>create</find>
+      <find>Dyna</find>
+      <find>dynam</find>
+      <find>new Promise</find>
+      <find>a</find>
+      <find>au</find>
+      <find>aut</find>
+      <find>auto</find>
+      <find>autoUp</find>
+      <find>autoUpdate</find>
+      <find>R</find>
+      <find>Re</find>
+      <find>Rea</find>
+      <find>Read</find>
+      <find>Ready</find>
+      <find>dynami</find>
+      <find>_waitingForRepo</find>
+      <find>ma</find>
+      <find>nav-ba</find>
+      <find>Ready.</find>
+      <find>200px</find>
     </findStrings>
     <replaceStrings>
       <replace>Store.</replace>
@@ -139,18 +118,12 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/core/component/form/FieldComponent.js" />
-        <option value="$PROJECT_DIR$/core/repository/Record.js" />
-        <option value="$PROJECT_DIR$/core/repository/Type.js" />
-        <option value="$PROJECT_DIR$/core/repository/Field.js" />
         <option value="$PROJECT_DIR$/core/application/Node.js" />
         <option value="$PROJECT_DIR$/core/component/form/RecordCtrl.js" />
         <option value="$PROJECT_DIR$/core/repository/storage/RepositoryStorage.js" />
-        <option value="$PROJECT_DIR$/model/Repositories.js" />
         <option value="$PROJECT_DIR$/core/page/dev/repository/PRepositories.js" />
         <option value="$PROJECT_DIR$/public/index.html" />
         <option value="$PROJECT_DIR$/core/component/styles.css" />
-        <option value="$PROJECT_DIR$/core/page/dev/repository/PRepository.js" />
         <option value="$PROJECT_DIR$/core/page/dev/PDev.js" />
         <option value="$PROJECT_DIR$/core/page/dev/repository/PRepoDetails.js" />
         <option value="$PROJECT_DIR$/Index.js" />
@@ -165,7 +138,6 @@
         <option value="$PROJECT_DIR$/core/component/form/Memo.js" />
         <option value="$PROJECT_DIR$/core/component/form/Multiple.js" />
         <option value="$PROJECT_DIR$/core/component/form/Select.js" />
-        <option value="$PROJECT_DIR$/page/main/Layout.css" />
         <option value="$PROJECT_DIR$/core/component/Breadcrumbs.js" />
         <option value="$PROJECT_DIR$/core/component/Hint.js" />
         <option value="$PROJECT_DIR$/core/component/IconEdit.js" />
@@ -175,11 +147,9 @@
         <option value="$PROJECT_DIR$/core/component/table.css" />
         <option value="$PROJECT_DIR$/core/component/Table.js" />
         <option value="$PROJECT_DIR$/core/component/Button.js" />
-        <option value="$PROJECT_DIR$/core/page/dev/repository/PRecord.js" />
         <option value="$PROJECT_DIR$/core/component/Component.js" />
         <option value="$PROJECT_DIR$/page/PCatalogs.js" />
         <option value="$PROJECT_DIR$/package.json" />
-        <option value="$PROJECT_DIR$/core/page/Page.js" />
         <option value="$PROJECT_DIR$/core/component/form/FCtrl.js" />
         <option value="$PROJECT_DIR$/core/component/form/Attributes.js" />
         <option value="$PROJECT_DIR$/core/component/components.css" />
@@ -188,8 +158,17 @@
         <option value="$PROJECT_DIR$/page/main/Header.js" />
         <option value="$PROJECT_DIR$/core/components.js" />
         <option value="$PROJECT_DIR$/core/component/TitleBar.js" />
-        <option value="$PROJECT_DIR$/core/repository/storage/WebApiRepoStorage.js" />
+        <option value="$PROJECT_DIR$/core/repository/DynamicRepository.js" />
+        <option value="$PROJECT_DIR$/core/repository/DynamicRepo.js" />
+        <option value="$PROJECT_DIR$/model/Repositories.js" />
         <option value="$PROJECT_DIR$/core/repository/Repository.js" />
+        <option value="$PROJECT_DIR$/core/repository/storage/WebApiRepoStorage.js" />
+        <option value="$PROJECT_DIR$/core/page/dev/repository/PRepository.js" />
+        <option value="$PROJECT_DIR$/core/utils/Ready.js" />
+        <option value="$PROJECT_DIR$/core/page/Page.js" />
+        <option value="$PROJECT_DIR$/core/page/dev/repository/PRecord.js" />
+        <option value="$PROJECT_DIR$/core/application/Endpoint.js" />
+        <option value="$PROJECT_DIR$/page/main/Layout.css" />
       </list>
     </option>
   </component>
@@ -211,8 +190,8 @@
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="90" />
-    <option name="y" value="34" />
+    <option name="x" value="221" />
+    <option name="y" value="158" />
     <option name="width" value="1616" />
     <option name="height" value="886" />
   </component>
@@ -271,267 +250,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="page" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="page" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="model" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="webapi" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="webapi" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="SignalR" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="repository" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="repository" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="storage" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="page" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="page" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="dev" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="page" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="dev" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="repository" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="component" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gRep" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="component" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="alert" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scratches" />
       <pane id="Scope">
         <subPane subId="Project Files">
           <PATH>
@@ -658,6 +376,99 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gRep" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="UI" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gRep" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="UI" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="page" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gRep" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="UI" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="page" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gRep" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="UI" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="model" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gRep" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="UI" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gRep" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="UI" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="component" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -672,19 +483,19 @@
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="W:\gRep\UI\core\repository" />
+      <recent name="W:\gRep\UI\core\page\dev\repository" />
+      <recent name="W:\gRep\UI\core\component\form" />
+      <recent name="W:\gRep\UI\page" />
+      <recent name="W:\gRep\UI\core\page\dev" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="W:\gRep\UI\core\component\bootstrap" />
       <recent name="W:\gRep\UI\core\page" />
       <recent name="W:\gRep\UI\core\component\form" />
       <recent name="W:\gRep\UI\core\repository" />
       <recent name="W:\gRep\UI\core\repository\storage" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="W:\gRep\UI\core\page\dev\repository" />
-      <recent name="W:\gRep\UI\core\component\form" />
-      <recent name="W:\gRep\UI\page" />
-      <recent name="W:\gRep\UI\core\page\dev" />
-      <recent name="W:\gRep\UI\core\page" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -873,7 +684,8 @@
       <workItem from="1499230243327" duration="39628000" />
       <workItem from="1499858809840" duration="7086000" />
       <workItem from="1499938691444" duration="55000" />
-      <workItem from="1499948703878" duration="4304000" />
+      <workItem from="1499948703878" duration="11116000" />
+      <workItem from="1500013733473" duration="11000" />
     </task>
     <task id="LOCAL-00001" summary="Role">
       <created>1494997805136</created>
@@ -1096,7 +908,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="692144000" />
+    <option name="totallyTimeSpent" value="698967000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1108,15 +920,13 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="90" y="34" width="1616" height="886" extended-state="0" />
-    <editor active="true" />
+    <frame x="221" y="158" width="1616" height="886" extended-state="0" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22813688" sideWeight="0.70892626" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23925027" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33539096" sideWeight="0.2935174" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.34274587" sideWeight="0.48524764" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27342746" sideWeight="0.4789252" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30536452" sideWeight="0.7064826" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21616359" sideWeight="0.7064826" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23076923" sideWeight="0.29107374" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24952741" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31584582" sideWeight="0.47776365" order="9" side_tool="false" content_ui="tabs" />
@@ -1132,6 +942,7 @@
       <window_info id="TypeScript" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32957393" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2361111" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.48418158" sideWeight="0.48524764" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -1178,36 +989,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/core/component/Breadcrumbs.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="571">
-          <caret line="67" column="23" lean-forward="false" selection-start-line="67" selection-start-column="23" selection-end-line="67" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/component/CloseButton.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-429">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/component/DataList.js" />
-    <entry file="file://$PROJECT_DIR$/core/component/DropDown.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/component/DropDownEdit.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/component/Form.js" />
     <entry file="file://$PROJECT_DIR$/core/component/GroupBox.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1356,24 +1137,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/page/main/Layout.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-674">
-          <caret line="54" column="0" lean-forward="true" selection-start-line="54" selection-start-column="0" selection-end-line="54" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/component/application/WebApiStatus.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="100">
           <caret line="7" column="21" lean-forward="false" selection-start-line="7" selection-start-column="21" selection-end-line="7" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/page/dev/repository/PRecord.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="114" column="47" lean-forward="false" selection-start-line="114" selection-start-column="47" selection-end-line="114" selection-end-column="47" />
         </state>
       </provider>
     </entry>
@@ -1388,15 +1155,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="9" column="19" lean-forward="false" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/page/Page.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1280">
-          <caret line="79" column="45" lean-forward="false" selection-start-line="79" selection-start-column="45" selection-end-line="79" selection-end-column="45" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1404,7 +1162,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="820">
           <caret line="51" column="26" lean-forward="false" selection-start-line="51" selection-start-column="26" selection-end-line="51" selection-end-column="26" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1412,59 +1169,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6420">
           <caret line="323" column="26" lean-forward="false" selection-start-line="323" selection-start-column="26" selection-end-line="323" selection-end-column="26" />
-          <folding>
-            <marker date="1499937951771" expanded="true" signature="7560:7655" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="7560:10631" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="7560:13642" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="7713:7896" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="8370:8524" ph="&lt;Select/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="8565:10625" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="8595:8656" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="8708:8765" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="8791:8849" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="8874:8981" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="9008:9075" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="9102:9174" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="9198:9257" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="9285:9393" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="9418:9586" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="9442:9585" ph="&lt;DatePicker/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="9611:9778" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="9635:9777" ph="&lt;DatePicker/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="9808:9969" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="9832:9968" ph="&lt;DatePicker/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="9991:10615" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="10044:10615" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="10080:10145" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="10180:10247" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="10283:10399" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="10428:10597" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="10637:10732" ph="/** sortuje propsy. Pola z true są umieszczane na końcu ...*/" />
-            <marker date="1499937951771" expanded="true" signature="10750:11798" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="10772:11077" ph="[...]" />
-            <marker date="1499937951771" expanded="true" signature="11093:11352" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="11399:11791" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="11455:11781" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="11486:11537" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="11665:11714" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="11739:11767" ph="..." />
-            <marker date="1499937951771" expanded="true" signature="11804:11887" ph="/** zwraca kontrolki w trybie inlnie ...*/" />
-            <marker date="1499937951771" expanded="true" signature="11907:12300" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="11938:12292" ph="&lt;span/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="12003:12234" ph="{&quot;whiteSpace&quot;: 'nowrap'...}" />
-            <marker date="1499937951771" expanded="true" signature="12306:12398" ph="/** zwraca kontrolki w trybie row &lt;tr&gt;&lt;td&gt;... ...*/" />
-            <marker date="1499937951771" expanded="true" signature="12415:12622" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="12446:12614" ph="&lt;tr/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="12531:12594" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="12628:12727" ph="/** zwraca kontrolki w trybie block &lt;span&gt;&lt;div&gt;&lt;div&gt; ...*/" />
-            <marker date="1499937951771" expanded="true" signature="12746:13292" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="12763:13286" ph="&lt;span/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="12850:13016" ph="&lt;div/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="13029:13270" ph="&lt;div/&gt;" />
-            <marker date="1499937951771" expanded="true" signature="13298:13417" ph="/** zwraca inputa z podanymi propsami ...*/" />
-            <marker date="1499937951771" expanded="true" signature="13451:13640" ph="{...}" />
-            <marker date="1499937951771" expanded="true" signature="13468:13634" ph="&lt;Input/&gt;" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1472,7 +1176,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="160">
           <caret line="11" column="21" lean-forward="false" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1480,49 +1183,15 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1700">
           <caret line="87" column="58" lean-forward="false" selection-start-line="87" selection-start-column="58" selection-end-line="87" selection-end-column="58" />
-          <folding>
-            <element signature="e#24#124#0" expanded="true" />
-            <marker date="1499937951739" expanded="true" signature="3777:3957" ph="&lt;Link/&gt;" />
-            <marker date="1499937951739" expanded="true" signature="3777:3985" ph="&lt;span/&gt;" />
-            <marker date="1499937951739" expanded="true" signature="3777:4010" ph="&lt;div/&gt;" />
-            <marker date="1499937951739" expanded="true" signature="3777:4046" ph="&lt;td/&gt;" />
-            <marker date="1499937951739" expanded="true" signature="3777:4134" ph="&lt;tr/&gt;" />
-            <marker date="1499937951739" expanded="true" signature="3777:4141" ph="{...}" />
-            <marker date="1499937951739" expanded="true" signature="3777:4143" ph="{...}" />
-            <marker date="1499937951739" expanded="true" signature="3826:3954" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/component/components.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="820">
-          <caret line="41" column="17" lean-forward="false" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/component/glyph/FontAwesome.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="13600">
-          <caret line="681" column="0" lean-forward="false" selection-start-line="681" selection-start-column="0" selection-end-line="684" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/component/glyph/Glyph.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/core/component/glyph/FontAwesome.js" />
+    <entry file="file://$PROJECT_DIR$/core/component/glyph/Glyph.js" />
     <entry file="file://$PROJECT_DIR$/core/component/glyph/Icon.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="20">
           <caret line="13" column="28" lean-forward="false" selection-start-line="13" selection-start-column="28" selection-end-line="13" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1530,9 +1199,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="241">
           <caret line="58" column="71" lean-forward="true" selection-start-line="58" selection-start-column="71" selection-end-line="58" selection-end-column="71" />
-          <folding>
-            <element signature="e#39#80#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1540,9 +1206,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="380">
           <caret line="19" column="30" lean-forward="false" selection-start-line="19" selection-start-column="30" selection-end-line="19" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#84#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1550,9 +1213,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#36#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1560,9 +1220,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="100">
           <caret line="5" column="59" lean-forward="true" selection-start-line="5" selection-start-column="59" selection-end-line="5" selection-end-column="59" />
-          <folding>
-            <element signature="e#1430#1466#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1570,9 +1227,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="280">
           <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-          <folding>
-            <element signature="e#24#76#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1580,30 +1234,104 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="260">
           <caret line="68" column="15" lean-forward="true" selection-start-line="68" selection-start-column="15" selection-end-line="68" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/repository/storage/RepositoryStorage.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="440">
+          <caret line="22" column="86" lean-forward="false" selection-start-line="22" selection-start-column="86" selection-end-line="22" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/repository/DynamicRepo.js" />
+    <entry file="file://$PROJECT_DIR$/core/utils/ds-table/ds-table.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="89" column="9" lean-forward="false" selection-start-line="89" selection-start-column="9" selection-end-line="89" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model/Repositories.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1840">
+          <caret line="92" column="0" lean-forward="false" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/repository/storage/WebApiRepoStorage.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/model/Repositories.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="660">
+          <caret line="37" column="49" lean-forward="false" selection-start-line="37" selection-start-column="49" selection-end-line="37" selection-end-column="49" />
+          <folding>
+            <element signature="e#0#85#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/repository/Repository.js">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6260">
+          <caret line="317" column="36" lean-forward="false" selection-start-line="317" selection-start-column="36" selection-end-line="317" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#101#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/page/dev/repository/PRepository.js">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="220">
-          <caret line="88" column="0" lean-forward="false" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
+          <caret line="12" column="19" lean-forward="false" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/utils/Ready.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="13" column="30" lean-forward="false" selection-start-line="13" selection-start-column="30" selection-end-line="13" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/page/Page.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1280">
+          <caret line="80" column="9" lean-forward="false" selection-start-line="80" selection-start-column="9" selection-end-line="80" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/page/dev/repository/PRecord.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="440">
+          <caret line="26" column="14" lean-forward="false" selection-start-line="26" selection-start-column="14" selection-end-line="26" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/application/Endpoint.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1880">
+          <caret line="98" column="33" lean-forward="false" selection-start-line="98" selection-start-column="33" selection-end-line="98" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/component/components.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3760">
+          <caret line="188" column="16" lean-forward="false" selection-start-line="188" selection-start-column="16" selection-end-line="188" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/page/main/Layout.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="497">
+          <caret line="114" column="13" lean-forward="false" selection-start-line="114" selection-start-column="13" selection-end-line="114" selection-end-column="13" />
           <folding />
         </state>
       </provider>

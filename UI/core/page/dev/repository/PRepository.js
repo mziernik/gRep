@@ -11,17 +11,11 @@ export default class PRepository extends Page {
 
     constructor() {
         super(...arguments);
-        this.repo = Repository.get(this.props.repo, true);
+        this.waitForRepo(this.props.repo);
     }
 
     render() {
-
-        if (!super.waitForRepo(this.repo))
-            return <div>
-                {super.renderTitle(`Repozytorium "${this.repo.name}"`)}
-                <span>Inicjalizacja repozytorium. Proszę czekać...</span>
-            </div>;
-
+        this.repo = Repository.get(this.props.repo, true);
         const columns = [];
 
         columns.push(<span key="#action" style={{textAlign: "center"}}/>);
@@ -45,20 +39,24 @@ export default class PRepository extends Page {
             {super.renderTitle(`Repozytorium "${this.repo.name}"`)}
 
             {this.renderToolBar([
-                <Button type="default"
-                        link={this.endpoint.REPO_DETAILS.getLink({
-                            repo: this.repo.key
-                        })}
-                        title="Szczegóły repozytorium"
-                        icon={Icon.INFO}>Szczegóły</Button>,
-                <Button type="primary"
-                        link={this.endpoint.RECORD.getLink({
-                            repo: this.repo.key,
-                            rec: "~new"
-                        })}
-                        title="Dodaj nowy rekord"
-                        disabled={!this.repo.canCreate}
-                        icon={Icon.PLUS}
+                <Button
+                    key="btnDetails"
+                    type="default"
+                    link={this.endpoint.REPO_DETAILS.getLink({
+                        repo: this.repo.key
+                    })}
+                    title="Szczegóły repozytorium"
+                    icon={Icon.INFO}>Szczegóły</Button>,
+                <Button
+                    key="btnAdd"
+                    type="primary"
+                    link={this.endpoint.RECORD.getLink({
+                        repo: this.repo.key,
+                        rec: "~new"
+                    })}
+                    title="Dodaj nowy rekord"
+                    disabled={!this.repo.canCreate}
+                    icon={Icon.PLUS}
                 >Dodaj</Button>
             ])}
 
