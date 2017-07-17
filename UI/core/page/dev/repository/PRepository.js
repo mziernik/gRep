@@ -1,5 +1,7 @@
 import {React, PropTypes, Field, Utils, Column, Repository, Record, Endpoint, If, CRUDE} from '../../../core';
 import {Page, Icon, Link, Table, FCtrl, Panel, Button} from '../../../components';
+import RepoCtrl from "../../../component/form/RepoCtrl";
+import RecordCtrl from "../../../component/form/RecordCtrl";
 
 
 export default class PRepository extends Page {
@@ -17,6 +19,9 @@ export default class PRepository extends Page {
     render() {
         this.repo = Repository.get(this.props.repo, true);
         const columns = [];
+
+
+        const rctrl: RepoCtrl = new RepoCtrl(this, this.repo);
 
         columns.push(<span key="#action" style={{textAlign: "center"}}/>);
         columns.addAll(this.repo.columns.map((f: Column) =>
@@ -39,6 +44,7 @@ export default class PRepository extends Page {
             {super.renderTitle(`Repozytorium "${this.repo.name}"`)}
 
             {this.renderToolBar([
+                ...rctrl.renderActionButtons(),
                 <Button
                     key="btnDetails"
                     type="default"
@@ -67,6 +73,9 @@ export default class PRepository extends Page {
 
                     const result = {};
                     const rec: Record = this.repo.get(this, pk, true);
+
+                    const recCtrl = new RecordCtrl(this, rec, null);
+
                     result["#action"] = <span>
                         <span> {++counter + "."}  </span>
                         <Link
@@ -76,6 +85,7 @@ export default class PRepository extends Page {
                             })}
                             icon={Icon.CREDIT_CARD}
                         />
+                        {recCtrl.renderActionButtons()}
                     </span>;
                     result["#refs"] = this.repo.getRefs(pk).length;
                     rec.fields.forEach((f: Field) =>

@@ -81,4 +81,14 @@ export default class WebApiRepoStorage extends RepositoryStorage {
         const dto: Object = WebApiRepoStorage.buildDTO(records, crude === CRUDE.CREATE, crude);
         return (this.methods.edit({data: dto}): WebApiRequest).promise;
     }
+
+    action(repo: Repository, action: string, pk: any, params: object): Promise {
+        return (this.methods.action({
+            repo: repo.key,
+            action: action,
+            pk: pk,
+            params: params
+        }): WebApiRequest).promise;
+    }
+
 }

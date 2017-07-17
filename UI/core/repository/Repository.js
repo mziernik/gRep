@@ -13,9 +13,10 @@ export class RepoConfig {
     record: object = null;
     key: ?string = null;
     name: ?string = null;
+    group: ? string = null;
     primaryKeyColumn: Column = null;
     displayNameColumn: ?Column = null;
-    actions: ?Object = null;
+    actions: ?Object | RepoAction[] = null;
     onDemand: boolean = false;
 
     /** Kolumna definiująca rodzica - dla struktury drzewiastej */
@@ -33,6 +34,24 @@ export class RepoConfig {
 
     constructor() {
         Object.preventExtensions(this);
+    }
+}
+
+
+export class RepoAction {
+    repo: Repository;
+
+    rec: boolean;
+    key: string;
+    name: string;
+    hint: string;
+    type: string;
+    icon: string;
+    confirm: string;
+    params: object;
+
+    constructor(repo: Repository, act: Object) {
+        this.repo = repo;
     }
 }
 
@@ -72,6 +91,19 @@ export default class Repository {
 
         Check.isFunction(config);
         config(this.config);
+
+        If.isObject(this.config.actions, acts =>
+            this.config.actions = Utils.forEach(acts, (obj, key) => {
+                const act = new RepoAction();
+                act.key = key;
+                act.rec = !!obj.record;
+                act.name = obj.name;
+                act.type = obj.type;
+                act.icon = obj.icon;
+                act.confirm = obj.confirm;
+                return act;
+            })
+        );
 
         if (this.config.dynamic) {
             this.columns.addAll(this.config.columns);

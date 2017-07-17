@@ -7,6 +7,10 @@ export default class Resizer extends Component {
 
     static propTypes = {
         fromCenter: PropTypes.bool,
+        north: PropTypes.bool,
+        east: PropTypes.bool,
+        west: PropTypes.bool,
+        south: PropTypes.bool,
         resizable: PropTypes.bool,
         noDefaultLimits: PropTypes.bool,
         outerProps: PropTypes.object,
@@ -14,13 +18,29 @@ export default class Resizer extends Component {
 
     static defaultProps = {
         fromCenter: false,
+        north: false,
+        east: false,
+        west: false,
+        south: false,
         resizable: true,
         noDefaultLimits: false
     };
 
+    /** określa czy skalowanie odbywa się przez przeciąganie krawędzi
+     * @type {boolean}
+     * @private
+     */
+    _borders: boolean = false;
+    /** przechowuje informacje o kierunku skalowania. Wymagane gdy _borders===true
+     * @type {null}
+     * @private
+     */
+    _direction: ?string = null;
+
     constructor() {
         super(...arguments);
         this.resizeEvent = (e) => this.props.fromCenter ? this._doCenterResize(e) : this._doResize(e);
+        this._borders = this.props.north || this.props.east || this.props.west || this.props.south;
     }
 
     /** Oblicza limity wielkości okna na podstawie stylu
@@ -55,14 +75,18 @@ export default class Resizer extends Component {
 
     /** Inicjalizacja zmiany wielkości. Podpina zdarzenia i wylicza limity
      * @param e zdarzenie myszy
+     * @param cursor wygląd kursora
+     * @param direction określa kierunek skalowania
      * @private
      */
-    _startResize(e: MouseEvent) {
+    _startResize(e: MouseEvent, cursor: ?string = null, direction: ?string = null) {
         this._resize = e.currentTarget.parentElement;
         this._start = {x: e.pageX, y: e.pageY};
         this._computeLimits(this._resize);
+        this._direction = direction;
 
         document.body.style.userSelect = 'none';
+        document.body.style.cursor = cursor || '';
         window.addEventListener('mousemove', this.resizeEvent, false);
         window.addEventListener('mouseup', this.resizeEvent, false);
 
@@ -75,20 +99,42 @@ export default class Resizer extends Component {
     _doCenterResize(e: MouseEvent) {
         if (e.type === 'mousemove') {
             const diff = {x: (e.pageX - this._start.x), y: (e.pageY - this._start.y)};
-            let nw = (this._resize.offsetWidth + diff.x * 2);
-            let nh = (this._resize.offsetHeight + diff.y * 2);
+            let nw = this._resize.offsetWidth;
+            let nh = this._resize.offsetHeight;
 
-            if (nw < this._limits.max.x && nw > this._limits.min.x) {
-                this._resize.style.width = nw + 'px';
-                this._resize.style.left = (this._resize.offsetLeft - diff.x) + 'px';
-                this._start.x = e.pageX;
+            if (this._borders) {
+                switch (this._direction) {
+                    case 'east':
+                        nw += diff.x * 2;
+                        break;
+                    case 'west':
+                        nw -= diff.x * 2;
+                        break;
+                    case 'north':
+                        nh -= diff.y * 2;
+                        break;
+                    case 'south':
+                        nh += diff.y * 2;
+                        break;
+                }
+            } else {
+                nw += diff.x * 2;
+                nh += diff.y * 2;
             }
 
-            if (nh < this._limits.max.y && nh > this._limits.min.y) {
-                this._resize.style.height = nh + 'px';
-                this._resize.style.top = (this._resize.offsetTop - diff.y) + 'px';
-                this._start.y = e.pageY;
-            }
+            if (!this._direction || this._direction === 'east' || this._direction === 'west')
+                if (nw < this._limits.max.x && nw > this._limits.min.x && (!this._borders || this.props.east || this.props.west)) {
+                    this._resize.style.width = nw + 'px';
+                    this._resize.style.left = (this._resize.offsetLeft - (this._direction === 'west' ? (-diff.x) : diff.x)) + 'px';
+                    this._start.x = e.pageX;
+                }
+
+            if (!this._direction || this._direction === 'north' || this._direction === 'south')
+                if (nh < this._limits.max.y && nh > this._limits.min.y && (!this._borders || this.props.north || this.props.south)) {
+                    this._resize.style.height = nh + 'px';
+                    this._resize.style.top = (this._resize.offsetTop - (this._direction === 'north' ? (-diff.y) : diff.y)) + 'px';
+                    this._start.y = e.pageY;
+                }
         } else
             this._stopResize();
 
@@ -101,14 +147,33 @@ export default class Resizer extends Component {
     _doResize(e: MouseEvent) {
         if (e.type === 'mousemove') {
             const diff = {x: (e.pageX - this._start.x), y: (e.pageY - this._start.y)};
-            let nw = (this._resize.offsetWidth + diff.x);
-            let nh = (this._resize.offsetHeight + diff.y);
+            let nw = this._resize.offsetWidth;
+            let nh = this._resize.offsetHeight;
+            if (this._borders) {
+                switch (this._direction) {
+                    case 'east':
+                        nw += diff.x;
+                        break;
+                    case 'west':
+                        nw -= diff.x;
+                        break;
+                    case 'north':
+                        nh -= diff.y;
+                        break;
+                    case 'south':
+                        nh += diff.y;
+                        break;
+                }
+            } else {
+                nw += diff.x;
+                nh += diff.y;
+            }
 
-            if (nw < this._limits.max.x && nw > this._limits.min.x) {
+            if (nw < this._limits.max.x && nw > this._limits.min.x && (!this._borders || this.props.east || this.props.west)) {
                 this._resize.style.width = nw + 'px';
                 this._start.x = e.pageX;
             }
-            if (nh < this._limits.max.y && nh > this._limits.min.y) {
+            if (nh < this._limits.max.y && nh > this._limits.min.y && (!this._borders || this.props.north || this.props.south)) {
                 this._resize.style.height = nh + 'px';
                 this._start.y = e.pageY;
             }
@@ -123,34 +188,94 @@ export default class Resizer extends Component {
         window.removeEventListener('mousemove', this.resizeEvent, false);
         window.removeEventListener('mouseup', this.resizeEvent, false);
         document.body.style.userSelect = '';
+        document.body.style.cursor = '';
         AppEvent.RESIZE.send(this, e);
     }
 
+    /** Rysuje odpowiednie uchwyty do skalowania elementu
+     * @returns {Array}
+     */
+    renderGrabbers() {
+        let style = {position: 'absolute', zIndex: '10'};
+        let res = [];
+        if (this.props.east)
+            res.push(<div
+                style={{
+                    ...style,
+                    right: '-8px',
+                    top: '0',
+                    width: '14px',
+                    height: '100%',
+                    cursor: 'col-resize'
+                }}
+                onMouseDown={(e) => this._startResize(e, 'col-resize', 'east')}
+            />);
+        if (this.props.west)
+            res.push(<div
+                style={{
+                    ...style,
+                    left: '-8px',
+                    top: '0',
+                    width: '14px',
+                    height: '100%',
+                    cursor: 'col-resize'
+                }}
+                onMouseDown={(e) => this._startResize(e, 'col-resize', 'west')}
+            />);
+        if (this.props.north)
+            res.push(<div
+                style={{
+                    ...style,
+                    top: '-8px',
+                    left: '0',
+                    height: '14px',
+                    width: '100%',
+                    cursor: 'row-resize'
+                }}
+                onMouseDown={(e) => this._startResize(e, 'row-resize', 'north')}
+            />);
+        if (this.props.south)
+            res.push(<div
+                style={{
+                    ...style,
+                    bottom: '-8px',
+                    left: '0',
+                    height: '14px',
+                    width: '100%',
+                    cursor: 'row-resize'
+                }}
+                onMouseDown={(e) => this._startResize(e, 'row-resize', 'south')}
+            />);
+        if (res.length === 0)
+            res.push(<div
+                className="c-resizer-grabber"
+                style={{
+                    position: 'absolute',
+                    width: '0',
+                    height: '0',
+                    right: '2px',
+                    bottom: '2px',
+                    cursor: 'se-resize'
+                }}
+                onMouseDown={(e) => this._startResize(e, 'se-resize')}
+            />);
+        return res;
+    }
+
     render() {
-        //
         return (
             <div
                 className="c-resizer"
                 style={{
                     position: this.props.from ? 'fixed' : 'relative',
-
-                    ...this.props.style
+                    ...this.props.style,
+                    flex: ''
                 }}
                 {...this.props.outerProps}
             >
                 {super.renderChildren()}
                 {this.props.resizable ?
-                    <div
-                        className="c-resizer-content"
-                        style={{
-                            position: 'absolute',
-                            width: '0',
-                            height: '0',
-                            right: '2px',
-                            bottom: '2px'
-                        }}
-                        onMouseDown={(e) => this._startResize(e)}
-                    /> : null}
+                    this.renderGrabbers() : null}
 
             </div>);
     }

@@ -19,6 +19,14 @@ CREATE TABLE repo_history
     extra       HSTORE
 );
 
+CREATE TABLE repo_update
+(
+    id              VARCHAR PRIMARY KEY,
+    state           BOOLEAN NOT NULL,
+    min_interval    INTEGER NOT NULL
+);
+
+
 CREATE TABLE meta_data
 (
 	key          VARCHAR PRIMARY KEY,

@@ -1,6 +1,7 @@
 import {Field, Column, RepoConfig, Type, Repository, Record} from "../core/core";
 
 
+
 //--------------------------------- Status ----------------------------------------------
 
 export class RStatus extends Repository {
@@ -112,6 +113,111 @@ export class RStatusRecord extends Record {
 
 }
 
+//--------------------------------- Konfiguracja ----------------------------------------------
+
+export class RConfig extends Repository {
+
+    static KEY: Column = new Column((c: Column) => {
+        c.key = "key";
+        c.name = "Klucz";
+        c.type = "key";
+        c.required = true;
+        c.unique = true;
+    });
+
+    static PARENT: Column = new Column((c: Column) => {
+        c.key = "parent";
+        c.name = "Rodzic";
+        c.type = "key";
+        c.foreign = () => R_CONFIG;
+    });
+
+    static NAME: Column = new Column((c: Column) => {
+        c.key = "name";
+        c.name = "Nazwa";
+        c.type = "string";
+    });
+
+    static DESC: Column = new Column((c: Column) => {
+        c.key = "desc";
+        c.name = "Opis";
+        c.type = "memo";
+    });
+
+    static IS_DEF_VAL: Column = new Column((c: Column) => {
+        c.key = "isDefVal";
+        c.name = "Użyj wartości domyslnej";
+        c.type = "boolean";
+    });
+
+    static USER_VALUE: Column = new Column((c: Column) => {
+        c.key = "userValue";
+        c.name = "Wartość użytkownika";
+        c.type = "any";
+    });
+
+    static DEFAULT_VALUE: Column = new Column((c: Column) => {
+        c.key = "defaultValue";
+        c.name = "Wartość domyślna";
+        c.type = "any";
+    });
+
+    static VARIABLE: Column = new Column((c: Column) => {
+        c.key = "variable";
+        c.name = "Zmienna";
+        c.type = "string";
+    });
+
+    static ENABLED: Column = new Column((c: Column) => {
+        c.key = "enabled";
+        c.name = "Aktywne";
+        c.type = "boolean";
+    });
+
+    static VISIBLE: Column = new Column((c: Column) => {
+        c.key = "visible";
+        c.name = "Widoczne";
+        c.type = "boolean";
+    });
+
+    static READ_ONLY: Column = new Column((c: Column) => {
+        c.key = "readOnly";
+        c.name = "Tylko do odczytu";
+        c.type = "boolean";
+    });
+
+
+    constructor() {
+        super((c: RepoConfig) => {
+            c.key = "configuration";
+            c.name = "Konfiguracja";
+            c.group = "System";
+            c.record = RConfigRecord;
+            c.primaryKeyColumn = RConfig.KEY;
+            c.parentColumn = RConfig.PARENT;
+            c.displayNameColumn = RConfig.NAME;
+            c.crude = "RU";
+        });
+    }
+
+}
+
+export class RConfigRecord extends Record {
+
+    KEY: Field = new Field(RConfig.KEY, this);
+    PARENT: Field = new Field(RConfig.PARENT, this);
+    NAME: Field = new Field(RConfig.NAME, this);
+    DESC: Field = new Field(RConfig.DESC, this);
+    IS_DEF_VAL: Field = new Field(RConfig.IS_DEF_VAL, this);
+    USER_VALUE: Field = new Field(RConfig.USER_VALUE, this);
+    DEFAULT_VALUE: Field = new Field(RConfig.DEFAULT_VALUE, this);
+    VARIABLE: Field = new Field(RConfig.VARIABLE, this);
+    ENABLED: Field = new Field(RConfig.ENABLED, this);
+    VISIBLE: Field = new Field(RConfig.VISIBLE, this);
+    READ_ONLY: Field = new Field(RConfig.READ_ONLY, this);
+
+}
+
 //--------------------------------- Historia zmian ----------------------------------------------
 
 export class RRepoHistory extends Repository {
@@ -210,9 +316,9 @@ export class RRepoHistory extends Repository {
             c.record = RRepoHistoryRecord;
             c.primaryKeyColumn = RRepoHistory.ID;
             c.displayNameColumn = RRepoHistory.NAME;
-            c.crude = "CRUD";
+            c.crude = "R";
             c.local = false;
-         });
+        });
     }
 
 }
@@ -229,6 +335,55 @@ export class RRepoHistoryRecord extends Record {
     ADDRESS: Field = new Field(RRepoHistory.ADDRESS, this);
     SESSION: Field = new Field(RRepoHistory.SESSION, this);
     USERNAME: Field = new Field(RRepoHistory.USERNAME, this);
+
+}
+
+//--------------------------------- Aktualziacje repozytoriów ----------------------------------------------
+
+export class RRepoUpdate extends Repository {
+
+    static ID: Column = new Column((c: Column) => {
+        c.key = "id";
+        c.name = "ID";
+        c.type = "key";
+        c.readOnly = true;
+        c.required = true;
+        c.unique = true;
+    });
+
+    static NAME: Column = new Column((c: Column) => {
+        c.key = "name";
+        c.name = "Nazwa";
+        c.type = "string";
+    });
+
+    static STATE: Column = new Column((c: Column) => {
+        c.key = "state";
+        c.name = "Stan";
+        c.type = "boolean";
+        c.defaultValue = true;
+    });
+
+
+    constructor() {
+        super((c: RepoConfig) => {
+            c.key = "repoUpdate";
+            c.name = "Aktualziacje repozytoriów";
+            c.group = "System";
+            c.record = RRepoUpdateRecord;
+            c.primaryKeyColumn = RRepoUpdate.ID;
+            c.displayNameColumn = RRepoUpdate.NAME;
+            c.crude = "CRUD";
+        });
+    }
+
+}
+
+export class RRepoUpdateRecord extends Record {
+
+    ID: Field = new Field(RRepoUpdate.ID, this);
+    NAME: Field = new Field(RRepoUpdate.NAME, this);
+    STATE: Field = new Field(RRepoUpdate.STATE, this);
 
 }
 
@@ -420,10 +575,17 @@ export class RTest extends Repository {
         super((c: RepoConfig) => {
             c.key = "test";
             c.name = "TEST";
+            c.group = "Test";
             c.record = RTestRecord;
             c.primaryKeyColumn = RTest.ID;
             c.displayNameColumn = RTest.NAME;
             c.crude = "CRUD";
+            c.actions = {
+                addR: {record: false, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-plus"},
+                remR: {record: false, name: "Usuń", confirm: null, type: "warning", icon: "fa fa-trash"},
+                raddR: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-plus"},
+                rremR: {record: true, name: "Usuń", confirm: null, type: "primary", icon: "fa fa-trash"}
+            };
         });
     }
 
@@ -460,6 +622,7 @@ export class RUsers extends Repository {
         c.key = "id";
         c.name = "ID";
         c.type = "long";
+        c.autoGenerated = true;
         c.required = true;
         c.unique = true;
     });
@@ -529,6 +692,12 @@ export class RUsers extends Repository {
             c.crude = "CRU";
             c.local = false;
             c.icon = "fa fa-users";
+            c.actions = {
+                add: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-user-plus"},
+                rem: {record: true, name: "Usuń", confirm: "Czy na pewno usunąć?", type: "danger", icon: "fa fa-user-times"},
+                addRandom: {record: false, name: "Dodaj losowy", confirm: null, type: "primary", icon: "fa fa-user-plus"},
+                removeRandom: {record: false, name: "Usuń losowy", confirm: null, type: "danger", icon: "fa fa-user-times"}
+            };
         });
     }
 
@@ -637,17 +806,14 @@ export class RThreads extends Repository {
         super((c: RepoConfig) => {
             c.key = "threads";
             c.name = "Wątki";
+            c.group = "System";
             c.record = RThreadsRecord;
             c.primaryKeyColumn = RThreads.ID;
             c.displayNameColumn = RThreads.NAME;
             c.crude = "R";
             c.local = true;
             c.actions = {
-                term: {
-                    name: "Zatrzymaj",
-                    confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?",
-                    icon: "fa fa-times"
-                }
+                term: {record: true, name: "Zatrzymaj", confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?", type: "warning", icon: "fa fa-times"}
             };
         });
     }
@@ -759,7 +925,6 @@ export class RAttribute extends Repository {
         c.name = "Ikona";
         c.type = "string";
         c.defaultValue = true;
-        c.required = true;
     });
 
     static DESC: Column = new Column((c: Column) => {
@@ -1616,7 +1781,9 @@ export class RCryptKeyRecord extends Record {
 }
 
 export const R_STATUS: RStatus = Repository.register(new RStatus());
+export const R_CONFIG: RConfig = Repository.register(new RConfig());
 export const R_REPO_HISTORY: RRepoHistory = Repository.register(new RRepoHistory());
+export const R_REPO_UPDATE: RRepoUpdate = Repository.register(new RRepoUpdate());
 export const R_TEST: RTest = Repository.register(new RTest());
 export const R_USERS: RUsers = Repository.register(new RUsers());
 export const R_THREADS: RThreads = Repository.register(new RThreads());

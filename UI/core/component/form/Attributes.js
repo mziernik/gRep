@@ -12,10 +12,12 @@ import {
     Column,
     Repository,
     AppNode,
+    If,
     Record
 } from "../../core";
 import {Component, FCtrl, Panel, Checkbox, Icon, Link} from "../../components";
 import {Child} from "../Component";
+import {DataType} from "../../repository/Type";
 
 /**
  * Lista atrybutów wyświetlana w formie tabelarycznej
@@ -28,6 +30,7 @@ export class Attributes extends Component {
     }
 
     static propTypes = {
+        ...Component.propTypes,
         preview: PropTypes.bool,
         edit: PropTypes.bool,
         style: PropTypes.object
@@ -73,6 +76,10 @@ export class Attributes extends Component {
 export class Attr extends Component {
 
     static propTypes = {
+        ...Component.propTypes,
+        /** Rysuj tylko jeśli jest różne od null i róże od undefined */
+        ifDefined: PropTypes.bool,
+        type: PropTypes.instanceOf(DataType),
         field: PropTypes.any,
         value: PropTypes.any,
         name: PropTypes.string,
@@ -96,17 +103,30 @@ export class Attr extends Component {
 
         const mixedMode = this.field && this.props.edit && this.props.preview;
 
-        const field: Field = mixedMode && this.field ? new Field(this.field.config) : this.field;
+        let field: Field = mixedMode && this.field ? new Field(this.field.config) : this.field;
         if (field && mixedMode)
             field._value = this.field.value;
 
 
+        if (this.props.ifDefined && !If.isDefined(this.props.value) && (!field || !If.isDefined(field.value) ))
+            return null;
+
+
+        if (!field && this.props.type)
+            field = new Field((c: Column) => {
+                c.key = Utils.randomId();
+                c.type = this.props.type;
+                c.name = this.props.name;
+                c.defaultValue = this.props.value;
+            });
+
+
         return <tr className="c-attributes-row">
 
-            <td>{this.props.name ? this.children.render(this.props.name) : field
-                ? <FCtrl field={field} required={1} name={2} error={3}/> : null }</td>
+            <td>{field ?
+                <FCtrl field={field} required={1} name={2} error={3}/> : this.children.render(this.props.name)  }</td>
             <td>
-                {this.props.value ? super.renderChildren(this.props.value) : <div style={{display: "flex"}}>
+                {field ? <div style={{display: "flex"}}>
                     <FCtrl
                         key={(this.edit ? "#edt" : "") + field.key}
                         field={field}
@@ -141,7 +161,7 @@ export class Attr extends Component {
                     </span>
 
 
-                </div>
+                </div> : super.renderChildren(this.props.value)
                 }
             </td>
 

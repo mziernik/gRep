@@ -106,6 +106,7 @@
     transition: all 0.3s;
     max-width: 60vw;
     min-width: 250px;
+    pointer-events: all;
 }
 
 .c-status-hint-icon {
@@ -198,6 +199,10 @@
     color: lightgray;
 }
 
+.c-modal-window-exit:hover {
+    color: darkgray;
+}
+
 .c-modal-window-content {
     background: #DDDDDD;
     border-bottom: 1px solid lightgray;
@@ -223,12 +228,11 @@
 /*========================================================= Resizer ==================================================*/
 
 .c-resizer {
-    overflow: hidden;
     min-width: 12px;
     min-height: 12px;
 }
 
-.c-resizer-content {
+.c-resizer-grabber {
     cursor: se-resize;
     border: solid 5px;
     border-color: transparent gray gray transparent;
@@ -239,6 +243,10 @@
 .c-check-box {
     width: 16px;
     margin-right: 10px;
+}
+
+.c-check-box:hover {
+    color: #696969;
 }
 
 /*========================================================= Input ====================================================*/
@@ -289,4 +297,17 @@
 
 .c-popup-menu-item:hover {
     background-color: #c4c4c4;
+}
+
+/*======================================================== TBL =======================================================*/
+.tbl > tbody > tr:nth-child(odd) > td {
+    /*background-color: #ddd;*/
+}
+
+.tbl > tbody > tr:nth-child(even) > td {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.tbl > tbody > tr:hover > td {
+    background-color: rgba(0, 50, 100, 0.1);
 }

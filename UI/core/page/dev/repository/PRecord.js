@@ -74,12 +74,12 @@ export default class PRecord extends Page {
 
                 <Panel resizable
                        style={{
-                           flex: "auto",
                            display: "inline-block",
+                           width: "60%",
                            // resize: "horizontal",
                            // overflow: "auto",
                            padding: "8px",
-                           border: "1px solid #aaa"
+                           border: "1px solid rgba(0, 0, 0, 0.15)"
                        }}>
 
                     <table className="tbl" style={{width: "100%"}}>

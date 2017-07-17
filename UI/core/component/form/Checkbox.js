@@ -14,7 +14,7 @@ export default class Checkbox extends FormComponent {
 
     constructor() {
         super(...arguments);
-        this.state = {icon: this._setIcon(), color: null};
+        this.state = {icon: this._setIcon()};
     }
 
     /** Obsługa zdarzenia kliknięcia
@@ -49,15 +49,6 @@ export default class Checkbox extends FormComponent {
         return icon;
     }
 
-    /** Ustawia 'podświetlenie' ikony
-     * @param highlight - czy ma być 'podświetlona'
-     * @private
-     */
-    _highlight(highlight: boolean = true) {
-        if (this.field.readOnly)return;
-        this.setState({color: highlight ? '#696969' : null});
-    }
-
     render() {
         if (!this.field)return null;
 
@@ -69,21 +60,13 @@ export default class Checkbox extends FormComponent {
                           className={this.field.value ? Icon.CHECK : Icon.TIMES}/>
                 </span>);
 
-        //ToDo: Wojtek: Przerób _highlight na c-check-box:hover (w innych klasach również)
         return (
             <span className="c-check-box">
                 <span className={this.state.icon}
                       title={this.field.hint}
                       tabIndex="0"
                       onClick={(e) => this.field.readOnly ? null : this._handleClick(e)}
-                      onKeyPress={(e) => this.field.readOnly ? null : e.charCode === 32 ? this._handleClick(e) : null}
-                      onFocus={() => this._highlight(true)}
-                      onBlur={() => this._highlight(false)}
-                      onMouseEnter={() => this._highlight(true)}
-                      onMouseLeave={() => this._highlight(false)}
-                      style={{
-                          color: this.state.color
-                      }}/>
+                      onKeyPress={(e) => this.field.readOnly ? null : e.charCode === 32 ? this._handleClick(e) : null}/>
                 {this.props.label ? this.field.name : null}
             </span>);
         //

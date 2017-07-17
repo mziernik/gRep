@@ -17,6 +17,9 @@ export default class RepositoryStorage {
         throw new Error("Unsupported operation");
     }
 
+    action(repo: Repository, name: string, pk: any, params: object): Promise {
+        throw new Error("Unsupported operation");
+    }
 
     /** Wczytaj wszystkie repozytoria */
     static loadData() {
@@ -25,7 +28,7 @@ export default class RepositoryStorage {
             .then(data => {
                 try {
                     Repository.update(storage, data);
-                }catch (e){
+                } catch (e) {
                     Debug.error(this, e);
                     AppStatus.error(this, e);
                 }

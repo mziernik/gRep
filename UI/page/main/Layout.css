@@ -92,25 +92,13 @@ table th {
     overflow: auto;
 }
 
-.tbl > tbody > tr:nth-child(odd) > td {
-    background-color: #ddd;
-}
-
-.tbl > tbody > tr:nth-child(even) > td {
-    background-color: #d4d4d4;
-}
-
-.tbl > tbody > tr:hover > td {
-    background-color: #c0c8d0;
-}
-
 #app-status-hint {
     position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
     z-index: 10;
-    pointer-events: none; /* aby mo¿na by³o klikaæ miêdzy warstwami*/
+    pointer-events: none; /* aby moÅ¼na byÅ‚o klikaÄ‡ miÄ™dzy warstwami*/
 }
 
 #app-navbar .x-tree {

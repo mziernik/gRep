@@ -13,6 +13,7 @@ import java.sql.*;
 import com.config.engine.interfaces.Cfg;
 import static com.lang.LConfig.*;
 import com.model.RRepoHistory;
+import com.model.RRepoUpdate;
 import com.model.dao.DatabaseDAO;
 import com.model.RTest;
 import com.model.repository.Repository;
@@ -33,6 +34,7 @@ import model.repository.RResource;
 public class Db extends PostgreSQL {
 
     public final static RRepoHistory HISTORY = Repository.register(new RRepoHistory());
+
     public final static RTest TEST = Repository.register(new RTest());
     public final static RUsers USERS = Repository.register(new RUsers());
     public final static RThreads THREADS = Repository.register(new RThreads());

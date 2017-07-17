@@ -18,7 +18,7 @@ export default class ModalWindowTab extends Component {
                 </div>
                 <Resizer
                     style={{position: 'relative', border: '1px solid black', width: '300px', height: '200px'}}
-                    noDefaultLimits={true}
+                    noDefaultLimits north south west east
                 >
                 </Resizer>
             </div>
@@ -174,8 +174,8 @@ export default class ModalWindowTab extends Component {
         {
             name: "Bez przeciągania",
             modalWindow: ModalWindow.create((mw: ModalWindow) => {
-                mw.content="Okno bez możliwości zmiany pozycji";
-                mw.draggable=false;
+                mw.content = "Okno bez możliwości zmiany pozycji";
+                mw.draggable = false;
             })
         }
 

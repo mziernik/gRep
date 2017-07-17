@@ -12,8 +12,9 @@ import {
     EError,
     ContextObject
 } from "../../core";
-import {Component, Button, Page, Icon, Spinner, Alert} from "../../components";
+import {Component, Button, Page, Icon, Spinner, Alert, Link} from "../../components";
 import AppStatus from "../../application/Status";
+import {RepoAction} from "../../repository/Repository";
 
 export default class RecordCtrl {
 
@@ -103,6 +104,20 @@ export default class RecordCtrl {
                 type="danger"
                 confirm={confirm} onClick={e => this.commit(CRUDE.DELETE)}>Usuń</Button>
     }
+
+
+    renderActionButtons(): [] {
+        return Utils.forEach(this.record.repo.config.actions, (act: RepoAction) => !act.rec ? null : <Link
+            key={act.key}
+            icon={act.icon}
+            title={act.name}
+            confirm={act.confirm}
+            onClick={e => {
+                this.record.repo.storage.action(this.record.repo, act.key, this.record.pk, {})
+            }}
+        />);
+    }
+
 
 //        onClick={e => this._saveTs = new Date().getTime()                                }
 }

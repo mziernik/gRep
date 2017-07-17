@@ -44,6 +44,8 @@ export default class Login extends Component {
     static display(onAuthorized: (data: Object) => void) {
 
         Login.onAuthorized = onAuthorized;
+        onAuthorized(null);
+        return;
 /*
         if (DEV_MODE && process.env.AUTH === false) {
             // pomiń autoryzację w trybie deweloperskim

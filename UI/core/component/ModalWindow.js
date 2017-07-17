@@ -91,6 +91,7 @@ export class ModalWindow {
         this._instance.style.top = 0;
         this._instance.style.bottom = 0;
         this._instance.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        this._instance.style.zIndex = 1000;
 
         Application.render(this.render(), this._instance);
         this.result = false;

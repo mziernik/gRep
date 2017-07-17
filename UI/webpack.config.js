@@ -20,7 +20,7 @@ const nodeModulesWhiteList = [
 
 let _private = {
     devServer: {},
-    environment: {
+    env: {
         AUTH: true,
         //  NODE_ENV: "development",
         //   WEB_API_URL: "http://localhost:52676/hubs/MainHub"
@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === "development")
     }
 
 
-const environment = _private.environment;
+const environment = _private.env;
 
 
 function filter(loader, file, ext) {

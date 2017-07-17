@@ -3,9 +3,6 @@
 import {React, PropTypes, Utils} from "../core.js";
 import {Component} from "../components.js";
 
-//ToDo przeliczanie rozmiaru dla size
-//ToDo obsługa isStatic
-
 export class Splitter extends Component {
 
     static propTypes = {
@@ -22,6 +19,7 @@ export class Splitter extends Component {
         this._moveListener = (e) => this._changeSizes(e);
         this._upListener = (e) => {
             this._drag = null;
+            this._childIndex = -1;
             document.body.style.userSelect = '';
             document.body.style.cursor = '';
         };
@@ -35,33 +33,77 @@ export class Splitter extends Component {
         window.removeEventListener('mouseup', this._upListener);
     }
 
+    _mouseDown(e: MouseEvent, childIndex: number = -1) {
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = e.currentTarget.style.cursor;
+        this._drag = e.currentTarget;
+        this._startPos = {x: e.pageX, y: e.pageY};
+        this._childIndex = childIndex;
+    }
+
+    _getNumber(val: string): number {
+        if (!val) return null;
+        if (val.contains('%'))
+            return Number(val.slice(0, -1));
+        else if (val.contains('px'))
+            return Number(val.slice(0, -2));
+        return Number(val);
+    }
+
+    _initSizes(): [] {
+        let percents = 100;
+        let sum = 0;
+        let sorted = Utils.forEach(this.props.children, (child, i) => {
+            return [i, child.props.size]
+        });
+        sorted.sort((a, b) => {
+            if (a[1] === b[1])return 0;
+            if (!a[1])return 1;
+            if (!b[1])return -1;
+            return this._getNumber(b[1]) - this._getNumber(a[1]);
+        });
+        let res = [];
+        Utils.forEach(sorted, (child, i) => {
+            if (child[1]) {
+                let tmp = this._getNumber(child[1]);
+                percents -= tmp;
+                sum += tmp;
+            } else {
+                let r = Utils.round(percents / (this.props.children.length - i));
+                percents -= r;
+                sum += r;
+                if ((sum + percents) !== 100)
+                    r += Utils.round(100 - (sum + percents));
+                child[1] = r + '%';
+            }
+            res[child[0]] = child[1];
+        });
+        return res;
+    }
+
     split() {
         const panels = this.props.children.length;
-        const base = Utils.round(100 / panels);
-        const err = base + Utils.round(100 - Utils.round(base * panels));
+        const base = this._initSizes();
 
         this._childes = [];
-        const props = {
-            horizontal: this.props.horizontal,
-            size: base + '%',
-            onMouseDown: (e) => {
-                document.body.style.userSelect = 'none';
-                document.body.style.cursor = e.currentTarget.style.cursor;
-                this._drag = e.currentTarget;
-                this._startPos = {x: e.pageX, y: e.pageY};
-            }
-        };
 
         Utils.forEach(this.props.children, (child, i) => {
-            child = child.type === SplitPanel ? React.cloneElement(child, {
-                ...props,
-                key: i,
-                splitHandle: i !== 0,
-                size: child.props.size || i === 0 ? err + '%' : props.size
-            }, child.props.children)
-                : <SplitPanel key={i} {...props}
-                              size={i === 0 ? err + '%' : props.size}
-                              splitHandle={i !== 0}>{child}</SplitPanel>;
+            if (child.type === SplitPanel)
+                child = React.cloneElement(child, {
+                    horizontal: this.props.horizontal,
+                    key: i,
+                    splitHandle: i < this.props.children.length - 1,
+                    size: base[i],
+                    onMouseDown: (e) => this._mouseDown(e, i),
+                    ...child.props
+                }, child.props.children);
+            else
+                child = <SplitPanel key={i}
+                                    horizontal={this.props.horizontal}
+                                    size={base[i]}
+                                    splitHandle={i < this.props.children.length - 1}
+                                    onMouseDown={(e) => this._mouseDown(e, i)}
+                >{child}</SplitPanel>;
             this._childes.push(child);
         });
 
@@ -73,13 +115,12 @@ export class Splitter extends Component {
         const horizontal = this.props.horizontal;
         let diff = parseInt(horizontal ? (e.pageY - this._startPos.y) : (e.pageX - this._startPos.x));
         if (diff !== 0) {
-            const ps = this._drag.parentElement.previousSibling;
-            const ns = this._drag.parentElement;
+            const ps = this._drag.parentElement;
+            const ns = this._drag.parentElement.nextSibling;
             let max = (horizontal ? this._drag.parentElement.parentElement.offsetHeight : this._drag.parentElement.parentElement.offsetWidth) / 100;
             let prev = (horizontal ? ps.offsetHeight : ps.offsetWidth) + diff;
             let next = (horizontal ? ns.offsetHeight : ns.offsetWidth) - diff;
 
-            //ToDo wielkość może mieć końcówkę px
             const org = Number(horizontal ? ps.style.height.slice(0, -1) : ps.style.width.slice(0, -1)) + Number(horizontal ? ns.style.height.slice(0, -1) : ns.style.width.slice(0, -1));
             if (parseInt(prev) > 10 && parseInt(next) > 10) {
                 prev = Math.round((prev / max) * 100);
@@ -121,8 +162,7 @@ export class SplitPanel extends Component {
         onMouseDown: PropTypes.func,
         splitHandle: PropTypes.bool,
 
-        isStatic: PropTypes.bool,
-        size: PropTypes.string
+        size: PropTypes.string,
     };
 
     render() {
@@ -131,24 +171,28 @@ export class SplitPanel extends Component {
             width: this.props.horizontal ? '100%' : this.props.size,
             height: this.props.horizontal ? this.props.size : '100%',
             display: this.props.horizontal ? 'block' : 'inline-block',
-            verticalAlign: this.props.horizontal ? null : 'top'
+            verticalAlign: this.props.horizontal ? null : 'top',
         };
+
+        if (!style.width.contains("%"))
+            style.width = style.width + "%";
+        if (!style.height.contains("%"))
+            style.height = style.height + "%";
 
         let contentStyle = {
             overflow: 'hidden',
-            //width: this.props.splitHandle && !this.props.horizontal ? 'calc(100% - 4px)' : '100%',
-            //height: this.props.splitHandle && this.props.horizontal ? 'calc(100% - 4px)' : '100%',
             width: '100%',
             height: '100%',
             display: this.props.horizontal ? 'block' : 'inline-block',
             verticalAlign: this.props.horizontal ? null : 'top'
         };
 
-        return <div style={style}>{this.props.splitHandle ?
-            <SplitterHandle
-                horizontal={this.props.horizontal}
-                onMouseDown={this.props.onMouseDown}/> : null}
+        return <div style={style}>
             <div style={contentStyle}>{this.props.children}</div>
+            {this.props.splitHandle ?
+                <SplitterHandle
+                    horizontal={this.props.horizontal}
+                    onMouseDown={this.props.onMouseDown}/> : null}
         </div>
     }
 }
@@ -161,25 +205,24 @@ class SplitterHandle extends Component {
 
     render() {
         let style = {
-            background: 'none',
             position: 'absolute',
+            zIndex: 10,
         };
         if (this.props.horizontal) {
             style.display = 'block';
             style.width = '100%';
             style.height = '14px';
             style.cursor = 'row-resize';
-            style.top = '-8px';
+            style.bottom = '-8px';
         } else {
             style.display = 'inline-block';
             style.verticalAlign = 'top';
             style.width = '14px';
             style.height = '100%';
             style.cursor = 'col-resize';
-            style.left = '-8px';
+            style.right = '-8px';
         }
         return <div style={style}
-                    onMouseDown={(e) => this.props.onMouseDown(e)}
-        />;
+                    onMouseDown={(e) => this.props.onMouseDown(e)}/>;
     }
 }

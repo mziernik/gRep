@@ -38,11 +38,11 @@ export default class Link extends Component {
         if (this.props.className)
             arr.push(this.props.className);
         if (this.props.icon)
-            arr.push(this.props.icon.className);
+            arr.push(this.props.icon);
 
         const className = arr.join(" ");
 
-        const disabled: boolean = !!this.props.disabled;
+        const disabled: boolean = this.props.disabled;
         if (disabled)
             style.cursor = "default";
 

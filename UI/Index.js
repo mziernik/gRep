@@ -14,7 +14,6 @@ import'./page/main/Layout.css';
 
 import {React, Application, Utils, Repository, Store} from "./core/core";
 import {PERMISSIONS} from "./core/repository/PermissionRepo";
-
 import "./model/Repositories";
 import StatusHint from "./core/component/application/StatusHint";
 import RepositoryStorage from "./core/repository/storage/RepositoryStorage";

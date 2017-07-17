@@ -19,6 +19,7 @@ export default class Column {
     units: ?() => {} = null;
     readOnly: ?boolean = null;
     required: ?boolean = null;
+    disabled: ?boolean = null;
     unique: ?boolean = null;
     min: ?number = null;
     max: ?number = null;
