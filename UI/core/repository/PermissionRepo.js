@@ -109,7 +109,6 @@ export class PermissionRecord extends Record {
             this.EXECUTE.value = crude.indexOf("E") !== -1;
 
         }
-        this.action = CRUDE.UPDATE;
         this.onFieldChange.listen(this, (field: Field, prev: ?any, curr: ?any, wasChanged: boolean) => {
             if (!wasChanged) return;
             Repository.commit(this, [this]);

@@ -12,6 +12,8 @@ import {
     Debug,
     DEV_MODE,
     Ready,
+    CRUDE,
+    Record
 } from "../core";
 import {Component, Spinner, Panel} from "../components";
 import ToolBar from "../component/ToolBar";
@@ -80,23 +82,37 @@ export default class Page extends Component {
      * @param {function} onReady
      * */
 
-    waitForRepo(repos: Repository | Repository[] | string | () => Repository, onReady: ?() => void = null): boolean {
+    requireRepo(repos: Repository | Repository[] | string | () => Repository, onReady: ?() => void = null,
+                onChange: ?(crude: CRUDE, rec: Record, changes: Map) => void = null): boolean {
 
         let ready = false;
 
 
         Ready.onReady(this, [WebApiRepoStorage], () => {
 
-            const list = Utils.forEach(Utils.asArray(repos), r => If.isFunction(r) ? r()
+            const list: Repository[] = Utils.forEach(Utils.asArray(repos), r => If.isFunction(r) ? r()
                 : If.isString(r) ? Repository.get(r, true) : r);
+
+            list.forEach((repo: Repository) => {
+
+                repo.onChange.listen(this, (action: CRUDE, rec: Record, changes: Map) => {
+                    if (this._waitingForRepo) return;
+                    if (If.isFunction(onChange)) {
+                        onChange(action, rec, changes);
+                        return;
+                    }
+                    if (action !== CRUDE.UPDATE)  // ignorujemy aktualizacje komórek - obsługiwane będą przez FCtrl
+                        this.forceUpdate(true);
+                })
+            });
 
             ready = Ready.waitFor(this, list, () => {
                     this._waitingForRepo = false;
-                    If.isFunction(onReady, f => f(), this.forceUpdate());
+                    If.isFunction(onReady, f => f(), () => this.forceUpdate());
                 },
                 (e: Error) => {
                     this.__error = new EError(e);
-                    this.forceUpdate();
+                    this.forceUpdate(true);
                 }
             );
 

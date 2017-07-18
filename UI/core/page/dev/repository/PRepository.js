@@ -13,7 +13,7 @@ export default class PRepository extends Page {
 
     constructor() {
         super(...arguments);
-        this.waitForRepo(this.props.repo);
+        this.requireRepo(this.props.repo);
     }
 
     render() {
@@ -58,7 +58,7 @@ export default class PRepository extends Page {
                     type="primary"
                     link={this.endpoint.RECORD.getLink({
                         repo: this.repo.key,
-                        rec: "~new"
+                        id: "~new"
                     })}
                     title="Dodaj nowy rekord"
                     disabled={!this.repo.canCreate}
@@ -81,9 +81,9 @@ export default class PRepository extends Page {
                         <Link
                             link={this.endpoint.RECORD.getLink({
                                 repo: this.repo.key,
-                                rec: rec.primaryKey.value
+                                id: rec.primaryKey.value
                             })}
-                            icon={Icon.CREDIT_CARD}
+                            icon={Icon.PENCIL}
                         />
                         {recCtrl.renderActionButtons()}
                     </span>;

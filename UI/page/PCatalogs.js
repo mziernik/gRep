@@ -26,7 +26,7 @@ export default class PCatalogs extends Page {
     constructor() {
         super(...arguments);
         this.showDetails.onChange.listen(this, () => this.forceUpdate());
-        this.waitForRepo(Repositories.R_CATALOG);
+        this.requireRepo(Repositories.R_CATALOG);
     }
 
     render() {

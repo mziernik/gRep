@@ -12,7 +12,7 @@ import {
     EError,
     ContextObject
 } from "../../core";
-import {Component, Button, Page, Icon, Spinner, Alert, Link} from "../../components";
+import {Component, Button, Page, Icon, Spinner, Alert, Link, Attributes} from "../../components";
 import AppStatus from "../../application/Status";
 import {RepoAction} from "../../repository/Repository";
 
@@ -28,17 +28,6 @@ export default class RecordCtrl {
         this.page = page;
         this.record = record;
         this.crude = crude;
-
-
-        /* if (this.props.crude && this.props.record)
-         (this.props.record: Record).onFieldChange.listen(this, (field: Field) => {
-         let ok = true;
-         this.props.record.fields.forEach((field: Field) => {
-         if (!field.isValid)
-         ok = false;
-         });
-         this.setState({disabled: !ok});
-         });*/
     }
 
 
@@ -74,7 +63,15 @@ export default class RecordCtrl {
         }
     }
 
+    createButtons(): [] {
+        return [this.createCancelButton(), this.createDeleteButton(), this.createSaveButton()];
+    }
+
     createSaveButton(onSuccess: () => void) {
+
+        if (!onSuccess)
+            onSuccess = () => window.history.back();
+
         return <Button
             key="btnSave"
             ref={btn => this.buttons.push(btn)}
@@ -89,13 +86,17 @@ export default class RecordCtrl {
         return <Button
             key="btnCancel"
             ref={btn => this.buttons.push(btn)}
-            icon={Icon.BACKWARD}
+            icon={Icon.CHEVRON_LEFT}
             type="default"
             onClick={e => window.history.back()}
         >Anuluj</Button>
     }
 
     createDeleteButton(confirm: string) {
+
+        if (confirm === undefined)
+            confirm = "Czy na pewno usunąć " + Utils.escape(this.record.displayName);
+
         return this.crude === CRUDE.CREATE ? null :
             <Button
                 key="btnDelete"
@@ -116,6 +117,12 @@ export default class RecordCtrl {
                 this.record.repo.storage.action(this.record.repo, act.key, this.record.pk, {})
             }}
         />);
+    }
+
+    render() {
+        return <div>
+            {Attributes.renderRecord(this.record, true)}
+        </div>;
     }
 
 

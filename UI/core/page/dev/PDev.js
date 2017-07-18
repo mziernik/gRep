@@ -58,7 +58,7 @@ export default class DevRouter extends Endpoint {
         this.ICONS = this.child("icons", "Ikony", `${baseUrl}/icons`, PIcons);
 
 
-        this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/edit/:rec", PRecord)
+        this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/edit/:id", PRecord)
             .defaultParams({
                 repo: "permissions",
                 rec: null

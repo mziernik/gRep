@@ -3,13 +3,11 @@ import {Component, Page, FCtrl, Panel, Resizer} from '../../../components';
 import WebApiRepositoryStorage from "../../../repository/storage/WebApiRepoStorage";
 import JsonViewer from "../../../component/JsonViewer";
 import RecordCtrl from "../../../component/form/RecordCtrl";
+import AbstractRecordEditPage from "../../AbstractRecordEditPage";
 
 
-export default class PRecord extends Page {
+export default class PRecord extends AbstractRecordEditPage {
 
-    record: ?Record = null;
-    repo: Repository;
-    isNew: boolean;
     viewer: JsonViewer;
     _saveTs: number;
 
@@ -18,27 +16,17 @@ export default class PRecord extends Page {
         rec: PropTypes.string
     };
 
-    constructor() {
-        super(...arguments);
-        this.waitForRepo(this.props.repo);
+    constructor(props: any, context: any, state: any) {
+        super(props.repo, ...arguments);
     }
 
 
     render() {
 
-        this.repo = Repository.get(this.props.repo, true);
-
-        this.isNew = !this.props.rec || this.props.rec === "~new";
-
-        if (this.isNew)
-            this.record = this.repo.createRecord(this);
-
-        this.record = this.record || this.repo.get(this, this.props.rec);
-
-        this.record.onChange.listen(this, (map: Map) => {
+        this.record.onChange.listen(this, (action: CRUDE, map: Map) => {
             if (!this._saveTs) return;
             let changes = Utils.forEach(map, (arr: [], col: Column) =>
-            col.key + ": " + Utils.escape(arr[0]) + " => " + Utils.escape(arr[1]));
+                col.key + ": " + Utils.escape(arr[0]) + " => " + Utils.escape(arr[1]));
             AppStatus.debug(this, "Czas: " + (new Date().getTime() - this._saveTs) + " ms", changes.join("\n"), 30000);
             this._saveTs = null;
         });
@@ -94,7 +82,7 @@ export default class PRecord extends Page {
 
                                 return <tr key={field.key}>
                                     {/*<Title field={field}/>*/}
-                                    <td >
+                                    <td>
                                         <FCtrl
                                             field={field}
                                             required
@@ -112,7 +100,7 @@ export default class PRecord extends Page {
                                             fit
                                         />
                                     </td>
-                                    <td >
+                                    <td>
                                         <FCtrl field={field} description/>
                                     </td>
 
@@ -166,12 +154,12 @@ class Title extends Component {
     }
 
     render() {
-        return <td style={ {
+        return <td style={{
             textAlign: "right",
             color: this.updated ? "blue" : null,
             fontWeight: this.updated ? "bold" : null,
             // verticalAlign: "top"
-        } }>{this.field.name + ":"}</td>
+        }}>{this.field.name + ":"}</td>
     }
 
 

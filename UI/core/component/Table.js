@@ -118,24 +118,49 @@ export default class Table extends Component {
 
 
     /** mapuje dane przyp pomocy props.rowMapper
+     * @param rows
      * @returns {*[]} propsy dla ReactTable
      * @private
      */
-    _convertData() {
-        const data = Utils.forEach(this.props.rows, (row, rowIdx) => {
-            let res = If.isFunction(this.props.rowMapper) ? this.props.rowMapper(row, rowIdx) : row;
-            let cellIdx = 0;
-            for (let name in res) {
-                let item = res[name];
-                if (ReactUtils.isReactElement(item))
-                    res[name] = React.cloneElement(item, {key: rowIdx + "." + (cellIdx++)}, item.props.children);
-            }
-            return res;
+    _convertData(rows = null) {
+        const data = Utils.forEach(rows || this.props.rows, (row, rowIdx) => {
+            return this._convertRow(If.isFunction(this.props.rowMapper) ? this.props.rowMapper(row, rowIdx) : row, rowIdx);
         });
         return {
             data: data,
-            showPagination: data.length > 20,
+            showPagination: data.length > 25,
         };
+    }
+
+    /** konwertuje pojedynczy wiersz
+     * @param row wiersz
+     * @param rowIdx index, wymagany do utworzenia poprawnego klucza
+     * @returns {*} skonwertowany wiersz
+     * @private
+     */
+    _convertRow(row, rowIdx) {
+        let cellIdx = 0;
+        for (let name in row) {
+            let item = row[name];
+            if (ReactUtils.isReactElement(item))
+                row[name] = React.cloneElement(item, {key: rowIdx + "." + (cellIdx++)}, item.props.children);
+        }
+        return row;
+    }
+
+    /** aktualizuje dane.
+     * @param rows
+     */
+    updateData(rows = null) {
+        this.setState({...this._convertData(rows || this.props.rows)});
+        /*
+         rows = rows || this.props.rows;
+         const start = this.state.data.length;
+         let ndata = this.state.data.slice();
+         for (let i = start; i < rows.length; ++i)
+         ndata.push(this._convertRow(If.isFunction(this.props.rowMapper) ? this.props.rowMapper(rows[i], i) : rows[i], i));
+         this.setState({data: ndata, showPagination: ndata.length > 25});
+         */
     }
 
     /** Oblicza szerokość kolumn  i wymusza ponowne rysowanie

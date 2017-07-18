@@ -19,11 +19,21 @@ CREATE TABLE repo_history
     extra       HSTORE
 );
 
-CREATE TABLE repo_update
+CREATE TABLE repo_state
 (
-    id              VARCHAR PRIMARY KEY,
-    state           BOOLEAN NOT NULL,
-    min_interval    INTEGER NOT NULL
+    key             VARCHAR PRIMARY KEY,
+    name            VARCHAR NOT NULL,
+    "group"         VARCHAR,
+    "desc"          VARCHAR,
+    auto_update     BOOLEAN NOT NULL,
+    on_demand       BOOLEAN NOT NULL,
+    icon            VARCHAR,
+    crude           CHAR[] NOT NULL,
+    last_modified   TIMESTAMP WITHOUT TIME ZONE,
+    last_modified_by  VARCHAR,
+    last_mod_by_id  INT,  
+    revision        INT NOT NULL,
+    min_interval    INTEGER
 );
 
 

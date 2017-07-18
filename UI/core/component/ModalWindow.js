@@ -2,6 +2,7 @@
 'use strict';
 import {React, ReactDOM, Application, If} from '../core';
 import {Button, Icon, Resizer, Dragger} from '../components';
+import {Scrollbar} from "./Scrollbar";
 
 export class ModalWindow {
 
@@ -20,7 +21,7 @@ export class ModalWindow {
     /** czy ma być wyświetlany przycisk X na belce
      * @type {boolean}
      */
-    closeButton: boolean = false;
+    closeButton: boolean = true;
     /** callback zamknięcia okna. Występuje zawsze przy zamknięciu
      * @type {null}
      */
@@ -252,6 +253,7 @@ export class ModalWindow {
                 </div>
                 <div className="c-modal-window-content"
                      style={{
+                         position: 'relative',
                          flex: '1 1 auto',
                          display: 'flex',
                          overflow: 'hidden'
@@ -266,19 +268,23 @@ export class ModalWindow {
                         flex: '1 1 auto',
                         overflow: 'auto',
                         padding: '10px'
-                    }}>{typeof(this.content) === 'string' ?
-                        <div style={{
-                            display: 'table',
-                            height: '100%',
-                            width: '100%',
-                        }}>
+                    }}>
+                        <Scrollbar/>
+                        <Scrollbar horizontal/>
+                        {typeof(this.content) === 'string' ?
                             <div style={{
-                                display: 'table-cell',
-                                textAlign: 'center',
-                                verticalAlign: 'middle'
-                            }}>{this.content}</div>
-                        </div>
-                        : this.content}</span>
+                                display: 'table',
+                                height: '100%',
+                                width: '100%',
+                            }}>
+                                <div style={{
+                                    display: 'table-cell',
+                                    textAlign: 'center',
+                                    verticalAlign: 'middle'
+                                }}>{this.content}</div>
+                            </div>
+                            : this.content}
+                    </span>
                 </div>
                 <div className="c-modal-window-footer"
                      style={{

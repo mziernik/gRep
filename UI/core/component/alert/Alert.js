@@ -1,17 +1,16 @@
 import swal from './sweetalert2.js';
 import './sweetalert2.css';
-import {If} from "../../core";
+import {If, EError} from "../../core";
 
 export default class Alert {
     //ToDo: Przerobić okno alertów (wiele instancji, zawijanie wierszy, zmiana kolejności)
 
     static error(sender: any, message: string | Error) {
-        if (message instanceof Error)
-            message = message.message;
+        const err: EError = new EError(message);
 
 
         swal({
-            title: message,
+            title: err.message,
             type: 'error',
             text: "Błąd",
             allowOutsideClick: false

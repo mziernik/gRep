@@ -3,13 +3,11 @@ package model.repository;
 import com.model.repository.Column;
 import com.model.repository.ForeignColumn;
 import com.model.repository.ForeignColumns;
-import com.model.repository.Record;
 import com.model.repository.Repository;
-import com.utils.Utils;
+import com.resources.FontAwesome;
 import com.utils.date.TDate;
 import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
-import static model.Db.TEST;
 
 public class RAttribute extends Repository<Integer> {
 
@@ -104,12 +102,11 @@ public class RAttribute extends Repository<Integer> {
     });
 
     // ToDo Dodać repozytorium ikon
-    public final static Column<String> ICON = new Column<>(c -> {
+    public final static Column<FontAwesome> ICON = new Column<>(c -> {
         c.repository = RAttribute.class;
-        c.type = DataType.STRING;
+        c.type = DataType.ICON;
         c.key = "icon";
         c.name = "Ikona";
-        c.defaultValue = Boolean.TRUE;
     });
 
     public final static Column<String> DESCRIPTION = new Column<>(c -> {

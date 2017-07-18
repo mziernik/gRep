@@ -41,7 +41,7 @@ public class RCryptKey extends Repository<Integer> {
     public final static Column<Integer> USER = new Column<>(c -> {
         c.repository = RCryptKey.class;
         c.type = DataType.INT;
-        c.key = "user";
+        c.key = "userId";
         c.name = "Użytkownik";
     });
 

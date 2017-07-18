@@ -27,11 +27,11 @@ INSERT INTO data.attribute (key, name, elements, required, display_mask, icon) V
     ('model',   'Model',        '{1}', null, null, null),
     ('vendor',  'Producent',    '{1}', null, null, null),
     ('ip',      'Adres IP',     '{8, 5}', '{true, false}', '%1 (%2)', null),
-    ('account', 'Konto',        '{13, 14}', '{true, false}', '%1:*****', user),
-    ('url',     'URL',          '{4}', null, null, 'external-link'),
+    ('account', 'Konto',        '{13, 14}', '{true, false}', '%1:*****', null),
+    ('url',     'URL',          '{4}', null, null, 'linkedin_square'),
     ('intf',    'Interfejs sieciowy', '{11, 12, 9, 8, 5}', null, '%1, %2, %3, %4, %5', null),
     ('sshAccount','Konto SSH',  '{6, 7, 13, 14}', null, '%3:%4@%1:%2', 'user'),
-    ('wiFi',      'WiFi',       '{1, 14}', null, '%1:*****', 'wifi')
+    ('wiFi',      'WiFi',       '{1, 14}', null, '%1:*****', 'film')
 
 ;
 

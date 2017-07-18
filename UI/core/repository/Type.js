@@ -3,6 +3,7 @@ import Repository from "./Repository";
 import Record from "./Record";
 import * as Utils from "../utils/Utils";
 import * as If from "../utils/If";
+import Icon from "../component/glyph/Icon";
 export type SimpleType = "any" | "boolean" | "number" | "string" | "object" | "array";
 
 const all = {};
@@ -315,6 +316,8 @@ export const ICON: DataType = new DataType((dt: DataType) => {
     dt.parser = val => {
         return val;
     };
+    dt.enumerate = {};
+    Icon.ALL.forEach((icon: Icon) => dt.enumerate[icon.name] = icon.name);
 });
 
 

@@ -1,22 +1,23 @@
 // @flow
 import * as Utils from "./Utils";
+
 'use strict';
 
 
 // Zamienia wszystkie wystąpienia frazy
 // $FlowFixMe
 String.prototype.replaceAll = String.prototype.contains || function (from: string, to: string): boolean {
-        return this.split(from).join(to);
-    };
+    return this.split(from).join(to);
+};
 
 
 // czy string zawiera daną frazę
 // $FlowFixMe
 String.prototype.contains = String.prototype.contains || function (str: string): boolean {
-        if (!(typeof str === "string"))
-            return false;
-        return this.toLowerCase().indexOf(str.toLowerCase()) >= 0;
-    };
+    if (!(typeof str === "string"))
+        return false;
+    return this.toLowerCase().indexOf(str.toLowerCase()) >= 0;
+};
 
 /**
  * czy string kończy się daną wartością
@@ -24,8 +25,8 @@ String.prototype.contains = String.prototype.contains || function (str: string):
  */
 // $FlowFixMe
 String.prototype.endsWith = String.prototype.endsWith || function (suffix: string): boolean {
-        return this.indexOf(suffix, this.length - suffix.length) !== -1;
-    };
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
 
 /**
  * czy string ropoczyna się od danej wartości
@@ -33,8 +34,8 @@ String.prototype.endsWith = String.prototype.endsWith || function (suffix: strin
  */
 // $FlowFixMe
 String.prototype.startsWith = String.prototype.startsWith || function (prefix: string): boolean {
-        return this.indexOf(prefix) === 0;
-    };
+    return this.indexOf(prefix) === 0;
+};
 
 /**
  * Zwraca true jeśli przycięty tekst jest identyczny bez uwzlędnienia wielkości znaków
@@ -43,38 +44,38 @@ String.prototype.startsWith = String.prototype.startsWith || function (prefix: s
  */
 // $FlowFixMe
 String.prototype.same = String.prototype.same || function (text: string): string {
-        if ((typeof text === 'undefined') || (text === null))
-            return false;
-        return this.trim().toLowerCase() === text.trim().toLowerCase();
-    };
+    if ((typeof text === 'undefined') || (text === null))
+        return false;
+    return this.trim().toLowerCase() === text.trim().toLowerCase();
+};
 
 /**
  * Konwersja polskich znaków do ANSI
  */
 // $FlowFixMe
 String.prototype.convertPolishChars = String.prototype.convertPolishChars || function (): string {
-        const src = 'ąćęśźńżółĄĆĘŚŹŃŻÓŁ';
-        const dest = 'acesznzolACESZNZOL';
-        let res = '';
-        let c, v;
-        for (let i = 0; i < this.length; i++) {
-            c = this[i];
-            v = src.indexOf(c);
-            res += (v >= 0) ? dest[v] : c;
-        }
-        return res;
-    };
+    const src = 'ąćęśźńżółĄĆĘŚŹŃŻÓŁ';
+    const dest = 'acesznzolACESZNZOL';
+    let res = '';
+    let c, v;
+    for (let i = 0; i < this.length; i++) {
+        c = this[i];
+        v = src.indexOf(c);
+        res += (v >= 0) ? dest[v] : c;
+    }
+    return res;
+};
 
 /**
  * Zamień znaki w strinuu
  */
 // $FlowFixMe
 String.prototype.replaceChars = String.prototype.replaceChars || function (from: string, to: string): string {
-        let res = '';
-        for (let i = 0; i < this.length; i++)
-            res += from.indexOf(this[i]) >= 0 ? to : this[i];
-        return res;
-    };
+    let res = '';
+    for (let i = 0; i < this.length; i++)
+        res += from.indexOf(this[i]) >= 0 ? to : this[i];
+    return res;
+};
 
 /**
  * Zaokrąglenie wartości numerycznej do określonej ilości miejsc po przecinku
@@ -83,11 +84,11 @@ String.prototype.replaceChars = String.prototype.replaceChars || function (from:
  */
 // $FlowFixMe
 Number.prototype.round = Number.prototype.round || function (places: number): number {
-        if (!places)
-            places = 0;
-        const factor = Math.pow(10, places);
-        return Math.round(this * factor) / factor;
-    };
+    if (!places)
+        places = 0;
+    const factor = Math.pow(10, places);
+    return Math.round(this * factor) / factor;
+};
 
 
 /**
@@ -96,8 +97,8 @@ Number.prototype.round = Number.prototype.round || function (places: number): nu
  */
 // $FlowFixMe
 Array.prototype.clone = Array.prototype.clone || function (): [] {
-        return this.slice(0);
-    };
+    return this.slice(0);
+};
 
 /**
  * Wyczyść tablicę
@@ -105,9 +106,9 @@ Array.prototype.clone = Array.prototype.clone || function (): [] {
  */
 // $FlowFixMe
 Array.prototype.clear = Array.prototype.clear || function (): [] {
-        this.length = 0;
-        return this;
-    };
+    this.length = 0;
+    return this;
+};
 
 /**
  * Czy tablica jest pusta
@@ -115,8 +116,8 @@ Array.prototype.clear = Array.prototype.clear || function (): [] {
  */
 // $FlowFixMe
 Array.prototype.isEmpty = Array.prototype.isEmpty || function (): boolean {
-        return this.length === 0;
-    };
+    return this.length === 0;
+};
 
 /**
  * Czy tablica zawiera element
@@ -124,8 +125,8 @@ Array.prototype.isEmpty = Array.prototype.isEmpty || function (): boolean {
  */
 // $FlowFixMe
 Array.prototype.contains = Array.prototype.contains || function (element: any): boolean {
-        return this.indexOf(element) >= 0;
-    };
+    return this.indexOf(element) >= 0;
+};
 
 /**
  *  Dodaj element na danej pozycji tablicy
@@ -133,9 +134,9 @@ Array.prototype.contains = Array.prototype.contains || function (element: any): 
  */
 // $FlowFixMe
 Array.prototype.insert = Array.prototype.insert || function (index: number, item: any): [] {
-        this.splice(index, 0, item);
-        return this;
-    };
+    this.splice(index, 0, item);
+    return this;
+};
 
 /**
  * usuwa element z tablicy
@@ -143,15 +144,26 @@ Array.prototype.insert = Array.prototype.insert || function (index: number, item
  */
 // $FlowFixMe
 Array.prototype.remove = Array.prototype.remove || function (obj: any): boolean {
-        let result = false;
-        let i = this.indexOf(obj);
-        while (i >= 0) {
-            this.splice(i, 1);
-            result = true;
-            i = this.indexOf(obj);
-        }
-        return result
-    };
+    let result = false;
+    let i = this.indexOf(obj);
+    while (i >= 0) {
+        this.splice(i, 1);
+        result = true;
+        i = this.indexOf(obj);
+    }
+    return result
+};
+
+
+/**
+ * Zwraca losowy element
+ * @return {any}
+ */
+// $FlowFixMe
+Array.prototype.random = Array.prototype.random || function (): any {
+    if (!this.length) return undefined;
+    return this[Math.round(Math.random() * (this.length - 1))];
+};
 
 /**
  * ustala limit rozmiaru na tablicę. W przypadku przekroczenia usuwa lementy
@@ -160,10 +172,10 @@ Array.prototype.remove = Array.prototype.remove || function (obj: any): boolean 
  */
 // $FlowFixMe
 Array.prototype.limit = Array.prototype.limit || function (itemsCount: number, fromBegin: boolean = true): [] {
-        if (itemsCount > 0 && itemsCount <= this.length)
-            this.splice(fromBegin ? 0 : this.length - itemsCount, this.length - itemsCount);
-        return this;
-    };
+    if (itemsCount > 0 && itemsCount <= this.length)
+        this.splice(fromBegin ? 0 : this.length - itemsCount, this.length - itemsCount);
+    return this;
+};
 
 /**
  * Przenieś element w obrebie tablicy
@@ -171,17 +183,17 @@ Array.prototype.limit = Array.prototype.limit || function (itemsCount: number, f
  */
 // $FlowFixMe
 Array.prototype.moveItem = Array.prototype.moveItem || function (index: number, newIndex: number): boolean {
-        if (index < 0 || index >= this.length || newIndex < 0 || newIndex >= this.length)
-            return false;
-        if (newIndex >= this.length) {
-            let k = newIndex - this.length;
-            while ((k--) + 1) {
-                this.push(undefined);
-            }
+    if (index < 0 || index >= this.length || newIndex < 0 || newIndex >= this.length)
+        return false;
+    if (newIndex >= this.length) {
+        let k = newIndex - this.length;
+        while ((k--) + 1) {
+            this.push(undefined);
         }
-        this.splice(newIndex, 0, this.splice(index, 1)[0]);
-        return true;
-    };
+    }
+    this.splice(newIndex, 0, this.splice(index, 1)[0]);
+    return true;
+};
 
 
 /**
@@ -190,10 +202,10 @@ Array.prototype.moveItem = Array.prototype.moveItem || function (index: number, 
  */
 // $FlowFixMe
 Array.prototype.first = Array.prototype.first || function (): ?any {
-        if (this.length > 0)
-            return this[0];
-        return undefined;
-    };
+    if (this.length > 0)
+        return this[0];
+    return undefined;
+};
 
 /**
  * Zwraca ostatni element tablicy
@@ -201,10 +213,10 @@ Array.prototype.first = Array.prototype.first || function (): ?any {
  */
 // $FlowFixMe
 Array.prototype.last = Array.prototype.last || function (): ?any {
-        if (this.length > 0)
-            return this[this.length - 1];
-        return undefined;
-    };
+    if (this.length > 0)
+        return this[this.length - 1];
+    return undefined;
+};
 
 
 /**
@@ -213,13 +225,13 @@ Array.prototype.last = Array.prototype.last || function (): ?any {
  */
 // $FlowFixMe
 Array.prototype.add = Array.prototype.add || function (element: any, callback: ?(element: any, array: []) => void = null): [] {
-        if (element !== undefined) {
-            this.push(element);
-            if (typeof callback === "function")
-                callback(element, this);
-        }
-        return this;
-    };
+    if (element !== undefined) {
+        this.push(element);
+        if (typeof callback === "function")
+            callback(element, this);
+    }
+    return this;
+};
 
 /**
  * Dodaje wszystkie elementy do tablicy
@@ -227,10 +239,10 @@ Array.prototype.add = Array.prototype.add || function (element: any, callback: ?
  */
 // $FlowFixMe
 Array.prototype.addAll = Array.prototype.addAll || function (elements: []): [] {
-        if (elements)
-            Utils.forEach(elements, el => this.push(el));
-        return this;
-    };
+    if (elements)
+        Utils.forEach(elements, el => this.push(el));
+    return this;
+};
 
 /**
  * porównanie zawartości dwóch tablic (kolejność elementów nie ma znaczenia)
@@ -238,32 +250,32 @@ Array.prototype.addAll = Array.prototype.addAll || function (elements: []): [] {
  */
 // $FlowFixMe
 Array.prototype.equals = Array.prototype.equals || function (array: []): boolean {
-        // if the other array is a falsy value, return
-        if (!array)
-            return false;
+    // if the other array is a falsy value, return
+    if (!array)
+        return false;
 
-        // compare lengths - can save a lot of time
-        if (this.length !== array.length)
-            return false;
+    // compare lengths - can save a lot of time
+    if (this.length !== array.length)
+        return false;
 
-        this.sort();
+    this.sort();
+    // $FlowFixMe
+    array.sort();
+    for (let i = 0; i < this.length; i++) {
+        // Check if we have nested arrays
         // $FlowFixMe
-        array.sort();
-        for (let i = 0; i < this.length; i++) {
-            // Check if we have nested arrays
-            // $FlowFixMe
-            if (this[i] instanceof Array && array[i] instanceof Array) {
-                // recurse into the nested arrays
-                if (!this[i].compare(array[i]))
-                    return false;
-                // $FlowFixMe
-            } else if (this[i] !== array[i]) {
-                // Warning - two different object instances will never be equal: {x:20} != {x:20}
+        if (this[i] instanceof Array && array[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!this[i].compare(array[i]))
                 return false;
-            }
+            // $FlowFixMe
+        } else if (this[i] !== array[i]) {
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;
         }
-        return true;
-    };
+    }
+    return true;
+};
 
 
 

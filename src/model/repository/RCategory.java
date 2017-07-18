@@ -4,6 +4,7 @@ import com.model.repository.Column;
 import com.model.repository.ForeignColumn;
 import com.model.repository.ForeignColumns;
 import com.model.repository.Repository;
+import com.resources.FontAwesome;
 import com.utils.date.TDate;
 import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class RCategory extends Repository<Integer> {
         c.key = "key";
         c.name = "Klucz";
     });
-    
+
     public final static Column<String> NAME = new Column<>(c -> {
         c.repository = RCategory.class;
         c.type = DataType.STRING;
@@ -45,7 +46,7 @@ public class RCategory extends Repository<Integer> {
         c.key = "name";
         c.name = "Nazwa";
     });
-    
+
     public final static Column<TDate> CREATED = new Column<>(c -> {
         c.repository = RCategory.class;
         c.type = DataType.TIMESTAMP;
@@ -64,9 +65,9 @@ public class RCategory extends Repository<Integer> {
         c.name = "Opis";
     });
 
-    public final static Column<Integer> ICON = new Column<>(c -> {
+    public final static Column<FontAwesome> ICON = new Column<>(c -> {
         c.repository = RCategory.class;
-        c.type = DataType.INT;
+        c.type = DataType.ICON;
         c.key = "icon";
         c.name = "Ikona";
     });

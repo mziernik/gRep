@@ -4,7 +4,7 @@
 import {Check, If, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store} from "../core";
 import {DataType} from "./Type";
 
-
+//ToDo: Miłosz: readOnly + !autoUpdate = konflikt
 export default class Column {
 
     type: ?DataType = null;

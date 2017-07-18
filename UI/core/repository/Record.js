@@ -10,7 +10,7 @@ export default class Record {
 
     onFieldChange: Dispatcher = new Dispatcher(); // field, prevValue, currValue, wasChanged
     repo: Repository;
-    action: CRUDE;
+    action: ?CRUDE = null;
     fields: Map<Column, Field> = new Map();
     _pk: any;
     context: any;
@@ -67,6 +67,7 @@ export default class Record {
     get canDelete(): boolean {
         return this.repo.config.crude.contains('D');
     }
+
 
     // set(col: Column, value: any): Record {
     //     Check.instanceOf(col, [Column]);

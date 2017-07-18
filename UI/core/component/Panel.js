@@ -1,5 +1,6 @@
 import {React, PropTypes} from "../core";
 import {Component, Resizer} from "../components"
+import {Scrollbar} from "./Scrollbar";
 
 
 export default class Panel extends Component {
@@ -28,7 +29,7 @@ export default class Panel extends Component {
             style={{
                 height: this.props.fit ? "100%" : null,
                 width: this.props.fit ? "100%" : null,
-                overflow: this.props.scrollable ? "auto" : undefined,
+                overflow: this.props.scrollable ? "hidden" : undefined,
                 padding: this.props.noPadding ? null : "8px",
                 border: this.props.border ? "1px solid #444" : null,
                 ...this.props.style
@@ -37,15 +38,17 @@ export default class Panel extends Component {
                 title: this.props.title
             }}>
             <div
+                className="c-panel-child"
                 data-fit={!!this.props.fit}
                 data-vertical={!!this.props.vertical}
                 style={{
-                    overflow: this.props.scrollable || this.props.resizable ? "auto" : null,
                     display: "flex",
                     flexDirection: this.props.vertical ? "row" : "column",
                     width: '100%',
                     height: '100%',
                 }}>
+                {this.props.scrollable || this.props.resizable ? <Scrollbar/> : null}
+                {this.props.scrollable || this.props.resizable ? <Scrollbar horizontal/> : null}
                 {super.renderChildren()}
             </div>
         </Resizer>

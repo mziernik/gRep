@@ -5,6 +5,7 @@ import {Component, Page, Icon, FCtrl}    from        '../../components';
 import JsonViewer from "../../component/JsonViewer";
 import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
+import {Scrollbar} from "../../component/Scrollbar";
 
 export default class FormTab extends Component {
 
@@ -16,7 +17,9 @@ export default class FormTab extends Component {
     };
 
     render() {
-        return <form onSubmit={(e) => this._handleSubmit(e)} style={{overflow: "auto"}}>
+        return <form onSubmit={(e) => this._handleSubmit(e)}>
+            <Scrollbar/>
+            <Scrollbar horizontal/>
             <div style={{display: "flex"}} /*onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS) }*/>
                 <table className="tbl">
                     <thead>

@@ -12,7 +12,8 @@ module.exports = {
     },
 
     // zmienne środowiskowe przekazywane do aplikacji
-    environment: {
+    env: {
+	AUTH: false,
         NODE_ENV: "development",
       //  WEB_API_URL: "http://localhost:52676/hubs/MainHub"
     }

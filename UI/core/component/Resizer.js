@@ -196,10 +196,11 @@ export default class Resizer extends Component {
      * @returns {Array}
      */
     renderGrabbers() {
-        let style = {position: 'absolute', zIndex: '10'};
+        let style = {position: 'absolute', zIndex: '2'};
         let res = [];
         if (this.props.east)
             res.push(<div
+                key="east"
                 style={{
                     ...style,
                     right: '-8px',
@@ -212,6 +213,7 @@ export default class Resizer extends Component {
             />);
         if (this.props.west)
             res.push(<div
+                key="west"
                 style={{
                     ...style,
                     left: '-8px',
@@ -224,6 +226,7 @@ export default class Resizer extends Component {
             />);
         if (this.props.north)
             res.push(<div
+                key="north"
                 style={{
                     ...style,
                     top: '-8px',
@@ -236,6 +239,7 @@ export default class Resizer extends Component {
             />);
         if (this.props.south)
             res.push(<div
+                key="south"
                 style={{
                     ...style,
                     bottom: '-8px',
@@ -248,8 +252,10 @@ export default class Resizer extends Component {
             />);
         if (res.length === 0)
             res.push(<div
+                key="grabber"
                 className="c-resizer-grabber"
                 style={{
+                    zIndex: 2,
                     position: 'absolute',
                     width: '0',
                     height: '0',
@@ -269,7 +275,7 @@ export default class Resizer extends Component {
                 style={{
                     position: this.props.from ? 'fixed' : 'relative',
                     ...this.props.style,
-                    flex: ''
+                    flex: this.props.resizable ? '' : null
                 }}
                 {...this.props.outerProps}
             >

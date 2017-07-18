@@ -1,7 +1,19 @@
 // @flow
 'use strict';
 
-import {React, ReactUtils, PropTypes, ReactComponent, Utils, If, AppNode, Check, Field, EError} from "../core.js";
+import {
+    React,
+    ReactUtils,
+    PropTypes,
+    ReactComponent,
+    Utils,
+    If,
+    AppNode,
+    Check,
+    Field,
+    EError,
+    Trigger
+} from "../core.js";
 import * as ContextObject from "../application/ContextObject";
 
 /**
@@ -38,6 +50,8 @@ export default class Component<DefaultProps: any, Props: any, State: any>
     element: HTMLElement;
 
     children: Children;
+
+    _forceUpdateTrigger: Trigger = new Trigger();
 
     _onDestroy: [] = [];
 
@@ -193,12 +207,22 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         this._onDestroy.forEach(func => func());
     }
 
-    forceUpdate() {
-        // zabezpieczenie przed błędem "Cannot update during an existing state transition..."
-        if (ReactUtils.getCurrentlyRenderedComponent())
-            setTimeout(() => super.forceUpdate());
-        else
-            super.forceUpdate();
+    forceUpdate(delayed: boolean = false) {
+
+        this._forceUpdateTrigger.cancel();
+
+        const run = () => {
+            // zabezpieczenie przed błędem "Cannot update during an existing state transition..."
+            if (ReactUtils.getCurrentlyRenderedComponent())
+                setTimeout(() => super.forceUpdate());
+            else
+                super.forceUpdate();
+        };
+
+
+        if (delayed)
+            this._forceUpdateTrigger.call(run, 10);
+        else run();
     }
 
     setState(object: ?Object) {

@@ -58,7 +58,7 @@ export class RepoAction {
 export default class Repository {
 
     static onUpdate: Dispatcher = new Dispatcher();
-    onChange: Dispatcher = new Dispatcher();
+    onChange: Dispatcher = new Dispatcher(); //CRUDE, Record, Map
 
     static defaultStorage: ?RepositoryStorage;
 
@@ -195,6 +195,29 @@ export default class Repository {
         return new this.config.record(this, context);
     }
 
+    min(col: Column, initValue: number = null) {
+        let min = initValue;
+        const idx = this.getColumnIndex(col);
+
+        Utils.forEach(this.rows, (row: [], pk) => {
+            if (min === null || min > row[idx])
+                min = row[idx];
+        });
+
+        return min;
+    }
+
+    max(col: Column, initValue: number = null) {
+        let max = initValue;
+        const idx = this.getColumnIndex(col);
+
+        Utils.forEach(this.rows, (row: [], pk) => {
+            if (max === null || max < row[idx])
+                max = row[idx];
+        });
+
+        return max;
+    }
 
     find(context: any, filter: (cursor: RepoCursor) => boolean): Record[] {
         const result: Record[] = [];
@@ -303,16 +326,16 @@ export default class Repository {
         const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repo);
         Repository.onUpdate.dispatch(context, map);
 
-        const allChanges: [] = [];
 
         records.forEach((rec: Record) => {
             const pk = rec.primaryKey.value;
             const repo: Repository = rec.repo;
 
             let row: [] = repo.rows.get(pk);
-            const isNew = !row;
 
-            if (isNew) {
+            const action: CRUDE = rec.action || (row ? CRUDE.UPDATE : CRUDE.CREATE  );
+
+            if (action === CRUDE.CREATE) {
                 row = new Array(repo.columns.length);
                 repo.rows.set(pk, row);
             }
@@ -320,34 +343,32 @@ export default class Repository {
             const refs: Record[] = repo.getRefs(pk);
 
             const changed: Map<Column, any[]> = new Map();
-            Utils.forEach(repo.columns, (col: Column, index: number) => {
-                const field: Field = rec.get(col);
-                if (!field.changed)
-                    return;
-                const val = field.value;
+            if (action === CRUDE.DELETE) {
+                repo.rows.delete(pk);
+            } else
+                Utils.forEach(repo.columns, (col: Column, index: number) => {
+                    const field: Field = rec.get(col);
+                    if (!field.changed)
+                        return;
+                    const val = field.value;
 
-                refs.forEach((r: Record) => r.get(col).update(context, val));
+                    refs.forEach((r: Record) => r.get(col).update(context, val));
 
-                if (row[index] === val)
-                    return;
+                    if (row[index] === val)
+                        return;
 
-                changed.set(col, [row[index], val]);
-                row[index] = val;
-            });
+                    changed.set(col, [row[index], val]);
+                    row[index] = val;
+                });
 
-            refs.forEach((r: Record) => r.onChange.dispatch(context, changed));
+            refs.forEach((r: Record) => r.onChange.dispatch(context, action, changed));
 
             repo.displayMap.set(pk, row[repo.columns.indexOf(repo.config.displayNameColumn
                 ? repo.config.displayNameColumn : repo.config.primaryKeyColumn)]);
 
-            allChanges.push([rec, pk, changed]);
+            rec.repo.onChange.dispatch(context, action, rec, changed)
         });
 
-        Utils.agregate(allChanges, a => a[0].repo).forEach((arr: [], repo: Repository) => {
-            const m = new Map();
-            m.set(arr[1], arr[2]);
-            repo.onChange.dispatch(context, m);
-        });
 
         // zaktualizuj flagę gotowości dla wszystkich odebranych repozytoriów (włącznie z pustymi)
         repositories.forEach(repo => {

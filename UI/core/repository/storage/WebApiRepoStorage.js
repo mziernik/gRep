@@ -1,4 +1,4 @@
-import {Utils, Record, Field, Repository, CRUDE, AppStatus, Ready} from "../../core";
+import {Utils, Record, Field, Repository, CRUDE, AppStatus, Ready, Debug} from "../../core";
 import WebApiResponse from "../../webapi/Response";
 import RepositoryStorage from "./RepositoryStorage";
 import WebApiRequest from "../../webapi/Request";
@@ -79,6 +79,8 @@ export default class WebApiRepoStorage extends RepositoryStorage {
 
     save(context: any, records: Record[], crude: CRUDE): Promise {
         const dto: Object = WebApiRepoStorage.buildDTO(records, crude === CRUDE.CREATE, crude);
+
+        Debug.log(context, "Save", dto);
         return (this.methods.edit({data: dto}): WebApiRequest).promise;
     }
 
