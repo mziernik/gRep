@@ -5,7 +5,27 @@ import * as ErroHandler from "./utils/ErrorHandler";
 'use strict';
 
 
-export default class Debug {
+export default class Dev {
+
+    /**
+     * Pomiar czasu wykonywania metody
+     * @param context
+     * @param name
+     * @param callback
+     * @param args
+     * @return {*}
+     */
+    static duration(context: ?any, name: string, callback: () => any, ...args) {
+        let ts = new Date().getTime();
+
+        const result = callback(...args);
+
+        ts = new Date().getTime() - ts;
+        if (ts > 30)
+            Dev.warning(context, name + ", czas trwania - " + ts + " ms");
+
+        return result;
+    }
 
 
     static group(context: ?any | any[], value: ?mixed, ...other: any) {
@@ -498,12 +518,12 @@ export default class Debug {
 
     static randomUser() {
         const male = Math.random() >= 0.5;
-        let lname = Debug.SURNAMES.random();
+        let lname = Dev.SURNAMES.random();
         if (!male && lname.endsWith("ki"))
             lname = lname.substring(0, lname.length - 1) + "a";
         return {
             male: male,
-            firstName: ( male ? Debug.MALES : Debug.FEMALES).random(),
+            firstName: ( male ? Dev.MALES : Dev.FEMALES).random(),
             lastName: lname
         }
     }
@@ -518,8 +538,20 @@ function format(context: ?any | any[], value: ?mixed): string {
     }
 
     let out: string = "";
-    if (context)
-        out = "[" + Utils.getContextName(context) + "] ";
+
+    const ctxArr: string[] = context ? Utils.asArray(context) : [];
+
+
+    Utils.forEach(ctxArr, (ctx) => {
+
+        if (ctx && ctx.node && ctx.node.currentPage && ctx.node.currentPage.title)
+            ctxArr.push('"' + ctx.node.currentPage.title + '"');
+
+    });
+
+
+    if (ctxArr.length)
+        out = "[" + Utils.getContextName(ctxArr) + "] ";
 
     // $FlowFixMe: zignoruj ostrzeżenie
     return out + value;

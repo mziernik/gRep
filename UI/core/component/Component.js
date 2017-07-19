@@ -1,19 +1,9 @@
 // @flow
 'use strict';
 
-import {
-    React,
-    ReactUtils,
-    PropTypes,
-    ReactComponent,
-    Utils,
-    If,
-    AppNode,
-    Check,
-    Field,
-    EError,
-    Trigger
-} from "../core.js";
+import {Utils, If, Check, Field, EError, Trigger, Dev} from "../core.js";
+import {React, ReactUtils, PropTypes, AppNode, ReactComponent} from "../core.js";
+
 import * as ContextObject from "../application/ContextObject";
 
 /**
@@ -93,7 +83,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
                 return null;
             try {
                 ++renderCount;
-                return this.__render();
+                return Dev.duration(this, "Render", () => this.__render());
             } catch (e) {
                 if (this.node && this.node.currentPage) {
                     this.node.currentPage.__error = new EError(e);
@@ -209,14 +199,16 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 
     forceUpdate(delayed: boolean = false) {
 
+        const doUpdate = () => Dev.duration(this, "ForceUpdate", () => super.forceUpdate());
+
         this._forceUpdateTrigger.cancel();
 
         const run = () => {
             // zabezpieczenie przed błędem "Cannot update during an existing state transition..."
             if (ReactUtils.getCurrentlyRenderedComponent())
-                setTimeout(() => super.forceUpdate());
+                setTimeout(() => doUpdate());
             else
-                super.forceUpdate();
+                doUpdate();
         };
 
 

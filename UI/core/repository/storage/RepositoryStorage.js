@@ -1,4 +1,4 @@
-import {Utils, Record, Field, Repository, CRUDE, Debug, AppStatus} from "../../core";
+import {Utils, Record, Field, Repository, CRUDE, Dev, AppStatus} from "../../core";
 
 export default class RepositoryStorage {
 
@@ -29,7 +29,7 @@ export default class RepositoryStorage {
                 try {
                     Repository.update(storage, data);
                 } catch (e) {
-                    Debug.error(this, e);
+                    Dev.error(this, e);
                     AppStatus.error(this, e);
                 }
             }));

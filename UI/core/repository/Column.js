@@ -16,6 +16,8 @@ export default class Column {
     /**  wartość zostanie wczytana na żądanie pobrania rekordu - zalecane dla dużych danych */
     onDemand: boolean = false;
     enumerate: ?() => Map | Object | Array = null;
+    /** Ikony poszczególnych pozycji enumeraty wyświetlane w trybie inline*/
+    enumIcons: ?Object = null;
     units: ?() => {} = null;
     readOnly: ?boolean = null;
     required: ?boolean = null;
@@ -65,6 +67,8 @@ export default class Column {
 
         if (this.type.enumerate && !this.enumerate)
             this.enumerate = () => this.type.enumerate;
+
+        this.enumIcons = this.enumIcons || this.type.enumIcons;
 
         if (this.enumerate && !If.isFunction(this.enumerate)) {
             const arr = this.enumerate instanceof Array;

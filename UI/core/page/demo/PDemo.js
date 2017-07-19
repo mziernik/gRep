@@ -23,7 +23,7 @@ export default class PDemo extends Page {
 
     render() {
 
-        return <Panel fit noPadding>
+        return <Panel fit>
             {super.renderTitle("Demo")}
 
             <TabSet selectedIndex={this.state.selectedTab}>

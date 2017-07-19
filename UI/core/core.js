@@ -25,7 +25,7 @@ export {Ready};
 
 export {default as Exception} from "./utils/Exception";
 
-export {default as Debug} from "./Debug";
+export {default as Dev} from "./Dev";
 
 
 export {default as Trigger} from "./utils/Trigger";

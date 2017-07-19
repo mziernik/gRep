@@ -75,6 +75,11 @@
 
 /*======================================================= Table ======================================================*/
 
+.c-table {
+    height: 100%;
+    width: 100%
+}
+
 .c-table .rt-thead .rt-th {
     padding: 8px 4px;
     font-weight: normal;
@@ -286,7 +291,7 @@
 
 /*====================================================== PopupMenu ====================================================*/
 
-.c-popup-menu-item {
+.c-popup-menu {
     box-shadow: 2px 2px 5px gray;
     background: white;
     border: 1px solid gray;
@@ -314,24 +319,29 @@
 
 /*====================================================== Scrollbar ====================================================*/
 .c-scrollbar {
-    background: rgba(0, 0, 0, 0);
     transition: background 250ms;
     overflow: hidden;
     z-index: 1;
 }
 
-.c-scrollbar:hover {
-    background: rgba(255, 255, 255, 0.5);
-}
-
 .c-scrollbar-bar {
     opacity: 0;
     transition: background 250ms, opacity 250ms;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(127, 127, 127, 0.3);
     min-width: 10px;
     min-height: 10px;
 }
 
 .c-scrollbar-bar:hover {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(127, 127, 127, 0.6);
+}
+
+/*====================================================== FCtrl ====================================================*/
+
+.c-fctrl {
+
+}
+
+*[fctrl-changed=true] {
+    background-color: rgba(255, 200, 0, 0.3);
 }

@@ -1,4 +1,4 @@
-import Debug from "./Debug";
+import Dev from "./Dev";
 import * as Check from "./utils/Check";
 
 export class Store {
@@ -21,7 +21,7 @@ export class Store {
                 value = window.atob(value.substring(1));
             return value ? JSON.parse(value) : undefined;
         } catch (e) {
-            Debug.error(this, e);
+            Dev.error(this, e);
             return undefined;
         }
     };

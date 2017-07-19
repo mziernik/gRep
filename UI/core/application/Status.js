@@ -1,4 +1,4 @@
-import {React, Check, If, Debug, Utils, Dispatcher, EError, DEV_MODE} from "../core";
+import {React, Check, If, Dev, Utils, Dispatcher, EError, DEV_MODE} from "../core";
 
 
 //import {StatusHint} from "../component/application/StatusHint";
@@ -69,7 +69,7 @@ window.addEventListener("error", (e: any, file: ?any, line: ?number, column: ?nu
     try {
         //   AppStatus.set('ErrorHandler', "error", e instanceof ErrorEvent ? e.message : "" + e);
     } catch (e) {
-        Debug.error(this, e);
+        Dev.error(this, e);
     }
 
 });

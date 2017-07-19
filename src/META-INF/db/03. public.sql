@@ -25,7 +25,7 @@ CREATE TABLE repo_state
     name            VARCHAR NOT NULL,
     "group"         VARCHAR,
     "desc"          VARCHAR,
-    auto_update     BOOLEAN NOT NULL,
+    broadcast       BOOLEAN NOT NULL,
     on_demand       BOOLEAN NOT NULL,
     icon            VARCHAR,
     crude           CHAR[] NOT NULL,

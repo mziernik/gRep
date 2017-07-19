@@ -4,7 +4,7 @@
 import Permission from "../application/Permission";
 import * as Utils from "../utils/Utils";
 import Action from "./Action";
-import Debug from "../Debug";
+import Dev from "../Dev";
 import {Type} from  "../core";
 import * as CRUDE from "./CRUDE";
 import LocalRepoStorage from "./storage/LocalRepoStorage";
@@ -131,7 +131,7 @@ export class PermissionRecord extends Record {
         this.permission.execute(this.EXECUTE.value);
 
         if (crude !== this.permission.crude)
-            Debug.log(this, `Aktualizacja uprawnień  ${this.permission.id}: ${crude} -> ${this.permission.crude}`);
+            Dev.log(this, `Aktualizacja uprawnień  ${this.permission.id}: ${crude} -> ${this.permission.crude}`);
     }
 
 

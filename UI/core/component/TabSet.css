@@ -1,4 +1,5 @@
 .tabSet {
+
 }
 
 .tabSetVertical {
@@ -33,7 +34,7 @@
     white-space: nowrap;
     padding: 5px 20px 5px 20px;
     cursor: default;
-    border: 1px solid #bbbbbb;
+    border: 1px solid #aaa;
     border-bottom-color: #474747;
 }
 
@@ -55,5 +56,8 @@
 }
 
 .tabContent {
-    padding: 10px;
+    padding: 8px;
+    border-left: 1px solid #474747;
+    border-right: 1px solid #474747;
+    border-bottom: 1px solid #474747;
 }

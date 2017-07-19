@@ -16,7 +16,7 @@ wapi.onError = (error: EError, response: WebApiResponse, handled: boolean) => {
 
 Repository.defaultStorage = new WebApiRepositoryStorage(wapi, api.repository);
 
-wapi.onEvent.listen(this, (source: string, event: string, data: object, context: WebApiResponse) => {
+wapi.onEvent.listen("API", (source: string, event: string, data: object, context: WebApiResponse) => {
 
     switch (source) {
         case "repository":

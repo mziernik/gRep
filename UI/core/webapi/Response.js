@@ -7,7 +7,7 @@ import WebApiRequest from "./Request";
 import WebApiFile from "./File";
 import WebApiMessage from "./Message";
 import WebApi from "./WebApi";
-import {EError, Debug, If} from "../core";
+import {EError, Dev, If} from "../core";
 
 export default class WebApiResponse {
 
@@ -34,7 +34,7 @@ export default class WebApiResponse {
         }
 
         if (!webApi.processed.has(data.id)) {
-            Debug.error(this, "Nieznane id " + data.id);
+            Dev.error(this, "Nieznane id " + data.id);
             return;
         }
 
@@ -46,7 +46,7 @@ export default class WebApiResponse {
             this.processTime = new Date().getTime() - req.sendTime.getTime();
 
 
-        Debug.log(this, `${req.id},\t "${req.method}", czas: ${this.processTime}ms, serwer: ${data.duration}ms`);
+        Dev.log(this, `${req.id},\t "${req.method}", czas: ${this.processTime}ms, serwer: ${data.duration}ms`, data);
 
         /*
          if (req.spinner && req.spinner.hide)
@@ -57,10 +57,10 @@ export default class WebApiResponse {
             const split = this.hash.split("\/");
             if (split.length === 2 && data.mode === "dev") {
                 if (webApi.hash !== split[0])
-                    Debug.warning("Wersja api uległa zmianie");
+                    Dev.warning("Wersja api uległa zmianie");
 
                 if (req.hash !== split[1])
-                    Debug.warning(`Wersja endpoint-u ${req.method} uległa zmianie`);
+                    Dev.warning(`Wersja endpoint-u ${req.method} uległa zmianie`);
             }
 
         }

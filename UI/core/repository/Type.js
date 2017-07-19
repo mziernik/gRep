@@ -4,6 +4,7 @@ import Record from "./Record";
 import * as Utils from "../utils/Utils";
 import * as If from "../utils/If";
 import Icon from "../component/glyph/Icon";
+
 export type SimpleType = "any" | "boolean" | "number" | "string" | "object" | "array";
 
 const all = {};
@@ -17,6 +18,8 @@ export class DataType {
     name: string;
     single: boolean;
     description: string;
+    /** Ikony poszczególnych pozycji enumeraty wyświetlane w trybie inline*/
+    enumIcons: ?Object = null;
 
     enumerate: ?[] = null; // np.: [['tekst',{wartość}],['tekst2',{wartość2}],...]
 
@@ -221,9 +224,13 @@ export const BOOLEAN: DataType = new DataType((dt: DataType) => {
     dt.name = "boolean";
     dt.simpleType = "boolean";
     dt.parser = val => {
-        return val ? true : false;
+        return !!val;
     };
     dt.formatter = (value: boolean) => value ? "Tak" : "Nie";
+    dt.enumIcons = {
+        true: Icon.CHECK,
+        false: Icon.TIMES,
+    }
 });
 
 export const STRING: DataType = new DataType((dt: DataType) => {
@@ -317,7 +324,20 @@ export const ICON: DataType = new DataType((dt: DataType) => {
         return val;
     };
     dt.enumerate = {};
-    Icon.ALL.forEach((icon: Icon) => dt.enumerate[icon.name] = icon.name);
+    dt.enumIcons = {};
+
+    Icon.ALL.forEach((icon: Icon) => {
+        dt.enumIcons[icon.name] = icon;
+        dt.enumerate[icon.name] = icon.name;
+    });
+
+
+    dt.enumIcons = {
+        true: Icon.CHECK,
+        false: Icon.TIMES,
+    }
+
+
 });
 
 

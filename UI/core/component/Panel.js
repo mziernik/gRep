@@ -23,34 +23,40 @@ export default class Panel extends Component {
 
     //
     render() {
-        return <Resizer
-            className="c-panel"
-            resizable={this.props.resizable}
+        let size = this.props.fit || this.props.resizable || this.props.scrollable ? '100%' : null;
+        let panel = <div
+            className="c-panel-child"
+            data-fit={!!this.props.fit}
+            data-vertical={!!this.props.vertical}
             style={{
-                height: this.props.fit ? "100%" : null,
-                width: this.props.fit ? "100%" : null,
-                overflow: this.props.scrollable ? "hidden" : undefined,
+                display: "flex",
+                flexDirection: this.props.vertical ? "row" : "column",
+                width: size,
+                height: size,
                 padding: this.props.noPadding ? null : "8px",
                 border: this.props.border ? "1px solid #444" : null,
-                ...this.props.style
-            }}
-            outerProps={{
-                title: this.props.title
             }}>
-            <div
-                className="c-panel-child"
-                data-fit={!!this.props.fit}
-                data-vertical={!!this.props.vertical}
+            {this.props.scrollable || this.props.resizable ? <Scrollbar/> : null}
+            {this.props.scrollable || this.props.resizable ? <Scrollbar horizontal/> : null}
+            {super.renderChildren()}
+        </div>;
+
+        if (this.props.resizable || this.props.scrollable)
+            return <Resizer
+                className="c-panel"
+                resizable={this.props.resizable}
                 style={{
-                    display: "flex",
-                    flexDirection: this.props.vertical ? "row" : "column",
-                    width: '100%',
-                    height: '100%',
+                    flex: '1',
+                    height: this.props.fit ? "100%" : null,
+                    width: this.props.fit ? "100%" : null,
+                    overflow: this.props.scrollable ? "hidden" : undefined,
+                    ...this.props.style
+                }}
+                outerProps={{
+                    title: this.props.title
                 }}>
-                {this.props.scrollable || this.props.resizable ? <Scrollbar/> : null}
-                {this.props.scrollable || this.props.resizable ? <Scrollbar horizontal/> : null}
-                {super.renderChildren()}
-            </div>
-        </Resizer>
+                {panel}
+            </Resizer>;
+        return panel;
     }
 }

@@ -6,7 +6,7 @@ import WebApi, {OnSuccess, OnError} from "./WebApi";
 import WebApiResponse from "./Response";
 import Spinner from "../component/Spinner";
 import EError from "../utils/EError";
-import Debug from "../Debug";
+import Dev from "../Dev";
 
 let lastId = 0;
 
@@ -61,7 +61,7 @@ export default class WebApiRequest {
             if (!this.headers[name])
                 this.headers[name] = WebApi.headers[name];
 
-        Debug.log(this, `${this.id},\t "${this.method}"`);
+
 
         window.setTimeout(() => webApi.send(this));
     }
@@ -69,7 +69,7 @@ export default class WebApiRequest {
     // wyślij zdarzenie związane z danym żądaniem
     event(name: string, data: any) {
         if (this._processed) {
-            Debug.warning(`Żądanie ${this.id} zostało już przetworzone`);
+            Dev.warning(`Żądanie ${this.id} zostało już przetworzone`);
             return;
         }
 

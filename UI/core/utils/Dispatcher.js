@@ -10,6 +10,7 @@ import * as Utils from "./Utils";
 import * as If from "./If";
 import * as Check from "./Check";
 import * as ContextObject from "../application/ContextObject";
+import Dev from "../Dev";
 
 export default class Dispatcher {
 
@@ -40,6 +41,7 @@ export default class Dispatcher {
      * @return {Dispatcher}
      */
     listen(context: any, func: (...args: any) => ?any): Observer {
+        Check.isDefined(context, "Brak definicji kontekstu");
         const o = new Observer(this, context, func);
         this.observers.push(o);
         ContextObject.add(context, o, () => this.observers.remove(o));
@@ -152,7 +154,8 @@ export class Observer {
 
         ++this.dispatcher.received;
 
-        this.func(...args);
+        Dev.duration([this, this.context, sender], "Dispatch", () => this.func(...args));
+
         return this;
     }
 

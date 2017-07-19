@@ -167,7 +167,7 @@ export class TabSet extends Component {
                           style={{display: 'none'}}
                           onClick={() => this._handleArrow(100)}/>
                 </div>
-                <div className="tabContent" style={{display: 'flex', flex: '1 1 auto'}}>
+                <div className="tabContent" style={{display: 'flex', flex: '1 1 auto', position: 'relative'}}>
                     {this._isSelectable(children[this.state.selected]) ? children[this.state.selected] : null}
                 </div>
             </span>

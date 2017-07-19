@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {React, PropTypes, Field, Check, Utils, If, Debug, Type} from '../../core.js';
+import {React, ReactDOM, PropTypes, Field, Check, Utils, If, Dev, Type} from '../../core.js';
 import {Component, Icon, Input, Memo, List, Multiple, DatePicker, Select, Checkbox} from '../../components.js';
 import Hint from "../Hint";
 
@@ -35,13 +35,21 @@ export default class FCtrl extends Component {
         /** Ikona podglądu opisu*/
         description: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
 
+        markChanges: PropTypes.bool,
+        onChange: PropTypes.func,
+
         /** Rozciągnij zawartość */
         fit: PropTypes.bool,
 
     };
 
+    static defaultProps = {
+        markChanges: true
+    };
+
     //przyklad = <div><FCtrl field={null} value/> <FCtrl field={null} error description/></div>
 
+    htmlElement: HTMLElement;
     field: Field;
     error: boolean;
     required: boolean;
@@ -57,6 +65,7 @@ export default class FCtrl extends Component {
     defReq: Object = <span className={Icon.ASTERISK.className}
                            style={{fontSize: '.7em', verticalAlign: 'top', color: 'red'}}/>;
 
+
     props: {
         field: Field,
         mode: string,
@@ -68,6 +77,8 @@ export default class FCtrl extends Component {
         required: boolean,
         description: boolean,
         fit: boolean,
+        markChanges: boolean,
+        onChange: () => void
     };
     // Wskaźnik błędu i ostrzeżenia występują zamiennie, pozostałe sumują się
 
@@ -86,6 +97,26 @@ export default class FCtrl extends Component {
         this.defReq = this.props.defReq || this.defReq;
 
         this.state = {error: this.field.error, warning: this.field.warning};
+
+        this.field.onChange.listen(this, (a, b) => {
+            this._markAsChanged(true);
+            If.isFunction(this.props.onChange, f => f(this, a, b));
+            this.forceUpdate(true);
+        });
+
+    }
+
+    _markAsChanged(state: boolean) {
+        if (!this.htmlElement || !this.props.markChanges) return;
+        this.htmlElement.setAttribute("changed", state);
+        this.htmlElement.parentNode.setAttribute("fctrl-changed", state);
+        if (state) setTimeout(() => this._markAsChanged(false), 3000);
+    }
+
+    _setHtmlElement(element: HTMLElement) {
+        if (this.htmlElement || !element) return;
+        this.htmlElement = element;
+        this._markAsChanged(null);
     }
 
     componentDidMount() {
@@ -117,22 +148,33 @@ export default class FCtrl extends Component {
     }
 
     render() {
+
         if (this.props.inline
             || (!this.props.required
             && !this.props.name
             && !this.props.preview
             && !this.props.description
             && !this.props.error
-            && !this.props.value))
-            return <span>{this.field.displayValue}</span>;
+            && !this.props.value)) {
 
+            if (this.field.config.enumIcons) {
+
+
+                let ic = this.field.config.enumIcons[this.field.value];
+
+                if (ic)
+                    return <span className={"c-fctrl " + ic} ref={e => this._setHtmlElement(e)}/>;
+
+            }
+
+            return <span className="c-fctrl" ref={e => this._setHtmlElement(e)}>{this.field.displayValue}</span>;
+        }
         switch (this.props.mode) {
-            case "inline":
-                return this.renderInline();
             case "row":
                 return this.renderRow();
             case "block":
                 return this.renderBlock();
+            case "inline":
             default:
                 return this.renderInline();
         }
@@ -140,6 +182,7 @@ export default class FCtrl extends Component {
 
     /***************************************************************/
     /************************** RENDERERS **************************/
+
     /***************************************************************/
 
     /** zwraca jedną z kontrolek required, description, error
@@ -273,7 +316,7 @@ export default class FCtrl extends Component {
                     case "boolean":
                         return <Checkbox field={this.field} label={this.props.name} preview={this.props.preview}/>;
                     default:
-                        Debug.warning(this, "Brak obsługi typu " + Utils.escape(this.field.type.name));
+                        Dev.warning(this, "Brak obsługi typu " + Utils.escape(this.field.type.name));
                         return this.renderInput({type: "text"});
                 }
         }
@@ -291,13 +334,13 @@ export default class FCtrl extends Component {
             {n: 'description', v: this.props.description},
         ].sort((a, b) => {
             if (a.v === b.v) return 0;
-            if (a.v === undefined || a.v === null || typeof(a.v) === 'boolean')return 1;
-            if (b.v === undefined || b.v === null || typeof(b.v) === 'boolean')return -1;
+            if (a.v === undefined || a.v === null || typeof(a.v) === 'boolean') return 1;
+            if (b.v === undefined || b.v === null || typeof(b.v) === 'boolean') return -1;
             return a.v - b.v;
         });
 
         return Utils.forEach(props, (p) => {
-            if (!p.v)return;
+            if (!p.v) return;
             switch (p.n) {
                 case 'value':
                     return this.renderFlexValue();
@@ -318,6 +361,7 @@ export default class FCtrl extends Component {
     renderInline() {
         return (
             <span
+                ref={e => this._setHtmlElement(e)}
                 className="c-fctrl"
                 style={{
                     display: this.props.fit ? 'flex' : 'inline-flex',
@@ -326,7 +370,7 @@ export default class FCtrl extends Component {
                     position: 'relative'
                 }}>
                 {this.sortedCtrl()}
-            </span>);
+                    </span>);
     }
 
     /** zwraca kontrolki w trybie row <tr><td>...
@@ -334,7 +378,8 @@ export default class FCtrl extends Component {
      */
     renderRow() {
         return (
-            <tr className="c-fctrl">
+            <tr ref={e => this._setHtmlElement(e)}
+                className="c-fctrl">
                 {Utils.forEach(this.sortedCtrl(), (ctrl) => {
                     return <td>{ctrl}</td>;
                 })}
@@ -345,16 +390,19 @@ export default class FCtrl extends Component {
      * @returns {XML} zestaw kontrolek
      */
     renderBlock() {
-        return <span className="c-fctrl" style={{displya: 'flex', position: 'relative'}}>
-            <div>
-                {this.props.required ? this.renderCtrl('required') : null}
-                {this.props.name ? this.renderCtrl("name") : null}
-            </div>
-            <div style={{display: 'flex'}}>
-                {this.props.description ? this.renderCtrl('description') : null}
-                {this.renderFlexValue()}
-                {this.props.error ? this.renderCtrl('error') : null}
-            </div>
+        return <span
+            ref={e => this._setHtmlElement(e)}
+            className="c-fctrl"
+            style={{position: 'relative'}}>
+        <div>
+        {this.props.required ? this.renderCtrl('required') : null}
+            {this.props.name ? this.renderCtrl("name") : null}
+        </div>
+        <div style={{display: 'flex'}}>
+        {this.props.description ? this.renderCtrl('description') : null}
+            {this.renderFlexValue()}
+            {this.props.error ? this.renderCtrl('error') : null}
+        </div>
         </span>
     }
 

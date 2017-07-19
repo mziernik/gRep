@@ -6,7 +6,7 @@ import {Utils, Check, If, Field, Repository, Dispatcher, Debug, CRUDE, Exception
 export default class Record {
 
     /** Zdarzenie utworzenia lub aktualizacji rekordu */
-    onChange: Dispatcher = new Dispatcher();
+    onChange: Dispatcher = new Dispatcher(); // action: CRUDE, changes: Map
 
     onFieldChange: Dispatcher = new Dispatcher(); // field, prevValue, currValue, wasChanged
     repo: Repository;
@@ -20,6 +20,15 @@ export default class Record {
         this.repo = Check.instanceOf(repo, [Repository]);
         this.repo.refs.push(this);
         ContextObject.add(context, this, () => this.repo.refs.remove(this));
+
+        this.onChange.listen(this, (action: CRUDE, changes: Map) => {
+            if (action !== CRUDE.UPDATE) return;
+            Utils.forEach(changes, (change: [], col: Column) => {
+                const field: Field = this.fields.get(col);
+                field.value = change[0];
+            });
+        });
+
     }
 
     set row(row: []) {

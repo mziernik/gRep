@@ -1,4 +1,4 @@
-import {Utils, Debug, Check, If, EError} from "../core";
+import {Utils, Dev, Check, If, EError} from "../core";
 
 const confirmed: any[] = [];
 const awaiting: [] = [];
@@ -15,7 +15,7 @@ export function confirm(context: any, object: any) {
         try {
             awt[1]();
         } catch (e) {
-            Debug.error(this, e);
+            Dev.error(this, e);
             If.isFunction(awt[2], f => f(e));
         }
         toRemove.push(idx);

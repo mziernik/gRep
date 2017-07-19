@@ -68,7 +68,7 @@ export default class PRepository extends Page {
 
             <Table
                 columns={columns}
-                rows={this.repo.rows}
+                repository={this.repo}
                 rowMapper={(row: [], pk: any) => {
 
                     const result = {};

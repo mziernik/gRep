@@ -84,7 +84,7 @@ export class Scrollbar extends Component {
         if (!this._bar || !this._parent)return;
 
         if (this.props.horizontal) {
-            if (this._parent.scrollWidth === this._parent.offsetWidth) {
+            if (this._parent.scrollWidth <= this._parent.offsetWidth) {
                 this._bar.parentElement.style.visibility = 'hidden';
             } else {
                 this._bar.style.width = (this._parent.offsetWidth * (this._parent.offsetWidth / this._parent.scrollWidth)) + 'px';
@@ -93,7 +93,7 @@ export class Scrollbar extends Component {
                 this._bar.parentElement.style.visibility = '';
             }
         } else {
-            if (this._parent.scrollHeight === this._parent.offsetHeight) {
+            if (this._parent.scrollHeight <= this._parent.offsetHeight) {
                 this._bar.parentElement.style.visibility = 'hidden';
             } else {
                 this._bar.style.height = (this._parent.offsetHeight * (this._parent.offsetHeight / this._parent.scrollHeight)) + 'px';

@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, Field, Type, Column, Utils, RepoConfig, Record, Repository, Debug, CRUDE} from '../../core';
+import {React, Field, Type, Column, Utils, RepoConfig, Record, Repository, Dev, CRUDE} from '../../core';
 import {Component, Page, Icon, FCtrl, Button, Table, Link, Panel, Attributes} from '../../components';
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
 import RecordCtrl from "../../component/form/RecordCtrl";
@@ -8,7 +8,7 @@ import RecordCtrl from "../../component/form/RecordCtrl";
 function addRandom() {
     const rec: RUsersRecord = RUSERS.createRecord(RepoTab);
 
-    const usr = Debug.randomUser();
+    const usr = Dev.randomUser();
 
     rec.ID.value = RUSERS.max(RUsers.ID, 0) + 1;
     rec.FIRST_NAME.value = usr.firstName;
@@ -32,9 +32,8 @@ export default class RepoTab extends Component {
     constructor() {
         super(...arguments);
         RUSERS.onChange.listen(this, (action: CRUDE, rec: Record, changes: Map) => {
-            if (action !== CRUDE.UPDATE) {
-                this.table.updateData(RUSERS.rows);
-            }
+            if (action !== CRUDE.UPDATE)
+                this.forceUpdate(true);
         });
     }
 
@@ -61,7 +60,7 @@ export default class RepoTab extends Component {
         const rec: RUsersRecord = RUSERS.get(this, Utils.forEach(RUSERS.rows, (v, k) => k).random(), true);
         rec.action = CRUDE.UPDATE;
 
-        const usr = Debug.randomUser();
+        const usr = Dev.randomUser();
 
         rec.FIRST_NAME.value = usr.firstName;
         rec.LAST_NAME.value = usr.lastName;
@@ -75,31 +74,17 @@ export default class RepoTab extends Component {
 
     render() {
 
-        const columns = [];
-        columns.addAll(RUSERS.columns.map((c: Column) =>
-            c.hidden ? null : <span key={c.key} title={c.description}>{c.name}</span>));
 
         return <Panel fit>
 
             <div style={{textAlign: "right"}}>
+                <Button type="primary" icon={Icon.USERS} onClick={e => addRandom()}>Generuj</Button>
                 <Button type="success" icon={Icon.USER_PLUS} onClick={e => this.add()}>Dodaj</Button>
                 <Button type="danger" icon={Icon.USER_TIMES} onClick={e => this.remove()}>Usuń</Button>
-                <Button type="primary" icon={Icon.USERS} onClick={e => addRandom()}>Generuj</Button>
                 <Button type="primary" icon={Icon.PENCIL} onClick={e => this.editRandom()}>Modyfikuj</Button>
             </div>
 
-            <Table
-                ref={e => this.table = e}
-                columns={columns}
-                rows={RUSERS.rows}
-                rowMapper={(row: [], pk: any) => {
-                    const result = {};
-                    const rec: Record = RUSERS.get(this, pk, true);
-                    rec.fields.forEach((f: Field) =>
-                        result[f.key] = <FCtrl key={f.key} field={f} inline/>);
-                    return result;
-                }}
-            />
+            <Table repository={RUSERS}/>
         </Panel>
     }
 
@@ -152,6 +137,10 @@ export class RUsers extends Repository {
         c.enumerate = {
             "M": "Mężczyzna",
             "F": "Kobieta"
+        };
+        c.enumIcons = {
+            "M": Icon.MARS,
+            "F": Icon.VENUS,
         }
     });
 

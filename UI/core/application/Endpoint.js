@@ -17,6 +17,7 @@ export default class Endpoint {
     /** domyślna strona 404 */
     static NOT_FOUND: ?Endpoint;
 
+    key: string;
     _icon: ?Icon = null;
     _name: ?string = null;
     _path: ?string = null;
@@ -65,13 +66,13 @@ export default class Endpoint {
         return Endpoint.ALL.find((page: Endpoint) => page._component === component);
     }
 
-    static navigate(link: string, target: string | MouseEvent = null) {
+    static navigate(link: string, target: string | MouseEvent = null, name: ?string = null) {
         throw new Error("Metoda nie została nadpisana przez PageContainer.navigate");
     }
 
     navigate(params: ?Object = null, target: string | MouseEvent = null) {
         if (this.canNavigate)
-            Endpoint.navigate(this.getLink(params), target);
+            Endpoint.navigate(this.getLink(params), target, this._name);
     }
 
     get canNavigate() {

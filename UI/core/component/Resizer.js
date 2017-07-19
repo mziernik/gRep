@@ -275,7 +275,7 @@ export default class Resizer extends Component {
                 style={{
                     position: this.props.from ? 'fixed' : 'relative',
                     ...this.props.style,
-                    flex: this.props.resizable ? '' : null
+                    flex: this.props.resizable ? '' : this.props.style.flex ,
                 }}
                 {...this.props.outerProps}
             >

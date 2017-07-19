@@ -29,7 +29,7 @@ export default class PIcons extends Page {
 
             <Panel vertical scrollable>
                 <div>
-                    {Icon.ALL.map((ico: Fontello) => {
+                    {Icon.ALL.map((ico: Icon) => {
 
                         const name = ico.name;
 
@@ -38,7 +38,7 @@ export default class PIcons extends Page {
 
                         return <span
                             key={ico.className}
-                            style={ {
+                            style={{
                                 display: "inline-block",
                                 width: "100px",
                                 margin: "16px 4px",

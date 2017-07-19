@@ -9,7 +9,7 @@ import {
     Utils,
     If,
     EError,
-    Debug,
+    Dev,
     DEV_MODE,
     Ready,
     CRUDE,
@@ -27,6 +27,7 @@ export default class Page extends Component {
     __error: EError;
     _toolBar: any;
     _waitingForRepo: boolean;
+    title: string;
 
     static pageTitleRenderer: (page: Page, title: string) => any = null;
     endpoint: Endpoint;
@@ -34,6 +35,7 @@ export default class Page extends Component {
     constructor(scrollable: boolean) {
         super(...arguments);
         this.endpoint = this.props.route.endpoint;
+        this.title = this.endpoint._name;
         Utils.makeFinal(this, ["endpoint"]);
 
         this.render = () => {
@@ -51,15 +53,15 @@ export default class Page extends Component {
 
                 return this.__render();
             } catch (e) {
-                Debug.error(this, e);
+                Dev.error(this, e);
                 return Page.renderError(e);
             }
         }
     }
 
     renderTitle(title: string): ReactComponent {
+        this.title = title = Utils.toString(title);
 
-        title = Utils.toString(title);
         document.title = title;
         if (this.node.tab)
             this.node.tab.setTitle(title);

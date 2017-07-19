@@ -148,7 +148,7 @@ export default class PageContainer extends Component {
                             new PageTab(null).setCurrent();
 
                     currentTab.renderContent();
-                } }>
+                }}>
 
             </div>
         </div>
@@ -177,7 +177,7 @@ class TabsBar extends Component {
                 color: "#fff",
                 paddingLeft: "4px"
             }}>
-            { tabs.map((tab: PageTab) => tab.modal ? null : <span
+            {tabs.map((tab: PageTab) => tab.modal ? null : <span
                 key={tab.id}
                 style={{
                     fontSize: "13px",
@@ -210,7 +210,7 @@ class TabsBar extends Component {
 }
 
 
-Endpoint.navigate = (link: string, target: string | MouseEvent = null) => {
+Endpoint.navigate = (link: string, target: string | MouseEvent = null, name: ?string = null) => {
     if (target && target.ctrlKey !== undefined && target.shiftKey !== undefined)
         target = (target: MouseEvent).ctrlKey ? "tab" : (target: MouseEvent).shiftKey ? "popup" : null;
 
@@ -218,11 +218,15 @@ Endpoint.navigate = (link: string, target: string | MouseEvent = null) => {
 
     Check.oneOf(target, [null, E.ENDPOINT_TARGET_TAB, E.ENDPOINT_TARGET_POPUP]);
 
+    // url nie zmienił się
+    if (!target && Application.router.history.location.pathname === link)
+        return;
+
     if (target === E.ENDPOINT_TARGET_TAB)
-        new PageTab(this._name, false).setCurrent();
+        new PageTab(name, false).setCurrent();
 
     if (target === E.ENDPOINT_TARGET_POPUP)
-        new PageTab(this._name, true).setCurrent();
+        new PageTab(name, true).setCurrent();
 
     Application.router.history.push(link);
 };

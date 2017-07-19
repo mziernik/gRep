@@ -1,5 +1,6 @@
-import {React, ReactDOM, PropTypes, Utils, If, Check, ReactUtils, Column, AppEvent, Trigger} from "../core";
-import {Component, FormComponent} from "../components";
+import {React, ReactDOM, ReactUtils, PropTypes} from "../core";
+import {Utils, If, Check, Column, AppEvent, Trigger, CRUDE, Repository, Record, Dev, Field} from "../core";
+import {Component, FormComponent, FCtrl} from "../components";
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
@@ -12,6 +13,13 @@ export default class Table extends Component {
     _prevTableWidth = 0;
     _updateWidths = true;
     _sorted = [];
+    /** Flaga ustawiana w momencie zmiany danych w repozytorium */
+    _dataChanged: ?Record = null;
+    _dataSource: ?Array | ?Object = null;
+    _tableProps: Object;
+    _repository: ?Repository = null;
+    _rowMapper: (row) => any;
+    _columns: [] | {};
 
     static propTypes = {
         // tablica Fieldów lub {idKolumny:nazwaKolumny,...}
@@ -19,19 +27,51 @@ export default class Table extends Component {
         // tablica obiektów {idKolumny:wartośćKomórki,...}
         // lub cokolwiek jeśli jest zdefiniowany rowMapper, który przemapuje rekordy
         rows: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+
+        repository: PropTypes.instanceOf(Repository),
         // mapper rekordów, (row)=>{idKolumny:wartośćKomórki,...}
         rowMapper: PropTypes.func,
         // zdarzenie kliknięcia na komórkę (row, column, table, event)
         onRowClick: PropTypes.func
     };
 
+    state: {
+        //ToDo: Wojtek: Rozpisz pola ...
+    };
+
     constructor() {
         super(...arguments);
-        this.state = {columns: this.columns = this._convertColumns(), ...(this._convertData())};
+
 
         AppEvent.RESIZE.listen(this, (e: Event, source: AppEvent) => resizeTrigger.call(() => {
             this._setWidths();
         }, 100));
+
+        this._dataSource = this.props.rows;
+        this._rowMapper = this.props.rowMapper;
+        this._columns = this.props.columns;
+
+        this._repository = this.props.repository;
+
+        if (this.props.rows instanceof Repository)
+            this._repository = this.props.rows;
+
+
+        if (this._repository) {
+            this._dataSource = this._repository.rows;
+            this._repository.onChange.listen(this, (action: CRUDE, rec: Record, changes: Map) => {
+                // zdarzenie modyfikacji repozytorium ustawia tylko flagę, metoda render() zostanie wywołana z zewnątrz
+                if (action !== CRUDE.UPDATE)  // ignorujemy aktualizacje komórek - obsługiwane będą przez FCtrl
+                    this._dataChanged = rec;
+            });
+
+            if (!this._columns)
+                this._columns = Utils.forEach(this._repository.columns, (c: Column) =>
+                    c.disabled ? undefined : c.hidden ? null :
+                        <span key={c.key} title={c.name + (c.description ? "\n" + c.description : "")}>{c.name}</span>);
+        }
+
+        this.state = {columns: this.columns = this._convertColumns()};
     }
 
     /** mapuje kolumny pod format ReactTable
@@ -39,7 +79,7 @@ export default class Table extends Component {
      * @private
      */
     _convertColumns(): [] {
-        let res = Utils.forEach(this.props.columns, (col, key) => {
+        let res = Utils.forEach(this._columns, (col, key) => {
             if (!col) return;
 
             let k = key;
@@ -50,8 +90,8 @@ export default class Table extends Component {
                 id: "" + k,
                 accessor: row => {
                     let curr = row[k];
-                    if (!curr)return;
-                    if (!curr.$$typeof)return curr;
+                    if (!curr) return;
+                    if (!curr.$$typeof) return curr;
                     return curr.props.field ? curr.props.field : null;
                 },
                 Cell: (row) => this._drawRow(row, k)
@@ -116,29 +156,36 @@ export default class Table extends Component {
         </span>
     }
 
-
-    /** mapuje dane przyp pomocy props.rowMapper
-     * @param rows
-     * @returns {*[]} propsy dla ReactTable
-     * @private
-     */
-    _convertData(rows = null) {
-        const data = Utils.forEach(rows || this.props.rows, (row, rowIdx) => {
-            return this._convertRow(If.isFunction(this.props.rowMapper) ? this.props.rowMapper(row, rowIdx) : row, rowIdx);
-        });
-        return {
-            data: data,
-            showPagination: data.length > 25,
-        };
-    }
-
     /** konwertuje pojedynczy wiersz
      * @param row wiersz
      * @param rowIdx index, wymagany do utworzenia poprawnego klucza
      * @returns {*} skonwertowany wiersz
      * @private
      */
-    _convertRow(row, rowIdx) {
+    _convertRow(_row, rowIdx: number) {
+        let row = undefined;
+        If.isFunction(this._rowMapper, f => row = this._rowMapper(_row, rowIdx));
+
+        if (row === undefined && this._repository) {
+            row = {};
+            const rec: Record = this._repository.createRecord(this);
+            rec.row = _row;
+
+            const mark = this._dataChanged && this._dataChanged.fullId === rec.fullId;
+
+            rec.fields.forEach((f: Field) =>
+                row[f.key] = <FCtrl
+                    ref={(e: FCtrl) => mark && e && e._markAsChanged(true)}
+                    key={rowIdx + "." + (cellIdx++)}
+                    field={f}
+                    inline
+                />);
+
+            return row;
+        }
+
+        if (!row) row = _row;
+
         let cellIdx = 0;
         for (let name in row) {
             let item = row[name];
@@ -148,28 +195,14 @@ export default class Table extends Component {
         return row;
     }
 
-    /** aktualizuje dane.
-     * @param rows
-     */
-    updateData(rows = null) {
-        this.setState({...this._convertData(rows || this.props.rows)});
-        /*
-         rows = rows || this.props.rows;
-         const start = this.state.data.length;
-         let ndata = this.state.data.slice();
-         for (let i = start; i < rows.length; ++i)
-         ndata.push(this._convertRow(If.isFunction(this.props.rowMapper) ? this.props.rowMapper(rows[i], i) : rows[i], i));
-         this.setState({data: ndata, showPagination: ndata.length > 25});
-         */
-    }
 
     /** Oblicza szerokość kolumn  i wymusza ponowne rysowanie
      * @param table
      * @private
      */
     _computeWidths(table) {
-        if (!this._updateWidths)return;
-        if (!table)return;
+        if (!this._updateWidths) return;
+        if (!table) return;
         let tag = ReactDOM.findDOMNode(table);
         this._tableTag = tag;
         const tableWidth = (tag.offsetWidth - 20);
@@ -212,7 +245,7 @@ export default class Table extends Component {
             if (parseInt(this._tableTag.offsetWidth - this._prevTableWidth) === 0)
                 return;
             colDiff = (this._tableTag.offsetWidth - this._prevTableWidth) / (this._visibleCols);
-            if (colDiff === 0)return;
+            if (colDiff === 0) return;
         }
         this._prevTableWidth = this._tableTag.offsetWidth;
         let columns = this.state.columns.slice();
@@ -244,14 +277,26 @@ export default class Table extends Component {
     }
 
     render() {
+
+        Dev.log(this, "render");
+        if (this._dataChanged || !this._tableProps) {
+
+            const data = Utils.forEach(this._dataSource, (row, rowIdx) => this._convertRow(row, rowIdx));
+
+            this._tableProps = {
+                data: data,
+                showPagination: data.length > 25,
+            };
+
+            this._dataChanged = null;
+        }
+
         return <ReactTable
             ref={elem => this._computeWidths(elem)}
             className="c-table -striped -highlight"
-            style={{height: '100%', width: '100%'}}
             defaultSorted={this._sorted}
             columns={this.state.columns}
-            data={this.state.data}
-            showPagination={this.state.showPagination}
+            {...this._tableProps}
             pageSizeOptions={[5, 10, 25, 50]}
             defaultPageSize={25}
 
@@ -278,12 +323,12 @@ export default class Table extends Component {
                         this._drag = column.id;
                     },
                     onDragOver: (e) => {
-                        if (!this._drag)return;
+                        if (!this._drag) return;
                         e.stopPropagation();
                         e.preventDefault();
                     },
                     onDrop: (e) => {
-                        if (!this._drag)return false;
+                        if (!this._drag) return false;
                         e.stopPropagation();
                         e.preventDefault();
                         this._swapColumns(this._drag, column.id, e.currentTarget, e.pageX);

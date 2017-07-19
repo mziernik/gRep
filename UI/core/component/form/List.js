@@ -40,7 +40,7 @@ export default class List extends FormComponent {
 
             f.set(value);
 
-            f.onChange.listen(this, () => {
+            f.onChange.listen(props.parent, () => {
                 array[index] = f.value;
                 props.field.value = array;
             });
@@ -60,7 +60,7 @@ export default class List extends FormComponent {
                 Utils.forEach(this.field.value, (row: any | [], rowIndex: number) =>
                     <tr key={rowIndex}>
 
-                        <Cell value={row} index={rowIndex} array={this.array} field={this.field}/>
+                        <Cell parent={this} value={row} index={rowIndex} array={this.array} field={this.field}/>
 
                         <td style={{width: "20px"}}>
                             <Link

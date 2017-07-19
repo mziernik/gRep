@@ -4,7 +4,7 @@
 import WebApiRequest from "./Request";
 import WebApiMessage from "./Message";
 import WebApiResponse from "./Response";
-import Debug from "../Debug";
+import Dev from "../Dev";
 import EError from "../utils/EError";
 import WebApiTransport, {State, WebSocketTransport} from "./Transport";
 import Dispatcher from "../utils/Dispatcher";
@@ -100,7 +100,7 @@ export default class WebApi {
     };
 
     onError(error: EError, response: WebApiResponse, handled: boolean) {
-        Debug.error(this, error.message);
+        Dev.error(this, error.message);
     }
 
 
@@ -125,6 +125,8 @@ export default class WebApi {
             headers: request.headers,
             hash: request.hash
         };
+
+        Dev.log(this, `${request.id},\t "${request.method}"`, request.transportData);
 
         const transport = this.transport;
 

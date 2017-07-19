@@ -6,6 +6,8 @@ import "./Prototype";
 import * as Check from "./Check";
 import * as If from "./If";
 
+/** dowolne mapowania (np klas na potrzeby uglify, importów itp) */
+export const MAPPING: Map<String, any> = new Map();
 
 export function escape(argument: any): string {
     try {
@@ -23,6 +25,7 @@ export function asArray(elm: any): [] {
         return elm;
     return [elm];
 }
+
 export function toString(argument: any): string {
     if (argument === undefined)
         return "";

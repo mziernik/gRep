@@ -299,7 +299,19 @@ export default class Repository {
                     Utils.forEach(value, obj => {
                         const rec: Record = repo.createRecord(context);
                         repo.refs.remove(rec); // nie traktuj jako referencję
-                        Utils.forEach(obj, (v, k) => rec.get(repo.getColumn(k)).value = v);
+                        const map: Map = new Map();
+                        Utils.forEach(obj, (v, k) => {
+                            const col: Column = repo.getColumn(k);
+                            rec.get(col).value = v;
+                            map.set(col, v);
+                        });
+
+                        if (map.size === 1)
+                            map.forEach((v, col: Column) => {
+                                if (col === rec.primaryKey.config)
+                                    rec.action = CRUDE.DELETE;
+                            });
+
                         records.push(rec);
                     });
 

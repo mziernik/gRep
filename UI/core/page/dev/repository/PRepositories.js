@@ -6,7 +6,6 @@ export default class PRepositories extends Page {
 
     constructor() {
         super(...arguments);
-        Repository.onUpdate.listen(this, () => this.forceUpdate());
     }
 
     render() {
