@@ -27,6 +27,15 @@ export class PopupMenu extends Component {
         onClick: PropTypes.func
     };
 
+    state: {
+        opened: boolean, // czy otwarte
+        x: Number, // współrzędne
+        y: Number, // współrzędne
+        items: [], // submenu
+        itemEventProps: {}, // obiekt z propsami dla zdarzeń
+        onClick: (e: Event, props: {}) => void // callback zdarzenia onClick pozycji menu. props to itemEventProps
+    };
+
     /** Otwiera menu kontekstowe
      * @param e obiekt zdarzenia myszy (onContextMenu)
      * @param items tablica pozycji menu
@@ -104,7 +113,7 @@ export class PopupMenu extends Component {
         if (!item.timer)
             item.timer = setTimeout(() => {
                 item.timer = null;
-                this.forceUpdate()
+                this.forceUpdate();
             }, 200);
         else {
             clearTimeout(item.timer);
@@ -158,12 +167,12 @@ export class PopupMenu extends Component {
                                 <hr style={{margin: '5px'}}/>
                             </td>
                             <td colSpan="3">
-                                <tr style={{width: '100%', display: 'block'}}>
-                                    <td>{item.name}</td>
-                                    <td style={{width: '100%'}}>
+                                <div style={{display: 'flex'}}>
+                                    <div>{item.name}</div>
+                                    <div style={{flex: 1, alignSelf: 'center'}}>
                                         <hr style={{margin: '5px'}}/>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             </td>
                         </tr>;
                     return <tr key={index}>

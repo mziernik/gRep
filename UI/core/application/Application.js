@@ -34,7 +34,7 @@ export default class Application extends ReactComponent {
             ReactDOM.render(<BrowserRouter ref={e => Application.router = e}>
                 <Application/></BrowserRouter>, document.createElement("span"));
             Application.initialized = true;
-            onCreate.dispatch(this);
+            onCreate.dispatch(this, {child: child, element: element});
         }
 
         let own = false;
@@ -48,7 +48,6 @@ export default class Application extends ReactComponent {
 
         if (!element)
             throw new Error("Nie znaleziono elementu");
-
 
 
         const node: AppNode = ReactDOM.render(<AppNode tab={tab} element={element}>{child}</AppNode>, element);

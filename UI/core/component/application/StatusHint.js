@@ -7,9 +7,9 @@ export default class StatusHint extends Component {
 
     constructor() {
         super(...arguments);
-        AppStatus.onChange.listen(this, (status: AppStatus) => {
-            this.statuses.push(status);
-            status.hide = () => this.hide(status);
+        AppStatus.onChange.listen(this, data => {
+            this.statuses.push(data.status);
+            data.status.hide = () => this.hide(data.status);
             this.forceUpdate();
         });
 
@@ -75,7 +75,7 @@ function Bar(props) {
             break;
     }
 
-    return <div className="c-status-hint" >
+    return <div className="c-status-hint">
         <table
             style={{
                 display: "inline-table",
@@ -89,18 +89,18 @@ function Bar(props) {
             <tbody>
             <tr>
                 <td className="c-status-hint-icon"
-                    style={ {color: border} }>
+                    style={{color: border}}>
                     <span className={icon}/>
                 </td>
 
                 <td className="c-status-hint-content"
-                    style={ {
+                    style={{
                         display: "inline-block",
                         verticalAlign: "top",
                         margin: "8px 4px 4px 4px",
                         padding: "10px 20px",
                         paddingLeft: "4px",
-                    } }
+                    }}
                 >
                     <div
                         className="c-status-hint-message">{message}</div>

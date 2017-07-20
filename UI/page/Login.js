@@ -44,23 +44,21 @@ export default class Login extends Component {
     static display(onAuthorized: (data: Object) => void) {
 
         Login.onAuthorized = onAuthorized;
-        onAuthorized(null);
-        return;
-/*
+
         if (DEV_MODE && process.env.AUTH === false) {
             // pomiń autoryzację w trybie deweloperskim
             onAuthorized(null);
             return;
         }
 
-*/
+
         if (username.value && password.value) {
 
             Login.spinner = new Spinner(false);
             API.api.login(username.value || "", password.value || "", (data) => {
                 Login.spinner.hide();
                 // User.current.fill(data);
-                Login.onAuthorized(data);
+                setTimeout(() => Login.onAuthorized(data));
             }, e => {
                 window.console.error(e);
                 Login.spinner.hide();
@@ -91,7 +89,7 @@ export default class Login extends Component {
     }
 
     onAuthorized(data: any) {
-        Login.onAuthorized(data);
+
 
         Login.instance.element.css({
             transition: "all .4s ease-in"
@@ -105,6 +103,7 @@ export default class Login extends Component {
         });
 
         setTimeout(() => Login.instance.remove(), 600);
+        setTimeout(() => Login.onAuthorized(data));
 
     }
 
@@ -133,7 +132,7 @@ export default class Login extends Component {
 
         document.title = "Logowanie";
 
-        let err = Login.error ? <div >
+        let err = Login.error ? <div>
             <span style={{
                 display: "inline-block",
                 flex: "auto",

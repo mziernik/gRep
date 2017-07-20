@@ -13,7 +13,7 @@ export class RepoConfig {
     record: object = null;
     key: ?string = null;
     name: ?string = null;
-    group: ? string = null;
+    group: ?string = null;
     primaryKeyColumn: Column = null;
     displayNameColumn: ?Column = null;
     actions: ?Object | RepoAction[] = null;
@@ -69,6 +69,8 @@ export default class Repository {
 
     config: RepoConfig = new RepoConfig();
     rows: Map<any, any[]> = new Map();
+
+    recordsUpdateTsMap: Map<any, number> = new Map();
 
     columns: Column[] = [];
 
@@ -239,10 +241,10 @@ export default class Repository {
 
         Utils.forEach(response, data => {
                 let repo: Repository = Repository.all[data.key];
-
                 if (!repo) {
                     repo = new DynamicRepo(data);
                     list.push(repo);
+                    return;
                 }
             }
         );
@@ -267,65 +269,62 @@ export default class Repository {
             }
             const repo: Repository = Repository.get(key, true);
             repositories.push(repo);
-            try {
 
-                if (If.isArray(value.rows))
-                    repoStats.set(repo, {
-                        crude: value.crude,
-                        lastUpdated: value.lastUpdated,
-                        lastUpdatedBy: value.lastUpdatedBy,
-                        updates: value.updates,
+
+            if (If.isArray(value.rows))
+                repoStats.set(repo, {
+                    crude: value.crude,
+                    lastUpdated: value.lastUpdated,
+                    lastUpdatedBy: value.lastUpdatedBy,
+                    updates: value.updates,
+                });
+
+
+            if (If.isArray(value.columns) && If.isArray(value.rows)) {
+
+                let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
+
+                Utils.forEach(value.rows, (row: []) => {
+                    const rec: Record = repo.createRecord(context);
+                    repo.refs.remove(rec); // nie traktuj jako referencję
+                    records.push(rec);
+                    for (let i = 0; i < columns.length; i++) {
+                        const field: Field = rec.get(columns[i]);
+                        field.value = row[i];
+                    }
+                });
+
+                return;
+            }
+
+            const processObject = (value) =>
+                Utils.forEach(value, obj => {
+                    const rec: Record = repo.createRecord(context);
+                    repo.refs.remove(rec); // nie traktuj jako referencję
+                    const map: Map = new Map();
+                    Utils.forEach(obj, (v, k) => {
+                        const col: Column = repo.getColumn(k);
+                        rec.get(col).value = v;
+                        map.set(col, v);
                     });
 
-
-                if (If.isArray(value.columns) && If.isArray(value.rows)) {
-
-                    let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
-
-                    Utils.forEach(value.rows, (row: []) => {
-                        const rec: Record = repo.createRecord(context);
-                        repo.refs.remove(rec); // nie traktuj jako referencję
-                        records.push(rec);
-                        for (let i = 0; i < columns.length; i++) {
-                            const field: Field = rec.get(columns[i]);
-                            field.value = row[i];
-                        }
-                    });
-
-                    return;
-                }
-
-                const processObject = (value) =>
-                    Utils.forEach(value, obj => {
-                        const rec: Record = repo.createRecord(context);
-                        repo.refs.remove(rec); // nie traktuj jako referencję
-                        const map: Map = new Map();
-                        Utils.forEach(obj, (v, k) => {
-                            const col: Column = repo.getColumn(k);
-                            rec.get(col).value = v;
-                            map.set(col, v);
+                    if (map.size === 1)
+                        map.forEach((v, col: Column) => {
+                            if (col === rec.primaryKey.config)
+                                rec.action = CRUDE.DELETE;
                         });
 
-                        if (map.size === 1)
-                            map.forEach((v, col: Column) => {
-                                if (col === rec.primaryKey.config)
-                                    rec.action = CRUDE.DELETE;
-                            });
-
-                        records.push(rec);
-                    });
+                    records.push(rec);
+                });
 
 
-                if (If.isArray(value.rows)) {
-                    processObject(value.rows);
-                    return;
-                }
-
-                processObject(value);
-
-            } catch (e) {
-                throw new Error(repo.key + ": " + e.message);
+            if (If.isArray(value.rows)) {
+                processObject(value.rows);
+                return;
             }
+
+            processObject(value);
+
 
         });
 
@@ -334,9 +333,10 @@ export default class Repository {
 
         Utils.forEach(records, (rec: Record) => rec.validate());
 
+
         // zastosowanie zmian (na tym etapie dane są zwalidowane)
         const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repo);
-        Repository.onUpdate.dispatch(context, map);
+        Repository.onUpdate.dispatch(context, {map: map});
 
 
         records.forEach((rec: Record) => {
@@ -373,12 +373,15 @@ export default class Repository {
                     row[index] = val;
                 });
 
-            refs.forEach((r: Record) => r.onChange.dispatch(context, action, changed));
+            refs.forEach((r: Record) => r.onChange.dispatch(context, {action: action, changed: changed}));
 
             repo.displayMap.set(pk, row[repo.columns.indexOf(repo.config.displayNameColumn
                 ? repo.config.displayNameColumn : repo.config.primaryKeyColumn)]);
 
-            rec.repo.onChange.dispatch(context, action, rec, changed)
+            rec.repo.onChange.dispatch(context, {action: action, record: rec, changed: changed});
+
+            if (repo.isReady)
+                repo.recordsUpdateTsMap.set(pk, new Date().getTime());
         });
 
 
@@ -439,7 +442,7 @@ export default class Repository {
         if (Repository.all[repository.key])
             throw new Error(`Repozytorium ${repository.key} już istnieje`);
         Repository.all[repository.key] = repository;
-        AppEvent.REPOSITORY_REGISTERED.send(this, repository);
+        AppEvent.REPOSITORY_REGISTERED.send(this, {repository: repository});
         return repository;
     }
 

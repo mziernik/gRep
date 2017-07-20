@@ -97,13 +97,13 @@ export default class Page extends Component {
 
             list.forEach((repo: Repository) => {
 
-                repo.onChange.listen(this, (action: CRUDE, rec: Record, changes: Map) => {
+                repo.onChange.listen(this, data => {
                     if (this._waitingForRepo) return;
                     if (If.isFunction(onChange)) {
-                        onChange(action, rec, changes);
+                        onChange(data.action, data.record, data.changed);
                         return;
                     }
-                    if (action !== CRUDE.UPDATE)  // ignorujemy aktualizacje komórek - obsługiwane będą przez FCtrl
+                    if (data.action !== CRUDE.UPDATE)  // ignorujemy aktualizacje komórek - obsługiwane będą przez FCtrl
                         this.forceUpdate(true);
                 })
             });

@@ -2,7 +2,7 @@
 'use strict';
 
 import {React, Endpoint, Trigger} from "../../core/core";
-import {Component} from "../../core/components";
+import {Component, Panel} from "../../core/components";
 import Link from "react-router-dom/es/Link";
 import Tree from "../../core/component/tree/Tree";
 import CTree from "../../core/component/tree/CTree";
@@ -44,9 +44,9 @@ export default class NavBar extends Component<*, *, *> {
 
 
         return (
-            <nav style={{}} id="app-navbar">
+            <Panel scrollable noPadding id="app-navbar">
                 <CTree key={Utils.randomId()} data={tree}/>
-            </nav>
+            </Panel>
         );
     }
 }

@@ -15,6 +15,7 @@ import Demo from "../demo/PDemo";
 import PContextObject from "./PContextObject";
 import PRepoDetails from "./repository/PRepoDetails";
 import PIcons from "./PIcons";
+import * as Utils from "../../utils/Utils";
 
 export default class DevRouter extends Endpoint {
 
@@ -72,9 +73,17 @@ export default class DevRouter extends Endpoint {
 
         Object.preventExtensions(this);
 
-        AppEvent.REPOSITORY_REGISTERED.listen(this, (repo: Repository) => {
-                this.REPOS.child(repo.key, repo.name, this.REPOS._path + "/" + repo.key, PRepository)
-                    .icon(repo.config.icon);
+        AppEvent.REPOSITORY_REGISTERED.listen(this, data => {
+                const repo: Repository = data.repository;
+                const group = repo.config.group;
+                let parent: Endpoint = this.REPOS;
+                if (group) {
+                    let key = Utils.formatId(group).toLowerCase();
+                    parent = this.REPOS._children.find((e: Endpoint) => e.key.endsWith("." + key));
+                    if (!parent)
+                        parent = this.REPOS.child(key, group, null, null);
+                }
+                parent.child(repo.key, repo.name, this.REPOS._path + "/" + repo.key, PRepository).icon(repo.config.icon);
             }
         );
 

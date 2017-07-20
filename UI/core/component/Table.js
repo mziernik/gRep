@@ -36,16 +36,14 @@ export default class Table extends Component {
     };
 
     state: {
-        //ToDo: Wojtek: Rozpisz pola ...
+        columns:[] // kolumny ;)
     };
 
     constructor() {
         super(...arguments);
 
 
-        AppEvent.RESIZE.listen(this, (e: Event, source: AppEvent) => resizeTrigger.call(() => {
-            this._setWidths();
-        }, 100));
+        AppEvent.RESIZE.listen(this, () => resizeTrigger.call(() => this._setWidths(), 100));
 
         this._dataSource = this.props.rows;
         this._rowMapper = this.props.rowMapper;
@@ -59,10 +57,10 @@ export default class Table extends Component {
 
         if (this._repository) {
             this._dataSource = this._repository.rows;
-            this._repository.onChange.listen(this, (action: CRUDE, rec: Record, changes: Map) => {
+            this._repository.onChange.listen(this, data => {
                 // zdarzenie modyfikacji repozytorium ustawia tylko flagę, metoda render() zostanie wywołana z zewnątrz
-                if (action !== CRUDE.UPDATE)  // ignorujemy aktualizacje komórek - obsługiwane będą przez FCtrl
-                    this._dataChanged = rec;
+                if (data.action !== CRUDE.UPDATE)  // ignorujemy aktualizacje komórek - obsługiwane będą przez FCtrl
+                    this._dataChanged = data.record;
             });
 
             if (!this._columns)
@@ -71,7 +69,7 @@ export default class Table extends Component {
                         <span key={c.key} title={c.name + (c.description ? "\n" + c.description : "")}>{c.name}</span>);
         }
 
-        this.state = {columns: this.columns = this._convertColumns()};
+        this.state = {columns: this._convertColumns()};
     }
 
     /** mapuje kolumny pod format ReactTable

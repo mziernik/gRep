@@ -29,7 +29,7 @@ export class State {
     static set current(state: State) {
         if (state === currentState) return;
         currentState = state;
-        State.onChange.dispatch(null, state);
+        State.onChange.dispatch(State, {state: state});
     }
 
     name: string;

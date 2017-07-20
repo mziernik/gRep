@@ -8,17 +8,16 @@ import ListsTab from "./ListsTab";
 import TablesTab from "./TablesTab";
 import DragAndDropTab from "./DragAndDropTab";
 import ModalWindowTab from "./ModalWindowTab";
-import AlertsTab from "./AlertsTab";
+import AlertsTab from "./AlertsPopupTab";
 import SplitterTab from "./SplitterTab";
 import RepoTab from "./RepoTab";
-
-//ToDo: Wojtek : Przenieś funkcje testowe popup menu do oddzielnej karty
+import PopupMenuTab from "./PopupMenuTab";
 
 export default class PDemo extends Page {
 
     constructor() {
         super(...arguments);
-        this.state = {selectedTab: 2};
+        this.state = {selectedTab: 0};
     };
 
     render() {
@@ -45,7 +44,9 @@ export default class PDemo extends Page {
                 <Tab label="Modal Window">
                     <ModalWindowTab/>
                 </Tab>
-
+                <Tab label="Popup Menu">
+                    <PopupMenuTab/>
+                </Tab>
                 <Tab label="Alerty"> <AlertsTab/> </Tab>
                 <Tab label="Splitter"><SplitterTab/></Tab>
                 <Tab label="Drag&Drop"><DragAndDropTab/></Tab>

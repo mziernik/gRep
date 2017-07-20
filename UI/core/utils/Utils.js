@@ -293,6 +293,21 @@ export function formatFileSize(size: number): string {
     });
 }
 
+export function formatId(value: string) {
+    const CHARS = "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ1234567890";
+
+    value = toString(value);
+    if (!value) return value;
+
+    let result = "";
+    for (let i = 0; i < value.length; i++) {
+        const char = value.charAt(i);
+        if (CHARS.indexOf(char) >= 0)
+            result += char;
+    }
+    return result;
+}
+
 export function trimFileName(name: string, length: number): string {
     if (!name || !length)
         return name;

@@ -39,18 +39,16 @@ export class Scrollbar extends Component {
         super(...arguments);
         window.addEventListener('mousemove', this._moveListener);
         window.addEventListener('mouseup', this._upListener);
-        AppEvent.RESIZE.listen(this, (e: Event, source: AppEvent) => this._resizeTrigger.call(() => {
-            this._setBar();
-        }, 100));
+        AppEvent.RESIZE.listen(this, () => this._resizeTrigger.call(() => this._setBar(), 100));
 
     }
 
     componentDidMount() {
         super.componentDidMount(...arguments);
         this._parent = ReactDOM.findDOMNode(this).parentElement;
-        if (!this._parent)return;
+        if (!this._parent) return;
         this._parent.style.overflow = 'hidden';
-        this._parent.addEventListener('wheel', this._wheelListener);
+        this._parent.addEventListener('wheel', this._wheelListener, {passive: true});
         this._parent.addEventListener('mouseenter', this._enterListener);
         this._parent.addEventListener('mouseleave', this._leaveListener);
         this._setBar();
@@ -81,7 +79,7 @@ export class Scrollbar extends Component {
      * @private
      */
     _setBar() {
-        if (!this._bar || !this._parent)return;
+        if (!this._bar || !this._parent) return;
 
         if (this.props.horizontal) {
             if (this._parent.scrollWidth <= this._parent.offsetWidth) {
@@ -108,7 +106,7 @@ export class Scrollbar extends Component {
      * @private
      */
     _setScroll() {
-        if (!this._bar || !this._parent)return;
+        if (!this._bar || !this._parent) return;
 
         if (this.props.horizontal) {
             this._bar.style.width = (this._parent.offsetWidth * (this._parent.offsetWidth / this._parent.scrollWidth)) + 'px';

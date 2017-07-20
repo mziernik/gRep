@@ -21,14 +21,18 @@ export default class Record {
         this.repo.refs.push(this);
         ContextObject.add(context, this, () => this.repo.refs.remove(this));
 
-        this.onChange.listen(this, (action: CRUDE, changes: Map) => {
-            if (action !== CRUDE.UPDATE) return;
-            Utils.forEach(changes, (change: [], col: Column) => {
+        this.onChange.listen(this, data => {
+            if (data.action !== CRUDE.UPDATE) return;
+            Utils.forEach(data.changes, (change: [], col: Column) => {
                 const field: Field = this.fields.get(col);
-                field.value = change[0];
+                field.update(change[0]);
             });
         });
 
+    }
+
+    get lastUpdate(): ?number { //timestamp ostatniej aktualizacji wiersza
+        return this.repo.recordsUpdateTsMap.get(this.pk);
     }
 
     set row(row: []) {

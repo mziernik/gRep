@@ -5,7 +5,7 @@ import Permission from "../application/Permission";
 import * as Utils from "../utils/Utils";
 import Action from "./Action";
 import Dev from "../Dev";
-import {Type} from  "../core";
+import {Type} from "../core";
 import * as CRUDE from "./CRUDE";
 import LocalRepoStorage from "./storage/LocalRepoStorage";
 
@@ -109,8 +109,8 @@ export class PermissionRecord extends Record {
             this.EXECUTE.value = crude.indexOf("E") !== -1;
 
         }
-        this.onFieldChange.listen(this, (field: Field, prev: ?any, curr: ?any, wasChanged: boolean) => {
-            if (!wasChanged) return;
+        this.onFieldChange.listen(this, data => {
+            if (!data.wasChanged) return;
             Repository.commit(this, [this]);
         });
     }

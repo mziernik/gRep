@@ -9,7 +9,7 @@ export default class WebApiStatus extends Component {
 
     constructor() {
         super(...arguments);
-        State.onChange.listen(this, (state: State) => this.forceUpdate());
+        State.onChange.listen(this, data => this.forceUpdate());
     }
 
     render() {

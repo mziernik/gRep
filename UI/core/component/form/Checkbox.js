@@ -12,6 +12,10 @@ export default class Checkbox extends FormComponent {
         threeState: PropTypes.bool
     };
 
+    state: {
+        icon: Icon // ikona checkboxa
+    };
+
     constructor() {
         super(...arguments);
         this.state = {icon: this._setIcon()};

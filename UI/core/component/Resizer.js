@@ -189,7 +189,7 @@ export default class Resizer extends Component {
         window.removeEventListener('mouseup', this.resizeEvent, false);
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
-        AppEvent.RESIZE.send(this, e);
+        AppEvent.RESIZE.send(this, {event: e});
     }
 
     /** Rysuje odpowiednie uchwyty do skalowania elementu
@@ -275,7 +275,7 @@ export default class Resizer extends Component {
                 style={{
                     position: this.props.from ? 'fixed' : 'relative',
                     ...this.props.style,
-                    flex: this.props.resizable ? '' : this.props.style.flex ,
+                    flex: this.props.resizable ? '' : this.props.style.flex,
                 }}
                 {...this.props.outerProps}
             >

@@ -31,8 +31,8 @@ export class EventType {
         Object.preventExtensions(this);
     }
 
-    send(context: any, ...value: any) {
-        new AppEvent(context, this, ...value);
+    send(context: any, data: Object) {
+        new AppEvent(context, this, data);
     }
 
     /**
@@ -43,7 +43,7 @@ export class EventType {
      */
     listen(context: any, callback: (value: any, event: AppEvent) => any) {
         Check.isFunction(callback);
-        this.dispatcher.listen(context, (...args) => callback(...args));
+        this.dispatcher.listen(context, data => callback(data));
         return this;
     }
 
@@ -74,7 +74,7 @@ export default class AppEvent {
     sender: any;
     /** @type {EventType} Typ zdarzenia */
     type: EventType;
-    value: ?any;
+    data: Object;
     sent = false;
     /** @type {EventHandler[]} handlery, które obsłużyły zdarzenie */
     handlers: Observer[] = [];
@@ -86,12 +86,12 @@ export default class AppEvent {
      *
      * @param sender
      * @param {EventType} type
-     * @param value
+     * @param data
      */
-    constructor(sender: any, type: EventType, ...value: ?any) {
+    constructor(sender: any, type: EventType, data: Object) {
         this.sender = sender;
         this.type = Check.instanceOf(type, [EventType]);
-        this.value = value;
+        this.data = data;
 
         queue.push(this);
 
@@ -99,7 +99,7 @@ export default class AppEvent {
             while (queue.length) {
                 const event: AppEvent = queue.splice(0, 1)[0];
                 queue.remove(event);
-                event.type.dispatcher.dispatch(sender, ...event.value, event);
+                event.type.dispatcher.dispatch(sender, {event: event, ...event.data});
                 event.sent = true;
                 If.isFunction(event.onSent, onSent => onSent(event));
             }
@@ -108,7 +108,7 @@ export default class AppEvent {
 }
 
 
-window.addEventListener("resize", (e: Event) => AppEvent.RESIZE.send(window, e));
+window.addEventListener("resize", (e: Event) => AppEvent.RESIZE.send(window, {event: e}));
 
 
 

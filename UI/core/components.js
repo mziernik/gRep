@@ -14,7 +14,10 @@ export {default as Table} from "./component/Table";
 export {default as Button} from "./component/Button";
 export {default as Panel} from "./component/Panel";
 export {default as Resizer} from "./component/Resizer";
-export {default as Dragger}from "./component/Dragger.js";
+export {default as Dragger} from "./component/Dragger.js";
+
+export {ModalWindow, MW_BUTTONS} from "./component/ModalWindow";
+export {PopupMenu, MenuItem, MenuItemSeparator} from "./component/PopupMenu";
 
 /************************* KONTROLKI FORMULARZA *************************/
 export {default as Checkbox} from "./component/form/Checkbox";

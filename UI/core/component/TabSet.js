@@ -2,6 +2,8 @@ import {React, PropTypes, Utils, If} from '../core';
 import {Component, Icon} from '../components';
 import './TabSet.css';
 
+//ToDo: Wojtek: Zawijanie nazw zakładek gdy sie nie mieszczą
+
 /** Klasa do obsługi zakładek */
 export class TabSet extends Component {
     props: {
@@ -12,6 +14,11 @@ export class TabSet extends Component {
     static propTypes = {
         vertical: PropTypes.bool,
         selectedIndex: PropTypes.number
+    };
+
+    state:{
+        selected: Number, // index otwartej zakładki
+        arrows: boolean, // czy widoczne są strzałki od przewijania
     };
 
     constructor() {

@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {React, ReactDOM, PropTypes, Field, Check, Utils, If, Dev, Type} from '../../core.js';
+import {React, ReactDOM, PropTypes, Field, Check, Utils, If, Dev, Type, Repository} from '../../core.js';
 import {Component, Icon, Input, Memo, List, Multiple, DatePicker, Select, Checkbox} from '../../components.js';
 import Hint from "../Hint";
 
@@ -83,8 +83,8 @@ export default class FCtrl extends Component {
     // Wskaźnik błędu i ostrzeżenia występują zamiennie, pozostałe sumują się
 
     state: {
-        warning: ?string,
-        error: ?string
+        warning: ?string, // treść ostrzeżenia
+        error: ?string // treść błędu
     };
 
     constructor() {
@@ -98,9 +98,9 @@ export default class FCtrl extends Component {
 
         this.state = {error: this.field.error, warning: this.field.warning};
 
-        this.field.onChange.listen(this, (a, b) => {
+        this.field.onUpdate.listen(this, data => {
             this._markAsChanged(true);
-            If.isFunction(this.props.onChange, f => f(this, a, b));
+            If.isFunction(this.props.onChange, f => f(this, data));
             this.forceUpdate(true);
         });
 
@@ -109,14 +109,20 @@ export default class FCtrl extends Component {
     _markAsChanged(state: boolean) {
         if (!this.htmlElement || !this.props.markChanges) return;
         this.htmlElement.setAttribute("changed", state);
-        this.htmlElement.parentNode.setAttribute("fctrl-changed", state);
+        if (this.htmlElement.parentNode)
+            this.htmlElement.parentNode.setAttribute("fctrl-changed", state);
         if (state) setTimeout(() => this._markAsChanged(false), 3000);
     }
 
     _setHtmlElement(element: HTMLElement) {
         if (this.htmlElement || !element) return;
         this.htmlElement = element;
-        this._markAsChanged(null);
+        const now = new Date().getTime();
+        const tolerance = 4000;
+        const mark = this.field
+            && ((this.field.lastUpdate && (now - this.field.lastUpdate < tolerance))
+                || (this.field.record && now - this.field.record.lastUpdate < tolerance ));
+        this._markAsChanged(mark ? true : null);
     }
 
     componentDidMount() {
@@ -151,11 +157,11 @@ export default class FCtrl extends Component {
 
         if (this.props.inline
             || (!this.props.required
-            && !this.props.name
-            && !this.props.preview
-            && !this.props.description
-            && !this.props.error
-            && !this.props.value)) {
+                && !this.props.name
+                && !this.props.preview
+                && !this.props.description
+                && !this.props.error
+                && !this.props.value)) {
 
             if (this.field.config.enumIcons) {
 

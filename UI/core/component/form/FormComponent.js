@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {React, PropTypes, Field, Check} from '../../core';
+import {React, PropTypes, Field, Check, Dev, EError} from '../../core';
 import {Component} from '../../components';
 
 
@@ -22,8 +22,12 @@ export default class FormComponent extends Component {
     }
 
     _handleChange(done: boolean, e: ?Event, value: any) {
-        this.field.set(value);
-        if (done)
-            this.field.validate(true);
+        try {
+            this.field.set(value);
+            if (done)
+                this.field.validate(true);
+        } catch (e) {
+            this.field.error = new EError(e).message;
+        }
     }
 };

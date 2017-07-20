@@ -19,6 +19,7 @@ export default class PRepositories extends Page {
                     actions: "Akcje",
                     id: "ID",
                     name: "Nazwa",
+                    group: "Grupa",
                     recs: "Rekordów",
                     updates: "Ilość aktualizacji",
                     last: "Ostatnia aktualizacja",
@@ -29,6 +30,7 @@ export default class PRepositories extends Page {
                 rowMapper={(repo: Repository) => {
                     return {
                         name: repo.name,
+                        group: repo.config.group,
                         id: repo.key,
                         recs: repo.rows.size,
                         updates: repo.updates,

@@ -22,8 +22,8 @@ export default class Breadcrumb extends Component {
 
     constructor() {
         super(...arguments);
-        AppEvent.NAVIGATE.listen(this, (page: Endpoint) => {
-            this.page = page;
+        AppEvent.NAVIGATE.listen(this, data => {
+            this.page = data.page;
             this.forceUpdate();
         });
     }
@@ -50,9 +50,9 @@ export default class Breadcrumb extends Component {
 
         pages.forEach((page: Endpoint) => {
             if (elms.length)
-                elms.push(<span className={ Icon.ANGLE_DOUBLE_RIGHT}
+                elms.push(<span className={Icon.ANGLE_DOUBLE_RIGHT}
                                 key={++idx}
-                                style={ {
+                                style={{
                                     fontSize: "0.8em",
                                     display: "table-cell",
                                     padding: "0 .5em",
@@ -65,7 +65,7 @@ export default class Breadcrumb extends Component {
         });
 
         return <span className="c-breadcrumbs">
-            { elms }
+            {elms}
         </span>
     }
 

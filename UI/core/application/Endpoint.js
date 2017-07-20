@@ -58,7 +58,7 @@ export default class Endpoint {
         if (!Endpoint.homePage && name === "/")
             Endpoint.homePage = this;
 
-        Endpoint.onChange.dispatch(this);
+        Endpoint.onChange.dispatch(this, {endpoint: this});
     }
 
 
@@ -140,7 +140,7 @@ export default class Endpoint {
                 const props = {};
                 props.key = Utils.randomId(); // dodanie losowego klucza zmusza reacta do ponownego utworzenia komponentu dziedziczącego po page
 
-                this.onNavigate.dispatch(this, this);
+                this.onNavigate.dispatch(this, {endpoint: this, route: route});
 
                 if (this._props)
                     for (let name in this._props)
@@ -153,12 +153,12 @@ export default class Endpoint {
                 route.endpoint = this;
                 props.route = route;
 
+                AppEvent.NAVIGATE.send(this, {endpoint: this, props: props});
                 const el = React.createElement(this._component, props, null);
-                AppEvent.NAVIGATE.send(this, this, props);
                 return el;
             }}
 
         />
-    }
+    };
 
 }

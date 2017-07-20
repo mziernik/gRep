@@ -52,7 +52,7 @@ export default class AppStatus {
         status.details = details;
         status.timeout = timeout;
 
-        AppStatus.onChange.dispatch(context, status);
+        AppStatus.onChange.dispatch(context, {status: status});
 
         if (timeout > 0)
             setTimeout(() => {

@@ -23,9 +23,9 @@ export default class PRecord extends AbstractRecordEditPage {
 
     render() {
 
-        this.record.onChange.listen(this, (action: CRUDE, map: Map) => {
+        this.record.onChange.listen(this, data => {
             if (!this._saveTs) return;
-            let changes = Utils.forEach(map, (arr: [], col: Column) =>
+            let changes = Utils.forEach(data.changes, (arr: [], col: Column) =>
                 col.key + ": " + Utils.escape(arr[0]) + " => " + Utils.escape(arr[1]));
             AppStatus.debug(this, "Czas: " + (new Date().getTime() - this._saveTs) + " ms", changes.join("\n"), 30000);
             this._saveTs = null;

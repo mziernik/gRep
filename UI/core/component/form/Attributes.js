@@ -40,7 +40,7 @@ export class Attributes extends Component {
     static renderRecord(rec: Record, edit: boolean): ReactComponent {
         return <Attributes>
             {Utils.forEach(rec.fields, (f: Field) =>
-                f.config.hidden ? undefined : <Attr edit={edit} field={f}/>
+                f.config.disabled || f.config.hidden ? undefined : <Attr edit={edit} field={f}/>
             )}
         </Attributes>
     }
@@ -52,7 +52,7 @@ export class Attributes extends Component {
         return <table className="c-attributes" style={this.props.style}>
 
             <tbody>
-            { this.children
+            {this.children
                 .props({
                     preview: this.props.preview,
                     edit: this.props.edit
@@ -67,7 +67,7 @@ export class Attributes extends Component {
                             <td colSpan={2}>{child.element}</td>
                         </tr>;
                 })
-                .render() }
+                .render()}
             </tbody>
         </table>;
     }
@@ -124,7 +124,7 @@ export class Attr extends Component {
         return <tr className="c-attributes-row">
 
             <td>{field ?
-                <FCtrl field={field} required={1} name={2} error={3}/> : this.children.render(this.props.name)  }</td>
+                <FCtrl field={field} required={1} name={2} error={3}/> : this.children.render(this.props.name)}</td>
             <td>
                 {field ? <div style={{display: "flex"}}>
                     <FCtrl

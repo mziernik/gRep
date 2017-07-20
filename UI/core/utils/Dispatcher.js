@@ -40,7 +40,7 @@ export default class Dispatcher {
      * @param func
      * @return {Dispatcher}
      */
-    listen(context: any, func: (...args: any) => ?any): Observer {
+    listen(context: any, func: (data: Object) => ?any): Observer {
         Check.isDefined(context, "Brak definicji kontekstu");
         const o = new Observer(this, context, func);
         this.observers.push(o);
@@ -60,14 +60,14 @@ export default class Dispatcher {
      * @param args
      * @return {Dispatcher}
      */
-    dispatch(sender: any, ...args: any): Dispatcher {
+    dispatch(sender: any, data: Object): Dispatcher {
 
         const name = Utils.className(sender);
         if (this.senders.indexOf(name) === -1)
             this.senders.push(name);
 
         ++this.sent;
-        this.observers.forEach((o: Observer) => o.dispatch(sender, ...args));
+        this.observers.forEach((o: Observer) => o.dispatch(sender, data));
         return this;
     }
 
@@ -137,7 +137,7 @@ export class Observer {
      * @param args
      * @return {Dispatcher}
      */
-    dispatch(sender: any, ...args: any): Observer {
+    dispatch(sender: any, data: any): Observer {
 
         if (typeof this.canHandle === "boolean" && !this.canHandle)
             return;
@@ -150,11 +150,20 @@ export class Observer {
                 return;
         }
         if (this.dispatcher.beforeDispatch)
-            this.dispatcher.beforeDispatch.dispatch(this, ...args);
+            this.dispatcher.beforeDispatch.dispatch(this, data);
 
         ++this.dispatcher.received;
 
-        Dev.duration([this, this.context, sender], "Dispatch", () => this.func(...args));
+        const obj = {
+            _context: this.context, // odbiorca
+            _sender: sender, // nadawca
+            _dispatcher: this.dispatcher,
+            _observer: this
+        };
+
+        Utils.clone(data, obj);
+
+        Dev.duration([this, this.context, sender], "Dispatch", () => this.func(obj));
 
         return this;
     }

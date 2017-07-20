@@ -81,7 +81,10 @@ export default class WebApiRepoStorage extends RepositoryStorage {
         const dto: Object = WebApiRepoStorage.buildDTO(records, crude === CRUDE.CREATE, crude);
 
         Dev.log(context, "Save", dto);
-        return (this.methods.edit({data: dto}): WebApiRequest).promise;
+        return (this.methods.edit({data: dto}, response => {
+            if (response)
+                Repository.update(this, response);
+        }): WebApiRequest).promise;
     }
 
     action(repo: Repository, action: string, pk: any, params: object): Promise {
@@ -90,6 +93,11 @@ export default class WebApiRepoStorage extends RepositoryStorage {
             action: action,
             pk: pk,
             params: params
+        }, response => {
+            const result = response.result;
+            if (response.repositories)
+                Repository.update(this, response.repositories);
+
         }): WebApiRequest).promise;
     }
 

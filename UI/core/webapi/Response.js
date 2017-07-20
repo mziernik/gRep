@@ -29,7 +29,12 @@ export default class WebApiResponse {
         this.type = data.type;
 
         if (this.type === "event" && !data.id) {
-            webApi.onEvent.dispatch(this, data.source, data.event, data.data, this);
+            webApi.onEvent.dispatch(this, {
+                source: data.source,
+                event: data.event,
+                data: data.data,
+                response: this
+            });
             return;
         }
 

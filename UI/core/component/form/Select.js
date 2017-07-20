@@ -29,6 +29,9 @@ export default class Select extends FormComponent {
         readOnly: PropTypes.bool
     };
 
+    state: {
+        open: ?boolean // czy rozwinięty
+    };
 
     constructor() {
         super(...arguments);

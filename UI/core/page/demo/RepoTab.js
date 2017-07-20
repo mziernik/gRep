@@ -31,8 +31,8 @@ export default class RepoTab extends Component {
 
     constructor() {
         super(...arguments);
-        RUSERS.onChange.listen(this, (action: CRUDE, rec: Record, changes: Map) => {
-            if (action !== CRUDE.UPDATE)
+        RUSERS.onChange.listen(this, data => {
+            if (data.action !== CRUDE.UPDATE)
                 this.forceUpdate(true);
         });
     }
