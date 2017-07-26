@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 import {React, PropTypes, Utils} from "../core.js";
-import {Component} from "../components.js";
+import {Component, Scrollbar} from "../components.js";
 
 export class Splitter extends Component {
 
@@ -19,7 +19,6 @@ export class Splitter extends Component {
         this._moveListener = (e) => this._changeSizes(e);
         this._upListener = (e) => {
             this._drag = null;
-            this._childIndex = -1;
             document.body.style.userSelect = '';
             document.body.style.cursor = '';
         };
@@ -33,12 +32,11 @@ export class Splitter extends Component {
         window.removeEventListener('mouseup', this._upListener);
     }
 
-    _mouseDown(e: MouseEvent, childIndex: number = -1) {
+    _mouseDown(e: MouseEvent) {
         document.body.style.userSelect = 'none';
         document.body.style.cursor = e.currentTarget.style.cursor;
         this._drag = e.currentTarget;
         this._startPos = {x: e.pageX, y: e.pageY};
-        this._childIndex = childIndex;
     }
 
     _getNumber(val: string): number {
@@ -57,9 +55,9 @@ export class Splitter extends Component {
             return [i, child.props.size]
         });
         sorted.sort((a, b) => {
-            if (a[1] === b[1])return 0;
-            if (!a[1])return 1;
-            if (!b[1])return -1;
+            if (a[1] === b[1]) return 0;
+            if (!a[1]) return 1;
+            if (!b[1]) return -1;
             return this._getNumber(b[1]) - this._getNumber(a[1]);
         });
         let res = [];
@@ -82,7 +80,6 @@ export class Splitter extends Component {
     }
 
     split() {
-        const panels = this.props.children.length;
         const base = this._initSizes();
 
         this._childes = [];
@@ -111,7 +108,7 @@ export class Splitter extends Component {
     }
 
     _changeSizes(e: MouseEvent) {
-        if (!this._drag)return;
+        if (!this._drag) return;
         const horizontal = this.props.horizontal;
         let diff = parseInt(horizontal ? (e.pageY - this._startPos.y) : (e.pageX - this._startPos.x));
         if (diff !== 0) {
@@ -188,7 +185,10 @@ export class SplitPanel extends Component {
         };
 
         return <div style={style}>
-            <div style={contentStyle}>{this.props.children}</div>
+            <div style={contentStyle}>
+                <Scrollbar/>
+                <Scrollbar horizontal/>
+                {this.props.children}</div>
             {this.props.splitHandle ?
                 <SplitterHandle
                     horizontal={this.props.horizontal}
@@ -222,7 +222,8 @@ class SplitterHandle extends Component {
             style.cursor = 'col-resize';
             style.right = '-8px';
         }
-        return <div style={style}
+        return <div className={"c-splitter-handle" + (this.props.horizontal ? "-horizontal" : "")}
+                    style={style}
                     onMouseDown={(e) => this.props.onMouseDown(e)}/>;
     }
 }

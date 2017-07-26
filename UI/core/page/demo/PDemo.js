@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, Field, Type, FieldConfig, Utils} from '../../core';
+import {React, Field, Type, Utils} from '../../core';
 import {Page, Icon, FCtrl, Panel} from '../../components';
 import {Tab, TabSet} from '../../component/TabSet';
 import FormTab from "./FormTab";
@@ -10,14 +10,15 @@ import DragAndDropTab from "./DragAndDropTab";
 import ModalWindowTab from "./ModalWindowTab";
 import AlertsTab from "./AlertsPopupTab";
 import SplitterTab from "./SplitterTab";
-import RepoTab from "./RepoTab";
 import PopupMenuTab from "./PopupMenuTab";
+
+import "../../repository/DemoRepositories.js";
 
 export default class PDemo extends Page {
 
     constructor() {
         super(...arguments);
-        this.state = {selectedTab: 0};
+        this.state = {selectedTab: 2};
     };
 
     render() {
@@ -33,10 +34,6 @@ export default class PDemo extends Page {
                 <Tab title="Listy"
                      label={<span><span className={Icon.LIST}/><span>Listy</span></span>}>
                     <ListsTab/>
-                </Tab>
-                <Tab title="Repozytorium"
-                     label={<span><span className={Icon.LIST}/><span>Repozytorium</span></span>}>
-                    <RepoTab/>
                 </Tab>
                 <Tab label="ReactTable">
                     <TablesTab/>

@@ -200,6 +200,7 @@ export default class Resizer extends Component {
         let res = [];
         if (this.props.east)
             res.push(<div
+                className="c-splitter-handle"
                 key="east"
                 style={{
                     ...style,
@@ -213,6 +214,7 @@ export default class Resizer extends Component {
             />);
         if (this.props.west)
             res.push(<div
+                className="c-splitter-handle"
                 key="west"
                 style={{
                     ...style,
@@ -226,6 +228,7 @@ export default class Resizer extends Component {
             />);
         if (this.props.north)
             res.push(<div
+                className="c-splitter-handle-horizontal"
                 key="north"
                 style={{
                     ...style,
@@ -239,6 +242,7 @@ export default class Resizer extends Component {
             />);
         if (this.props.south)
             res.push(<div
+                className="c-splitter-handle-horizontal"
                 key="south"
                 style={{
                     ...style,

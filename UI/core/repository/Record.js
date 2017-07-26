@@ -1,19 +1,22 @@
-import {Utils, Check, If, Field, Repository, Dispatcher, Debug, CRUDE, Exception, Column, ContextObject} from "../core";
+import {Utils, Check, Is, Field, Repository, Dispatcher, Debug, CRUDE, Exception, Column, ContextObject} from "../core";
 
 
 "use strict";
+import {RepoCursor, RepoReference} from "./Repository";
 
 export default class Record {
 
     /** Zdarzenie utworzenia lub aktualizacji rekordu */
     onChange: Dispatcher = new Dispatcher(); // action: CRUDE, changes: Map
 
+    onReferenceChange: Dispatcher = new Dispatcher();
     onFieldChange: Dispatcher = new Dispatcher(); // field, prevValue, currValue, wasChanged
     repo: Repository;
     action: ?CRUDE = null;
     fields: Map<Column, Field> = new Map();
     _pk: any;
     context: any;
+    changedReferences: Record[] = [];
 
     constructor(repo: Repository, context: any) {
         this.context = Check.isDefined(context);
@@ -55,8 +58,8 @@ export default class Record {
         return idx;
     }
 
-    get displayName(): string {
-        return this.get(this.repo.config.displayNameColumn || this.repo.config.primaryKeyColumn).displayValue;
+    get displayValue(): string {
+        return this.repo.getDisplayValue(this);
     }
 
     /** Zwraca wartość klucza głównego */
@@ -66,7 +69,8 @@ export default class Record {
 
     /** Zwraca pole klucza głównego */
     get primaryKey(): Field {
-        return Check.isDefined(this.fields.get(this.repo.primaryKeyColumn), new Error("Brak klucza głównego"));
+        return Check.isDefined(this.fields.get(this.repo.primaryKeyColumn), new Error("Brak klucza głównego repozytorium "
+            + Utils.escape(this.repo.key)));
     }
 
     get canRead(): boolean {
@@ -81,6 +85,15 @@ export default class Record {
         return this.repo.config.crude.contains('D');
     }
 
+    get references(): RepoReference[] {
+        const refs: RepoReference[] = this.repo.references;
+        const pk = this.pk;
+        Utils.forEach(refs, (rr: RepoReference) => {
+            const repo: Repository = rr.column.repository;
+            rr.records.addAll(repo.find(this, (cursor: RepoCursor) => cursor.get(rr.column) === pk));
+        });
+        return refs;
+    }
 
     // set(col: Column, value: any): Record {
     //     Check.instanceOf(col, [Column]);
@@ -122,7 +135,7 @@ export default class Record {
             column = (column: Field).config;
 
         const fk = this.get(column).value;
-        if (!If.isDefined(fk)) return null;
+        if (!Is.defined(fk)) return null;
 
         const frepo: Repository = column.foreign();
 

@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, PropTypes, Utils, Type} from '../../core';
+import {React, PropTypes, Utils, Type, Is} from '../../core';
 import {FormComponent, Icon} from '../../components';
 import {DropdownList} from 'react-widgets';
 
@@ -44,8 +44,8 @@ export default class Select extends FormComponent {
         } else {
 
             Utils.forEach(this.field.enumerate, (value, key) => this._enumerate.push({
-                    text: value,
-                    value: key,
+                    text: Utils.toString(value),
+                    value: Utils.toString(key),
                     checked: false
                 })
             );
@@ -145,7 +145,7 @@ export default class Select extends FormComponent {
                     textField='text'
                     valueField='value'
                     data={this._enumerate}
-                    defaultValue={this.props.units ? this.field.unit : this.field.value}
+                    defaultValue={this.props.units ? this.field.unit : Is.defined(this.field.value) ? Utils.toString(this.field.value) : this.field.value}
                     title={this.field.hint}
                     open={this.state.open}
                     filter={(this._enumerate.length < 10 || this._multiSelect || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}

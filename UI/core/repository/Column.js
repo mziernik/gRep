@@ -1,8 +1,9 @@
 // @flow
 'use strict';
 
-import {Check, If, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store} from "../core";
+import {Check, Is, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store} from "../core";
 import {DataType} from "./Type";
+
 
 //ToDo: Miłosz: readOnly + !autoUpdate = konflikt
 export default class Column {
@@ -18,6 +19,7 @@ export default class Column {
     enumerate: ?() => Map | Object | Array = null;
     /** Ikony poszczególnych pozycji enumeraty wyświetlane w trybie inline*/
     enumIcons: ?Object = null;
+    enumStyles: ?Object = null;
     units: ?() => {} = null;
     readOnly: ?boolean = null;
     required: ?boolean = null;
@@ -41,15 +43,26 @@ export default class Column {
     hidden: ? boolean = null;
     compare: ?(a: ?any, b: ?any) => number = null;
     filter: ?(filter: ?any, cell: ?any) => boolean = null;
-    foreign: ?() => Repository = null;
+    foreign: ?() => Repository | string = null;
+    repository: ?Repository = null;
 
     constructor(config: (c: Column) => void) {
         Object.preventExtensions(this);
         Check.isFunction(config);
         config(this);
+        this._update();
+    }
+
+    _load(data: Object) {
+        for (let name in this)
+            this[name] = data[name] || null;
+        this._update();
+    }
+
+    _update() {
 
         Check.id(this.key);
-        Check.nonEmptyString(this.name);
+        Check.nonEmptyString(this.name, new Error("Nazwa kolumny " + this.key + " nie może być pusta"));
 
         if (!(this.type instanceof DataType))
             this.type = Type.get(this.type);
@@ -57,7 +70,7 @@ export default class Column {
         if (this.trimmed === null && this.type.single === "string" && this.type !== Type.PASSWORD)
             this.trimmed = true;
 
-        If.isString(this.type, t => this.type = Type.get(t));
+        Is.string(this.type, t => this.type = Type.get(t));
         Check.instanceOf(this.type, [Type.DataType]);
 
         Check.nonEmptyString(this.key);
@@ -65,12 +78,18 @@ export default class Column {
 
         this.hint = this.hint || this.name;
 
+        if (Is.string(this.foreign)) {
+            const foreignRepoKey = this.foreign;
+            this.foreign = () => Repository.get(foreignRepoKey, true);
+        }
+
         if (this.type.enumerate && !this.enumerate)
             this.enumerate = () => this.type.enumerate;
 
         this.enumIcons = this.enumIcons || this.type.enumIcons;
+        this.enumStyles = this.enumStyles || this.type.enumStyles;
 
-        if (this.enumerate && !If.isFunction(this.enumerate)) {
+        if (this.enumerate && !Is.func(this.enumerate)) {
             const arr = this.enumerate instanceof Array;
             const map: Map = new Map();
             Utils.forEach(this.enumerate, (value, key) => {
@@ -78,10 +97,12 @@ export default class Column {
                     key = value;
                     if (value instanceof Array) {
                         key = value[0];
-                        value = If.isDefined(value[1]) ? value[1] : key;
+                        value = Is.defined(value[1]) ? value[1] : key;
                     }
                 }
-                map.set(key, value);
+
+
+                map.set(this.type.parse(key), value);
             });
             this.enumerate = () => map;
         }
@@ -90,13 +111,11 @@ export default class Column {
         if (this.type.units && !this.units)
             this.units = () => this.type.units;
 
-        If.isDefined(this.enumerate, e => Check.isFunction(e));
-        If.isDefined(this.units, e => Check.isFunction(e));
+        Is.defined(this.enumerate, e => Check.isFunction(e));
+        Is.defined(this.units, e => Check.isFunction(e));
 
         if (this.foreign)
             this.enumerate = () => Check.instanceOf(this.foreign(), [Repository]).displayMap;
-
-        Utils.makeFinal(this);
     }
 
     parse(value: any): any {
@@ -106,9 +125,3 @@ export default class Column {
 
 }
 
-export const TEXT_CASING = {
-    NONE: null,
-    UPPERCASE: 'uppercase',
-    LOWERCASE: 'lowercase',
-    CAPITALIZE: 'capitalize'
-};

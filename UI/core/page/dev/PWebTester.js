@@ -111,40 +111,32 @@ export default class PWebTester extends Page {
             resize: "none",
         };
 
-        return <Panel fit noPadding>
-
-            <Splitter>
-
-                <Splitter horizontal>
-                    <CodeMirror style={cmStyle} field={this.HTML} mode="html"/>
-                    <CodeMirror style={cmStyle} field={this.JS} mode="javascript"/>
-                    <CodeMirror style={cmStyle} field={this.CSS} mode="css"/>
-                </Splitter>
-
-                <Splitter horizontal>
-                    <iframe ref={(e) => this.fra = e}
-                            style={{
-                                border: "none",
-                                backgroundColor: "#fff",
-                                width: "100%",
-                                height: "100%",
-                                border: "none",
-                            }}/>
-
-                    <div ref={(e) => this.console = e}
-                         style={{
-                             backgroundColor: "#222",
-                             color: "#ddd",
-                             font: "10pt Consolas",
-                             padding: "8px",
-                             width: "100%",
-                             height: "100%",
-                             overflow: "auto"
-                         }}
-                    />
-
-                </Splitter>
-            </Splitter>
+        return <Panel fit split noPadding>
+            <Panel fit split vertical>
+                <CodeMirror style={cmStyle} field={this.HTML} mode="html"/>
+                <CodeMirror style={cmStyle} field={this.JS} mode="javascript"/>
+                <CodeMirror style={cmStyle} field={this.CSS} mode="css"/>
+            </Panel>
+            <Panel fit split vertical>
+                <iframe ref={(e) => this.fra = e}
+                        style={{
+                            border: "none",
+                            backgroundColor: "#fff",
+                            width: "100%",
+                            height: "100%",
+                        }}/>
+                <div ref={(e) => this.console = e}
+                     style={{
+                         backgroundColor: "#222",
+                         color: "#ddd",
+                         font: "10pt Consolas",
+                         padding: "8px",
+                         width: "100%",
+                         height: "100%",
+                         overflow: "auto"
+                     }}
+                />
+            </Panel>
         </Panel>
     }
 }

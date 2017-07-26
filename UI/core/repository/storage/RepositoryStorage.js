@@ -1,4 +1,5 @@
 import {Utils, Record, Field, Repository, CRUDE, Dev, AppStatus} from "../../core";
+import Alert from "../../component/alert/Alert";
 
 export default class RepositoryStorage {
 
@@ -32,7 +33,10 @@ export default class RepositoryStorage {
                     Dev.error(this, e);
                     AppStatus.error(this, e);
                 }
-            }));
+            }).catch(e => {
+                Alert.error(RepositoryStorage, e)
+            })
+        );
     }
 
 }

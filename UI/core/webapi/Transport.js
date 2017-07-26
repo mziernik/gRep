@@ -1,7 +1,7 @@
 import WebApiRequest from "./Request";
 import {HubConnection} from "./SignalR/HubConnection";
 import WebApiResponse from "./Response";
-import {Debug, Utils, If, Dispatcher} from "../core";
+import {Dev, Utils, Is, Dispatcher} from "../core";
 
 let _reconnect: ?() => void;
 
@@ -104,7 +104,7 @@ export class WebSocketTransport extends WebApiTransport {
                 return;
             }
             let msg = e;
-            if (If.isDefined(e.statusText))
+            if (Is.defined(e.statusText))
                 msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
             this.onClose(e.code ? getReason(e.code, this.connected) : msg, e);
         };
@@ -117,8 +117,6 @@ export class WebSocketTransport extends WebApiTransport {
             this.onMessage(JSON.parse(e.data));
         };
     }
-
-
 }
 
 
@@ -133,9 +131,13 @@ export class SignalRTransport extends WebApiTransport {
                 if (!this.connected) return;
                 data = data || {};
                 data.id = req.id;
+                data.type = "response";
                 new WebApiResponse(req.webApi, data);
             })
-            .catch(e => WebApiResponse.error(req, e));
+            .catch(e => {
+                Dev.error(this, e);
+                WebApiResponse.error(req, e);
+            });
     }
 
     close() {
@@ -156,7 +158,7 @@ export class SignalRTransport extends WebApiTransport {
                     return;
                 }
                 let msg = e;
-                if (If.isDefined(e.statusText))
+                if (Is.defined(e.statusText))
                     msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
                 this.onClose(e && e.code ? getReason(e.code, this.connected) : msg, e);
             });
@@ -171,7 +173,7 @@ export class SignalRTransport extends WebApiTransport {
                 return;
             }
             let msg = e;
-            if (If.isDefined(e.statusText))
+            if (Is.defined(e.statusText))
                 msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
             this.onClose(e && e.code ? getReason(e.code, this.connected) : msg, e);
         };

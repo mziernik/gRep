@@ -12,7 +12,8 @@ import {
     Column,
     Repository,
     AppNode,
-    If,
+    Is,
+    Var,
     Record
 } from "../../core";
 import {Component, FCtrl, Panel, Checkbox, Icon, Link} from "../../components";
@@ -22,6 +23,7 @@ import {DataType} from "../../repository/Type";
 /**
  * Lista atrybutów wyświetlana w formie tabelarycznej
  */
+
 
 export class Attributes extends Component {
 
@@ -36,14 +38,6 @@ export class Attributes extends Component {
         style: PropTypes.object
     };
 
-
-    static renderRecord(rec: Record, edit: boolean): ReactComponent {
-        return <Attributes>
-            {Utils.forEach(rec.fields, (f: Field) =>
-                f.config.disabled || f.config.hidden ? undefined : <Attr edit={edit} field={f}/>
-            )}
-        </Attributes>
-    }
 
     render() {
 
@@ -108,7 +102,7 @@ export class Attr extends Component {
             field._value = this.field.value;
 
 
-        if (this.props.ifDefined && !If.isDefined(this.props.value) && (!field || !If.isDefined(field.value) ))
+        if (this.props.ifDefined && !Is.defined(this.props.value) && (!field || !Is.defined(field.value) ))
             return null;
 
 

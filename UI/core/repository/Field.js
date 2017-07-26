@@ -1,9 +1,9 @@
 // @flow
 'use strict';
 
-import {Check, If, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store, Dev} from "../core";
-import {DataType} from "./Type";
-import Column, {TEXT_CASING} from "./Column";
+import {Check, Is, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store, DEV_MODE} from "../core";
+import {DataType, TEXT_CASING} from "./Type";
+import Column from "./Column";
 
 export default class Field {
 
@@ -46,6 +46,15 @@ export default class Field {
 
     _getFullId: ?() => string = null;
 
+    static create(type: DataType, key: string, name: string, defaultValue: any = null) {
+        return new Field((c: Column) => {
+            c.type = type;
+            c.key = key;
+            c.name = name;
+            c.defaultValue = defaultValue;
+        })
+    }
+
     constructor(cfg: Column | (cfg: Column) => void, record: ?Record = null) {
 
         if (cfg instanceof Column)
@@ -57,14 +66,17 @@ export default class Field {
 
         cfg = this.config;
 
-        If.isDefined(cfg.defaultValue, val => this.value = val);
-        If.isDefined(cfg.defaultUnit, unit => this._unit = unit);
+        Is.defined(cfg.defaultValue, val => this.value = val);
+        Is.defined(cfg.defaultUnit, unit => this._unit = unit);
 
         if (record) {
             this.record = record;
             record.fields.set(this.config, this);
             this.onChange.listen(this, (data) => record.onFieldChange.dispatch(this, {field: this, source: data}));
         }
+
+        if (DEV_MODE)
+            this["#" + this.key + "[" + this.type.name + "]"] = null;
 
         Object.preventExtensions(this);
     }
@@ -136,7 +148,7 @@ export default class Field {
         if (value !== null && value !== undefined)
             try {
                 value = this.config.parse(value);
-                If.isFunction(this.validator, f => f(value));
+                Is.func(this.validator, f => f(value));
             } catch (e) {
                 e.message = this.getFullId() + ": " + e.message;
                 this.error = e.message;
@@ -147,6 +159,9 @@ export default class Field {
         this.changed = true;
         this._value = value;
         this.validate(done);
+
+        if (DEV_MODE)
+            this["#" + this.key + "[" + this.type.name + "]"] = value;
 
 
         this.onChange.dispatch(this, {
@@ -269,7 +284,7 @@ export default class Field {
 
         let err = check();
 
-        if (If.isFunction(this.validator))
+        if (Is.func(this.validator))
             try {
                 //$FlowFixMe
                 if (!this.validator(this._value, done)) {

@@ -1,4 +1,4 @@
-import {React, PropTypes, If} from "../core"
+import {React, PropTypes, Is} from "../core"
 import {Component} from "../components"
 import * as Utils from "../utils/Utils";
 
@@ -13,7 +13,7 @@ export default class JsonViewer extends Component {
 
     constructor() {
         super(...arguments);
-        If.isFunction(this.props.instance, f => f(this))
+        Is.func(this.props.instance, f => f(this))
         this.object = this.props.object;
     }
 

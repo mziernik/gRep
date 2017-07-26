@@ -9,7 +9,7 @@ import EError from "../utils/EError";
 import WebApiTransport, {State, WebSocketTransport} from "./Transport";
 import Dispatcher from "../utils/Dispatcher";
 import {AppStatus} from "../core";
-import * as If from "../utils/If";
+import * as If from "../utils/Is";
 
 export type OnSuccess = (data: ?any, response: WebApiResponse) => void;
 export type OnError = (error: Object, response: WebApiResponse) => void;

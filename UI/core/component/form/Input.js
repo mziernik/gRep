@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {React, PropTypes, Field, Utils} from '../../core.js';
+import {React, PropTypes, Utils} from '../../core.js';
 import {FormComponent} from '../../components.js';
 
 export default class Input extends FormComponent {

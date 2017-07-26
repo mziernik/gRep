@@ -1,8 +1,7 @@
 //@Flow
 'use strict';
-import {React, ReactDOM, Application, If} from '../core';
-import {Button, Icon, Resizer, Dragger} from '../components';
-import {Scrollbar} from "./Scrollbar";
+import {React, ReactDOM, Application, Is} from '../core';
+import {Button, Icon, Resizer, Dragger, Scrollbar} from '../components';
 
 export class ModalWindow {
 
@@ -65,7 +64,7 @@ export class ModalWindow {
     /** styl tagu z ikoną
      * @type {null}
      */
-    iconStyle: ?object = null;
+    iconStyle: ?Object = null;
 
     /** Tworzy nową instancję ModalWindow
      * @param config - callback konfigurujący instancję
@@ -73,7 +72,7 @@ export class ModalWindow {
      */
     static create(config: (cfg: ModalWindow) => void): ModalWindow {
         let ins = new ModalWindow();
-        if (config) If.isFunction(config, config(ins));
+        if (config) Is.func(config, config(ins));
         return ins;
     }
 
@@ -83,7 +82,7 @@ export class ModalWindow {
 
     /** otwiera okno */
     open() {
-        if (this._instance)return;
+        if (this._instance) return;
         this._instance = document.createElement('span');
         document.body.appendChild(this._instance);
         this._instance.style.position = 'fixed';
@@ -107,13 +106,13 @@ export class ModalWindow {
         let close = true;
         try {
             if (this.onConfirm)
-                If.isFunction(this.onConfirm, close = this.onConfirm(e));
+                Is.func(this.onConfirm, close = this.onConfirm(e));
         } catch (ex) {
             err = ex;
         }
         if (close)
             this.close(e);
-        if (err)throw err;
+        if (err) throw err;
     }
 
     /** zamknięcie okna z statusem false
@@ -125,13 +124,13 @@ export class ModalWindow {
         let close = true;
         try {
             if (this.onCancel)
-                If.isFunction(this.onCancel, close = this.onCancel(e));
+                Is.func(this.onCancel, close = this.onCancel(e));
         } catch (ex) {
             err = ex;
         }
         if (close)
             this.close(e);
-        if (err)throw err;
+        if (err) throw err;
     }
 
     /** zamknięcie okna bez zmiany jego statusu
@@ -140,17 +139,18 @@ export class ModalWindow {
     close(e: Event) {
         let err = null;
         try {
-            if (this.onClose)
-                If.isFunction(this.onClose, this.onClose(e, this.result));
+            Is.func(this.onClose, () => this.onClose(e, this.result));
         } catch (ex) {
             err = ex;
         }
         ReactDOM.unmountComponentAtNode(this._instance);
         this._instance.remove();
         this._instance = null;
-        e.preventDefault();
-        e.stopPropagation();
-        if (err)throw err;
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (err) throw err;
     }
 
     /** wyśrodkowuje okno
@@ -248,7 +248,7 @@ export class ModalWindow {
                         }}>{this.title}</span>
                     {this.closeButton ? <span className={"c-modal-window-exit " + Icon.TIMES}
                                               title="Zamknij"
-                                              style={ {flex: '0 0 auto'} }
+                                              style={{flex: '0 0 auto'}}
                                               onClick={(e) => this.close(e)}/> : null}
                 </div>
                 <div className="c-modal-window-content"
@@ -297,6 +297,7 @@ export class ModalWindow {
             </Resizer>);
     }
 }
+
 /** enumerata predefioniwanych przycisków
  * @type {{NONE: number, OK: number, CANCEL: number, YES: number, NO: number, CLOSE: number, OK_CANCEL: number, YES_NO: number, YES_NO_CLOSE: number}}
  */

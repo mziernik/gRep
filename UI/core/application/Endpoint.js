@@ -3,8 +3,6 @@
  */
 import {React, ReactComponent, AppEvent, Utils, Dispatcher, Check} from "../core";
 import Route from "react-router-dom/es/Route";
-import {Icon} from "../component/glyph/Icon";
-
 
 export const ENDPOINT_TARGET_TAB = "tab";
 export const ENDPOINT_TARGET_POPUP = "popup";
@@ -62,17 +60,48 @@ export default class Endpoint {
     }
 
 
+    static get devRouter(): Endpoint { //DevRouter
+        // nie można użyć importu
+        return Endpoint.getInstance(require("../page/dev/DevRouter").default);
+    }
+
+    static getInstance(endpointClass: any) {
+        return Utils.find(Endpoint.ALL, (page: Endpoint) => page instanceof endpointClass);
+    }
+
     static pageOf(component: React.Component): ?Endpoint {
         return Endpoint.ALL.find((page: Endpoint) => page._component === component);
     }
 
-    static navigate(link: string, target: string | MouseEvent = null, name: ?string = null) {
-        throw new Error("Metoda nie została nadpisana przez PageContainer.navigate");
-    }
+    static navigate(link: string, target: string | MouseEvent = null, key: ?string = null, name: ?string = null) {
+        if (target && target.ctrlKey !== undefined && target.shiftKey !== undefined)
+            target = (target: MouseEvent).ctrlKey ? "tab" : (target: MouseEvent).shiftKey ? "popup" : null;
+
+        if (!target) target = null;
+        else target = target.toLowerCase().trim();
+
+        Check.oneOf(target, [null, ENDPOINT_TARGET_TAB, ENDPOINT_TARGET_POPUP]);
+
+        // nie można użyć importu
+        const Application = require("./Application.js").default;
+        const PageTab = require("../page/PageContainer").PageTab;
+
+        // url nie zmienił się
+        if (!target && Application.router.history.location.pathname === link)
+            return;
+
+        if (target === ENDPOINT_TARGET_TAB)
+            new PageTab(key, name, false).setCurrent();
+
+        if (target === ENDPOINT_TARGET_POPUP)
+            new PageTab(key, name, true).setCurrent();
+
+        Application.router.history.push(link);
+    };
 
     navigate(params: ?Object = null, target: string | MouseEvent = null) {
         if (this.canNavigate)
-            Endpoint.navigate(this.getLink(params), target, this._name);
+            Endpoint.navigate(this.getLink(params), target, this.key, this._name);
     }
 
     get canNavigate() {

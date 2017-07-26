@@ -1,4 +1,4 @@
-import {Utils, Dev, Check, If, EError} from "../core";
+import {Utils, Dev, Check, Is, EError} from "../core";
 
 const confirmed: any[] = [];
 const awaiting: [] = [];
@@ -16,7 +16,7 @@ export function confirm(context: any, object: any) {
             awt[1]();
         } catch (e) {
             Dev.error(this, e);
-            If.isFunction(awt[2], f => f(e));
+            Is.func(awt[2], f => f(e));
         }
         toRemove.push(idx);
     });
@@ -32,7 +32,7 @@ export function waitFor(context: any, objects: [], onReady: () => void, onError:
     });
 
     if (ready) return true;
-    If.isFunction(onReady, f => awaiting.push([objects, f, onError]));
+    Is.func(onReady, f => awaiting.push([objects, f, onError]));
     return false;
 }
 

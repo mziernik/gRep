@@ -16,10 +16,12 @@ export function isDefined(value: ?any, error: ?Error = null): any {
         throw error ? error : new Error("Niezdefiniowana wartość");
     return value;
 }
+
 /**
  * Sprawdza czy wartość jest zgodna z jedną z dozwolonych
  * @param value
  * @param allowed
+ * @param error
  */
 export function oneOf<T:any>(value: T, allowed: any[], error: ?Error = null): T {
     for (let i = 0; i < allowed.length; i++)

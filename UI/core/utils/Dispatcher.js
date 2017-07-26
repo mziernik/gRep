@@ -6,9 +6,7 @@
  */
 
 import "./DOMPrototype";
-import * as Utils from "./Utils";
-import * as If from "./If";
-import * as Check from "./Check";
+import {Utils, Check, Trigger} from "../core.js";
 import * as ContextObject from "../application/ContextObject";
 import Dev from "../Dev";
 
@@ -46,6 +44,11 @@ export default class Dispatcher {
         this.observers.push(o);
         ContextObject.add(context, o, () => this.observers.remove(o));
         return o;
+    }
+
+    listenDelayed(context: any, delay: number, func: (data: Object) => ?any): Observer {
+        const delayed = new Trigger();
+        this.listen(context, data => delayed.call(func, delay, data));
     }
 
     removeListenerByContext(context: any) {

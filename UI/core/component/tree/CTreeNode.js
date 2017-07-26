@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {React, PropTypes, If, Utils} from "../../core";
+import {React, PropTypes, Is, Utils} from "../../core";
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DragAndDrop from "../DragAndDrop/DragAndDrop";
 import Tree from "./Tree";
@@ -140,7 +140,7 @@ export default class CTreeNode extends React.Component {
         return (
             <li data-expanded={item.expanded} className="x-tree-node">
                 <DragAndDrop dnd={this.dnd} item={item} itemIndex={item.index}>
-                    {If.isFunction(item.render) ? item.render(header) : header}
+                    {Is.func(item.render) ? item.render(header) : header}
                 </DragAndDrop>
                 <CSSTransitionGroup
                     transitionName="x-tree-slide"

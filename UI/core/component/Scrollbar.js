@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {React, ReactDOM, AppEvent, Trigger, PropTypes, Utils} from "../core.js";
+import {React, ReactDOM, AppEvent, Trigger} from "../core.js";
 import {Component} from "../components.js";
 
 export class Scrollbar extends Component {

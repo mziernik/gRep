@@ -4,10 +4,15 @@
 import "./DOMPrototype";
 import "./Prototype";
 import * as Check from "./Check";
-import * as If from "./If";
+import * as If from "./Is";
 
 /** dowolne mapowania (np klas na potrzeby uglify, importów itp) */
 export const MAPPING: Map<String, any> = new Map();
+
+export function randomOfRange(min: number, max: number) {
+    let rand = Math.random() * (max - min);
+    return Math.round(min + rand);
+}
 
 export function escape(argument: any): string {
     try {
@@ -41,34 +46,56 @@ export function toString(argument: any): string {
     return "" + argument;
 }
 
-export function forEach(object: ?any, callback: (object: ?any, index: number | string) => ?any): [] {
+class ForEach {
+
+    _break: boolean = false;
+
+    break() {
+        this._break = true;
+    }
+}
+
+export function find(object: ?any, callback: (object: ?any, index: number | string) => ?boolean) {
+    return forEach(object, (obj, idx, fe) => {
+        if (callback(obj, idx)) {
+            fe.break();
+            return obj;
+        }
+    }) [0];
+}
+
+export function forEach(object: ?any, callback: (object: ?any, index: number | string, forEach: ForEach) => ?any): [] {
     if (!Check.isFunction(callback))
         throw new Error("Nieprawidłowe wywołanie funkcji forEach");
 
     const result = [];
+    const forEach: ForEach = new ForEach;
 
-    if (If.isFunction(object))
+    if (If.func(object))
         object = object();
 
     if (object instanceof Map) {
         (object: Map).forEach((value, key) => {
-            const res = callback(value, key);
+            const res = callback(value, key, forEach);
             if (res !== undefined) result.push(res);
-        })
+            if (forEach._break) return result;
+        });
         return result;
     }
 
     if (object instanceof Array) {
         for (let i = 0; i < (object: Array).length; i++) {
-            const res = callback(object[i], i);
+            const res = callback(object[i], i, forEach);
             if (res !== undefined) result.push(res);
+            if (forEach._break) return result;
         }
         return result;
     }
 
     for (let name in object) {
-        const res = callback(object[name], name);
+        const res = callback(object[name], name, forEach);
         if (res !== undefined) result.push(res);
+        if (forEach._break) return result;
     }
 
     return result;
@@ -138,7 +165,7 @@ export function clone(src: any, dst: ?any = null): any {
 export function makeFinal(obj: any, filter: ?(name: string, value: any) => boolean | string | string[] = null): any {
     if (!obj) return obj;
     Object.entries(obj).forEach(en => {
-        if (If.isFunction(filter) && !filter(en[0], en[1]))
+        if (If.func(filter) && !filter(en[0], en[1]))
             return;
 
         if (filter instanceof Array && filter.indexOf(en[0]) === -1)

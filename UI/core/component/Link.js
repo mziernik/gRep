@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {React, Utils, PropTypes, Endpoint, If} from "../core";
+import {React, Utils, PropTypes, Endpoint, Is} from "../core";
 import {Component, Alert} from "../components";
 import FileSaver from "file-saver";
 import RouteLink from "react-router-dom/es/Link";
@@ -48,7 +48,7 @@ export default class Link extends Component {
 
         //-------------------------------------------------------------
 
-        if (If.isFunction(this.props.downloadData))
+        if (Is.func(this.props.downloadData))
             return <a
                 href="javascript:void(0)"
                 download={this.props.downloadName}
@@ -62,7 +62,7 @@ export default class Link extends Component {
                     if (disabled) return;
 
                     const process = () => {
-                        if (If.isFunction(this.props.onClick))
+                        if (Is.func(this.props.onClick))
                             if (this.props.onClick(e) === false)
                                 return;
 
@@ -104,9 +104,9 @@ export default class Link extends Component {
                         e.preventDefault();
 
                     if (disabled) return;
-                    if (this.props.confirm && If.isFunction(this.props.onClick))
+                    if (this.props.confirm && Is.func(this.props.onClick))
                         Alert.confirm(this, this.props.confirm, () => this.props.onClick(e));
-                    else If.isFunction(this.props.onClick, f => f(e));
+                    else Is.func(this.props.onClick, f => f(e));
 
                     if (link instanceof Endpoint)
                         (link: Endpoint).navigate(null, e);

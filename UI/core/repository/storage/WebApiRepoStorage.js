@@ -26,7 +26,7 @@ export default class WebApiRepoStorage extends RepositoryStorage {
             Utils.forEach(repos, repo => add(repo));
 
             this.methods.list(data => {
-                const dynamic: Repository[] = Repository.processList(data);
+                const dynamic: Repository[] = Repository.processMetaData(data);
 
                 Utils.forEach(dynamic, (repo: Repository) => {
                     if (!(repo.config.dynamic)) return;
@@ -64,12 +64,16 @@ export default class WebApiRepoStorage extends RepositoryStorage {
                 record.fields.forEach((field: Field) => {
                     if (includeUnchanged || field.changed || record.primaryKey === field) {
                         const value = field.value;
-                        if (value === null && crude === CRUDE.CREATE)
+                        if (value === null && (record.action || crude) === CRUDE.CREATE)
                             return;
                         r[field.key] = field.type.serialize(value);
                     }
 
                 });
+
+                if (record.changedReferences.length) {
+                    r["#refs"] = WebApiRepoStorage.buildDTO(record.changedReferences, includeUnchanged, crude);
+                }
 
                 obj.push(r);
             });

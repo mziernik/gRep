@@ -13,7 +13,8 @@ export default class TablesTab extends Component {
         return (
             <div style={{width: '100%'}}>
                 <Table columns={COLUMNS}
-                       rows={generateData(COLUMNS, 500)}
+                       showRowNum
+                       rows={generateData(COLUMNS, 50)}
                        rowMapper={(row) => {
                            let res = {};
                            Utils.forEach(row, (cell) => {

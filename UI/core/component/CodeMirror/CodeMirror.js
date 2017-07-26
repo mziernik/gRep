@@ -181,7 +181,7 @@ import "./addon/display/fullscreen.css";
 import "./util/formatting.js";
 
 import Component from "..//Component";
-import * as If from "../../utils/If";
+import * as If from "../../utils/Is";
 import Field from "../../repository/Field";
 
 type Mode = "apl" | "asciiarmor" | "asn.1" | "asterisk" | "brainfuck" | "clike" | "clojure" | "cmake" | "cobol"
@@ -289,11 +289,11 @@ export default class CodeMirror extends Component {
                 cm.on("change", (cm, change) => {
                     if (this.field)
                         this.field.value = cm.getValue();
-                    if (If.isFunction(this.props.onChange))
+                    if (If.func(this.props.onChange))
                         this.props.onChange(cm, change);
                 });
 
-                If.isFunction(this.props.editorRef, f => f(cm));
+                If.func(this.props.editorRef, f => f(cm));
 
             }}
 

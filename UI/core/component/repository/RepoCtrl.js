@@ -1,19 +1,5 @@
-import {
-    React,
-    Utils,
-    Check,
-    If,
-    Field,
-    Repository,
-    Dispatcher,
-    Debug,
-    CRUDE,
-    Record,
-    EError,
-    ContextObject
-} from "../../core";
-import {Component, Button, Page, Icon, Spinner, Alert} from "../../components";
-import AppStatus from "../../application/Status";
+import {React, Utils, Repository, Endpoint} from "../../core";
+import {Button, Page} from "../../components";
 import {RepoAction} from "../../repository/Repository";
 
 export default class RepoCtrl {
@@ -36,5 +22,11 @@ export default class RepoCtrl {
                 this.repo.storage.action(this.repo, act.key, null, {})
             }}>{this.page.children.render(act.name)}</Button>);
     }
+
+    editTab() {
+        // nie można importować DevRouter-a
+        Endpoint.devRouter.REPO.navigate({repo: this.repo.key}, "tab");
+    }
+
 
 }

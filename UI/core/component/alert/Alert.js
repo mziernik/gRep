@@ -1,6 +1,6 @@
 import swal from './sweetalert2.js';
 import './sweetalert2.css';
-import {If, EError} from "../../core";
+import {Is, EError} from "../../core";
 
 export default class Alert {
     //ToDo: Przerobić okno alertów (wiele instancji, zawijanie wierszy, zmiana kolejności)
@@ -54,8 +54,8 @@ export default class Alert {
             cancelButtonText: 'Nie',
             allowOutsideClick: false
         })
-            .then(() => If.isFunction(onConfirm, f => f()))
-            .catch(() => If.isFunction(onReject, f => f()));
+            .then(() => Is.func(onConfirm, f => f()))
+            .catch(() => Is.func(onReject, f => f()));
     }
 
 }

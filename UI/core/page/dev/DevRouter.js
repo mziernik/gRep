@@ -42,9 +42,7 @@ export default class DevRouter extends Endpoint {
 
         this.REPOS = this.child("repos", "Repozytoria", baseUrl + "/repositories", PRepositories);
         this.REPO = this.REPOS.child("repo", "Repozytorium", this.REPOS._path + "/:repo", PRepository).hidden(true);
-        this.REPO_DETAILS = this.REPOS.child("repodetails", "Szczegóły", this.REPOS._path + "/:repo/details", PRepoDetails)
-            .hidden(true)
-            .defaultParams({repo: null});
+        this.REPO_DETAILS = this.REPOS.child("repodetails", "Szczegóły", this.REPOS._path + "/:repo/details", PRepoDetails).hidden(true);
         this.DEMO = this.child("demo", "Demo", baseUrl + "/demo", Demo);
         this.SKIN = this.child("skin", "Skórka", baseUrl + "/skin", PSkin);
         this.EVENTS = this.child("events", "Zdarzenia", baseUrl + "/events", PEvents);
@@ -83,7 +81,7 @@ export default class DevRouter extends Endpoint {
                     if (!parent)
                         parent = this.REPOS.child(key, group, null, null);
                 }
-                parent.child(repo.key, repo.name, this.REPOS._path + "/" + repo.key, PRepository).icon(repo.config.icon);
+                parent.child(repo.key.replaceChars(".-", ""), repo.name, this.REPOS._path + "/" + repo.key, PRepository).icon(repo.config.icon);
             }
         );
 

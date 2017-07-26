@@ -51,6 +51,59 @@ export default class Dev {
         window.console.dir(value, ...args);
     }
 
+    static randomPostCode(): string {
+        const rnd = () => "" + Math.floor(Math.random() * 10);
+        return rnd() + rnd() + "-" + rnd() + rnd() + rnd();
+
+    }
+
+    static OCCUPATIONS = ["Grafik", "Pracownik biurowy", "Urzędnik państwowy", "Lekarz", "Specjalista ds. zakupów",
+        "Specjalista ds. PR", "Programista", "Architekt wnętrz / krajobrazu", "Ekonomista", "Specjalista ds. marketingu",
+        "Programista baz danych", "Prawnik", "Inżynier Środowiska", "Webmaster", "Specjalista ds. ochrony środowiska",
+        "Automatyk", "Projektant wzornictwa", "Laborant", "Specjalista ds. transportu", "Tester aplikacji",
+        "Dyrektor ds.Administracyjnych", "Dietetyk", "Koordynator robót budowlanych", "Specjalista ds. turystyki",
+        "Spedytor", "Pedagog", "Specjalista ds. BHP", "Koordynator sprzedaży", "Dyrektor ds. Rozwoju",
+        "Kurator sądowy", "Analityk rynku", "Key account manager", "Fakturzystka", "Specjalista ds. obsługi klienta",
+        "Technolog", "Administrator danych osobowych", "Dyrektor ds. Logistyki", "Tłumacz", "Konstruktor",
+        "Doradca zawodowy", "Dyrektor ds. Personalnych", "Pełnomocnik ds. Jakości", "Specjalista ds. planowania produkcji",
+        "Agent celny", "Dyrektor ds. Finansowych", "Asystentka zarządu", "Farmaceuta", "Architekt budownictwa",
+        "Adwokat", "Project Manager", "Księgowa", "Projektant IT", "Specjalista ds. reklamacji",
+        "Specjalista ds. inwestycji", "Copywriter", "Przedstawiciel handlowy", "Geodeta", "Doradca finansowy",
+        "Administrator", "Inżynier Budowy", "Recepcjonistka", "Pracownik socjalny", "Lektor", "Pilot wycieczek",
+        "Trener", "Konsultant ds. Wdrożeń", "Dziennikarz", "Product Manager", "Agenta nieruchomości",
+        "Inżynier utrzymania ruchu", "Handlowiec", "Projektant konstrukcji budowlanych", "Specjalista ds. funduszy unijnych",
+        "Przedstawiciel medyczny", "Office Manager", "Notariusz", "Programista PLC", "Doradca techniczno-handlowy",
+        "Kierownik Magazynu", "Inżynier ds. Wdrażania Produkcji", "Specjalista ds. windykacji", "Rzeczoznawca",
+        "Prezenter", "Dyrektor ds. Sprzedaży", "Specjalista ds. badań i rozwoju", "Kierownik punktu sprzedaży",
+        "Radca prawny", "Dyrektor ds. Marketingu", "Kosztorysant", "Telemarketer", "Specjalista ds. dostaw",
+        "Specjalista ds. pozycjonowania", "Doradca podatkowy", "Specjalista ds. ofertowania", "Dyrektor ds. Produkcji",
+        "Kierownik kontraktu", "Analityk systemów", "Nauczyciel", "Specjalista ds. kadr i płac", "Specjalista ds. rekrutacji"];
+
+    static CITIES: string[] = ["Warszawa", "Kraków", "Łódź", "Wrocław", "Poznań", "Gdańsk", "Szczecin", "Bydgoszcz",
+        "Lublin", "Katowice", "Białystok", "Gdynia", "Częstochowa", "Radom", "Sosnowiec", "Toruń", "Kielce", "Gliwice",
+        "Rzeszów", "Zabrze", "Olsztyn", "Bielsko-Biała", "Bytom", "Ruda Śląska", "Rybnik", "Tychy", "Gorzów Wielkopolski",
+        "Dąbrowa Górnicza", "Elbląg", "Płock", "Opole", "Zielona Góra", "Wałbrzych", "Włocławek", "Tarnów", "Chorzów",
+        "Koszalin", "Kalisz", "Legnica", "Grudziądz", "Słupsk", "Jaworzno", "Jastrzębie-Zdrój", "Nowy Sącz", "Jelenia Góra",
+        "Konin", "Siedlce", "Piotrków Trybunalski", "Mysłowice", "Inowrocław", "Piła", "Lubin", "Ostrów Wielkopolski",
+        "Ostrowiec Świętokrzyski", "Gniezno", "Stargard Szczeciński", "Suwałki", "Głogów", "Siemianowice Śląskie",
+        "Pabianice", "Chełm", "Zamość", "Tomaszów Mazowiecki", "Leszno", "Stalowa Wola", "Przemyśl", "Kędzierzyn-Koźle",
+        "Łomża", "Żory", "Mielec", "Tarnowskie Góry", "Tczew", "Ełk", "Pruszków", "Bełchatów", "Świdnica", "Będzin",
+        "Biała Podlaska", "Zgierz", "Piekary Śląskie", "Racibórz", "Legionowo", "Ostrołęka", "Świętochłowice", "Zawiercie",
+        "Starachowice", "Wejherowo", "Puławy", "Wodzisław Śląski", "Skierniewice", "Starogard Gdański", "Tarnobrzeg",
+        "Radomsko", "Skarżysko-Kamienna", "Rumia", "Krosno", "Kołobrzeg", "Dębica", "Kutno", "Otwock"];
+
+    static STREETS: string[] = ["Polna", "Lesna", "Sloneczna", "Krótka", "Szkolna", "Ogrodowa", "Lipowa", "Brzozowa",
+        "Lakowa", "Kwiatowa", "Sosnowa", "Koscielna", "Akacjowa", "Parkowa", "Zielona", "Kolejowa", "Sportowa",
+        "Debowa", "Kosciuszki", "3 Maja", "Mickiewicza", "Cicha", "Spokojna", "Klonowa", "Spacerowa", "Świerkowa",
+        "Kasztanowa", "Nowa", "Piaskowa", "Sienkiewicza", "Rózana", "Topolowa", "Wisniowa", "Dworcowa", "Wiejska",
+        "Graniczna", "Slowackiego", "Długa", "Wrzosowa", "Konopnickiej", "Boczna", "Wąska", "Wierzbowa", "JaŚminowa",
+        "Wspólna", "Modrzewiowa", "Kopernika", "JanaPawlaII", "Poprzeczna", "Wesola", "Pogodna", "Zeromskiego", "Rynek",
+        "Bukowa", "WojskaPolskiego", "Sadowa", "Górna", "Jodlowa", "Wolnosci", "Glówna", "Mlynska", "Strazacka", "Prusa",
+        "Jesionowa", "Przemyslowa", "Osiedlowa", "Wiosenna", "Sikorskiego", "Chopina", "Poludniowa", "Malinowa", "Stawowa",
+        "Reymonta", "Pilsudskiego", "Zacisze", "Cmentarna", "Okrezna", "Kochanowskiego", "ArmiiKrajowej", "Mila", "Jasna",
+        "Wodna", "Zamkowa", "Witosa", "Reja", "Warszawska", "Miodowa", "Partyzantów", "Krzywa", "Kilinskiego", "Dolna",
+        "Podgórna", "Kreta", "Jarzebinowa", "Moniuszki", "Targowa", "Prosta", "Orzeszkowej", "Spóldzielcza", "Jagodowa"];
+
     static MALES: string[] = [
         "Adam",
         "Hubert",

@@ -1,4 +1,5 @@
-import {Field, Column, RepoConfig, Type, Repository, Record} from "../core/core";
+import {Field, Column, RepoConfig, Repository, Record} from "../core/core";
+
 
 
 //--------------------------------- Status ----------------------------------------------
@@ -85,6 +86,7 @@ export class RStatus extends Repository {
         super((c: RepoConfig) => {
             c.key = "status";
             c.name = "Status";
+            c.group = "System";
             c.record = RStatusRecord;
             c.primaryKeyColumn = RStatus.KEY;
             c.displayNameColumn = RStatus.NAME;
@@ -352,6 +354,21 @@ export class RTest extends Repository {
         c.unique = true;
     });
 
+    static ON_DEMAND: Column = new Column((c: Column) => {
+        c.key = "onDemand";
+        c.name = "Na żądanie";
+        c.type = "enum";
+        c.enumerate = {
+            DOC: "DOC",
+            PDF: "PDF",
+            HTML: "HTML",
+            CSS: "CSS",
+            JS: "JS",
+            XML: "XML",
+            JSON: "JSON"
+        };
+    });
+
     static ONE_OF: Column = new Column((c: Column) => {
         c.key = "oneOf";
         c.name = "Jeden format";
@@ -532,12 +549,6 @@ export class RTest extends Repository {
             c.primaryKeyColumn = RTest.ID;
             c.displayNameColumn = RTest.NAME;
             c.crude = "CRUD";
-            c.actions = {
-                addR: {record: false, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-plus"},
-                remR: {record: false, name: "Usuń", confirm: null, type: "warning", icon: "fa fa-trash"},
-                raddR: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-plus"},
-                rremR: {record: true, name: "Usuń", confirm: null, type: "primary", icon: "fa fa-trash"}
-            };
         });
     }
 
@@ -546,6 +557,7 @@ export class RTest extends Repository {
 export class RTestRecord extends Record {
 
     ID: Field = new Field(RTest.ID, this);
+    ON_DEMAND: Field = new Field(RTest.ON_DEMAND, this);
     ONE_OF: Field = new Field(RTest.ONE_OF, this);
     SOME_OF: Field = new Field(RTest.SOME_OF, this);
     PAIR: Field = new Field(RTest.PAIR, this);
@@ -644,37 +656,6 @@ export class RUsers extends Repository {
             c.crude = "CRU";
             c.local = false;
             c.icon = "fa fa-users";
-            c.actions = {
-                add: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-user-plus"},
-                rem: {
-                    record: true,
-                    name: "Usuń",
-                    confirm: "Czy na pewno usunąć?",
-                    type: "danger",
-                    icon: "fa fa-user-times"
-                },
-                editRandom: {
-                    record: false,
-                    name: "Modyfikuj losowy",
-                    confirm: null,
-                    type: "primary",
-                    icon: "fa fa-user-secret"
-                },
-                addRandom: {
-                    record: false,
-                    name: "Dodaj losowy",
-                    confirm: null,
-                    type: "primary",
-                    icon: "fa fa-user-plus"
-                },
-                removeRandom: {
-                    record: false,
-                    name: "Usuń losowy",
-                    confirm: null,
-                    type: "danger",
-                    icon: "fa fa-user-times"
-                }
-            };
         });
     }
 
@@ -789,15 +770,6 @@ export class RThreads extends Repository {
             c.displayNameColumn = RThreads.NAME;
             c.crude = "R";
             c.local = true;
-            c.actions = {
-                term: {
-                    record: true,
-                    name: "Zatrzymaj",
-                    confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?",
-                    type: "warning",
-                    icon: "fa fa-times"
-                }
-            };
         });
     }
 
@@ -1859,6 +1831,18 @@ export class RRepoSate extends Repository {
         c.required = true;
     });
 
+    static INFO: Column = new Column((c: Column) => {
+        c.key = "info";
+        c.name = "Zaawanoswane informacje";
+        c.type = "(string, string)[]";
+    });
+
+    static LIMIT: Column = new Column((c: Column) => {
+        c.key = "limit";
+        c.name = "Limit danych";
+        c.type = "int";
+    });
+
 
     constructor() {
         super((c: RepoConfig) => {
@@ -1889,6 +1873,8 @@ export class RRepoSateRecord extends Record {
     LAST_MODIFIED_BY: Field = new Field(RRepoSate.LAST_MODIFIED_BY, this);
     LAST_MOD_BY_ID: Field = new Field(RRepoSate.LAST_MOD_BY_ID, this);
     REVISION: Field = new Field(RRepoSate.REVISION, this);
+    INFO: Field = new Field(RRepoSate.INFO, this);
+    LIMIT: Field = new Field(RRepoSate.LIMIT, this);
 
 }
 

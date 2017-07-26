@@ -18,7 +18,7 @@ export function init() {
         tree.children.forEach((rt: RepoTree) => visit(rt, ep));
     }
 
-    Repositories.R_CATALOG.onChange.listen("model", () => {
+    Repositories.R_CATALOG.onChange.listenDelayed("model", 10, () => {
         catalogTree = Repositories.R_CATALOG.tree();
         visit(catalogTree, Router.CATALOGS)
     });

@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {React, PropTypes, Field, Check, Dev, EError} from '../../core';
+import {React, PropTypes, Field, Check, EError} from '../../core';
 import {Component} from '../../components';
 
 

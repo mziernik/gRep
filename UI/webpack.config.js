@@ -151,7 +151,15 @@ const config = {
         contentBase: "public",
         host: _private.devServer.host || "localhost",
         port: _private.devServer.port || 8080,
-        historyApiFallback: true, // wymagane przez router
+
+        historyApiFallback: {  // wymagane przez router
+            rewrites: [
+                {
+                    from: /^\/dev\/.*$/,
+                    to: () => 'index.html'
+                }
+            ]
+        },
         inline: true,
         quiet: false,
     }

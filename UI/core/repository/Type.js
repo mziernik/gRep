@@ -2,7 +2,7 @@ import * as Check from "../utils/Check";
 import Repository from "./Repository";
 import Record from "./Record";
 import * as Utils from "../utils/Utils";
-import * as If from "../utils/If";
+import * as If from "../utils/Is";
 import Icon from "../component/glyph/Icon";
 
 export type SimpleType = "any" | "boolean" | "number" | "string" | "object" | "array";
@@ -20,6 +20,7 @@ export class DataType {
     description: string;
     /** Ikony poszczególnych pozycji enumeraty wyświetlane w trybie inline*/
     enumIcons: ?Object = null;
+    enumStyles: ?Object = null;
 
     enumerate: ?[] = null; // np.: [['tekst',{wartość}],['tekst2',{wartość2}],...]
 
@@ -81,7 +82,7 @@ export class DataType {
         if (!source) return null;
 
         return () => {
-            if (If.isFunction(source))
+            if (If.func(source))
                 source = source();
 
             if (source instanceof Map)
@@ -239,12 +240,18 @@ export const STRING: DataType = new DataType((dt: DataType) => {
     dt.parser = val => "" + val;
 });
 
+export const CHAR: DataType = new DataType((dt: DataType) => {
+    dt.name = "char";
+    dt.simpleType = "string";
+    dt.parser = val => val ? Utils.toString(val)[0] : val;
+});
+
 
 export const UUID: DataType = new DataType((dt: DataType) => {
     dt.name = "uid";
     dt.simpleType = "string";
     dt.parser = val => {
-        if (!If.isString(val) || !val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
+        if (!If.string(val) || !val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
             throw new Error(Utils.escape(val) + " nie jest prawidłowym identyfikatorem UUID");
         return val;
     }
@@ -497,3 +504,10 @@ function frmt(value: any, map: ?Map): string {
     const val: string = Utils.escape(Utils.toString(value));
     return val.substring(1, val.length - 1);
 }
+
+export const TEXT_CASING = {
+    NONE: null,
+    UPPERCASE: 'uppercase',
+    LOWERCASE: 'lowercase',
+    CAPITALIZE: 'capitalize'
+};

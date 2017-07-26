@@ -72,6 +72,7 @@
     "react-table": "^6.5.1",
     "react-transition-group": "^1.1.2",
     "react-widgets": "^3.4.8",
+    "recharts": "^1.0.0-alpha.2",
     "webpack-preset": "^0.2.0",
     "webpack-preset-babel": "^0.2.0",
     "webpack-preset-babel-stage-2": "^0.2.0",

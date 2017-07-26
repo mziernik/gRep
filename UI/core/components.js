@@ -15,6 +15,9 @@ export {default as Button} from "./component/Button";
 export {default as Panel} from "./component/Panel";
 export {default as Resizer} from "./component/Resizer";
 export {default as Dragger} from "./component/Dragger.js";
+export {default as Hint} from "./component/Hint.js";
+export {Scrollbar} from "./component/Scrollbar.js";
+export {Splitter, SplitPanel} from "./component/Splitter.js";
 
 export {ModalWindow, MW_BUTTONS} from "./component/ModalWindow";
 export {PopupMenu, MenuItem, MenuItemSeparator} from "./component/PopupMenu";
@@ -38,3 +41,5 @@ export {Attr} from "./component/form/Attributes";
 import "./component/components.css";
 import './component/bootstrap/bootstrap.min.css';
 import './component/bootstrap/bootstrap-theme.css';
+
+import "./page/pages.css";

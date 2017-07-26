@@ -1,9 +1,11 @@
 //@Flow
 'use strict';
-import {Application, React, PropTypes, Utils, If} from '../core';
+import {Application, React, PropTypes, Utils, Is} from '../core';
 import {Component, Icon} from '../components';
 
 let INSTANCE: PopupMenu;
+
+//FixMe ukrycie itemu z otwartą podlistą powoduje, że przy odkryciu podlista jest rozwinięta
 
 export class PopupMenu extends Component {
     /** styl menu
@@ -127,7 +129,7 @@ export class PopupMenu extends Component {
      * @private
      */
     _setPosition(elem, sub: boolean) {
-        if (!elem)return;
+        if (!elem) return;
         const el = elem.getBoundingClientRect();
         /* poziom */
         if ((el.left + el.width) >= window.innerWidth) {
@@ -155,7 +157,7 @@ export class PopupMenu extends Component {
      */
     renderItems(items: []) {
         Utils.forEach(items, (item) => {
-            if (item.onBeforeOpen) If.isFunction(item.onBeforeOpen, item.onBeforeOpen(item, this.state.itemEventProps));
+            if (item.onBeforeOpen) Is.func(item.onBeforeOpen, item.onBeforeOpen(item, this.state.itemEventProps));
         });
         return <table>
             <tbody>{Utils.forEach(items, (item, index) => {
@@ -183,7 +185,7 @@ export class PopupMenu extends Component {
                 }
 
                 // Zwykła pozycja
-                if (item.hidden)return;
+                if (item.hidden) return;
                 let subProps = {};
                 if (item.subMenu && !item.disabled) {
                     subProps = {
@@ -204,9 +206,9 @@ export class PopupMenu extends Component {
                             (e) => {
                                 e.stopPropagation();
                                 if (item.onClick)
-                                    If.isFunction(item.onClick, item.onClick(e, this.state.itemEventProps));
+                                    Is.func(item.onClick, item.onClick(e, this.state.itemEventProps));
                                 else if (this.state.onClick)
-                                    If.isFunction(this.state.onClick, this.state.onClick(e));
+                                    Is.func(this.state.onClick, this.state.onClick(e));
                                 if (!item.subMenu && item.closeOnClick) this.setState({opened: false});
                             }}
                     {...subProps}
@@ -248,7 +250,7 @@ export class PopupMenu extends Component {
      * @returns {*}
      */
     renderSubmenu(items: [], opened: boolean) {
-        if (!opened)return null;
+        if (!opened) return null;
         return <span className="c-popup-menu" ref={elem => this._setPosition(elem, true)}
                      style={{
                          ...this._style,
@@ -274,6 +276,7 @@ export class PopupMenu extends Component {
         >{this.renderItems(this.state.items)}</span>;
     }
 }
+
 /** Separator pozycji */
 export class MenuItemSeparator {
     name: ?any = null;
@@ -312,11 +315,11 @@ export class MenuItem {
     /** Zdarzenie kliknięcia na pozycję
      * @type {null}
      */
-    onClick: (e, props) => void = null;
+    onClick: (e: MouseEvent, props: ?{}) => void = null;
     /** Zdarzenie wywoływane przed otwarciem menu
      * @type {null}
      */
-    onBeforeOpen: (item, props) => void = null;
+    onBeforeOpen: (item: MenuItem, props: ?{}) => void = null;
     /** Czy menu ma się zamykać po kliknięciu na pozycję
      * @type {boolean}
      */
@@ -336,7 +339,7 @@ export class MenuItem {
      */
     static createItem(config: (item: MenuItem) => void): MenuItem {
         let item = new MenuItem();
-        If.isFunction(config, config(item));
+        Is.func(config, config(item));
         return item;
     }
 

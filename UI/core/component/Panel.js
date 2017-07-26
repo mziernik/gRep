@@ -1,6 +1,5 @@
 import {React, PropTypes} from "../core";
-import {Component, Resizer} from "../components"
-import {Scrollbar} from "./Scrollbar";
+import {Component, Resizer, Scrollbar, Splitter} from "../components"
 
 
 export default class Panel extends Component {
@@ -13,33 +12,46 @@ export default class Panel extends Component {
         border: PropTypes.bool,
         noPadding: PropTypes.bool,
         resizable: PropTypes.bool,
+        split: PropTypes.bool,
         fit: PropTypes.bool, // dopasuj do rodzica
     };
 
     static defaultProps = {
         resizable: false,
-        scrollable: false
+        scrollable: false,
+        split: false
     };
 
     //
     render() {
         let size = this.props.fit || this.props.resizable || this.props.scrollable ? '100%' : null;
-        let panel = <div
-            className="c-panel-child"
-            data-fit={!!this.props.fit}
-            data-vertical={!!this.props.vertical}
-            style={{
-                display: "flex",
-                flexDirection: this.props.vertical ? "row" : "column",
-                width: size,
-                height: size,
-                padding: this.props.noPadding ? null : "8px",
-                border: this.props.border ? "1px solid #444" : null,
-            }}>
-            {this.props.scrollable || this.props.resizable ? <Scrollbar/> : null}
-            {this.props.scrollable || this.props.resizable ? <Scrollbar horizontal/> : null}
-            {super.renderChildren()}
-        </div>;
+        let panel = null;
+        if (this.props.split)
+            panel = <Splitter horizontal={this.props.vertical}
+                              style={{
+                                  width: size,
+                                  height: size,
+                                  outline: '1px solid #444'
+                              }}>
+                {super.renderChildren()}
+            </Splitter>;
+        else
+            panel = <div
+                className="c-panel-child"
+                data-fit={!!this.props.fit}
+                data-vertical={!!this.props.vertical}
+                style={{
+                    display: "flex",
+                    flexDirection: this.props.vertical ? "row" : "column",
+                    width: size,
+                    height: size,
+                    padding: this.props.noPadding ? null : "8px",
+                    border: this.props.border && !this.props.resizable && !this.props.scrollable ? "1px solid #444" : null,
+                }}>
+                {this.props.scrollable || this.props.resizable ? <Scrollbar/> : null}
+                {this.props.scrollable || this.props.resizable ? <Scrollbar horizontal/> : null}
+                {super.renderChildren()}
+            </div>;
 
         if (this.props.resizable || this.props.scrollable)
             return <Resizer
@@ -50,6 +62,7 @@ export default class Panel extends Component {
                     height: this.props.fit ? "100%" : null,
                     width: this.props.fit ? "100%" : null,
                     overflow: this.props.scrollable ? "hidden" : undefined,
+                    border: this.props.border ? "1px solid #444" : null,
                     ...this.props.style
                 }}
                 outerProps={{

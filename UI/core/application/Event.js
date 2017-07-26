@@ -2,7 +2,7 @@
 'use strict';
 
 import * as Check from "../utils/Check";
-import * as If from "../utils/If";
+import * as If from "../utils/Is";
 import Dispatcher, {Observer} from "../utils/Dispatcher";
 import Trigger from "../utils/Trigger";
 
@@ -58,16 +58,20 @@ const delayedDispatch = new Trigger(null, 0);
 export default class AppEvent {
 
     /** @type {EventType}  */
-    static APPLICATION__BEFORE_UPDATE = new EventType("Aktualizacja gałęzi aplikacji");
+    static APPLICATION__BEFORE_UPDATE: EventType = new EventType("Aktualizacja gałęzi aplikacji");
 
     /** @type {EventType}  */
-    static REPOSITORY_REGISTERED = new EventType("Zarejestrowano repozytorium");
+    static REPOSITORY_REGISTERED: EventType = new EventType("Zarejestrowano repozytorium");
 
     /** @type {EventType}  */
-    static NAVIGATE = new EventType("Nawigacja do strony");
+    static NAVIGATE: EventType = new EventType("Nawigacja do strony");
 
     /** @type {EventType}  */
-    static RESIZE = new EventType("Zmiana rozmiaru okna lub komponentu");
+    static RESIZE: EventType = new EventType("Zmiana rozmiaru okna lub komponentu");
+
+
+    /** @type {EventType}  */
+    static REPO_CONFIG_UPDATE: EventType = new EventType("Aktualizacja konfiguracji repozytorium");
 
 
     /** @type {any} Źródło zdarzenia, najczęściej klasa Component */
@@ -101,7 +105,7 @@ export default class AppEvent {
                 queue.remove(event);
                 event.type.dispatcher.dispatch(sender, {event: event, ...event.data});
                 event.sent = true;
-                If.isFunction(event.onSent, onSent => onSent(event));
+                If.func(event.onSent, onSent => onSent(event));
             }
         });
     }

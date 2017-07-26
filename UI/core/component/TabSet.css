@@ -9,7 +9,6 @@
 
 .tabsCtrl {
     display: flex;
-    align-items: center;
 }
 
 .tabsVertical {
@@ -19,6 +18,10 @@
 
 .tabArrow {
     padding: 0 10px 0 10px;
+    align-items: center;
+    flex: 1;
+    border-color: #aaa;
+    border-bottom: 1px solid #474747;
 }
 
 .tabArrow:hover {
@@ -39,11 +42,10 @@
 }
 
 .tab:hover {
-    background-color: #bac6e1;
+    background-color: rgba(0, 0, 0, 0.23);
 }
 
 .tab_selected {
-    background-color: #dddddd;
     border: 1px solid #474747;
     border-bottom: none;
     text-shadow: #a5a5a5 1px 1px 1px;
@@ -51,7 +53,7 @@
 
 .tab_disabled {
     color: #bbbbbb;
-    background-color: #888888;
+    background-color: rgba(0, 0, 0, 0.6);
     border: 1px solid #474747;
 }
 

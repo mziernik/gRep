@@ -1,8 +1,8 @@
 // @flow
 'use strict';
-import {React, ReactDOM, PropTypes, Field, Check, Utils, If, Dev, Type, Repository} from '../../core.js';
-import {Component, Icon, Input, Memo, List, Multiple, DatePicker, Select, Checkbox} from '../../components.js';
-import Hint from "../Hint";
+import {React,  PropTypes, Field, Check, Utils, Is, Dev, Type, Repository} from '../../core.js';
+import {Component, Icon, Input, Memo, List, Multiple, DatePicker, Select, Checkbox, Hint} from '../../components.js';
+import RepoCtrl from "../repository/RepoCtrl";
 
 /**
  * Komponent ułatwiający obsługę obiektu Field. Umożliwia edycję i podgląd wartości, błędów i innych flag
@@ -41,6 +41,7 @@ export default class FCtrl extends Component {
         /** Rozciągnij zawartość */
         fit: PropTypes.bool,
 
+        ignore: PropTypes.bool, // warunek wykluczający rysowanie
     };
 
     static defaultProps = {
@@ -100,7 +101,7 @@ export default class FCtrl extends Component {
 
         this.field.onUpdate.listen(this, data => {
             this._markAsChanged(true);
-            If.isFunction(this.props.onChange, f => f(this, data));
+            Is.func(this.props.onChange, f => f(this, data));
             this.forceUpdate(true);
         });
 
@@ -155,6 +156,8 @@ export default class FCtrl extends Component {
 
     render() {
 
+        const style = this.field.config.enumStyles ? this.field.config.enumStyles[this.field.value] : null;
+
         if (this.props.inline
             || (!this.props.required
                 && !this.props.name
@@ -164,17 +167,15 @@ export default class FCtrl extends Component {
                 && !this.props.value)) {
 
             if (this.field.config.enumIcons) {
-
-
                 let ic = this.field.config.enumIcons[this.field.value];
-
                 if (ic)
-                    return <span className={"c-fctrl " + ic} ref={e => this._setHtmlElement(e)}/>;
-
+                    return <span style={style} className={"c-fctrl " + ic} ref={e => this._setHtmlElement(e)}/>;
             }
 
-            return <span className="c-fctrl" ref={e => this._setHtmlElement(e)}>{this.field.displayValue}</span>;
+            return <span style={style} className="c-fctrl"
+                         ref={e => this._setHtmlElement(e)}>{this.field.displayValue}</span>;
         }
+
         switch (this.props.mode) {
             case "row":
                 return this.renderRow();
@@ -213,10 +214,24 @@ export default class FCtrl extends Component {
             case "error":
                 icon = this.state.error ? this.defError : this.defWarning;
                 msg = msg || this.state.error || this.state.warning;
-                visible = this.state.error || this.state.warning ? true : false;
+                visible = !!(this.state.error || this.state.warning);
                 break;
             case "name":
-                return <span key="name" style={{margin: '0 4px', flex: '1 1 auto'}}>{this.field.name}</span>;
+
+                if (this.field.config.foreign) {
+                    const repo: Repository = this.field.config.foreign();
+                    if (!this.field.record || repo !== this.field.record.repo) {
+                        const ctrl: RepoCtrl = new RepoCtrl(this.node.currentPage, repo);
+                        return <span key="name"
+                                     className="c-fctrl-name-link"
+                                     onClick={(e) => ctrl.editTab()}
+                        >{this.field.name}</span>;
+                    }
+                }
+
+                return <span key="name"
+                             className="c-fctrl-name"
+                >{this.field.name}</span>;
         }
         if (msg === '') msg = null;
 
@@ -266,7 +281,7 @@ export default class FCtrl extends Component {
         if (this.props.preview && this.field.enumerate) {
             const map: Map = this.field.enumerate();
             const v = map.get(value);
-            return <span>{Field.formatValue(If.isDefined(v) ? v : value)}</span>
+            return <span>{Field.formatValue(Is.defined(v) ? v : value)}</span>
         }
 
         if (this.field.type instanceof Type.ListDataType || this.field.type instanceof Type.MapDataType)
@@ -302,7 +317,7 @@ export default class FCtrl extends Component {
             case "int":
                 return this.renderInput({type: "number"});
             case "boolean":
-                return <Checkbox field={this.field} label={this.props.name} preview={this.props.preview}/>;
+                return <Checkbox field={this.field} label={false} preview={this.props.preview}/>;
             case "date":
                 return <DatePicker field={this.field} preview={this.props.preview}
                                    dtpProps={{format: "DD-MM-YYYY", time: false}}/>;
@@ -400,14 +415,15 @@ export default class FCtrl extends Component {
             ref={e => this._setHtmlElement(e)}
             className="c-fctrl"
             style={{position: 'relative'}}>
-        <div>
-        {this.props.required ? this.renderCtrl('required') : null}
-            {this.props.name ? this.renderCtrl("name") : null}
-        </div>
-        <div style={{display: 'flex'}}>
-        {this.props.description ? this.renderCtrl('description') : null}
-            {this.renderFlexValue()}
-            {this.props.error ? this.renderCtrl('error') : null}
+            {this.props.required || this.props.name ?
+                <div>
+                    {this.props.required ? this.renderCtrl('required') : null}
+                    {this.props.name ? this.renderCtrl("name") : null}
+                </div> : null}
+            <div style={{display: 'flex'}}>
+                {this.props.description ? this.renderCtrl('description') : null}
+                {this.renderFlexValue()}
+                {this.props.error ? this.renderCtrl('error') : null}
         </div>
         </span>
     }

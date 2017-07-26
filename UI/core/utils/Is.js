@@ -11,29 +11,56 @@ import "./DOMPrototype";
 import "./Prototype";
 import * as Utils from "./Utils";
 
-export function isArray(object: ?any, then: ?(object: []) => void, otherwise: ?(object: []) => void): boolean {
+export function array(object: ?any, then: ?(object: []) => void, otherwise: ?(object: []) => void): boolean {
     return result(object instanceof Array, object, then, otherwise);
 }
 
-export function isObject(object: ?any, then: ?(object: []) => void, otherwise: ?(object: any) => void): boolean {
+export function object(object: ?any, then: ?(object: []) => void, otherwise: ?(object: any) => void): boolean {
     return result(typeof object === "object", object, then, otherwise);
 }
 
-export function isFunction(object: ?any, then: ?(object: () => void) => void, otherwise: ?(object: any) => void): boolean {
+export function func(object: ?any, then: ?(object: () => void) => void, otherwise: ?(object: any) => void): boolean {
     return result(typeof object === "function", object, then, otherwise);
 }
 
-export function isString(object: ?any, then: ?(object: string) => void, otherwise: ?(object: any) => void): boolean {
+export function string(object: ?any, then: ?(object: string) => void, otherwise: ?(object: any) => void): boolean {
     return result(typeof object === "string", object, then, otherwise);
 }
 
-export function isNumber(object: ?any, then: ?(object: number) => void, otherwise: ?(object: any) => void): boolean {
+export function number(object: ?any, then: ?(object: number) => void, otherwise: ?(object: any) => void): boolean {
     return result(typeof object === "number", object, then, otherwise);
 }
 
-export function isDefined(object: ?any, then: ?(object: any) => void, otherwise: ?(object: any) => void): boolean {
+export function defined(object: ?any, then: ?(object: any) => void, otherwise: ?(object: any) => void): boolean {
     return result(object !== undefined && object !== null, object, then, otherwise);
 }
+
+
+/**
+ * Funkcja sprawdza czy argument [object] jest zdefiniowany i zwraca go lub rezultat funkcji zwrotnych
+ * @param object
+ * @param then
+ * @param otherwise
+ */
+export function def(object: ?any, then: any | ?(object: any) => void, otherwise: any | ?(object: any) => void): any {
+
+    const cond = object !== undefined && object !== null;
+
+    if (cond && typeof then === "function")
+        return then(object);
+
+    if (cond && then !== null && then !== undefined)
+        return then;
+
+    if (!cond && typeof otherwise === "function")
+        return otherwise(object);
+
+    if (cond && otherwise !== null && otherwise !== undefined)
+        return otherwise;
+
+    return object;
+}
+
 
 export function condition(condition: boolean, then: ?(object: any) => void, otherwise: ?(object: any) => void): boolean {
     return result(condition, condition, then, otherwise);

@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 import {React, PropTypes, Field, Column, Utils, Check, Type} from '../../core.js';
-import {FormComponent, Link, FCtrl, Icon} from '../../components.js';
+import {FormComponent, FCtrl} from '../../components.js';
 
 export default class Multiple extends FormComponent {
 

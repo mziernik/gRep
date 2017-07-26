@@ -1,12 +1,11 @@
 // @flow
 'use strict';
 
-import {React, Endpoint, Application, AppEvent, Utils, AppNode, If, Check} from "../core";
+import {React, Endpoint, Application, AppEvent, Utils, AppNode, Is, Check} from "../core";
 import {Component, Icon} from "../components";
 import {Switch} from 'react-router-dom';
 import Page from "./Page";
 import {ModalWindow} from "../component/ModalWindow";
-import * as E from "../application/Endpoint";
 
 
 const containers = [];
@@ -19,18 +18,21 @@ const history: PageTab[] = [];
 
 export class PageTab {
     title: string;
+    key: string;
     id: string = Utils.randomId();
     node: AppNode;
     element: HTMLElement;
     _removed: boolean = false;
     modal: boolean;
 
-    constructor(title: string, modal: boolean = false) {
+    constructor(key: string, title: string, modal: boolean = false) {
         this.title = title;
         this.modal = modal;
+        this.key = key;
         tabs.push(this);
         this.element = document.createElement("div");
-        this.element.className = "app-tabs-page";
+        this.element.className = "app-page";
+        this.element.setAttribute("data-page", key);
         const s = this.element.style;
         s.position = "relative";
         s.width = "100%";
@@ -82,7 +84,7 @@ export class PageTab {
         if (!containerElement) return null;
         const children = <Switch key={this.id}>{Endpoint.routeMap()}</Switch>;
 
-        if (!this.node) {
+        if (!this.node)
             if (this.modal) {
                 this.node = children;
                 ModalWindow.create((mw: ModalWindow) => {
@@ -95,10 +97,11 @@ export class PageTab {
                 containerElement.appendChild(this.element);
                 this.node = Application.render(children, this.element, this);
             }
-            return this.node;
-        }
+        else
+            this.node.forceUpdate();
 
-        this.node.forceUpdate();
+        if (this.node.currentPage)
+            this.element.setAttribute("data-page", this.node.currentPage.endpoint.key);
     }
 
 
@@ -145,7 +148,7 @@ export default class PageContainer extends Component {
                         if (tabs.length)
                             tabs[0].setCurrent();
                         else
-                            new PageTab(null).setCurrent();
+                            new PageTab(null, null).setCurrent();
 
                     currentTab.renderContent();
                 }}>
@@ -208,25 +211,3 @@ class TabsBar extends Component {
         </div>
     }
 }
-
-
-Endpoint.navigate = (link: string, target: string | MouseEvent = null, name: ?string = null) => {
-    if (target && target.ctrlKey !== undefined && target.shiftKey !== undefined)
-        target = (target: MouseEvent).ctrlKey ? "tab" : (target: MouseEvent).shiftKey ? "popup" : null;
-
-    if (!target) target = null;
-
-    Check.oneOf(target, [null, E.ENDPOINT_TARGET_TAB, E.ENDPOINT_TARGET_POPUP]);
-
-    // url nie zmienił się
-    if (!target && Application.router.history.location.pathname === link)
-        return;
-
-    if (target === E.ENDPOINT_TARGET_TAB)
-        new PageTab(name, false).setCurrent();
-
-    if (target === E.ENDPOINT_TARGET_POPUP)
-        new PageTab(name, true).setCurrent();
-
-    Application.router.history.push(link);
-};

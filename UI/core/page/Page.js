@@ -3,11 +3,12 @@
 import {
     React,
     PropTypes,
+    ReactUtils,
     ReactComponent,
     Repository,
     Endpoint,
     Utils,
-    If,
+    Is,
     EError,
     Dev,
     DEV_MODE,
@@ -32,7 +33,7 @@ export default class Page extends Component {
     static pageTitleRenderer: (page: Page, title: string) => any = null;
     endpoint: Endpoint;
 
-    constructor(scrollable: boolean) {
+    constructor() {
         super(...arguments);
         this.endpoint = this.props.route.endpoint;
         this.title = this.endpoint._name;
@@ -51,7 +52,10 @@ export default class Page extends Component {
                 if (this._waitingForRepo)
                     return <div>Oczekiwanie na gotowość repozytorium</div>;
 
-                return this.__render();
+                const result = this.__render();
+                if (Is.array(result))
+                    return <Panel fit>{result}</Panel>
+                return result;
             } catch (e) {
                 Dev.error(this, e);
                 return Page.renderError(e);
@@ -78,28 +82,32 @@ export default class Page extends Component {
         return null;
     }
 
+
     /**
      * Zwraca tru jeśli repozytoria [repos] zostały zainicjowane, w przeciwnym razie czeka na inicjalizację i wywołuje forceUpdate na stronie
      * @param {Repository | String | function} repos (może to być również tablica)
      * @param {function} onReady
+     * @param onChange
      * */
 
     requireRepo(repos: Repository | Repository[] | string | () => Repository, onReady: ?() => void = null,
-                onChange: ?(crude: CRUDE, rec: Record, changes: Map) => void = null): boolean {
+                onChange: ?(crude: CRUDE, rec: Record, changes: Map) => void = null): ?Repository[] {
 
         let ready = false;
+
+        const list: Repository[] = [];
 
 
         Ready.onReady(this, [WebApiRepoStorage], () => {
 
-            const list: Repository[] = Utils.forEach(Utils.asArray(repos), r => If.isFunction(r) ? r()
-                : If.isString(r) ? Repository.get(r, true) : r);
+            list.addAll(Utils.forEach(Utils.asArray(repos),
+                r => Is.func(r) ? r() : Is.string(r) ? Repository.get(r, true) : r));
 
             list.forEach((repo: Repository) => {
 
                 repo.onChange.listen(this, data => {
                     if (this._waitingForRepo) return;
-                    if (If.isFunction(onChange)) {
+                    if (Is.func(onChange)) {
                         onChange(data.action, data.record, data.changed);
                         return;
                     }
@@ -110,7 +118,7 @@ export default class Page extends Component {
 
             ready = Ready.waitFor(this, list, () => {
                     this._waitingForRepo = false;
-                    If.isFunction(onReady, f => f(), () => this.forceUpdate());
+                    Is.func(onReady, f => f(list), () => this.forceUpdate(true));
                 },
                 (e: Error) => {
                     this.__error = new EError(e);
@@ -118,10 +126,15 @@ export default class Page extends Component {
                 }
             );
 
+            if (ready && this._waitingForRepo) {
+                this._waitingForRepo = false;
+                Is.func(onReady, f => f(list), () => this.forceUpdate(true));
+            }
+
         });
 
         this._waitingForRepo = !ready;
-        return ready;
+        return ready ? list : null;
     }
 
 

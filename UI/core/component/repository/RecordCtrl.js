@@ -1,20 +1,10 @@
-import {
-    React,
-    Utils,
-    Check,
-    If,
-    Field,
-    Repository,
-    Dispatcher,
-    Debug,
-    CRUDE,
-    Record,
-    EError,
-    ContextObject
-} from "../../core";
-import {Component, Button, Page, Icon, Spinner, Alert, Link, Attributes} from "../../components";
+import {React, PropTypes, Type, Utils, Field, Repository, CRUDE, Record, EError, Dev} from "../../core";
+import {Button, Page, Icon, Spinner, Alert, Link, ModalWindow, MW_BUTTONS, Panel} from "../../components";
 import AppStatus from "../../application/Status";
 import {RepoAction} from "../../repository/Repository";
+import JsonViewer from "../JsonViewer";
+import DTO from "./DTO";
+import AttributesRecord from "./AttributesRecord";
 
 export default class RecordCtrl {
 
@@ -23,6 +13,7 @@ export default class RecordCtrl {
     crude: CRUDE;
     buttons: Button[] = [];
     spinner: boolean = true;
+    viewer: JsonViewer;
 
     constructor(page: Page, record: Record, crude: CRUDE) {
         this.page = page;
@@ -47,7 +38,8 @@ export default class RecordCtrl {
 
         const ts = new Date().getTime();
 
-        Utils.forEach(this.record.fields, (f: Field) => f.validate(true));
+        if (!this.validate())
+            return false;
 
         try {
             Repository.commit(this, [this.record], crude)
@@ -59,8 +51,13 @@ export default class RecordCtrl {
                 })
                 .catch((e) => this.onReponse(e, spinner));
         } catch (e) {
+            Dev.error(this, e);
             this.onReponse(e, spinner);
         }
+    }
+
+    render(): AttributesRecord {
+        return <AttributesRecord record={this.record} fill={true} edit={true}/>
     }
 
     createButtons(): [] {
@@ -95,7 +92,7 @@ export default class RecordCtrl {
     createDeleteButton(confirm: string) {
 
         if (confirm === undefined)
-            confirm = "Czy na pewno usunąć " + Utils.escape(this.record.displayName);
+            confirm = "Czy na pewno usunąć " + Utils.escape(this.record.displayValue);
 
         return this.crude === CRUDE.CREATE ? null :
             <Button
@@ -119,12 +116,36 @@ export default class RecordCtrl {
         />);
     }
 
-    render() {
-        return <div>
-            {Attributes.renderRecord(this.record, true)}
-        </div>;
+    renderDTO() {
+        return <DTO record={this.record}/>
     }
 
+    validate(): boolean {
+        return Utils.forEach(this.record.fields, (f: Field) => f.validate(true) ? undefined : true).length === 0;
+    }
 
-//        onClick={e => this._saveTs = new Date().getTime()                                }
+    editModal(onConfirm: () => boolean) {
+
+
+        ModalWindow.create((mw: ModalWindow) => {
+            mw.content = <Panel fill>{this.render()}</Panel>;
+            mw.title = this.record.action === CRUDE.CREATE
+                ? "Tworzenie rekordu " + Utils.escape(this.record.repo.name)
+                : "Edycja rekordu " + Utils.escape(this.record.displayValue);
+            mw.buttons = MW_BUTTONS.OK_CANCEL;
+            mw.onConfirm = () => {
+
+                if (!this.validate())
+                    return false;
+
+                if (onConfirm)
+                    return onConfirm();
+                this.commit(CRUDE.UPDATE, () => mw.close());
+            }
+
+        }).open();
+    }
+
 }
+
+

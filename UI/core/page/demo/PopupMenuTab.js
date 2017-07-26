@@ -1,11 +1,7 @@
 //@Flow
 'use strict';
-import {React, Field, Type, Column, Utils} from '../../core';
-import {Component, Page, Icon, FCtrl}    from        '../../components';
-import JsonViewer from "../../component/JsonViewer";
-import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
-import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
-import {Scrollbar} from "../../component/Scrollbar";
+import {React, Utils} from '../../core';
+import {Component, Icon, PopupMenu, MenuItem}    from        '../../components';
 
 export default class PopupMenuTab extends Component {
     static getRandomColor(): string {
@@ -35,7 +31,8 @@ export default class PopupMenuTab extends Component {
             height: '20%',
             display: 'inline-block',
             padding: '5px',
-            opacity: '0.6',
+            opacity: '0.65',
+            border: '0 solid',
             transition: 'background 200ms ease-out'
         };
         let res = [];
@@ -44,7 +41,10 @@ export default class PopupMenuTab extends Component {
                 if (elem) this._divs.push(elem)
             }}
                           key={i}
-                          style={{...style, background: PopupMenuTab.getRandomColor()}}
+                          style={{
+                              ...style,
+                              background: PopupMenuTab.getRandomColor(),
+                          }}
                           onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS, {target: e.currentTarget})}>
                 {'0'.repeat(3 - ('' + i).length) + (i + 1)}
             </div>)
@@ -57,13 +57,18 @@ export default class PopupMenuTab extends Component {
         if (this._ivId !== -1) {
             clearInterval(this._ivId);
             this._ivId = -1;
+            Utils.forEach(this._divs, (div) => {
+                div.style.borderWidth = 0;
+            });
             return;
         }
         this._ivId = setInterval(() => {
             Utils.forEach(this._divs, (div) => {
                 div.style.background = PopupMenuTab.getRandomColor();
+                div.style.borderColor = PopupMenuTab.getRandomColor();
+                div.style.borderWidth = Math.floor(Math.random() * 10) + 'px';
             })
-        }, 250)
+        }, 200)
     }
 
 
@@ -78,14 +83,16 @@ export default class PopupMenuTab extends Component {
             item.name = "Zmień kolor";
             item.hint = "Nadaje nowy losowy kolor";
             item.onClick = (e, props) => {
-                props.target.style.background = PopupMenuTab.getRandomColor()
+                props.target.style.background = PopupMenuTab.getRandomColor();
+                props.target.style.borderColor = PopupMenuTab.getRandomColor();
             };
         }),
         MenuItem.createItem((item: MenuItem) => {
             item.name = "Zmień kolor i nie zamykaj";
             item.hint = "Nadaje nowy losowy kolor i nie zamyka menu";
             item.onClick = (e, props) => {
-                props.target.style.background = PopupMenuTab.getRandomColor()
+                props.target.style.background = PopupMenuTab.getRandomColor();
+                props.target.style.borderColor = PopupMenuTab.getRandomColor();
             };
             item.closeOnClick = false;
         }),

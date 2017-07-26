@@ -23,8 +23,8 @@ export default class Breadcrumb extends Component {
     constructor() {
         super(...arguments);
         AppEvent.NAVIGATE.listen(this, data => {
-            this.page = data.page;
-            this.forceUpdate();
+            this.page = data.endpoint;
+            this.forceUpdate(true);
         });
     }
 
@@ -68,6 +68,5 @@ export default class Breadcrumb extends Component {
             {elms}
         </span>
     }
-
 
 }

@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {Utils, If, Check, Field, EError, Trigger, Dev} from "../core.js";
+import {Utils, Is, Check, Field, EError, Trigger, Dev} from "../core.js";
 import {React, ReactUtils, PropTypes, AppNode, ReactComponent} from "../core.js";
 
 import * as ContextObject from "../application/ContextObject";
@@ -9,7 +9,6 @@ import * as ContextObject from "../application/ContextObject";
 /**
  * Klasa bazowa, po której powinny dziedziczyć wszystkie komponenty pełniące role kontrolerów
  */
-
 
 
 let renderCount = 0; // ilość aktualnie renderowanych komponentów
@@ -28,6 +27,8 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 
     static propTypes = {
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
+        style: PropTypes.object,
+        className: PropTypes.object,
     };
 
     static defaultProps = {
@@ -67,7 +68,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 
         this.roles = this.props.roles;
         if (!this.node && this instanceof AppNode)
-        // $FlowFixMe
+        // $FlowFixMeoCol
             this.node = (this: AppNode);
         if (!this.node)
             throw new Error("Brak zdefiniowanego modułu");
@@ -97,6 +98,16 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         }
     }
 
+    setTimeout(func: () => void, delay: number, ...args: any) {
+        let timeout = window.setTimeout(() => {
+            timeout = null;
+            func(...args);
+        }, delay);
+        this.onDestroy(() => {
+            if (timeout !== null)
+                window.clearTimeout(timeout);
+        });
+    }
 
     /** Podłączenie event listenera dla obiektu window z automatycznym usuwaniem w momencie zniszczenia komponentu*/
     addEventListener(name: string, func: () => void) {
@@ -186,7 +197,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 
 
     onDestroy(callback: () => void): Component {
-        If.isFunction(callback, () => this._onDestroy.push(callback));
+        Is.func(callback, () => this._onDestroy.push(callback));
         return this;
     }
 
@@ -197,7 +208,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         this._onDestroy.forEach(func => func());
     }
 
-    forceUpdate(delayed: boolean = false) {
+    forceUpdate(delayed: boolean = true) {
 
         const doUpdate = () => Dev.duration(this, "ForceUpdate", () => super.forceUpdate());
 

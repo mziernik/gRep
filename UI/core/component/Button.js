@@ -1,4 +1,4 @@
-import {React, PropTypes, ReactDOM, Record, Repository, Field, Utils, If, CRUDE, Endpoint, AppStatus} from "../core"
+import {React, PropTypes, ReactDOM, Record, Repository, Field, Utils, Is, CRUDE, Endpoint, AppStatus} from "../core"
 import {Component, Spinner, Alert} from "../components"
 
 
@@ -59,9 +59,9 @@ export default class Button extends Component {
             title={this.props.title}
             onClick={(e) => {
                 if (this.state.disabled) return;
-                if (this.props.confirm && If.isFunction(this.props.onClick))
+                if (this.props.confirm && Is.func(this.props.onClick))
                     Alert.confirm(this, this.props.confirm, () => this.props.onClick(e));
-                else If.isFunction(this.props.onClick, f => f(e));
+                else Is.func(this.props.onClick, f => f(e));
 
                 if (this.props.link instanceof Endpoint)
                     (this.props.link: Endpoint).navigate(null, e);

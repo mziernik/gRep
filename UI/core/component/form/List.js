@@ -30,12 +30,14 @@ export default class List extends FormComponent {
             const index = props.index;
             const value = props.value;
             const array = props.array;
+            const field: Field = props.field;
 
             const f: Field = new Field((c: Column) => {
-                c.enumerate = props.field.config.enumerate;
-                c.type = props.field.type.type;
-                c.key = props.field.key + "_" + index;
-                c.name = props.field.name;
+                c.enumerate = field.config.enumerate;
+                c.type = field.type.type;
+                c.key = field.key + "_" + index;
+                c.name = field.name;
+                c.foreign = field.config.foreign;
             });
 
             f.set(value);
@@ -47,6 +49,7 @@ export default class List extends FormComponent {
 
             return <td>
                 <FCtrl
+                    fit={true}
                     field={f}
                     value
                     style={{width: "100%"}}
