@@ -9,7 +9,7 @@ export default class RepositoryStorage {
     }
 
     /** zapis danych - submit */
-    save(context: any, records: Record[], crude: CRUDE): Promise {
+    save(context: any, records: Record[]): Promise {
         throw new Error("Unsupported operation");
     }
 

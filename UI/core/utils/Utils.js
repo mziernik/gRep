@@ -511,3 +511,153 @@ export class AtomicNumber {
     }
 }
 
+/** klasa budująca filtr */
+export class CustomFilter {
+    static OPERATIONS = {
+        AND: '&&',
+        OR: '||'
+    };
+
+    static TYPES = {
+        EQUAL: '===',
+        BIGGER: '>',
+        SMALLER: '<'
+    };
+
+    operation: string = CustomFilter.OPERATIONS.AND;
+    type: string = CustomFilter.TYPES.EQUAL;
+    value: ?any; //wartość filtru
+    negation: boolean = false; //negacja wyniku
+    conditions: [] = []; //warunki [CustomFilter]
+
+    /** konstruktor
+     * @param value wartość do której ma być porównanie
+     * @param type typ porównania CustomFilter.TYPES
+     * @param operation typ operacji (łączenia warunków) CustomFilter.OPERATIONS
+     * @param negation czy negacja warunku
+     */
+    constructor(value, type = null, operation = null, negation = false) {
+        this.value = value;
+        this.type = type || CustomFilter.TYPES.EQUAL;
+        this.operation = operation || CustomFilter.OPERATIONS.AND;
+        this.negation = negation;
+    }
+
+    /** dodaje n warunków
+     * @param CustomFilter warunki
+     * @returns {CustomFilter} this
+     */
+    addCondition([...CustomFilter]): CustomFilter {
+        forEach(arguments, (arg) => this.conditions.push(arg));
+        return this;
+    }
+
+    /** Tworzy warunek && (x > value).
+     * @param value wartość do której ma być porównanie
+     * @param negation czy negacja warunku
+     * @returns {CustomFilter} nowy obiekt CustomFilter
+     */
+    static andBigger(value, negation = false): CustomFilter {
+        return new CustomFilter(value, CustomFilter.TYPES.BIGGER, CustomFilter.OPERATIONS.AND, negation);
+    }
+
+    /** Tworzy warunek || (x > value).
+     * @param value wartość do której ma być porównanie
+     * @param negation czy negacja warunku
+     * @returns {CustomFilter} nowy obiekt CustomFilter
+     */
+    static orBigger(value, negation = false): CustomFilter {
+        return new CustomFilter(value, CustomFilter.TYPES.BIGGER, CustomFilter.OPERATIONS.OR, negation);
+    }
+
+    /** Tworzy warunek && (x < value).
+     * @param value wartość do której ma być porównanie
+     * @param negation czy negacja warunku
+     * @returns {CustomFilter} nowy obiekt CustomFilter
+     */
+    static andSmaller(value, negation = false): CustomFilter {
+        return new CustomFilter(value, CustomFilter.TYPES.SMALLER, CustomFilter.OPERATIONS.AND, negation);
+    }
+
+    /** Tworzy warunek || (x < value).
+     * @param value wartość do której ma być porównanie
+     * @param negation czy negacja warunku
+     * @returns {CustomFilter} nowy obiekt CustomFilter
+     */
+    static orSmaller(value, negation = false): CustomFilter {
+        return new CustomFilter(value, CustomFilter.TYPES.SMALLER, CustomFilter.OPERATIONS.OR, negation);
+    }
+
+    /** Tworzy warunek && (x === value).
+     * @param value wartość do której ma być porównanie
+     * @param negation czy negacja warunku
+     * @returns {CustomFilter} nowy obiekt CustomFilter
+     */
+    static andEqual(value, negation = false): CustomFilter {
+        return new CustomFilter(value, CustomFilter.TYPES.EQUAL, CustomFilter.OPERATIONS.AND, negation);
+    }
+
+    /** Tworzy warunek || (x === value).
+     * @param value wartość do której ma być porównanie
+     * @param negation czy negacja warunku
+     * @returns {CustomFilter} nowy obiekt CustomFilter
+     */
+    static orEqual(value, negation = false): CustomFilter {
+        return new CustomFilter(value, CustomFilter.TYPES.EQUAL, CustomFilter.OPERATIONS.OR, negation);
+    }
+
+    /** wykonuje filtr
+     * @param val wartość, która ma być sprawdzona
+     * @param compareFn funkcja porównująca np.: (a,b)=>a-b;
+     * @returns {boolean}
+     */
+    filter(val, compareFn: (a, b) => number): boolean {
+        if (!If.func(compareFn)) throw new Error("Brak funkcji 'compareFn'");
+
+        let res = false;
+        switch (this.type) {
+            case CustomFilter.TYPES.EQUAL:
+                res = compareFn(val, this.value) === 0;
+                break;
+            case CustomFilter.TYPES.SMALLER:
+                res = compareFn(val, this.value) < 0;
+                break;
+            case CustomFilter.TYPES.BIGGER:
+                res = compareFn(val, this.value) > 0;
+                break;
+            default:
+                res = compareFn(val, this.value) === 0;
+                break;
+        }
+
+        if (this.negation) res = !res;
+        forEach(this.conditions, (condition: CustomFilter) => {
+            switch (condition.operation) {
+                case CustomFilter.OPERATIONS.AND:
+                    res = res && condition.filter(val, compareFn);
+                    break;
+                case CustomFilter.OPERATIONS.OR:
+                    res = res || condition.filter(val, compareFn);
+                    break;
+                default:
+                    break;
+            }
+        });
+        return res;
+    }
+
+    /** tekstowa reprezentacja zbudowanego warunku
+     * @param x sprawdzana wartość. Tylko dla reprezentacji
+     * @returns {string}
+     */
+    toString(x: string = '$x'): string {
+        let res = x + ' ' + this.type + ' ' + this.value;
+        if (this.negation)
+            res = '!(' + res + ')';
+        forEach(this.conditions, (condition: CustomFilter) => {
+            res = res + ' ' + condition.operation + ' (' + condition.toString(x) + ')'
+        });
+        return res;
+    }
+}
+

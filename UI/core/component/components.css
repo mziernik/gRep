@@ -113,6 +113,7 @@
     background-color: #ccc;
     border-right: 1px solid #aaa;
     height: 100%;
+    padding: 7px 5px;
 }
 
 /*===================================================== RepoTable ====================================================*/
@@ -395,6 +396,18 @@
 
 *[fctrl-changed=true] {
     background-color: rgba(255, 200, 0, 0.3);
+}
+
+/*=================================================== ReferencesTable =================================================*/
+
+.c-references-table td:first-child > div {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.c-references-table td:first-child > div:hover {
+    color: #01a0e4;
+    text-decoration: underline;
 }
 
 /*====================================================== Dashboard ====================================================*/

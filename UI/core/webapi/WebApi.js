@@ -10,11 +10,16 @@ import WebApiTransport, {State, WebSocketTransport} from "./Transport";
 import Dispatcher from "../utils/Dispatcher";
 import {AppStatus} from "../core";
 import * as If from "../utils/Is";
+import AppEvent from "../application/Event";
 
 export type OnSuccess = (data: ?any, response: WebApiResponse) => void;
 export type OnError = (error: Object, response: WebApiResponse) => void;
 
+
 export default class WebApi {
+
+    static instance: WebApi;
+
     url: string;
     httpUrl: string;
     wsUrl: string;
@@ -36,6 +41,7 @@ export default class WebApi {
 
     constructor(url: string, transportClass) {
         this.url = url;
+        WebApi.instance = this;
 
         let retryCount = 0;
 
@@ -126,8 +132,6 @@ export default class WebApi {
             hash: request.hash
         };
 
-        Dev.log(this, `${request.id},\t "${request.method}"`, request.transportData);
-
         const transport = this.transport;
 
         if (!transport.connected)
@@ -138,6 +142,13 @@ export default class WebApi {
             return;
         }
 
+        AppEvent.WEB_API_ACTION.send(request, {
+            request: true,
+            ts: new Date(),
+            ...request.transportData
+        });
+
+        Dev.log(request, `${request.id},\t "${request.method}"`, request.transportData);
         transport.send(request);
 
         request.sendTime = new Date();

@@ -88,10 +88,8 @@ export default class Record {
     get references(): RepoReference[] {
         const refs: RepoReference[] = this.repo.references;
         const pk = this.pk;
-        Utils.forEach(refs, (rr: RepoReference) => {
-            const repo: Repository = rr.column.repository;
-            rr.records.addAll(repo.find(this, (cursor: RepoCursor) => cursor.get(rr.column) === pk));
-        });
+        Utils.forEach(refs, (rr: RepoReference) =>
+            rr.records.addAll(rr.repo.find(this, (cursor: RepoCursor) => cursor.get(rr.column) === pk)));
         return refs;
     }
 
@@ -137,6 +135,9 @@ export default class Record {
         const fk = this.get(column).value;
         if (!Is.defined(fk)) return null;
 
+        if (!column.foreign)
+            throw new RecordError(this, "Kolumna " + column.key + " nie posiada klucza obcego");
+
         const frepo: Repository = column.foreign();
 
         if (fk instanceof Array)
@@ -157,5 +158,12 @@ export default class Record {
             return null;
 
         return this.repo.get(this.context, parentId);
+    }
+}
+
+class RecordError extends Error {
+
+    constructor(record: Record, message: string) {
+        super(record.fullId + ": " + Utils.toString(message))
     }
 }

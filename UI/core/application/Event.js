@@ -73,6 +73,8 @@ export default class AppEvent {
     /** @type {EventType}  */
     static REPO_CONFIG_UPDATE: EventType = new EventType("Aktualizacja konfiguracji repozytorium");
 
+    /** @type {EventType}  */
+    static WEB_API_ACTION: EventType = new EventType("Żądanie lub odpowiedź WebApi");
 
     /** @type {any} Źródło zdarzenia, najczęściej klasa Component */
     sender: any;

@@ -16,6 +16,7 @@ import PContextObject from "./PContextObject";
 import PRepoDetails from "./repository/PRepoDetails";
 import PIcons from "./PIcons";
 import * as Utils from "../../utils/Utils";
+import PWebApi from "./PWebApi";
 
 export default class DevRouter extends Endpoint {
 
@@ -32,6 +33,7 @@ export default class DevRouter extends Endpoint {
     MODULES: Endpoint;
     CTX_OBJS: Endpoint;
     ICONS: Endpoint;
+    WEBAPI: Endpoint;
 
     REPO: Endpoint;
     REPO_DETAILS: Endpoint;
@@ -55,7 +57,7 @@ export default class DevRouter extends Endpoint {
         this.LOCAL_STORAGE = this.child("localStorage", "Magazyn lokalny", baseUrl + "/localstorage", PLocalStorage);
         this.MODULES = this.child("modules", "Moduły", baseUrl + "/modules", PModules);
         this.ICONS = this.child("icons", "Ikony", `${baseUrl}/icons`, PIcons);
-
+        this.WEBAPI = this.child("webapi", "WebApi", `${baseUrl}/webapi`, PWebApi);
 
         this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/edit/:id", PRecord)
             .defaultParams({

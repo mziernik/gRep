@@ -111,12 +111,13 @@ export default class Repository {
                 throw new Error("Nie znaleziono rekordu " + this.key + "[" + this.primaryKeyColumn.key + "=" + Utils.escape(pk) + "]");
             return null;
         }
-        const rec: Record = this.createRecord(context);
+        const rec: Record = this.createRecord(context, row ? CRUDE.UPDATE : CRUDE.CREATE);
         rec.row = row;
         return rec;
     }
 
     createRecord(context: any, crude: CRUDE): Record {
+        Check.instanceOf(crude, [CRUDE.Crude]);
         const rec: Record = new (this.config.record || Record)(this, context);
         if (rec.fields.size !== this.columns.length)
             this.columns.forEach((col: Column) => Is.condition(!rec.fields.has(col), () => new Field(col, rec)));
@@ -161,11 +162,18 @@ export default class Repository {
     get references(): ?RepoReference[] {
         if (!this.config.references)
             return null;
+
         return Utils.forEach(this.config.references, (ref, key) => {
             const result: RepoReference = new RepoReference();
             result.key = key;
             result.name = ref.name;
-            result.column = Check.instanceOf(Is.func(ref.column) ? ref.column() : ref.column, [Column]);
+
+            let r = ref.repo;
+            result.repo = r instanceof Repository ? r : Repository.get(r, true);
+
+            let c = ref.column;
+            result.column = c instanceof Column ? c : result.repo.getColumn(c, true);
+
             return result;
         });
 
@@ -226,7 +234,7 @@ export default class Repository {
                 let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
 
                 Utils.forEach(value.rows, (row: []) => {
-                    const rec: Record = repo.createRecord(context);
+                    const rec: Record = repo.createRecord(context, CRUDE.CREATE);
                     repo.refs.remove(rec); // nie traktuj jako referencję
                     records.push(rec);
                     for (let i = 0; i < columns.length; i++) {
@@ -240,7 +248,7 @@ export default class Repository {
 
             const processObject = (value) =>
                 Utils.forEach(value, obj => {
-                    const rec: Record = repo.createRecord(context);
+                    const rec: Record = repo.createRecord(context, CRUDE.CREATE);
                     repo.refs.remove(rec); // nie traktuj jako referencję
                     const map: Map = new Map();
                     Utils.forEach(obj, (v, k) => {
@@ -340,7 +348,7 @@ export default class Repository {
     /**
      * Zastosuj zmiany (edycja / synchronizacja)
      */
-    static commit(context: any, records: Record[], crude: CRUDE): Promise {
+    static commit(context: any, records: Record[]): Promise {
         Check.instanceOf(records, [Array]);
 
         Utils.forEach(records, (rec: Record) =>
@@ -356,9 +364,42 @@ export default class Repository {
 
         storageMap.forEach((records: Record[], storage: RepositoryStorage) => storage === "LOCAL"
             ? Repository.update(context, records)
-            : result.push(storage.save(context, records, crude)));
+            : result.push(storage.save(context, records)));
 
         return Promise.all(result);
+    }
+
+    static buildDTO(records: Record[], includeUnchanged: boolean = false): {} {
+        const dto: Object = {};
+        const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repo);
+
+        map.forEach((records: Record[], repo: Repository) => {
+
+            const obj = dto[repo.key] = [];
+            records.forEach((record: Record) => {
+                const r = {};
+                r["#action"] = record.action ? record.action.name : null;
+                record.fields.forEach((field: Field) => {
+
+                    if (record.action === CRUDE.DELETE && field !== record.primaryKey)
+                        return;
+
+                    if (includeUnchanged || field.changed || field === record.primaryKey) {
+                        const value = field.value;
+                        if (value === null && record.action === CRUDE.CREATE)
+                            return;
+                        r[field.key] = field.type.serialize(value);
+                    }
+
+                });
+
+                if (record.changedReferences.length)
+                    r["#refs"] = Repository.buildDTO(record.changedReferences, includeUnchanged);
+
+                obj.push(r);
+            });
+        });
+        return dto;
     }
 
     get primaryKeyColumn(): Column {
@@ -479,6 +520,7 @@ export class RepoConfig {
         this.parentColumn = getColumn(data.parentColumn);
         this.crude = data.crude;
         this.local = data.local;
+        this.references = data.references;
     }
 
     /**
@@ -625,7 +667,7 @@ export class RepoCursor {
     }
 
     getRecord(context: any) {
-        const rec: Record = this.repo.createRecord(context);
+        const rec: Record = this.repo.createRecord(context, CRUDE.UPDATE);
         rec.row = this._rows[this._index];
         return rec;
     }
@@ -662,6 +704,7 @@ class RepoError extends Error {
 
 export class RepoReference {
     key: string;
+    repo: Repository;
     column: Column;
     name: string;
     records: Record[] = [];

@@ -28,6 +28,8 @@ CREATE TABLE repo_state
     broadcast       BOOLEAN NOT NULL,
     on_demand       BOOLEAN NOT NULL,
     icon            VARCHAR,
+    info            HSTORE,
+    "limit"         INTEGER,
     crude           CHAR[] NOT NULL,
     last_modified   TIMESTAMP WITHOUT TIME ZONE,
     last_modified_by  VARCHAR,
@@ -39,9 +41,9 @@ CREATE TABLE repo_state
 
 CREATE TABLE meta_data
 (
-	key          VARCHAR PRIMARY KEY,
+    key          VARCHAR PRIMARY KEY,
     name         VARCHAR NOT NULL,
-	value        TEXT 
+    value        TEXT 
 );
 
 

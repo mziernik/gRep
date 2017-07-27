@@ -8,6 +8,7 @@ import WebApiFile from "./File";
 import WebApiMessage from "./Message";
 import WebApi from "./WebApi";
 import {EError, Dev, Is} from "../core";
+import AppEvent from "../application/Event";
 
 export default class WebApiResponse {
 
@@ -27,6 +28,12 @@ export default class WebApiResponse {
         this.data = data.data;
 
         this.type = data.type;
+
+        AppEvent.WEB_API_ACTION.send(this, {
+            ts: new Date(),
+            request: false,
+            ...data
+        });
 
         if (this.type === "event" && !data.id) {
             webApi.onEvent.dispatch(this, {

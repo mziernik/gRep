@@ -30,7 +30,7 @@ export class ROccupations extends Repository {
 
     constructor() {
         super((c: RepoConfig) => {
-            c.key = "demo.occup";
+            c.key = "demo-occup";
             c.name = "Zawody";
             c.description = "Słownik zawodów";
             c.record = ROccupation;
@@ -114,7 +114,7 @@ export class RAddresses extends Repository {
 
     constructor() {
         super((c: RepoConfig) => {
-            c.key = "demo.addr";
+            c.key = "demo-addr";
             c.name = "Adresy użytkowników";
             c.description = "Adresy użytkowników / pracowników";
             c.record = RAddress;
@@ -262,7 +262,7 @@ export class RUsers extends Repository {
 
     constructor() {
         super((c: RepoConfig) => {
-            c.key = "demo.users";
+            c.key = "demo-users";
             c.name = "Użytkownicy";
             c.description = "Wszystko co związane z użytkownikami";
             c.record = RUsersRecord;
@@ -274,7 +274,8 @@ export class RUsers extends Repository {
             c.references = {
                 address: {
                     name: "Adres",
-                    column: RAddresses.USER
+                    repo: "demo-addr",
+                    column: "user"
                 }
             };
             c.actions = {
@@ -315,7 +316,7 @@ export class RUsers extends Repository {
         let maxAddrId = RADDRESSES.max(RAddresses.ID, 0);
 
         for (let i = 0; i < count; i++) {
-            const urec: RUsersRecord = RUSERS.createRecord("DEMO");
+            const urec: RUsersRecord = RUSERS.createRecord("DEMO", CRUDE.CREATE);
             const usr = Dev.randomUser();
             urec.ID.value = RUSERS.max(RUsers.ID, 0) + 1 + i;
 
@@ -335,7 +336,7 @@ export class RUsers extends Repository {
             recs.push(urec);
 
             for (let j = 0; j < Math.random() * 8; j++) {
-                const arec: RAddress = RADDRESSES.createRecord("DEMO");
+                const arec: RAddress = RADDRESSES.createRecord("DEMO", CRUDE.CREATE);
                 arec.ID.value = ++maxAddrId;
                 arec.USER.value = urec.ID.value;
                 arec.TYPE.value = ["C", "L", "M"].random();
@@ -398,7 +399,7 @@ window.addEventListener("load", () => {
 
     const recs = [];
     Utils.forEach(Dev.OCCUPATIONS, (name, idx) => {
-        const rec: ROccupation = ROCCUPATIONS.createRecord("DEMO");
+        const rec: ROccupation = ROCCUPATIONS.createRecord("DEMO", CRUDE.CREATE);
         rec.ID.value = idx;
         rec.NAME.value = name;
         recs.push(rec);

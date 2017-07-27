@@ -15,10 +15,10 @@ export default class RecordCtrl {
     spinner: boolean = true;
     viewer: JsonViewer;
 
-    constructor(page: Page, record: Record, crude: CRUDE) {
+    constructor(page: Page, record: Record) {
         this.page = page;
         this.record = record;
-        this.crude = crude;
+        this.crude = record.action;
     }
 
 
@@ -31,18 +31,19 @@ export default class RecordCtrl {
     }
 
     commit(crude: CRUDE, onSuccess: () => void) {
-
-        this.buttons.forEach(btn => btn.setState({disabled: true}));
-
-        const spinner = this.spinner ? new Spinner() : null;
-
-        const ts = new Date().getTime();
+        this.record.action = crude;
 
         if (!this.validate())
             return false;
 
+        this.buttons.forEach(btn => btn.setState({disabled: true}));
+        const spinner = this.spinner ? new Spinner() : null;
+
+        const ts = new Date().getTime();
+
+
         try {
-            Repository.commit(this, [this.record], crude)
+            Repository.commit(this, [this.record])
                 .then((e, f, g) => {
                     this.onReponse(e, spinner);
                     AppStatus.success(this, "Zaktualizowano dane", "Czas: " + (new Date().getTime() - ts) + " ms");

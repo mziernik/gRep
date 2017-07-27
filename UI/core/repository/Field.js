@@ -82,7 +82,7 @@ export default class Field {
     }
 
     /** Pełny identyfikator pola uwzględniający wszystkie elementy nadrzędne */
-    getFullId() {
+    get fullId() {
         if (this._getFullId)
             return this._getFullId();
         return this.key;
@@ -137,7 +137,7 @@ export default class Field {
     set(value: ?any = null, done: boolean = false): Field {
         const prev = this._value;
         if (this._locked)
-            throw new Error(`Pole ${this.getFullId()} jest zablokowane`);
+            throw new Error(`Pole ${this.fullId} jest zablokowane`);
         if (value !== null && value !== undefined && this.unit && this.type.simpleType === 'number')
             value *= this.unit[2];
 
@@ -150,7 +150,7 @@ export default class Field {
                 value = this.config.parse(value);
                 Is.func(this.validator, f => f(value));
             } catch (e) {
-                e.message = this.getFullId() + ": " + e.message;
+                e.message = this.fullId + ": " + e.message;
                 this.error = e.message;
                 throw e;
             }
@@ -360,7 +360,7 @@ export default class Field {
             return (value: Repository).name;
 
         if (value instanceof Record)
-            return (value: Record).getFullId();
+            return (value: Record).fullId;
 
         if (value instanceof Date)
             return value.toLocaleString();

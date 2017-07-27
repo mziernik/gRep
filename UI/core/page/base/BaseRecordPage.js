@@ -22,8 +22,8 @@ export default class BaseRecordPage extends Page {
         const init = () => {
             this.isNew = this.props.id === "~new";
             this.repo = repo instanceof Repository ? repo : Repository.get(repo, true);
-            this.record = this.isNew ? this.repo.createRecord(this) : this.repo.get(this, this.props.id, true);
-            this.controller = new RecordCtrl(this, this.record, this.isNew ? CRUDE.CREATE : CRUDE.UPDATE);
+            this.record = this.isNew ? this.repo.createRecord(this, this.isNew ? CRUDE.CREATE : CRUDE.UPDATE) : this.repo.get(this, this.props.id, true);
+            this.controller = new RecordCtrl(this, this.record);
         };
 
         if (this.requireRepo(repo, () => {

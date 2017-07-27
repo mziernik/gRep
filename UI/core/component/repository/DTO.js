@@ -1,6 +1,5 @@
-import {React, PropTypes, Record, Is} from "../../core";
+import {React, PropTypes, Record, Is, Repository} from "../../core";
 import {Component} from "../../components";
-import WebApiRepositoryStorage from "../../repository/storage/WebApiRepoStorage";
 import JsonViewer from "../JsonViewer";
 
 
@@ -28,7 +27,7 @@ export default class DTO extends Component {
     }
 
     buildDTO(): ?Object {
-        let dto = WebApiRepositoryStorage.buildDTO([this.record], true);
+        let dto = Repository.buildDTO([this.record], true);
         dto = dto[this.record.repo.key];
         if (!dto) return;
         dto = dto[0];

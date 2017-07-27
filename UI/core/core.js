@@ -12,6 +12,7 @@ export {Check};
 import * as Utils from "./utils/Utils";
 
 export {Utils};
+export {CustomFilter as CustomFilter} from "./utils/Utils";
 
 import * as Is from "./utils/Is";
 

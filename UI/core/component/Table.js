@@ -1,4 +1,4 @@
-import {React, ReactDOM, ReactUtils, PropTypes} from "../core";
+import {React, ReactDOM, ReactUtils, PropTypes, CustomFilter} from "../core";
 import {Utils, Is, Check, Column, AppEvent, Trigger, Record, Dev, Field} from "../core";
 import {Component, PopupMenu, MenuItem, Icon, ModalWindow, MW_BUTTONS} from "../components";
 import ReactTable from 'react-table';
@@ -92,7 +92,7 @@ export default class Table extends Component {
                 column.show = !col.hidden;
                 column.id = col.key;
                 column.sortMethod = col.compare;
-                column.filterMethod = (filter, row) => col.filter ? col.filter(filter.value, row[filter.pivotId || filter.id]) : this.defaultFilter(filter.value, row[filter.pivotId || filter.id]);
+                column.filterMethod = (filter: {}, row) => this.filterColumn(filter, row[filter.pivotId || filter.id], col.filter, col.compare);
                 if (col.sortOrder)
                     this._sorted = [{id: column.id, desc: false}];
             }
@@ -100,7 +100,7 @@ export default class Table extends Component {
                 header = col;
                 column.show = true;
                 column.filterable = this._filterable;
-                column.filterMethod = (filter, row) => this.defaultFilter(filter.value, row[filter.pivotId || filter.id]);
+                column.filterMethod = (filter, row) => this.filterColumn(filter, row[filter.pivotId || filter.id], null, null);
             }
             if (column.sortable === undefined) column.sortable = true;
 
@@ -121,7 +121,7 @@ export default class Table extends Component {
             sortable: false,
             filterable: this._filterable,
             filterAll: true,
-            filterMethod: (filter, rows) => this.filterMethod(filter, rows)
+            filterMethod: (filter, rows) => this.globalFilterMethod(filter, rows)
         });
 
         if (this._showRowNum)
@@ -261,7 +261,7 @@ export default class Table extends Component {
             }
         });
         this._columns = columns;
-        this.forceUpdate(true);
+        this.forceUpdate(!first);
     }
 
     _swapColumns(sourceID, targetID, targetCol, mouseX) {
@@ -297,7 +297,7 @@ export default class Table extends Component {
      * @param data tablica z komórkami (kompletna tabela)
      * @returns {*[]}
      */
-    filterMethod(filter: {}, data: []): [] {
+    globalFilterMethod(filter: {}, data: []): [] {
         if (!filter.value || filter.value === '') return data;
         let tmpFilter = {id: filter.id, value: filter.value};
         return Utils.forEach(data, (row) => {
@@ -313,16 +313,21 @@ export default class Table extends Component {
         });
     }
 
-    /** ustawia filtry kolumn
-     * @param colId id kolumny
-     * @param remove czy usunąc filtr z kolumny
-     */
-    filterColumn(colId: ?string, remove: boolean = false) {
+    filterColumn(filter: {}, cell, filterFn: ?() => boolean = null, sortFn: ?() => number = null): boolean {
+        if (!(filter.value instanceof (Object)))
+            return Is.func(filterFn) ? filterFn(filter.value, cell) : this.defaultFilter(filter.value, cell);
         //todo filtrowanie
+        return false;
+    }
+
+    /** usuwa filtr kolumny
+     * @param colId id kolumny
+     */
+    removeFilter(colId: ?string) {
         const filtered = this._filtered.slice();
         for (let i = 0; i < filtered.length; ++i)
             if (filtered[i].id === colId) {
-                if (remove) filtered.splice(i, 1);
+                filtered.splice(i, 1);
                 break;
             }
         this._filtered = filtered;
@@ -344,9 +349,8 @@ export default class Table extends Component {
      * @param val szukana wartość
      */
     search(val: string) {
-        //Todo przerobić by nie kasowało filtrów. Prawdopodobnie będzie można zamienić to na filterColumn
         if (!val || val === '') {
-            this._filtered = [];
+            this.removeFilter(undefined);
             this.forceUpdate(true);
             return;
         }
@@ -357,7 +361,14 @@ export default class Table extends Component {
                 break;
             }
         if (!filter) return;
-        this._filtered = [{id: undefined, value: val}];
+        const filtered = this._filtered.slice();
+        for (let i = 0; i < filtered.length; ++i)
+            if (filtered[i].id === undefined) {
+                filtered.splice(i, 1);
+                break;
+            }
+        filtered.push({id: undefined, value: val});
+        this._filtered = filtered;
         this.forceUpdate(true);
     }
 
@@ -510,6 +521,18 @@ export default class Table extends Component {
             c.onClick = (e, props) => console.log(props);
         }),
         MenuItem.createItem((c: MenuItem) => {
+            c.name = "Test Filtr";
+            c.icon = Icon.FILTER;
+            c.onClick = () => {
+                let f = CustomFilter.andEqual(100).addCondition(
+                    CustomFilter.orBigger(50).addCondition(
+                        CustomFilter.andSmaller(150)),
+                    CustomFilter.orEqual(0));
+                const x = Math.round(Math.random() * 200);
+                console.log(f.toString(x), '-->', f.filter(x, (a, b) => a - b));
+            }
+        }),
+        MenuItem.createItem((c: MenuItem) => {
             c.icon = Icon.EYE_SLASH;
             c.hint = "Ukrywa kolumnę";
             c.onClick = (e, props) => this.changeColumnVisibility(props.column.id, false);
@@ -594,7 +617,7 @@ export default class Table extends Component {
             c.name = 'Usuń filtr';
             c.icon = Icon.MINUS;
             c.hint = 'Usuwa filtr z kolumny';
-            c.onClick = (e, props) => this.filterColumn(props.column.id, true);
+            c.onClick = (e, props) => this.removeFilter(props.column.id);
             c.onBeforeOpen = (item, props) => {
                 item.disabled = props.column.id ? !props.column.filterable : true;
                 if (!item.disabled) {

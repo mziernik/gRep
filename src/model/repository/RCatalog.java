@@ -102,6 +102,7 @@ public class RCatalog extends Repository<Integer> {
             c.parentColumn = PARENT;
             c.order(PARENT, true);
             c.order(ORDER, true);
+            c.reference("Zasób", RResource.CATALOG);
         });
 
     }

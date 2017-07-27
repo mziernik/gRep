@@ -55,7 +55,7 @@ export default class PRepository extends Page {
                 <FCtrl ignore={!hasAdv} field={this.showAdv} value={1} name={2}/>
             </div>
 
-            <RepoTable key={Utils.randomId()} repository={this.repo}/>
+            <RepoTable key={Utils.randomId()} repository={this.repo} showAdvanced={this.showAdv.value}/>
 
         </Panel>
     }

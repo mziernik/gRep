@@ -8,7 +8,8 @@ export default class RepoTable extends Table {
 
     static propTypes = {
         repository: PropTypes.instanceOf(Repository).isRequired,
-        onClick: PropTypes.func
+        onClick: PropTypes.func, //(rec, row, column, instance, e
+        showAdvanced: PropTypes.bool
     };
 
     constructor() {
@@ -46,7 +47,7 @@ export default class RepoTable extends Table {
                 let cellIdx = 0;
 
                 const row = {};
-                const rec: Record = repo.createRecord(this);
+                const rec: Record = repo.createRecord(this, CRUDE.UPDATE);
                 rec.row = _row;
 
                 const mark = this._dataChanged && this._dataChanged.fullId === rec.fullId;
@@ -73,7 +74,7 @@ export default class RepoTable extends Table {
         });
 
         this._columns = this._convertColumns(Utils.forEach(repo.columns, (c: Column) =>
-            c.disabled ? undefined : c.hidden ? null :
+            c.disabled && !this.props.showAdvanced ? undefined : c.hidden ? null :
                 <span key={c.key} title={c.name + (c.description ? "\n" + c.description : "")}>{c.name}</span>));
 
 
