@@ -1,5 +1,5 @@
 import {React, Utils, Repository, Endpoint} from "../../core";
-import {Button, Page} from "../../components";
+import {Button, Page, MenuItem, PopupMenu} from "../../components";
 import {RepoAction} from "../../repository/Repository";
 
 export default class RepoCtrl {
@@ -19,7 +19,21 @@ export default class RepoCtrl {
             type={act.type || "default"}
             confirm={act.confirm}
             onClick={e => {
-                this.repo.storage.action(this.repo, act.key, null, {})
+
+                if (act.children && act.children.length) {
+                    PopupMenu.openMenu(e, Utils.forEach(act.children, (a: RepoAction) =>
+                        MenuItem.createItem((item: MenuItem) => {
+                            item.name = a.name;
+                            item.icon = a.icon;
+                            item.onClick = (e, props) => a.execute()
+                        })));
+                    if (act.action)
+                        act.action();
+                    return;
+                }
+
+                act.execute();
+
             }}>{this.page.children.render(act.name)}</Button>);
     }
 

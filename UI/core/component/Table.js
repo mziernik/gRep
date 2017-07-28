@@ -4,6 +4,7 @@ import {Component, PopupMenu, MenuItem, Icon, ModalWindow, MW_BUTTONS} from "../
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import classnames from "classnames";
+import FilterEditor from "./FilterEditor";
 
 const resizeTrigger: Trigger = new Trigger();
 
@@ -126,8 +127,8 @@ export default class Table extends Component {
 
         if (this._showRowNum)
             res.unshift({
-                id: '__number',
                 style: {padding: 0},
+                id: '__number',
                 resizable: false,
                 width: 40,
                 sortable: false,
@@ -163,6 +164,11 @@ export default class Table extends Component {
             (row.original[accessor] !== null && row.original[accessor] !== undefined) ?
                 row.original[accessor] : row.value : row;
         if (!val) return null;
+
+
+        if (!this._updateWidths && number)
+            return <div
+                className={number ? "c-table-number" : null}>{val}</div>
         if (!this._updateWidths) return val;
 
         return <span ref={elem => {
@@ -316,22 +322,22 @@ export default class Table extends Component {
     filterColumn(filter: {}, cell, filterFn: ?() => boolean = null, sortFn: ?() => number = null): boolean {
         if (!(filter.value instanceof (Object)))
             return Is.func(filterFn) ? filterFn(filter.value, cell) : this.defaultFilter(filter.value, cell);
-        //todo filtrowanie
-        return false;
+        const f: CustomFilter = filter.value;
+        return f.filter(cell.value || cell, sortFn);
     }
 
-    /** usuwa filtr kolumny
-     * @param colId id kolumny
-     */
-    removeFilter(colId: ?string) {
+    setFilter(colId: ?string, filter: ?any) {
         const filtered = this._filtered.slice();
         for (let i = 0; i < filtered.length; ++i)
             if (filtered[i].id === colId) {
                 filtered.splice(i, 1);
                 break;
             }
+        if (filter)
+            filtered.push({id: colId, value: filter});
         this._filtered = filtered;
         this.forceUpdate(true);
+
     }
 
     /** otwiera okno dialogowe z konfiguracją filtru
@@ -339,18 +345,28 @@ export default class Table extends Component {
      */
     filterDialog(colId: ?string) {
         //Todo okno z filtrami
-        const filtered = this._filtered.slice();
-        filtered.push({id: colId, value: '00'});
-        this._filtered = filtered;
-        this.forceUpdate(true);
+        const mw = ModalWindow.create((mw: ModalWindow) => {
+            mw.title = "Filtr";
+            mw.icon = Icon.FILTER;
+            mw.resizable = false;
+            mw.closeButton = false;
+            mw.buttons = MW_BUTTONS.OK_CANCEL;
+            mw.content = <FilterEditor onChange={(filter) => this._filter = filter}/>;
+            mw.onConfirm = () => {
+                this.setFilter(colId, this._filter);
+                return true;
+            }
+        });
+        mw.open();
     }
 
     /** wywołuje globalne filtrowanie tabeli
      * @param val szukana wartość
      */
     search(val: string) {
+        //ToDo do przeanalizowania przydatność
         if (!val || val === '') {
-            this.removeFilter(undefined);
+            this.setFilter(undefined, null);
             this.forceUpdate(true);
             return;
         }
@@ -617,7 +633,7 @@ export default class Table extends Component {
             c.name = 'Usuń filtr';
             c.icon = Icon.MINUS;
             c.hint = 'Usuwa filtr z kolumny';
-            c.onClick = (e, props) => this.removeFilter(props.column.id);
+            c.onClick = (e, props) => this.setFilter(props.column.id, null);
             c.onBeforeOpen = (item, props) => {
                 item.disabled = props.column.id ? !props.column.filterable : true;
                 if (!item.disabled) {

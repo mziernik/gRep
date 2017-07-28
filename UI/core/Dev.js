@@ -4,6 +4,9 @@ import * as ErroHandler from "./utils/ErrorHandler";
 
 'use strict';
 
+export const DEV_MODE = process && process.env ? process.env.NODE_ENV === 'dev' : false;
+export const PROD_MODE = process && process.env ? process.env.NODE_ENV === 'production' : false;
+export const TEST_MODE = process && process.env ? process.env.NODE_ENV === 'test' : false;
 
 export default class Dev {
 
@@ -44,7 +47,8 @@ export default class Dev {
 
     static error(context: ?any | any[], value: ?mixed, ...args: any) {
         window.console.error(value instanceof Error ? value : format(context, value), ...args);
-        ErroHandler.onError(Utils.getContextName(context) + ": " + value);
+        if (DEV_MODE)
+            ErroHandler.onError(Utils.getContextName(context) + ": " + value);
     }
 
     static dir(value: ?mixed, ...args: any) {

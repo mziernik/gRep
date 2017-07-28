@@ -18,7 +18,8 @@ export default class Button extends Component {
         link: PropTypes.any,
         icon: PropTypes.any,
         disabled: PropTypes.bool,
-        focus: PropTypes.bool //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
+        focus: PropTypes.bool, //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
+        style: PropTypes.object
     };
 
     constructor() {
@@ -54,6 +55,7 @@ export default class Button extends Component {
 
         return <button
             ref={elem => this._tag = elem}
+            style={this.props.style}
             className={"btn " + (type ? "btn-" + type : "") + " c-button"}
             disabled={this.state.disabled}
             title={this.props.title}

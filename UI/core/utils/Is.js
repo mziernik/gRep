@@ -35,6 +35,10 @@ export function defined(object: ?any, then: ?(object: any) => void, otherwise: ?
     return result(object !== undefined && object !== null, object, then, otherwise);
 }
 
+export function iterable(object: ?any, then: ?(object: any) => void, otherwise: ?(object: any) => void): boolean {
+    return result(typeof object && [Symbol.iterator] === 'function', object, then, otherwise);
+}
+
 
 /**
  * Funkcja sprawdza czy argument [object] jest zdefiniowany i zwraca go lub rezultat funkcji zwrotnych

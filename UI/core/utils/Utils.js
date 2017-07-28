@@ -5,6 +5,7 @@ import "./DOMPrototype";
 import "./Prototype";
 import * as Check from "./Check";
 import * as If from "./Is";
+import * as Dev from "../Dev";
 
 /** dowolne mapowania (np klas na potrzeby uglify, importów itp) */
 export const MAPPING: Map<String, any> = new Map();
@@ -25,10 +26,17 @@ export function escape(argument: any): string {
 
 /** Zwraca [arg] jeśli jest tablicą, w przeciwnym razie opakowuje go w tablicę*/
 export function asArray(elm: any): [] {
-    if (elm === undefined) return [];
+    if (elm === undefined || elm === null) return [];
     if (elm instanceof Array)
         return elm;
+
+    const type = typeof(elm);
+
+    if (type !== "string" && typeof elm[Symbol.iterator] === 'function')
+        return Array.from(elm);
+
     return [elm];
+
 }
 
 export function toString(argument: any): string {
@@ -64,6 +72,27 @@ export function find(object: ?any, callback: (object: ?any, index: number | stri
     }) [0];
 }
 
+/***
+ * Wariant bezpieczny funkcji iterującej - iteruje na kopii obiektu, dzięki czemu w trakcie można modyfikować kolekcję
+ * @param object
+ * @param callback
+ * @return {Array}
+ */
+export function forEachSafe(object: ?any, callback: (object: ?any, index: number | string, forEach: ForEach) => ?any): [] {
+
+    const items = [];
+    forEach(object, (item, index) => items.push([item, index]));
+
+    const result = [];
+
+    for (let i = 0; i < items.length; i++) {
+        const res = callback(items[i][0], items[i][1], forEach);
+        if (res !== undefined) result.push(res);
+        if (forEach._break) return result;
+    }
+    return result;
+}
+
 export function forEach(object: ?any, callback: (object: ?any, index: number | string, forEach: ForEach) => ?any): [] {
     if (!Check.isFunction(callback))
         throw new Error("Nieprawidłowe wywołanie funkcji forEach");
@@ -74,15 +103,6 @@ export function forEach(object: ?any, callback: (object: ?any, index: number | s
     if (If.func(object))
         object = object();
 
-    if (object instanceof Map) {
-        (object: Map).forEach((value, key) => {
-            const res = callback(value, key, forEach);
-            if (res !== undefined) result.push(res);
-            if (forEach._break) return result;
-        });
-        return result;
-    }
-
     if (object instanceof Array) {
         for (let i = 0; i < (object: Array).length; i++) {
             const res = callback(object[i], i, forEach);
@@ -91,6 +111,26 @@ export function forEach(object: ?any, callback: (object: ?any, index: number | s
         }
         return result;
     }
+
+    if (object instanceof Set) {
+        let i = 0;
+        for (const value of object) {
+            const res = callback(value, i++, forEach);
+            if (res !== undefined) result.push(res);
+            if (forEach._break) return result;
+        }
+        return result;
+    }
+
+    if (object instanceof Map) {
+        for (const [key, value] of object) {
+            const res = callback(value, key, forEach);
+            if (res !== undefined) result.push(res);
+            if (forEach._break) return result;
+        }
+        return result;
+    }
+
 
     for (let name in object) {
         const res = callback(object[name], name, forEach);
@@ -250,14 +290,13 @@ export function setCookie(name: string, value: string, exdays: number, httpOnly:
 
 
 /**
- * Generuje losowy identyfikator w formie UID-a (GUID-a)
+ * Generuje losowy identyfikator w formie UID-a (GUID-a)  8-4-4-4-12
+
  * @return {string}
  */
 export function randomUid(): string {
-    const uid: string[] = [];
-    for (let i = 0; i < 4; i++)
-        uid.push((((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1));
-    return uid.join("-");
+    const r = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    return r() + r() + "-" + r() + "-" + r() + "-" + r() + "-" + r() + r() + r();
 }
 
 
@@ -304,6 +343,21 @@ export function formatUnits(value: number, units: {}): string {
     }
 
     return null;
+}
+
+
+/**
+ * Formatuje wartość numeryczną rozmiaru danych do postaci wyświetlanej
+ * @param {number} size
+ * @return {string}
+ */
+export function formatTime(timeMS: number): string {
+    return formatUnits(timeMS, {
+        h: 24 * 60 * 1000,
+        m: 60 * 1000,
+        s: 1000,
+        ms: 0
+    });
 }
 
 /**
@@ -439,7 +493,11 @@ export function getContextName(object: any): string {
  * @param instances
  * @return {*}
  */
+//ToDo: Problemy wydajnościowe
 export function verifyObjectInstance(object: any, instances: any[]): ?string[] {
+
+    if (!Dev.DEV_MODE)
+        return null;
 
     Check.isArray(instances, new Error("Wymagana tablica"));
 
@@ -612,7 +670,8 @@ export class CustomFilter {
      * @returns {boolean}
      */
     filter(val, compareFn: (a, b) => number): boolean {
-        if (!If.func(compareFn)) throw new Error("Brak funkcji 'compareFn'");
+        if (!compareFn) compareFn = CustomFilter.defaultCompareFn(typeof(val));
+        if (!If.func(compareFn)) throw new Error("Brak poprawnej funkcji 'compareFn'");
 
         let res = false;
         switch (this.type) {
@@ -646,17 +705,50 @@ export class CustomFilter {
         return res;
     }
 
+    /** zwraca podstawową funkcję porównania dla danego typu prostego
+     * @param type typ prosty string|number|boolean
+     * @returns {*}
+     */
+    static defaultCompareFn(type: string): ?(a, b) => number {
+        switch (type) {
+            case 'number':
+                return (a, b) => a - b;
+            case 'boolean':
+                return (a, b) => {
+                    if (a === b) return 0;
+                    if (a === null || a === undefined) return 1;
+                    if (b === null || b === undefined) return -1;
+                    return a ? -1 : 1;
+                };
+            case 'string':
+                // ToDo obsługa polskich znaków
+                return (a, b) => {
+                    a = a ? a.toLowerCase() : a;
+                    b = b ? b.toLowerCase() : b;
+                    if (a === b) return 0;
+                    if (a === null || a === undefined) return 1;
+                    if (b === null || b === undefined) return -1;
+                    if (a > b) return 1;
+                    return -1;
+                };
+            default:
+                return null;
+        }
+    }
+
     /** tekstowa reprezentacja zbudowanego warunku
      * @param x sprawdzana wartość. Tylko dla reprezentacji
+     * @param cut czy obciąć dodatkowe warunki
      * @returns {string}
      */
-    toString(x: string = '$x'): string {
+    toString(x: string = '$x', cut: boolean = false): string {
         let res = x + ' ' + this.type + ' ' + this.value;
         if (this.negation)
             res = '!(' + res + ')';
-        forEach(this.conditions, (condition: CustomFilter) => {
-            res = res + ' ' + condition.operation + ' (' + condition.toString(x) + ')'
-        });
+        if (!cut)
+            forEach(this.conditions, (condition: CustomFilter) => {
+                res = res + ' ' + condition.operation + ' (' + condition.toString(x) + ')'
+            });
         return res;
     }
 }

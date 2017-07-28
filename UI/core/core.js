@@ -37,7 +37,7 @@ export {Ready};
 
 export {default as Exception} from "./utils/Exception";
 
-export {default as Dev} from "./Dev";
+export {default as Dev, DEV_MODE, TEST_MODE, PROD_MODE} from "./Dev";
 
 
 export {default as Trigger} from "./utils/Trigger";
@@ -64,9 +64,7 @@ import * as CRUDE from "./repository/CRUDE";
 
 export {CRUDE};
 
-import {DEV_MODE} from "./application/Application";
 
-export {DEV_MODE};
 export {EventType} from "./application/Event";
 export {default as AppEvent} from "./application/Event";
 export {default as AppStatus} from "./application/Status";

@@ -1,8 +1,10 @@
-import {Ready, Check, Record, Field, Column, CRUDE, Utils, Is, Debug, Type, AppEvent} from "../core";
+import {Ready, Check, Record, Field, Column, CRUDE, Utils, Is, Debug, Type, AppEvent, PROD_MODE} from "../core.js";
 
 import Permission from "../application/Permission";
 import Dispatcher from "../utils/Dispatcher";
 import RepositoryStorage from "./storage/RepositoryStorage";
+import Alert from "../component/alert/Alert";
+import {RecordDataGenerator} from "./Record";
 
 
 //ToDo: Opcja inline - edycja rekordów podobnie jak w uprawnieniach
@@ -119,9 +121,15 @@ export default class Repository {
     createRecord(context: any, crude: CRUDE): Record {
         Check.instanceOf(crude, [CRUDE.Crude]);
         const rec: Record = new (this.config.record || Record)(this, context);
-        if (rec.fields.size !== this.columns.length)
-            this.columns.forEach((col: Column) => Is.condition(!rec.fields.has(col), () => new Field(col, rec)));
+
         rec.action = crude;
+
+        if (PROD_MODE)
+            return rec;
+
+        this.columns.forEach((col: Column) => Is.condition(!rec.fields.has(col), () => new Field(col, rec)));
+        Utils.forEachSafe(rec.fields, (f, c) => Is.condition(!this.columns.contains(c)), () => rec.fields.delete(c));
+
         return rec;
     }
 
@@ -157,6 +165,15 @@ export default class Repository {
                 result.push(cursor.getRecord(context));
         }
         return result;
+    }
+
+
+    /**
+     * Wypełnia rekord wygenerowanymi danymi losowymi danymi
+     */
+
+    fillRecord(generator: RecordDataGenerator, rec: Record, index: number) {
+        generator.fill(rec, index);
     }
 
     get references(): ?RepoReference[] {
@@ -349,7 +366,7 @@ export default class Repository {
      * Zastosuj zmiany (edycja / synchronizacja)
      */
     static commit(context: any, records: Record[]): Promise {
-        Check.instanceOf(records, [Array]);
+        records = Utils.asArray(records);
 
         Utils.forEach(records, (rec: Record) =>
             Utils.forEach(rec.fields, (f: Field) => {
@@ -487,12 +504,22 @@ export class RepoConfig {
      */
     load(data: Object) {
 
-        Utils.forEach(data.columns, cdata =>
-            Is.defined(this._columns.find(c => c.key === cdata.key),
-                (c: Column) => c._load(cdata),
-                () => this._columns.push(new Column((c: Column) => c._load(cdata)))
-            )
+
+        const colsArr: string[] = [];
+
+        // dodanie kolumn / aktualizacja istniejących
+        Utils.forEach(data.columns, cdata => {
+                colsArr.push(cdata.key);
+                Is.defined(this._columns.find(c => c.key === cdata.key),
+                    (c: Column) => c._load(cdata),
+                    () => this._columns.push(new Column((c: Column) => c._load(cdata)))
+                )
+            }
         );
+
+        // usuwanie nadmiarowych kolumn
+        Utils.forEachSafe(this._columns, (c: Column) => Is.condition(!colsArr.contains(c.key), () => this._columns.remove(c)));
+
 
         this.name = data.name;
         this.group = data.group;
@@ -545,6 +572,9 @@ export class RepoConfig {
                 repo.columns.push(col);
         });
 
+        // usuwanie nadmiarowych kolumn
+        Utils.forEachSafe(repo.columns, (c: Column) => Is.condition(!this._columns.contains(c), () => repo.columns.remove(c)));
+
         if (!this.primaryKeyColumn)
             throw new Error("Brak definicji klucza głównego repozytorium " + Utils.escape(this.key));
 
@@ -570,15 +600,37 @@ export class RepoAction {
     rec: boolean;
     key: string;
     name: string;
+    action: ?() => void;
     hint: string;
     type: string;
     icon: string;
     confirm: string;
-    params: object;
+    params: Object;
+    children: RepoAction[] = [];
 
-    constructor(repo: Repository, act: Object) {
+    constructor(repo: Repository, key: string, name: string, action: () => void, confirm: string) {
         this.repo = repo;
+        this.key = key;
+        this.name = name;
+        this.action = action;
+        this.confirm = confirm;
     }
+
+    execute() {
+
+        const run = () => {
+            if (this.action)
+                this.action();
+            else
+                this.repo.storage.action(this.repo, this.key, null, {})
+        };
+
+        if (this.confirm)
+            Alert.confirm(this.confirm, () => run())
+        else
+            run();
+    }
+
 }
 
 
@@ -709,3 +761,4 @@ export class RepoReference {
     name: string;
     records: Record[] = [];
 }
+

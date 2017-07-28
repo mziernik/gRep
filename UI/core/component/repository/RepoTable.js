@@ -90,7 +90,7 @@ export default class RepoTable extends Table {
 
     _drawRow(row, accessor, number = false) {
         const result = super._drawRow(row, accessor, number);
-        return <div className={number ? "c-table-number" : null}>
+        return <div>
             {result}
         </div>;
 

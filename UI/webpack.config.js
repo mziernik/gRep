@@ -1,5 +1,6 @@
 // https://webpack.js.org/loaders/
 
+const ENV = process.env.NODE_ENV;
 const webpack = require('webpack');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -175,15 +176,22 @@ for (let name in environment)
 config.plugins.push(new webpack.DefinePlugin({'process.env': _env}));
 
 
-if (process.env.NODE_ENV === 'production') {
-    config.devtool = false;
-    config.plugins = [
-        //   new webpack.optimize.OccurenceOrderPlugin(),
+if (ENV === 'production' || ENV === 'test') {
+
+    if (ENV === 'production')
+        config.devtool = false;
+
+    config.plugins.push(
+        new webpack.optimize.LimitChunkCountPlugin({maxChunks: 15}),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.optimize.MinChunkSizePlugin({minChunkSize: 10000}), // Minimum number of characters
         new webpack.optimize.UglifyJsPlugin({
+            sourceMap: true,
             mangle: false,
             comments: false
         })
-    ];
+    )
+    ;
 }
 
 
