@@ -35,8 +35,12 @@ export class Attributes extends Component {
         ...Component.propTypes,
         preview: PropTypes.bool,
         edit: PropTypes.bool,
-        style: PropTypes.object
+        style: PropTypes.object,
+        selectable: PropTypes.bool,
+        onAttrClick: PropTypes.func,
     };
+
+    selected: Attr;
 
 
     render() {
@@ -60,6 +64,19 @@ export class Attributes extends Component {
                         child.element = <tr>
                             <td colSpan={2}>{child.element}</td>
                         </tr>;
+                    else
+                        child.props.onClick = (e: Event, attr: Attr) => {
+                            Is.func(this.props.onAttrClick, f => f(e, attr));
+
+                            if (this.props.selectable) {
+                                if (this.selected)
+                                    this.selected.tr.removeAttribute("data-selected");
+
+                                this.selected = attr;
+                                this.selected.tr.setAttribute("data-selected", "true");
+                            }
+
+                        }
                 })
                 .render()}
             </tbody>
@@ -80,17 +97,22 @@ export class Attr extends Component {
         preview: PropTypes.bool,
         edit: PropTypes.bool,
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
-        mode: PropTypes.oneOf(["preview", "edit", "mixed"])
+        mode: PropTypes.oneOf(["preview", "edit", "mixed"]),
+        onClick: PropTypes.func,
+        record: PropTypes.instanceOf(Record) // wartość pomocnicza, np w obsłudze metody onAttrClick
     };
 
     /** Wartość jest aktualnie edytowana */
     edit: boolean = false;
     field: Field;
+    tr: HTMLTableRowElement;
+    record: Record;
 
     constructor() {
         super(...arguments);
         this.field = this.props.field;
         this.edit = this.props.edit && !this.props.preview;
+        this.record = this.props.record;
     }
 
     render() {
@@ -115,10 +137,14 @@ export class Attr extends Component {
             });
 
 
-        return <tr className="c-attributes-row">
+        return <tr
+            ref={e => Is.defined(e, this.tr = e)}
+            className="c-attributes-row"
+            onClick={e => Is.func(this.props.onClick, f => f(e, this))}
+        >
 
             <td>{field ?
-                <FCtrl field={field} required={1} name={2} error={3}/> : this.children.render(this.props.name)}</td>
+                <FCtrl field={field}  name={1} required={2} error={3}/> : this.children.render(this.props.name)}</td>
             <td>
                 {field ? <div style={{display: "flex"}}>
                     <FCtrl

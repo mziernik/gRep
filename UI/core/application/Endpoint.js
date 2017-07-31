@@ -1,8 +1,9 @@
 /**
  * Definicja strony na potrzeby routingu
  */
-import {React, ReactComponent, AppEvent, Utils, Dispatcher, Check} from "../core";
+import {React, ReactComponent, AppEvent, Utils, Dispatcher, Check, Record, Repository} from "../core";
 import Route from "react-router-dom/es/Route";
+import Icon from "../component/glyph/Icon";
 
 export const ENDPOINT_TARGET_TAB = "tab";
 export const ENDPOINT_TARGET_POPUP = "popup";
@@ -14,6 +15,9 @@ export default class Endpoint {
 
     /** domyślna strona 404 */
     static NOT_FOUND: ?Endpoint;
+
+    repositories: Set<Repository> = new Set();
+    records: Set<Record> = new Set();
 
     key: string;
     _icon: ?Icon = null;
@@ -99,6 +103,7 @@ export default class Endpoint {
         Application.router.history.push(link);
     };
 
+
     navigate(params: ?Object = null, target: string | MouseEvent = null) {
         if (this.canNavigate)
             Endpoint.navigate(this.getLink(params), target, this.key, this._name);
@@ -113,6 +118,19 @@ export default class Endpoint {
         this._children.push(page);
         page._parent = this;
         return page;
+    }
+
+    repository(repositoryClass: any): Endpoint {
+        if (repositoryClass instanceof Repository)
+            repositoryClass = repositoryClass.constructor;
+
+        this.repositories.add(Check.isFunction(repositoryClass));
+        return this;
+    }
+
+    record(recordClass: any): Endpoint {
+        this.records.add(Check.isFunction(recordClass));
+        return this;
     }
 
     exact(value: boolean): Endpoint {
@@ -156,6 +174,28 @@ export default class Endpoint {
         return Utils.forEach(Endpoint.ALL, (page: Endpoint) => page.route());
     }
 
+    createComponent(route: Object | ReactComponent): ReactComponent {
+        const props = {};
+        props.key = Utils.randomId(); // dodanie losowego klucza zmusza reacta do ponownego utworzenia komponentu dziedziczącego po page
+
+        this.onNavigate.dispatch(this, {endpoint: this, route: route});
+
+        if (this._props)
+            for (let name in this._props)
+                props[name] = this._props[name];
+
+        if (route.match && route.match.params)
+            for (let name in route.match.params)
+                props[name] = route.match.params[name];
+
+        route.endpoint = this;
+        props.route = route;
+
+        AppEvent.NAVIGATE.send(this, {endpoint: this, props: props});
+        const el = React.createElement(this._component, props, null);
+        return el;
+    }
+
     route(idx: number): Route {
 
         if (!this._path || !this._component) return null;
@@ -164,28 +204,7 @@ export default class Endpoint {
             key={this.key}
             exact={this._exact}
             path={this._path}
-            children={(route: Object) => {
-
-                const props = {};
-                props.key = Utils.randomId(); // dodanie losowego klucza zmusza reacta do ponownego utworzenia komponentu dziedziczącego po page
-
-                this.onNavigate.dispatch(this, {endpoint: this, route: route});
-
-                if (this._props)
-                    for (let name in this._props)
-                        props[name] = this._props[name];
-
-                if (route.match && route.match.params)
-                    for (let name in route.match.params)
-                        props[name] = route.match.params[name];
-
-                route.endpoint = this;
-                props.route = route;
-
-                AppEvent.NAVIGATE.send(this, {endpoint: this, props: props});
-                const el = React.createElement(this._component, props, null);
-                return el;
-            }}
+            children={(route: Object) => this.createComponent(route)}
 
         />
     };

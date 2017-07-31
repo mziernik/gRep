@@ -221,6 +221,13 @@ export const ANY: DataType = new DataType((dt: DataType) => {
     dt.formatter = val => Utils.escape(val);
 });
 
+export const JSON: DataType = new DataType((dt: DataType) => {
+    dt.name = "json";
+    dt.simpleType = "any";
+    dt.parser = val => val;
+    dt.formatter = val => Utils.escape(val);
+});
+
 export const BOOLEAN: DataType = new DataType((dt: DataType) => {
     dt.name = "boolean";
     dt.simpleType = "boolean";

@@ -2,14 +2,9 @@
 
 
 import Permission from "../application/Permission";
-import * as Utils from "../utils/Utils";
 import Action from "./Action";
-import Dev from "../Dev";
-import {Type} from "../core";
-import * as CRUDE from "./CRUDE";
 import LocalRepoStorage from "./storage/LocalRepoStorage";
-
-import {Field, Record, Repository, RepoConfig, Column} from "../core";
+import {Cell, Type, Dev, Record, Repository, RepoConfig, Column, Utils} from "../core";
 
 export default class PermissionsRepo extends Repository {
 
@@ -86,13 +81,13 @@ export class PermissionRecord extends Record {
 
     permission: ?Permission = null;
 
-    ID: Field = new Field(PermissionsRepo.ID, this);
-    NAME: Field = new Field(PermissionsRepo.NAME, this);
-    CREATE: Field = new Field(PermissionsRepo.CREATE, this);
-    READ: Field = new Field(PermissionsRepo.READ, this);
-    UPDATE: Field = new Field(PermissionsRepo.UPDATE, this);
-    DELETE: Field = new Field(PermissionsRepo.DELETE, this);
-    EXECUTE: Field = new Field(PermissionsRepo.EXECUTE, this);
+    ID: Cell = new Cell(this, PermissionsRepo.ID);
+    NAME: Cell = new Cell(this, PermissionsRepo.NAME);
+    CREATE: Cell = new Cell(this, PermissionsRepo.CREATE);
+    READ: Cell = new Cell(this, PermissionsRepo.READ);
+    UPDATE: Cell = new Cell(this, PermissionsRepo.UPDATE);
+    DELETE: Cell = new Cell(this, PermissionsRepo.DELETE);
+    EXECUTE: Cell = new Cell(this, PermissionsRepo.EXECUTE);
 
     constructor(repo: PermissionsRepo, context: any, permission: ?Permission) {
         super(repo, context);

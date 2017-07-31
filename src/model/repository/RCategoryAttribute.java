@@ -52,15 +52,7 @@ public class RCategoryAttribute extends Repository<Integer> {
         c.name = "Maska wyświetlania";
     });
 
-    public final static Column<String[]> DEF_VAL = new Column<>(c -> {
-        c.repository = RCatalogAttribute.class;
-        c.type = new ArrayDataType<>(DataType.STRING);
-        c.daoName = "def_val";
-        c.key = "defVal";
-        c.name = "Wartość domyślna";
-    });
-
-    public final static Column<Boolean> required = new Column<>(c -> {
+    public final static Column<Boolean> REQUIRED = new Column<>(c -> {
         c.repository = RCatalogAttribute.class;
         c.type = DataType.BOOLEAN;
         c.key = "required";

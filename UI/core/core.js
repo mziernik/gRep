@@ -12,7 +12,7 @@ export {Check};
 import * as Utils from "./utils/Utils";
 
 export {Utils};
-export {CustomFilter as CustomFilter} from "./utils/Utils";
+export {default as CustomFilter} from "./utils/CustomFilter";
 
 import * as Is from "./utils/Is";
 
@@ -75,6 +75,7 @@ export {default as Endpoint} from "./application/Endpoint";
 export {default as Repository} from "./repository/Repository";
 export {default as Record} from "./repository/Record";
 export {default as Field} from "./repository/Field";
+export {default as Cell} from "./repository/Cell";
 export {default as Column} from "./repository/Column";
 export {RepoConfig} from "./repository/Repository";
 

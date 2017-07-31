@@ -1,4 +1,4 @@
-import {Record, Repository, Field, Column, RepoConfig, Dev, Utils, CRUDE, Ready} from "../core.js";
+import {Record, Repository, Field, Cell, Column, RepoConfig, Dev, Utils, CRUDE, Ready} from "../core.js";
 import {Icon} from "../components.js";
 
 /**
@@ -46,8 +46,8 @@ export class ROccupations extends Repository {
 
 
 export class ROccupation extends Record {
-    ID: Field = new Field(ROccupations.ID, this);
-    NAME: Field = new Field(ROccupations.NAME, this);
+    ID: Cell = new Cell(this, ROccupations.ID);
+    NAME: Cell = new Cell(this, ROccupations.NAME);
 }
 
 
@@ -144,13 +144,13 @@ export class RAddresses extends Repository {
 }
 
 export class RAddress extends Record {
-    ID: Field = new Field(RAddresses.ID, this);
-    USER: Field = new Field(RAddresses.USER, this);
-    TYPE: Field = new Field(RAddresses.TYPE, this);
-    CITY: Field = new Field(RAddresses.CITY, this);
-    STREET: Field = new Field(RAddresses.STREET, this);
-    HOME: Field = new Field(RAddresses.HOME, this);
-    POST_CODE: Field = new Field(RAddresses.POST_CODE, this);
+    ID: Cell = new Cell(this, RAddresses.ID);
+    USER: Cell = new Cell(this, RAddresses.USER);
+    TYPE: Cell = new Cell(this, RAddresses.TYPE);
+    CITY: Cell = new Cell(this, RAddresses.CITY);
+    STREET: Cell = new Cell(this, RAddresses.STREET);
+    HOME: Cell = new Cell(this, RAddresses.HOME);
+    POST_CODE: Cell = new Cell(this, RAddresses.POST_CODE);
 
 
     get displayValue() {
@@ -371,18 +371,18 @@ export class RUsers extends Repository {
 
 export class RUsersRecord extends Record {
 
-    ID: Field = new Field(RUsers.ID, this);
-    TOKEN: Field = new Field(RUsers.TOKEN, this);
-    LOGIN: Field = new Field(RUsers.LOGIN, this);
-    PASS: Field = new Field(RUsers.PASS, this);
-    ACTIVE: Field = new Field(RUsers.ACTIVE, this);
-    SEX: Field = new Field(RUsers.SEX, this);
-    FIRST_NAME: Field = new Field(RUsers.FIRST_NAME, this);
-    LAST_NAME: Field = new Field(RUsers.LAST_NAME, this);
-    DISPLAY_NAME: Field = new Field(RUsers.DISPLAY_NAME, this);
-    EMAIL: Field = new Field(RUsers.EMAIL, this);
-    OCCUPATION: Field = new Field(RUsers.OCCUPATION, this);
-    SPECIALIZATIONS: Field = new Field(RUsers.SPECIALIZATIONS, this);
+    ID: Cell = new Cell(this, RUsers.ID);
+    TOKEN: Cell = new Cell(this, RUsers.TOKEN);
+    LOGIN: Cell = new Cell(this, RUsers.LOGIN);
+    PASS: Cell = new Cell(this, RUsers.PASS);
+    ACTIVE: Cell = new Cell(this, RUsers.ACTIVE);
+    SEX: Cell = new Cell(this, RUsers.SEX);
+    FIRST_NAME: Cell = new Cell(this, RUsers.FIRST_NAME);
+    LAST_NAME: Cell = new Cell(this, RUsers.LAST_NAME);
+    DISPLAY_NAME: Cell = new Cell(this, RUsers.DISPLAY_NAME);
+    EMAIL: Cell = new Cell(this, RUsers.EMAIL);
+    OCCUPATION: Cell = new Cell(this, RUsers.OCCUPATION);
+    SPECIALIZATIONS: Cell = new Cell(this, RUsers.SPECIALIZATIONS);
 }
 
 const ROCCUPATIONS: ROccupations = Repository.register(new ROccupations());

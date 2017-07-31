@@ -8,7 +8,7 @@ export default class RepoTable extends Table {
 
     static propTypes = {
         repository: PropTypes.instanceOf(Repository).isRequired,
-        onClick: PropTypes.func, //(rec, row, column, instance, e
+        onClick: PropTypes.func, //(rec, e,  row, column, table)
         showAdvanced: PropTypes.bool
     };
 
@@ -28,7 +28,7 @@ export default class RepoTable extends Table {
 
             if (this.props.onClick) {
                 rec = rec.repo.get(this, rec.pk); // kopia rekordu
-                this.props.onClick(rec, row, column, instance, e);
+                this.props.onClick(rec, e, row, column, instance);
                 return;
             }
 

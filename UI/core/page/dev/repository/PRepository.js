@@ -49,16 +49,14 @@ export default class PRepository extends Page {
 
                 mw.title = "Wypełniacz";
                 mw.icon = Icon.CLOCK_O;
-                mw.content = <div>
-                    <Attributes style={{margin: "10px"}} edit>
-                        <Attr field={seq}/>
-                        <Attr field={rnd}/>
-                        <Attr field={all}/>
-                        <Attr field={cnt}/>
-                        <h6>Wartości domyślne:</h6>
-                        {fields.map((f: Field) => <Attr field={f} edit/>)}
-                    </Attributes>;
-                </div>;
+                mw.content = <Attributes fill style={{margin: "10px"}} edit>
+                    <Attr field={seq}/>
+                    <Attr field={rnd}/>
+                    <Attr field={all}/>
+                    <Attr field={cnt}/>
+                    <h6>Wartości domyślne:</h6>
+                    {fields.map((f: Field) => <Attr field={f} edit/>)}
+                </Attributes>;
 
                 mw.buttons = MW_BUTTONS.OK_CANCEL;
                 mw.onConfirm = () => {

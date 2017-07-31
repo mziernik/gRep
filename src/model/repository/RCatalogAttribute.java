@@ -2,12 +2,11 @@ package model.repository;
 
 import com.model.repository.Column;
 import com.model.repository.ForeignColumn;
-import com.model.repository.ForeignColumns;
 import com.model.repository.Repository;
 import com.utils.date.TDate;
-import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
+
 
 public class RCatalogAttribute extends Repository<Integer> {
 
@@ -57,12 +56,6 @@ public class RCatalogAttribute extends Repository<Integer> {
         c.name = "Atrybut";
     }, RAttribute.ID);
 
-    public final static Column<String[]> VALUE = new Column<>(c -> {
-        c.repository = RCatalogAttribute.class;
-        c.type = new ArrayDataType<>(DataType.STRING);
-        c.key = "value";
-        c.name = "Wartość";
-    });
 
     public final static Column<Integer> ORDER = new Column<>(c -> {
         c.repository = RCatalogAttribute.class;
@@ -71,14 +64,6 @@ public class RCatalogAttribute extends Repository<Integer> {
         c.daoName = "index";
         c.name = "Kolejność";
     });
-
-    public final static ForeignColumns<Integer, RCryptKey> CRYPT_KEY = new ForeignColumns<>(c -> {
-        c.repository = RCatalogAttribute.class;
-        c.type = new ArrayDataType<>(DataType.INT);
-        c.daoName = "crypt_key";
-        c.key = "cryptKey";
-        c.name = "Klucz";
-    }, RCryptKey.ID);
 
     public final static Column<String> NOTES = new Column<>(c -> {
         c.repository = RCatalogAttribute.class;
@@ -95,7 +80,6 @@ public class RCatalogAttribute extends Repository<Integer> {
             c.daoName = "data.catalog_attribute";
             c.name = "Atrybut katalogu";
             c.primaryKey = ID;
-            c.displayName = VALUE;
             c.order(CATALOG, true);
             c.order(ORDER, true);
         });

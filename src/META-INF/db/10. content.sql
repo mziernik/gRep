@@ -22,19 +22,39 @@ INSERT INTO data.attribute_element (type, key, name, MIN, MAX, description, enum
 
 ;
 
-INSERT INTO data.attribute (key, name, elements, required, display_mask, icon) VALUES
-    ('name',    'Nazwa',        '{1}', null, null, null),
-    ('model',   'Model',        '{1}', null, null, null),
-    ('vendor',  'Producent',    '{1}', null, null, null),
-    ('ip',      'Adres IP',     '{8, 5}', '{true, false}', '%1 (%2)', null),
-    ('account', 'Konto',        '{13, 14}', '{true, false}', '%1:*****', null),
-    ('url',     'URL',          '{4}', null, null, 'linkedin_square'),
-    ('intf',    'Interfejs sieciowy', '{11, 12, 9, 8, 5}', null, '%1, %2, %3, %4, %5', null),
-    ('sshAccount','Konto SSH',  '{6, 7, 13, 14}', null, '%3:%4@%1:%2', 'user'),
-    ('wiFi',      'WiFi',       '{1, 14}', null, '%1:*****', 'film')
-
+INSERT INTO data.attribute (key, name, display_mask, icon) VALUES
+    ('name',    'Nazwa',        null, null),   --1
+    ('model',   'Model',        null, null),   --2
+    ('vendor',  'Producent',    null, null),   --3
+    ('ip',      'Adres IP',     '%1 (%2)', null),    --4
+    ('account', 'Konto',        '%1:*****', null), --5
+    ('url',     'URL',          null, 'linkedin_square'),          --6
+    ('intf',    'Interfejs sieciowy', '%1, %2, %3, %4, %5', null), --7
+    ('sshAccount','Konto SSH',  '%3:%4@%1:%2', 'user'), --8
+    ('wiFi',      'WiFi',       '%1:*****', 'film')            --9
 ;
 
+INSERT INTO data.attribute_elements (attr, elm, def_val, required) VALUES
+    (1, 1, null, true), -- nazwa
+    (2, 1, null, true), -- model
+    (3, 1, null, true), --vendor
+    (4, 8, null, true), -- ip-ip
+    (4, 5, null, false), -- ip-domena
+    (5, 13, null, true), -- konto-login
+    (5, 14, null, false), -- konto-hasło
+    (6, 4, null, true), --url-url
+    (7, 11, '"lan"', true), --intf-type
+    (7, 12, '"static"', false), -- intf-type 
+    (7, 9, null, false),    -- intf-mac
+    (7, 8, null, true),     -- intf-ip
+    (7, 5, null, false),    -- intf-domena
+    (8, 6, null, true),     --ssh-ip
+    (8, 7, '22', true),     --ssh-port
+    (8, 13, null, true),    --ssh-login
+    (8, 14, null, true),    --ssh-pass
+    (9, 1, null, true),     --wifi-nazwa
+    (9, 14, null, true)    --wifi-pass
+;
 INSERT INTO data.category (key, name, description, categories) VALUES
     ('dir',         'Folder',       'Folder',       '{}'),
     ('bookmark',    'Zakładka',     'Zakładka',     '{}'),
@@ -44,35 +64,35 @@ INSERT INTO data.category (key, name, description, categories) VALUES
 ;
 
 INSERT INTO data.catalog (category, parent, name) VALUES
-    (1, null, 'Dokumenty'),
-    (1, null, 'Konfiguracja'),
-    (1, null, 'Skrypty'),
-    (2, null, 'Zakładki'),
-    (3, null, 'Konta'),
-    (4, null, 'Urządzenia'),
-    (5, null, 'Projekty'),
+    (1, null, 'Dokumenty'),     --1
+    (1, null, 'Konfiguracja'),  --2
+    (1, null, 'Skrypty'),       --3
+    (2, null, 'Zakładki'),      --4
+    (3, null, 'Konta'),         --5
+    (4, null, 'Urządzenia'),    --6
+    (5, null, 'Projekty'),      --7
 
-    (1, 1, 'Budowa'),
-    (1, 1, 'Przepisy'),
+    (1, 1, 'Budowa'),           --8
+    (1, 1, 'Przepisy'),         --9
 
-    (1, 2, 'Linux'),
-    (1, 2, 'NetBeans'),
-    (1, 2, 'AVR'),
+    (1, 2, 'Linux'),            --10
+    (1, 2, 'NetBeans'),         --11
+    (1, 2, 'AVR'),              --12
 
-    (4, 6, 'Router Dasan'),
-    (4, 6, 'Router Asus'),
-    (4, 6, 'Media'),
-    (4, 6, 'DevKit'),
-    (4, 6, 'TV Salon'),
-    (4, 6, 'TV Sypialnia'),
-    (4, 6, 'Drukarka'),
-    (4, 6, 'Laptop Lenovo'),
-    (4, 6, 'Laptop HP'),
-    (4, 6, 'Tablet Lenovo'),
+    (4, 6, 'Router Dasan'),     --13
+    (4, 6, 'Router Asus'),      --14
+    (4, 6, 'Media'),            --15
+    (4, 6, 'DevKit'),           --16
+    (4, 6, 'TV Salon'),         --17
+    (4, 6, 'TV Sypialnia'),     --18
+    (4, 6, 'Drukarka'),         --19
+    (4, 6, 'Laptop Lenovo'),    --20
+    (4, 6, 'Laptop HP'),        --21
+    (4, 6, 'Tablet Lenovo'),    --22
 
-    (5, 7, 'gRep'),
-    (5, 7, 'DevKit'),
-    (5, 7, 'Światło')
+    (5, 7, 'gRep'),             --23
+    (5, 7, 'DevKit'),           --24
+    (5, 7, 'Światło')           --25
 ;
 
 INSERT INTO data.category_attribute (category, attribute, required, multiple, "unique") VALUES
@@ -84,16 +104,29 @@ INSERT INTO data.category_attribute (category, attribute, required, multiple, "u
     (4, 8, false, false, false)     -- 'Konto',     
 ;
 
-INSERT INTO data.catalog_attribute(catalog, attribute, value, notes) VALUES 
-    (14, 3, '{Asus}', null),
-    (14, 2, '{RT-AC1200G+}', null),
-    (14, 4, '{192.168.1.1}', 'LAN'),
-    (14, 4, '{192.168.0.254}', 'WAN'),
-    (14, 5, '{admin,hasło}', null),
-    (14, 6, '{http://192.168.1.1}', null),
-    (14, 7, '{192.168.1.1, 22, admin, hasło}', null),
-    (14, 9, '{ZM, hasło}', null)
+INSERT INTO data.catalog_attribute(catalog, attribute) VALUES 
+    (14, 3),    --1
+    (14, 2),     --2
+    (14, 4),    --3
+    (14, 4),  --4
+    (14, 5),     --5
+    (14, 6),      --6
+    (14, 7),       --7
+    (14, 9)    --8
 ; 
+
+
+INSERT INTO data.catalog_attribute_values(cat_attr, attr_elm, value) VALUES 
+    (1, 1, 'Asus'),          
+    (2, 1, 'RT-AC1200G+'),    
+    (3, 9, 'lan'),            
+    (3, 11, '192.168.1.1'),   
+    (4, 9, 'wan'),            
+    (4, 11, '192.168.0.254'),  
+    (5, 6, 'admin'),     
+    (5, 7, 'hasło')
+; 
+
 
 INSERT INTO data.resource(type, format, catalog, name, value) VALUES 
     ('D', 'Markdown',   1,   'Dokument markdown', '#przykładowa treść'),

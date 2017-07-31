@@ -12,7 +12,7 @@ export default class Field {
     _warning: ?string = null; // ostrzeżenie (np. pole wymagane)
     _store: ?FieldStore = null;
     _unit: ?[] = null;
-    record: Record;
+    record: Record = null;
 
     /** Lista kontrolerów (FCtrl) powiązanych z polem, kontrolery usuwają się z listy automatycznie w momencie zniszczenia komponentu*/
     _fctrls: [] = [];
@@ -55,7 +55,7 @@ export default class Field {
         })
     }
 
-    constructor(cfg: Column | (cfg: Column) => void, record: ?Record = null) {
+    constructor(cfg: Column | (cfg: Column) => void) {
 
         if (cfg instanceof Column)
             this.config = cfg;
@@ -68,12 +68,6 @@ export default class Field {
 
         Is.defined(cfg.defaultValue, val => this.value = val);
         Is.defined(cfg.defaultUnit, unit => this._unit = unit);
-
-        if (record) {
-            this.record = record;
-            record.fields.set(this.config, this);
-            this.onChange.listen(this, (data) => record.onFieldChange.dispatch(this, {field: this, source: data}));
-        }
 
         if (DEV_MODE)
             this["#" + this.key + "[" + this.type.name + "]"] = null;

@@ -65,7 +65,7 @@ public class RAttribute extends Repository<Integer> {
         c.repository = RAttribute.class;
         c.type = DataType.STRING;
         c.key = "mask";
-        c.name = "Maska wy swietlania";
+        c.name = "Maska";
         c.hidden = true;
         c.daoName = "display_mask";
     });
@@ -77,31 +77,6 @@ public class RAttribute extends Repository<Integer> {
         c.name = "Rodzic";
     }, RCategory.ID);
 
-    public final static ForeignColumns<Integer, RAttributeElement> ELEMENTS = new ForeignColumns<>(c -> {
-        c.repository = RAttribute.class;
-        c.type = DataType.INT.asArray();
-        c.list = true;
-        c.key = "elements";
-        c.name = "Elementy";
-    }, RAttributeElement.ID);
-
-    public final static Column<String[]> DEF_VAL = new Column<>(c -> {
-        c.repository = RAttribute.class;
-        c.type = DataType.STRING.asArray();
-        c.list = true;
-        c.daoName = "def_val";
-        c.key = "defVal";
-        c.name = "Wartość domyślna";
-    });
-
-    public final static Column<Boolean[]> REQUIRED = new Column<>(c -> {
-        c.repository = RAttribute.class;
-        c.type = DataType.BOOLEAN.asArray();
-        c.key = "required";
-        c.name = "Wymagane";
-    });
-
-    // ToDo Dodać repozytorium ikon
     public final static Column<FontAwesome> ICON = new Column<>(c -> {
         c.repository = RAttribute.class;
         c.type = DataType.ICON;

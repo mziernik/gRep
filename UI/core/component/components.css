@@ -52,9 +52,18 @@
 
 /*==================================================== Attributes ====================================================*/
 
+.c-attributes-row[data-selected] {
+    background-color: rgba(0, 50, 100, 0.2);
+}
+
 .c-attributes-row > td {
+    cursor: default;
     padding: 4px 8px;
-    vertical-align: top;
+    vertical-align: middle;
+}
+
+.c-attributes-row > td > * {
+    min-height: 30px;
 }
 
 .c-attributes-row td:first-child {
@@ -62,7 +71,7 @@
 }
 
 .c-attributes-row:nth-child(even) > td {
-    background-color: rgba(0, 0, 0, 0.04);
+    /*background-color: rgba(0, 0, 0, 0.04);*/
 }
 
 .c-attributes-row:hover > td {

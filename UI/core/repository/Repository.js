@@ -1,4 +1,18 @@
-import {Ready, Check, Record, Field, Column, CRUDE, Utils, Is, Debug, Type, AppEvent, PROD_MODE} from "../core.js";
+import {
+    Ready,
+    Check,
+    Record,
+    Field,
+    Column,
+    CRUDE,
+    Utils,
+    Is,
+    Debug,
+    Type,
+    AppEvent,
+    PROD_MODE,
+    Endpoint
+} from "../core.js";
 
 import Permission from "../application/Permission";
 import Dispatcher from "../utils/Dispatcher";
@@ -58,6 +72,7 @@ export default class Repository {
             col.repository = this;
         }
 
+        this.config._processColumns(this.config);
         this.config.update();
     }
 
@@ -83,6 +98,11 @@ export default class Repository {
 
     get canDelete(): boolean {
         return this.config.crude.contains('D');
+    }
+
+    /** Zwróć endpoint edycji repozytorium */
+    get endpoint(): Endpoint {
+        return Utils.find(Endpoint.ALL, (e: Endpoint) => e.repositories.has(this.constructor));
     }
 
     getRefs(pk: any): Record[] {
@@ -131,6 +151,19 @@ export default class Repository {
         Utils.forEachSafe(rec.fields, (f, c) => Is.condition(!this.columns.contains(c)), () => rec.fields.delete(c));
 
         return rec;
+    }
+
+    toObject(columns: Column[], filter: (cursor: RepoCursor) => boolean): [] {
+        const result: [] = [];
+        const cursor: RepoCursor = this.cursor();
+        while (cursor.next()) {
+            if (filter && !filter(cursor))
+                continue;
+            const obj = {};
+            columns.forEach((col: Column) => obj[col.key] = cursor.get(col));
+            result.push(obj);
+        }
+        return result;
     }
 
     min(col: Column, initValue: number = null) {
@@ -498,6 +531,25 @@ export class RepoConfig {
     }
 
 
+    _processColumns(data: Object) {
+        const getColumn = (col) => {
+            if (col instanceof Column)
+                col = (col: Column).key;
+
+            const result = this._columns.find(c => c.key === col);
+
+            if (col && !result)
+                throw new RepoError(this._repo, "Nie znaleziono kolumny " + Utils.toString(col));
+
+            return result;
+        };
+
+        this.primaryKeyColumn = getColumn(data.primaryKeyColumn);
+        this.displayNameColumn = getColumn(data.displayNameColumn);
+        this.orderColumn = getColumn(data.orderColumn);
+        this.parentColumn = getColumn(data.parentColumn);
+    }
+
     /**
      * Wczytanie konfiguracji repozytorium z zewnątrz (rezultat metody list z webapi)
      * @param data
@@ -517,6 +569,8 @@ export class RepoConfig {
             }
         );
 
+        this._processColumns(data);
+
         // usuwanie nadmiarowych kolumn
         Utils.forEachSafe(this._columns, (c: Column) => Is.condition(!colsArr.contains(c.key), () => this._columns.remove(c)));
 
@@ -531,20 +585,6 @@ export class RepoConfig {
         this.broadcast = data.broadcast;
         this.onDemand = data.onDemand;
 
-        const getColumn = (name) => {
-
-            const result = this._columns.find(c => c.key === name);
-
-            if (name && !result)
-                throw new RepoError(this._repo, "Nie znaleziono kolumny " + Utils.toString(name));
-
-            return result;
-        };
-
-        this.primaryKeyColumn = getColumn(data.primaryKeyColumn);
-        this.displayNameColumn = getColumn(data.displayNameColumn);
-        this.orderColumn = getColumn(data.orderColumn);
-        this.parentColumn = getColumn(data.parentColumn);
         this.crude = data.crude;
         this.local = data.local;
         this.references = data.references;

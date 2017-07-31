@@ -65,7 +65,7 @@ CREATE TABLE data.attribute_element
     key             VARCHAR NOT NULL UNIQUE,
     type            VARCHAR NOT NULL,   -- DataType
     required        BOOLEAN NOT NULL DEFAULT false,
-    def_val         VARCHAR[],    
+    def_val         VARCHAR,    
     name            VARCHAR NOT NULL UNIQUE,
     min             INTEGER,
     max             INTEGER,
@@ -83,15 +83,22 @@ CREATE TABLE data.attribute
     created         TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     key             VARCHAR NOT NULL UNIQUE,
     parent          INTEGER REFERENCES data.attribute (id),
-    elements        INTEGER[] NOT NULL -- REFERENCES attr_element (id),	
-                        CHECK (array_reference(elements, 'data.attribute_element', 'id')),
-    def_val         VARCHAR[],
-    required        BOOLEAN[], -- null oznacza, że wszyskie wartości są wymagane
     name            VARCHAR NOT NULL,
     display_mask    VARCHAR,
     icon            VARCHAR,
     description     VARCHAR
 );
+
+/** Tabela łącząca */
+CREATE TABLE data.attribute_elements
+(
+    id              SERIAL PRIMARY KEY,
+    attr            INTEGER NOT NULL REFERENCES data.attribute (id),
+    elm             INTEGER NOT NULL REFERENCES data.attribute_element (id),
+    def_val         VARCHAR,
+    required        BOOLEAN
+);
+
 
 /*
     Zbiór atrybutów wymaganych i opcjonalnych w danej definicji grupy
@@ -103,7 +110,6 @@ CREATE TABLE data.category_attribute
     category        INTEGER NOT NULL REFERENCES data.category (id),
     attribute       INTEGER NOT NULL REFERENCES data.attribute (id),
     display_mask    VARCHAR,
-    def_val         VARCHAR[],  
     required        BOOLEAN NOT NULL DEFAULT false,
     multiple        BOOLEAN NOT NULL DEFAULT false,
     "unique"        BOOLEAN NOT NULL DEFAULT true,
@@ -160,10 +166,14 @@ CREATE TABLE data.catalog_attribute
     created         TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(), 
     catalog         INTEGER NOT NULL REFERENCES data.catalog (id), 
     attribute       INTEGER NOT NULL REFERENCES data.attribute (id),
-    value           VARCHAR[] NOT NULL DEFAULT '{}' 
-                        CHECK (array_length(crypt_key, 1) = array_length(value, 1)),   
-    crypt_key       INTEGER[] NOT NULL DEFAULT '{}' 
-                        CHECK (array_reference(crypt_key, 'data.crypt_key', 'id')
-                            AND (array_length(crypt_key, 1) = array_length(value, 1))),
     notes           VARCHAR
 );
+
+CREATE TABLE data.catalog_attribute_values
+(
+     id              SERIAL PRIMARY KEY,
+     cat_attr        INT NOT NULL REFERENCES data.catalog_attribute (id),
+     attr_elm        INT NOT NULL REFERENCES data.attribute_elements (id),
+     value           VARCHAR,
+     crypt_ey        INTEGER REFERENCES data.crypt_key (id)
+)

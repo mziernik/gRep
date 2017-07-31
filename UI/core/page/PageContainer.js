@@ -24,6 +24,7 @@ export class PageTab {
     element: HTMLElement;
     _removed: boolean = false;
     modal: boolean;
+    currentURL: string;
 
     constructor(key: string, title: string, modal: boolean = false) {
         this.title = title;
@@ -77,6 +78,14 @@ export class PageTab {
         currentTab = this;
         history.push(this);
         tabsBar.forceUpdate();
+
+        if (this.currentURL && this.currentURL !== window.location.pathname) {
+            window.history.replaceState(
+                {},
+                this.title,
+                this.currentURL
+            );
+        }
     }
 
     renderContent() {
@@ -99,6 +108,10 @@ export class PageTab {
             }
         else
             this.node.forceUpdate();
+
+        this.currentURL = window.location.pathname;
+
+        //    tabs.forEach((tab: PageTab) => Is.condition(tab.node === this.node, () => tab.onNavigate(this)));
 
         if (this.node.currentPage)
             this.element.setAttribute("data-page", this.node.currentPage.endpoint.key);

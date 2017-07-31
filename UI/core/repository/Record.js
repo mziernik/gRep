@@ -1,4 +1,17 @@
-import {Utils, Check, Is, Field, Repository, Dispatcher, Debug, CRUDE, Exception, Column, ContextObject} from "../core";
+import {
+    Utils,
+    Check,
+    Is,
+    Field,
+    Repository,
+    Dispatcher,
+    Debug,
+    CRUDE,
+    Exception,
+    Column,
+    ContextObject,
+    Endpoint
+} from "../core";
 
 
 "use strict";
@@ -17,6 +30,7 @@ export default class Record {
     _pk: any;
     context: any;
     changedReferences: Record[] = [];
+    endpoint: Endpoint; // endpoint edycyjny rekordu
 
     constructor(repo: Repository, context: any) {
         this.context = Check.isDefined(context);
@@ -141,9 +155,7 @@ export default class Record {
         const frepo: Repository = column.foreign();
 
         if (fk instanceof Array)
-            return Utils.forEach(fk, v => {
-                frepo.get(context, fk);
-            });
+            return Utils.forEach(fk, v => frepo.get(context, v));
 
         return frepo.get(context, fk);
 

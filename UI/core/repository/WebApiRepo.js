@@ -1,7 +1,7 @@
 import {
     Record,
     Repository,
-    Field,
+    Cell,
     Column,
     RepoConfig,
     Dev,
@@ -72,11 +72,11 @@ export class RWebApi extends Repository {
 }
 
 export class EWebApi extends Record {
-    ID: Field = new Field(RWebApi.ID, this);
-    TYPE: Field = new Field(RWebApi.TYPE, this);
-    DATE: Field = new Field(RWebApi.DATE, this);
-    METHOD: Field = new Field(RWebApi.METHOD, this);
-    DATA: Field = new Field(RWebApi.DATA, this);
+    ID: Cell = new Cell(this, RWebApi.ID);
+    TYPE: Cell = new Cell(this, RWebApi.TYPE);
+    DATE: Cell = new Cell(this, RWebApi.DATE);
+    METHOD: Cell = new Cell(this, RWebApi.METHOD);
+    DATA: Cell = new Cell(this, RWebApi.DATA);
 }
 
 

@@ -4,7 +4,7 @@
 //FixMe importy
 
 import React from 'react';
-import Application, {DEV_MODE} from "../core/application/Application";
+import Application from "../core/application/Application";
 import Component from "../core/component/Component";
 import Spinner from "../core/component/Spinner";
 import AppNode from "../core/application/Node";
@@ -12,6 +12,7 @@ import IconEdit from "../core/component/IconEdit";
 import Button from "../core/component/Button";
 import Var from "../core/Var";
 import * as API from "../model/API";
+import {DEV_MODE, PROCESS_ENV} from "../core/Dev";
 
 
 function setError(e) {
@@ -45,7 +46,7 @@ export default class Login extends Component {
 
         Login.onAuthorized = onAuthorized;
 
-        if (DEV_MODE && process.env.AUTH === false) {
+        if (DEV_MODE && PROCESS_ENV.AUTH === false) {
             // pomiń autoryzację w trybie deweloperskim
             onAuthorized(null);
             return;
@@ -210,7 +211,7 @@ export default class Login extends Component {
                             type="password"
                             icon="lock"
                             placeholder="Hasło"
-                            value={password}
+                            value={password.value}
                             onChange={e => password.value = e.target.value}
                             onEnter={this.process.bind(this)}
                         />

@@ -93,7 +93,7 @@ export default class Table extends Component {
                 column.show = !col.hidden;
                 column.id = col.key;
                 column.sortMethod = col.compare;
-                column.filterMethod = (filter: {}, row) => this.filterColumn(filter, row[filter.pivotId || filter.id], col.filter, col.compare);
+                column.filterMethod = (filter: {}, row) => this._filterColumn(filter, row[filter.pivotId || filter.id], col.filter, col.compare);
                 if (col.sortOrder)
                     this._sorted = [{id: column.id, desc: false}];
             }
@@ -101,16 +101,13 @@ export default class Table extends Component {
                 header = col;
                 column.show = true;
                 column.filterable = this._filterable;
-                column.filterMethod = (filter, row) => this.filterColumn(filter, row[filter.pivotId || filter.id], null, null);
+                column.filterMethod = (filter, row) => this._filterColumn(filter, row[filter.pivotId || filter.id], null, null);
             }
             if (column.sortable === undefined) column.sortable = true;
 
-            if (this._updateWidths)
-                column.Header = () => this._drawRow(header, k);
-            else {
-                column.width = this._widths[k];
-                column.Header = header;
-            }
+            column.Header = () => this._drawHeader(header, k);
+            if (!this._updateWidths)
+                column.with = this._widths[k];
 
             return column;
         });
@@ -147,7 +144,41 @@ export default class Table extends Component {
         return res;
     }
 
-    /** rysuje komórki i nagłówki kolumn
+    /** rysuje nagłówek kolumny
+     * @param row komórka
+     * @param accessor identyfikator kolumny
+     * @returns {*}
+     * @private
+     */
+    _drawHeader(row, accessor) {
+        if (this._updateWidths)
+            if (!this._widths[accessor]) this._widths[accessor] = [];
+        let filtered = false;
+        for (let i = 0; i < this._filtered.length; ++i)
+            if (this._filtered[i].id === accessor) {
+                filtered = true;
+                break;
+            }
+        const val = row.original ? (row.original[accessor] !== null && row.original[accessor] !== undefined) ?
+            row.original[accessor] : row.value : row;
+
+        if (filtered || this._updateWidths)
+            return <div ref={elem => {
+                if (this._updateWidths)
+                    if (elem) this._widths[accessor].push(elem)
+            }}>
+            {val}
+                {filtered ? <span className={Icon.FILTER} style={{margin: '0 10px'}}
+                                  title="Usuń filtr"
+                                  onClick={(e) => {
+                                      e.stopPropagation();
+                                      this.setFilter(accessor, null);
+                                  }}/> : null}
+        </div>;
+        return val;
+    }
+
+    /** rysuje komórki kolumn
      * @param row - zawartość komórki
      * @param accessor - identyfikator kolumny
      * @param number - czy ma wyświetlać numer wiersza
@@ -168,7 +199,7 @@ export default class Table extends Component {
 
         if (!this._updateWidths && number)
             return <div
-                className={number ? "c-table-number" : null}>{val}</div>
+                className={number ? "c-table-number" : null}>{val}</div>;
         if (!this._updateWidths) return val;
 
         return <span ref={elem => {
@@ -319,14 +350,28 @@ export default class Table extends Component {
         });
     }
 
-    filterColumn(filter: {}, cell, filterFn: ?() => boolean = null, sortFn: ?() => number = null): boolean {
+    /** filtruje zawartość kolumny
+     * @param filter filtr {id:IdKolumny, value:filtr}
+     * @param cell aktualnie sprawdzana komórka
+     * @param filterFn funkcja filtrująca
+     * @param sortFn funkcja sortująca
+     * @returns {boolean}
+     * @private
+     */
+    _filterColumn(filter: {}, cell, filterFn: ?() => boolean = null, sortFn: ?() => number = null): boolean {
+        if (!cell) return false;
         if (!(filter.value instanceof (Object)))
             return Is.func(filterFn) ? filterFn(filter.value, cell) : this.defaultFilter(filter.value, cell);
         const f: CustomFilter = filter.value;
         return f.filter(cell.value || cell, sortFn);
     }
 
+    /** przypisuje filtr do kolumny
+     * @param colId identyfikator kolumny
+     * @param filter filtr (string lub CustomFilter) lub null
+     */
     setFilter(colId: ?string, filter: ?any) {
+        if (filter === '') filter = null;
         const filtered = this._filtered.slice();
         for (let i = 0; i < filtered.length; ++i)
             if (filtered[i].id === colId) {
@@ -351,41 +396,21 @@ export default class Table extends Component {
             mw.resizable = false;
             mw.closeButton = false;
             mw.buttons = MW_BUTTONS.OK_CANCEL;
-            mw.content = <FilterEditor onChange={(filter) => this._filter = filter}/>;
+            let f = null;
+            for (let i = 0; i < this._filtered.length; ++i)
+                if (this._filtered[i].id === colId) {
+                    if (this._filtered[i].value instanceof (CustomFilter))
+                        f = this._filtered[i].value;
+                    break;
+                }
+            mw.content = <FilterEditor filter={f} onChange={(filter) => f = filter}/>;
             mw.onConfirm = () => {
-                this.setFilter(colId, this._filter);
+                this.setFilter(colId, f);
                 return true;
-            }
+            };
+            mw.mainStyle = {maxWidth: '500px', minWidth: '500px', minHeight: '50%'};
         });
         mw.open();
-    }
-
-    /** wywołuje globalne filtrowanie tabeli
-     * @param val szukana wartość
-     */
-    search(val: string) {
-        //ToDo do przeanalizowania przydatność
-        if (!val || val === '') {
-            this.setFilter(undefined, null);
-            this.forceUpdate(true);
-            return;
-        }
-        let filter = false;
-        for (let i = 0; i < this._columns.length; ++i)
-            if (this._columns[i].show && this._columns[i].filterable && this._columns[i].id) {
-                filter = true;
-                break;
-            }
-        if (!filter) return;
-        const filtered = this._filtered.slice();
-        for (let i = 0; i < filtered.length; ++i)
-            if (filtered[i].id === undefined) {
-                filtered.splice(i, 1);
-                break;
-            }
-        filtered.push({id: undefined, value: val});
-        this._filtered = filtered;
-        this.forceUpdate(true);
     }
 
     render() {
@@ -454,11 +479,7 @@ export default class Table extends Component {
                         this._swapColumns(this._drag, column.id, e.currentTarget, e.pageX);
                         this._drag = null;
                     },
-                    onContextMenu: (e) => PopupMenu.openMenu(e, this.COLUMNS_MENU_ITEMS, {
-                        //ToDo usunąć state jeśli nie będzie potrzebny
-                        state: state,
-                        column: column
-                    }),
+                    onContextMenu: (e) => PopupMenu.openMenu(e, this.COLUMNS_MENU_ITEMS, {column: column}),
                     onClick: column.sortable ? (e) => this.sortColumn(column.id, null, true) : null
                 };
             }}
@@ -475,7 +496,7 @@ export default class Table extends Component {
             PaginationComponent={Pagination}
             getPaginationProps={(state) => {
                 return {
-                    onSearch: (val => this.search(val)),
+                    onSearch: (val => this.setFilter(undefined, val)),
                     filterable: this._filterable,
                     visibleRecNum: state.sortedData.length
                 }
@@ -530,24 +551,6 @@ export default class Table extends Component {
 
     /** pozycje menu kontekstowego kolumn*/
     COLUMNS_MENU_ITEMS: [] = [
-        MenuItem.createItem((c: MenuItem) => {
-            c.name = "Test";
-            c.icon = Icon.BUG;
-            c.hint = "console.log(props)";
-            c.onClick = (e, props) => console.log(props);
-        }),
-        MenuItem.createItem((c: MenuItem) => {
-            c.name = "Test Filtr";
-            c.icon = Icon.FILTER;
-            c.onClick = () => {
-                let f = CustomFilter.andEqual(100).addCondition(
-                    CustomFilter.orBigger(50).addCondition(
-                        CustomFilter.andSmaller(150)),
-                    CustomFilter.orEqual(0));
-                const x = Math.round(Math.random() * 200);
-                console.log(f.toString(x), '-->', f.filter(x, (a, b) => a - b));
-            }
-        }),
         MenuItem.createItem((c: MenuItem) => {
             c.icon = Icon.EYE_SLASH;
             c.hint = "Ukrywa kolumnę";

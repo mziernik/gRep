@@ -4,9 +4,10 @@ import * as ErroHandler from "./utils/ErrorHandler";
 
 'use strict';
 
-export const DEV_MODE = process && process.env ? process.env.NODE_ENV === 'dev' : false;
-export const PROD_MODE = process && process.env ? process.env.NODE_ENV === 'production' : false;
-export const TEST_MODE = process && process.env ? process.env.NODE_ENV === 'test' : false;
+export const PROCESS_ENV = process && process.env ? process && process.env : {};
+export const DEV_MODE = PROCESS_ENV.NODE_ENV === 'development';
+export const PROD_MODE = PROCESS_ENV.NODE_ENV === 'production';
+export const TEST_MODE = PROCESS_ENV.NODE_ENV === 'test';
 
 export default class Dev {
 
