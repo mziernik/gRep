@@ -15,6 +15,7 @@ export default class RecordCtrl {
     spinner: boolean = true;
     viewer: JsonViewer;
 
+
     constructor(page: Page, record: Record) {
         this.page = page;
         this.record = record;
@@ -22,9 +23,16 @@ export default class RecordCtrl {
     }
 
 
+    goBack(isCommit: boolean) {
+        if (!isCommit && (!this.page || !this.page.modal))
+            window.history.back();
+    }
+
     onReponse(object: any, spinner: Spinner) {
         if (spinner) spinner.hide();
-        this.buttons.forEach(btn => btn.setState({disabled: false}));
+
+        if (!this.page.modal)
+            this.buttons.forEach(btn => btn.setState({disabled: false}));
 
         if (object instanceof Error || object instanceof EError)
             Alert.error(this, object);
@@ -33,8 +41,7 @@ export default class RecordCtrl {
     commit(crude: CRUDE, onSuccess: () => void) {
         this.record.action = crude;
 
-        if (!this.validate())
-            return false;
+        if (!this.validate()) return false;
 
         this.buttons.forEach(btn => btn.setState({disabled: true}));
         const spinner = this.spinner ? new Spinner() : null;
@@ -62,13 +69,14 @@ export default class RecordCtrl {
     }
 
     createButtons(): [] {
+        this.buttons = [];
         return [this.createCancelButton(), this.createDeleteButton(), this.createSaveButton()];
     }
 
     createSaveButton(onSuccess: () => void) {
 
         if (!onSuccess)
-            onSuccess = () => window.history.back();
+            onSuccess = () => this.goBack(true);
 
         return <Button
             key="btnSave"
@@ -86,7 +94,7 @@ export default class RecordCtrl {
             ref={btn => this.buttons.push(btn)}
             icon={Icon.CHEVRON_LEFT}
             type="default"
-            onClick={e => window.history.back()}
+            onClick={e => this.goBack(false)}
         >Anuluj</Button>
     }
 
@@ -122,10 +130,20 @@ export default class RecordCtrl {
     }
 
     validate(): boolean {
-        return Utils.forEach(this.record.fields, (f: Field) => f.validate(true) ? undefined : true).length === 0;
+        const errors = [];
+
+        Utils.forEach(this.record.fields, (f: Field) => {
+            if (!f.validate(true))
+                errors.push(f.name + ": " + f.error);
+        });
+
+        if (!errors.isEmpty())
+            AppStatus.error(this, errors.join("\n"), null, 1000);
+
+        return errors.isEmpty();
     }
 
-    editModal(onConfirm: () => boolean) {
+    renderEdit(modal: boolean, onConfirm: () => boolean) {
 
 
         ModalWindow.create((mw: ModalWindow) => {

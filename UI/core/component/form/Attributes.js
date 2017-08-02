@@ -117,12 +117,21 @@ export class Attr extends Component {
 
     render() {
 
+
         const mixedMode = this.field && this.props.edit && this.props.preview;
 
         let field: Field = mixedMode && this.field ? new Field(this.field.config) : this.field;
         if (field && mixedMode)
             field._value = this.field.value;
 
+        if (field)
+            field.onChange.listen(this, () => updateErrorMarker());
+
+
+        const updateErrorMarker = () => {
+            if (this.tr && field)
+                this.tr.setAttribute("data-error", !!field.error);
+        };
 
         if (this.props.ifDefined && !Is.defined(this.props.value) && (!field || !Is.defined(field.value) ))
             return null;
@@ -138,13 +147,16 @@ export class Attr extends Component {
 
 
         return <tr
-            ref={e => Is.defined(e, this.tr = e)}
+            ref={e => Is.defined(e, () => {
+                this.tr = e;
+                updateErrorMarker();
+            })}
             className="c-attributes-row"
             onClick={e => Is.func(this.props.onClick, f => f(e, this))}
         >
 
             <td>{field ?
-                <FCtrl field={field}  name={1} required={2} error={3}/> : this.children.render(this.props.name)}</td>
+                <FCtrl field={field} name={1} required={2} error={3}/> : this.children.render(this.props.name)}</td>
             <td>
                 {field ? <div style={{display: "flex"}}>
                     <FCtrl

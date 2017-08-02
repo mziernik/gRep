@@ -158,6 +158,9 @@ export default class PRepository extends Page {
     render() {
         this.repo = Repository.get(this.props.repo, true);
 
+        if (this.repo.error)
+            return Page.renderError(this.repo.error);
+
         let hasAdv = !!Utils.find(this.repo.columns, (col: Column) => col.disabled);
 
         const rctrl: RepoCtrl = new RepoCtrl(this, this.repo);

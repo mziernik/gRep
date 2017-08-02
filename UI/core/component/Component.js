@@ -118,33 +118,34 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         });
     }
 
-    /**
-     * Utwórz komponent reacta (wykorzystywany w metodzie render)
-     * @param type
-     * @param props
-     * @return {*}
-     */
-    create(type: string, props: ? Object) {
 
-        props = props || {};
-
-        if (this.props && this.props.style) {
-            // dodaj do styli zadeklarowanych w atrybutach te, które są we właściwościach
-            props.style = props.style || {};
-            for (let name in this.props.style)
-                props.style[name] = this.props.style[name];
-        }
-
-        const ref = props.ref;
-
-        props.ref = (elm) => {
-            this.element = elm;
-            if (ref)
-                ref(elm);
-        };
-
-        return React.createElement(type, props, this.props.children);
-    }
+    // /**
+    //  * Utwórz komponent reacta (wykorzystywany w metodzie render)
+    //  * @param type
+    //  * @param props
+    //  * @return {*}
+    //  */
+    // create(type: string, props: ? Object) {
+    //
+    //     props = props || {};
+    //
+    //     if (this.props && this.props.style) {
+    //         // dodaj do styli zadeklarowanych w atrybutach te, które są we właściwościach
+    //         props.style = props.style || {};
+    //         for (let name in this.props.style)
+    //             props.style[name] = this.props.style[name];
+    //     }
+    //
+    //     const ref = props.ref;
+    //
+    //     props.ref = (elm) => {
+    //         this.element = elm;
+    //         if (ref)
+    //             ref(elm);
+    //     };
+    //
+    //     return React.createElement(type, props, this.props.children);
+    // }
 
     toString() {
         return this.name;
@@ -406,4 +407,47 @@ export class Child {
     }
 
 
+}
+
+export class Dynamic {
+
+    _ref: DynamicComponent;
+    _render: () => any;
+    _props: Object = {};
+    _state: Object = {};
+
+    constructor(render: () => ReactComponent): Dynamic {
+        this._render = render;
+    }
+
+    update(delayed: boolean = true) {
+        if (this._ref)
+            this._ref.forceUpdate(delayed);
+    }
+
+    state(state: Object) {
+        this._state = state;
+        this.update();
+    }
+
+    get $() {
+        return <DynamicComponent dyn={this}/>
+    }
+ }
+
+export class DynamicComponent extends Component {
+
+    static propTypes = {
+        dyn: PropTypes.instanceOf(Dynamic)
+    };
+
+    constructor() {
+        super(...arguments);
+        this.props.dyn._ref = this;
+    }
+
+    render() {
+        const dyn: Dynamic = this.props.dyn;
+        return dyn._render(dyn._state || {});
+    }
 }

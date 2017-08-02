@@ -86,7 +86,8 @@ export function onError(msg: any, file: ?any, line: ?number, column: ?number, ex
             .css({
                 display: "inline-block",
                 float: "left",
-                padding: "8px 64px"
+                padding: "8px 64px",
+                userSelect: "text"
             });
 
         const close = tag.tag("div", "x")

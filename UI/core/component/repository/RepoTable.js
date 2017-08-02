@@ -10,7 +10,8 @@ export default class RepoTable extends Table {
     static propTypes = {
         repository: PropTypes.instanceOf(Repository).isRequired,
         onClick: PropTypes.func, //(rec, e,  row, column, table)
-        showAdvanced: PropTypes.bool
+        showAdvanced: PropTypes.bool,
+        modalEdit: PropTypes.bool,
     };
 
     constructor() {
@@ -74,10 +75,9 @@ export default class RepoTable extends Table {
                 this._dataChanged = data.record;
         });
 
-        this._columns = this._convertColumns(Utils.forEach(repo.columns, (c: Column) =>
-            c.disabled && !this.props.showAdvanced ? undefined : c.hidden ? null :
-                <span key={c.key} title={c.name + (c.description ? "\n" + c.description : "")}>{c.name}</span>));
-
+        this._columns = this._convertColumns(Utils.forEach(repo.columns, (c: Column) => {
+            if (!c.disabled || this.props.showAdvanced) return c;
+        }));
 
     }
 

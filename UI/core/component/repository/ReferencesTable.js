@@ -8,7 +8,8 @@ export default class ReferencesTable extends Component {
     static propTypes = {
         record: PropTypes.instanceOf(Record),
         reference: PropTypes.any,
-        fit: PropTypes.bool
+        fit: PropTypes.bool,
+        modalEdit: PropTypes.bool
     };
 
     recs: Record[];
@@ -47,7 +48,7 @@ export default class ReferencesTable extends Component {
                                 const field: Field = r.get(col);
                                 field.value = record.pk;
                                 r.fields.delete(col); // usuń kolumnę na czas edycji;
-                                new RecordCtrl(this, r).editModal(() => {
+                                new RecordCtrl(this, r).renderEdit(this.props.modalEdit, () => {
                                     r.fields.set(col, field); // przywróć usunięte pole
                                     return update(r)
                                 });
@@ -67,7 +68,7 @@ export default class ReferencesTable extends Component {
                 )
             }
             <tr>
-                <td/>
+
                 <td className="c-field-list-data">
                     <Link
                         icon={Icon.PLUS_SQUARE}
@@ -78,13 +79,14 @@ export default class ReferencesTable extends Component {
                             field.value = record.pk;
                             rec.fields.delete(col); // usuń kolumnę na czas edycji;
 
-                            new RecordCtrl(this, rec).editModal(() => {
+                            new RecordCtrl(this, rec).renderEdit(this.props.modalEdit, () => {
                                 this.recs.push(rec);
                                 rec.fields.set(col, field); // przywróć usunięte pole
                                 return update(rec);
                             });
 
                         }}/></td>
+                <td/>
             </tr>
             </tbody>
         </table>

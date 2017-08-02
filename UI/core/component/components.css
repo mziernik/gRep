@@ -62,10 +62,6 @@
     vertical-align: middle;
 }
 
-.c-attributes-row > td > * {
-    min-height: 30px;
-}
-
 .c-attributes-row td:first-child {
     font-weight: bold;
 }
@@ -76,6 +72,10 @@
 
 .c-attributes-row:hover > td {
     background-color: rgba(0, 50, 100, 0.1);
+}
+
+.c-attributes-row[data-error=true] {
+    background-color: rgba(255, 0, 0, 0.3);
 }
 
 /*==================================================== BreadCrumbs ===================================================*/
@@ -400,7 +400,7 @@
 }
 
 .c-fctrl-name-link {
-    color: blue;
+    color: #1d75b3;
     cursor: pointer;
 }
 

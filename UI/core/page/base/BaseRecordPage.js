@@ -12,7 +12,9 @@ export default class BaseRecordPage extends Page {
     isNew: boolean;
     record: Record;
     controller: RecordCtrl;
-    afterSaveNavigate: string;
+
+    //   afterSaveNavigate: string;
+
 
     constructor(repo: Repository | string, props: any, context: any, state: any) {
         super(props, context, state);
@@ -22,7 +24,9 @@ export default class BaseRecordPage extends Page {
         const init = () => {
             this.isNew = this.props.id === "~new";
             this.repo = repo instanceof Repository ? repo : Repository.get(repo, true);
-            this.record = this.isNew ? this.repo.createRecord(this, this.isNew ? CRUDE.CREATE : CRUDE.UPDATE) : this.repo.get(this, this.props.id, true);
+            this.record = this.isNew ? this.repo.createRecord(this, this.isNew
+                ? CRUDE.CREATE : CRUDE.UPDATE)
+                : this.repo.get(this, this.props.id, true);
             this.controller = new RecordCtrl(this, this.record);
         };
 

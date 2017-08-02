@@ -27,12 +27,12 @@ window.$tag = function (tagName: string, textContent: ?string): ?Node {
 
 // $FlowFixMe
 Node.prototype.on = Node.prototype.on || function (name: string, callback: (e: Event) => any): Node {
-        if (this["on" + name.toLowerCase()] === undefined)
-            console.warn("Zdarzenie " + name + " nie istnieje");
+    if (this["on" + name.toLowerCase()] === undefined)
+        console.warn("Zdarzenie " + name + " nie istnieje");
 
-        this["on" + name.toLowerCase()] = callback;
-        return this;
-    };
+    this["on" + name.toLowerCase()] = callback;
+    return this;
+};
 
 /**
  * Pobierz n-tego rodzica danego elementu na podstawie nazwy tagu lub poziomu zagnieżdżenia
@@ -42,33 +42,33 @@ Node.prototype.on = Node.prototype.on || function (name: string, callback: (e: E
 // $FlowFixMe
 Node.prototype.getParent = Node.prototype.getParent || function (tagNameOrLevel: string | number): ?Node {
 
+    // $FlowFixMe
+    if (tagNameOrLevel > 0) {
+        let nd = this;
         // $FlowFixMe
-        if (tagNameOrLevel > 0) {
-            let nd = this;
-            // $FlowFixMe
-            for (let i = 0; i < tagNameOrLevel; i++) {
-                if (!nd)
-                    return null;
-                nd = nd.parentNode;
-            }
+        for (let i = 0; i < tagNameOrLevel; i++) {
             if (!nd)
                 return null;
-
-            return nd;
-        }
-
-        if (!tagNameOrLevel)
-            return this;
-
-        let nd = this;
-        while (nd) {
-            // $FlowFixMe
-            if (nd.nodeName.toLowerCase() === tagNameOrLevel.toLowerCase())
-                return nd;
             nd = nd.parentNode;
         }
-        return null;
-    };
+        if (!nd)
+            return null;
+
+        return nd;
+    }
+
+    if (!tagNameOrLevel)
+        return this;
+
+    let nd = this;
+    while (nd) {
+        // $FlowFixMe
+        if (nd.nodeName.toLowerCase() === tagNameOrLevel.toLowerCase())
+            return nd;
+        nd = nd.parentNode;
+    }
+    return null;
+};
 
 
 /**
@@ -79,31 +79,31 @@ Node.prototype.getParent = Node.prototype.getParent || function (tagNameOrLevel:
  */
 // $FlowFixMe
 Node.prototype.tag = Node.prototype.tag || function (tagName: string, textContent: ?string): Node {
-        if (!tagName)
-            return null;
-        const t: Node = document.createElement(tagName);
-        this.appendChild(t);
-        if (textContent !== null && textContent !== undefined)
-        // $FlowFixMe
-            t.txt(textContent);
-        return t;
-    };
+    if (!tagName)
+        return null;
+    const t: Node = document.createElement(tagName);
+    this.appendChild(t);
+    if (textContent !== null && textContent !== undefined)
+    // $FlowFixMe
+        t.txt(textContent);
+    return t;
+};
 
 // $FlowFixMe
 Node.prototype.tagNS = Node.prototype.tagNS || function (namespace: string, tagName: string, textContent: ?string): Node {
-        const t = document.createElementNS(namespace, tagName);
-        this.appendChild(t);
-        if (textContent !== null && textContent !== undefined)
-        // $FlowFixMe
-            t.txt(textContent);
-        return t;
-    };
+    const t = document.createElementNS(namespace, tagName);
+    this.appendChild(t);
+    if (textContent !== null && textContent !== undefined)
+    // $FlowFixMe
+        t.txt(textContent);
+    return t;
+};
 
 // $FlowFixMe
 Node.prototype.insertAfter = Node.prototype.insertAfter || function (newNode: Node): Node {
-        this.parentNode.insertBefore(newNode, this.nextSibling);
-        return this;
-    };
+    this.parentNode.insertBefore(newNode, this.nextSibling);
+    return this;
+};
 
 
 /**
@@ -112,9 +112,9 @@ Node.prototype.insertAfter = Node.prototype.insertAfter || function (newNode: No
  */
 // $FlowFixMe
 Node.prototype.addText = Node.prototype.addText || function (str: string): Node {
-        this.appendChild(document.createTextNode(str));
-        return this;
-    };
+    this.appendChild(document.createTextNode(str));
+    return this;
+};
 
 /**
  * Usuń wszystkie gałęzie tekstowe z bieżącej i dodaj nową
@@ -123,18 +123,18 @@ Node.prototype.addText = Node.prototype.addText || function (str: string): Node 
  */
 // $FlowFixMe
 Node.prototype.setText = Node.prototype.setText || function (str: string): Node {
-        this.forEach(function (node) {
-            if (node.nodeName === "#text")
-                node.parentNode.removeChild(node);
-        });
-        this.appendChild(document.createTextNode(str));
-        return this;
-    };
+    this.forEach(function (node) {
+        if (node.nodeName === "#text")
+            node.parentNode.removeChild(node);
+    });
+    this.appendChild(document.createTextNode(str));
+    return this;
+};
 
 // $FlowFixMe
 Node.prototype.txt = Node.prototype.txt || function (str: ?string): Node {
-        return this.setText(str);
-    };
+    return this.setText(str);
+};
 
 
 /**
@@ -143,11 +143,11 @@ Node.prototype.txt = Node.prototype.txt || function (str: ?string): Node {
  */
 // $FlowFixMe
 Node.prototype.clear = Node.prototype.clear || function (): Node {
-        while (this.firstChild)
-            this.innerHTML = '';
+    while (this.firstChild)
+        this.innerHTML = '';
 //        this.removeChild(this.firstChild);
-        return this;
-    };
+    return this;
+};
 
 /**
  * Ustaw klasę css
@@ -156,9 +156,9 @@ Node.prototype.clear = Node.prototype.clear || function (): Node {
  */
 // $FlowFixMe
 Node.prototype.cls = Node.prototype.cls || function (className: string): Node {
-        this.className = className;
-        return this;
-    };
+    this.className = className;
+    return this;
+};
 
 /**
  * usuń dany element drzewa DOM
@@ -166,9 +166,9 @@ Node.prototype.cls = Node.prototype.cls || function (className: string): Node {
  */
 // $FlowFixMe
 Node.prototype.remove = Node.prototype.remove || function (): Node {
-        this.parentNode.removeChild(this);
-        return this;
-    };
+    this.parentNode.removeChild(this);
+    return this;
+};
 
 /**
  * Pętla iterująca po wszystkich polach danego elementu
@@ -177,18 +177,18 @@ Node.prototype.remove = Node.prototype.remove || function (): Node {
  */
 // $FlowFixMe
 Node.prototype.forEach = Node.prototype.forEach || function (func: (node: Node) => ?boolean, elementsOnly: boolean = true): void {
-        if (!func)
+    if (!func)
+        return;
+
+    const arr = [];
+    for (let i = 0; i < this.childNodes.length; i++)
+        if (!elementsOnly || this.childNodes[i].nodeType === 1)
+            arr.push(this.childNodes[i]);
+
+    for (let i = 0; i < arr.length; i++)
+        if (func(arr[i]) === false)
             return;
-
-        const arr = [];
-        for (let i = 0; i < this.childNodes.length; i++)
-            if (!elementsOnly || this.childNodes[i].nodeType === 1)
-                arr.push(this.childNodes[i]);
-
-        for (let i = 0; i < arr.length; i++)
-            if (func(arr[i]) === false)
-                return;
-    };
+};
 
 
 function copyNode(src: Element, dst: Element): void {
@@ -223,9 +223,9 @@ function copyNode(src: Element, dst: Element): void {
  */
 // $FlowFixMe
 Node.prototype.copyTo = Node.prototype.copyTo || function (dst: Element): Node {
-        copyNode(this, dst);
-        return this;
-    };
+    copyNode(this, dst);
+    return this;
+};
 
 /**
  * Pętla forEach na kolekcji typu HTMLCollection
@@ -234,16 +234,16 @@ Node.prototype.copyTo = Node.prototype.copyTo || function (dst: Element): Node {
  */
 // $FlowFixMe
 HTMLCollection.prototype.forEach = HTMLCollection.prototype.forEach || function (func: (node: Node) => ?boolean): Node {
-        const arr = [];
-        for (let i = 0; i < this.length; i++)
-            arr.push(this[i]);
+    const arr = [];
+    for (let i = 0; i < this.length; i++)
+        arr.push(this[i]);
 
-        for (let i = 0; i < arr.length; i++)
-            if (func(arr[i]) === false)
-                return this;
+    for (let i = 0; i < arr.length; i++)
+        if (func(arr[i]) === false)
+            return this;
 
-        return this;
-    };
+    return this;
+};
 
 
 /**
@@ -254,26 +254,39 @@ HTMLCollection.prototype.forEach = HTMLCollection.prototype.forEach || function 
  */
 // $FlowFixMe
 Element.prototype.attr = Element.prototype.attr || function (data: string | Object, value: ?any): Element {
-        if (typeof data === "string" && value !== null && value !== undefined) {
-            this.setAttribute(data, value);
-            return this;
-        }
-
-        if (!data || (typeof data !== "object"))
-            return this;
-
-        for (let name: string in (data: Object)) {
-            const val: any = data[name];
-            if (typeof val === "function")
-                continue;
-
-            if (val === undefined)
-                this.removeAttribute(name);
-            else
-                this.setAttribute(name, val);
-        }
+    if (typeof data === "string" && value !== null && value !== undefined) {
+        this.setAttribute(data, value);
         return this;
-    };
+    }
+
+    if (!data || (typeof data !== "object"))
+        return this;
+
+    for (let name: string in (data: Object)) {
+        const val: any = data[name];
+        if (typeof val === "function")
+            continue;
+
+        if (val === undefined)
+            this.removeAttribute(name);
+        else
+            this.setAttribute(name, val);
+    }
+    return this;
+};
+
+
+// $FlowFixMe
+Element.prototype.replaceStyle = Element.prototype.replaceStyle || function (from: string, to: string): Element {
+    const styles = (this.className || "").split(" ");
+    if (from)
+        styles.remove(from);
+    if (to)
+        styles.push(to);
+    this.className = styles.join(" ");
+    return this;
+};
+
 
 /**
  * Edycja arkuszy styli
@@ -282,21 +295,21 @@ Element.prototype.attr = Element.prototype.attr || function (data: string | Obje
  */
 // $FlowFixMe
 Element.prototype.css = Element.prototype.css || function (data: Object): Element {
-        if (!data || (typeof data !== "object"))
-            return this;
-
-        for (let name in data) {
-            const val = data[name];
-            if (typeof val === "function")
-                continue;
-
-            if (this.style[name] === undefined)
-                throw "Nieznany selektor \"" + name + "\"";
-
-            this.style[name] = val;
-        }
+    if (!data || (typeof data !== "object"))
         return this;
-    };
+
+    for (let name in data) {
+        const val = data[name];
+        if (typeof val === "function")
+            continue;
+
+        if (this.style[name] === undefined)
+            throw "Nieznany selektor \"" + name + "\"";
+
+        this.style[name] = val;
+    }
+    return this;
+};
 
 /**
  * zwraca zaznaczoną wartość z elementu select
@@ -304,40 +317,40 @@ Element.prototype.css = Element.prototype.css || function (data: Object): Elemen
  */
 // $FlowFixMe
 HTMLSelectElement.prototype.selectedValue = HTMLSelectElement.prototype.selectedValue || function (): ?string {
-        if (this.selectedIndex === -1)
-            return null;
-        return this.options[this.selectedIndex].value;
-    };
+    if (this.selectedIndex === -1)
+        return null;
+    return this.options[this.selectedIndex].value;
+};
 
 // $FlowFixMe
 Node.prototype.svg = Node.prototype.svg || function (width: number, height: number, viewBox: string): Element {
-        const svg = this.tagNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("width", width);
-        svg.setAttribute("height", height);
-        svg.setAttribute("viewBox", viewBox);
-        svg.tstyles = svg.tag("style");
-        svg.tstyles.setAttribute("type", "text/css");
-        svg.styles = function (selector) {
-            if (!this.tstyles.innerHTML)
-                this.tstyles.innerHTML = "";
-            this.tstyles.innerHTML += selector + "\n";
-        };
-        svg.tag = (name: string) => {
-            const tag = this.tagNS("http://www.w3.org/2000/svg", name);
-            tag.attr = function (name, value) {
-                this.setAttribute(name, value);
-                return this;
-            };
-            return tag;
-        };
-        svg.polygon = (points: string) => {
-            return this.tag("polygon").attr("points", points);
-        };
-        svg.path = (points: string) => {
-            return this.tag("path").attr("d", points);
-        };
-        return svg;
+    const svg = this.tagNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+    svg.setAttribute("viewBox", viewBox);
+    svg.tstyles = svg.tag("style");
+    svg.tstyles.setAttribute("type", "text/css");
+    svg.styles = function (selector) {
+        if (!this.tstyles.innerHTML)
+            this.tstyles.innerHTML = "";
+        this.tstyles.innerHTML += selector + "\n";
     };
+    svg.tag = (name: string) => {
+        const tag = this.tagNS("http://www.w3.org/2000/svg", name);
+        tag.attr = function (name, value) {
+            this.setAttribute(name, value);
+            return this;
+        };
+        return tag;
+    };
+    svg.polygon = (points: string) => {
+        return this.tag("polygon").attr("points", points);
+    };
+    svg.path = (points: string) => {
+        return this.tag("path").attr("d", points);
+    };
+    return svg;
+};
 
 
 export function updateCssRule(selector, style, value) {

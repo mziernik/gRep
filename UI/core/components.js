@@ -4,6 +4,7 @@ export {default as Icon} from "./component/glyph/Icon"
 
 
 export {default as Component} from "./component/Component";
+export {Dynamic} from "./component/Component";
 export {default as Page} from "./page/Page";
 export {default as FormComponent} from "./component/form/FormComponent";
 export {default as FCtrl} from "./component/form/FCtrl";

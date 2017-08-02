@@ -47,6 +47,10 @@ export {default as Dispatcher} from "./utils/Dispatcher";
 export {default as React} from 'react';
 export {Component as ReactComponent} from "react";
 
+
+export {default as SyntheticEvent} from 'react-dom/lib/SyntheticEvent';
+export {default as SyntheticMouseEvent} from 'react-dom/lib/SyntheticMouseEvent';
+
 import * as ReactDOM from 'react-dom';
 
 export {ReactDOM};

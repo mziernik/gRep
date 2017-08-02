@@ -1,18 +1,20 @@
 //@Flow
 'use strict';
-import {React, ReactDOM, Application, Is} from '../core';
-import {Button, Icon, Resizer, Dragger, Scrollbar} from '../components';
+import {React, ReactUtils, PropTypes, ReactDOM, Application, Is, AppNode, Utils} from '../core';
+import {Component, Button, Icon, Resizer, Dragger, Scrollbar} from '../components';
+import {PageTab} from "../page/PageContainer";
+import {Children, Dynamic} from "./Component";
 
 export class ModalWindow {
 
     /** treść na belce tytułowej
      * @type {string}
      */
-    title: ?string = "Komunikat";
+    _title: ?string = null;
     /** ikona z lewej strony
      *
      */
-    icon: ?Icon = Icon.INFO;
+    icon: ?Icon = null;
     /** zawartość okna
      * @type {null}
      */
@@ -66,6 +68,10 @@ export class ModalWindow {
      */
     iconStyle: ?Object = null;
 
+    _node: AppNode;
+
+    _titleBar: Dynamic = new Dynamic(() => <span>{this.title}</span>);
+
     /** Tworzy nową instancję ModalWindow
      * @param config - callback konfigurujący instancję
      * @returns {ModalWindow} - nowa instancja ModalWindow
@@ -81,7 +87,7 @@ export class ModalWindow {
     }
 
     /** otwiera okno */
-    open() {
+    open(tab: PageTab): AppNode {
         if (this._instance) return;
         this._instance = document.createElement('span');
         document.body.appendChild(this._instance);
@@ -93,8 +99,12 @@ export class ModalWindow {
         this._instance.style.backgroundColor = 'rgba(0,0,0,0.5)';
         this._instance.style.zIndex = 1000;
 
-        Application.render(this.render(), this._instance);
+        if (!this.title && tab)
+            this.title = tab.title;
+
+        this._node = Application.render(this.render(), this._instance, tab);
         this.result = false;
+        return this._node;
     }
 
     /** zamknięcie okna z statusem true
@@ -113,6 +123,16 @@ export class ModalWindow {
         if (close)
             this.close(e);
         if (err) throw err;
+    }
+
+
+    set title(title: string) {
+        this._title = title;
+        this._titleBar.update();
+    }
+
+    get title(): string {
+        return this._title;
     }
 
     /** zamknięcie okna z statusem false
@@ -167,47 +187,25 @@ export class ModalWindow {
         elem.style.top = (y - pos.height / 2) + 'px';
     }
 
-    /** generuje predefiniowane przyciski
-     * @returns {XML} tag z przyciskami
-     * @private
-     */
-    _renderButtons() {
-        let butts = [];
-        if (this.buttons & MW_BUTTONS.OK)
-            butts.push(<Button type={"default"}
-                               focus={butts.length === 0}
-                               key="ok"
-                               onClick={(e) => this.confirm(e)}
-                               title="OK">OK</Button>);
-        if (this.buttons & MW_BUTTONS.CANCEL)
-            butts.push(<Button type={"default"}
-                               focus={butts.length === 0}
-                               key="cancel"
-                               onClick={(e) => this.cancel(e)}
-                               title="Anuluj">Anuluj</Button>);
-        if (this.buttons & MW_BUTTONS.YES)
-            butts.push(<Button type={"success"}
-                               focus={butts.length === 0}
-                               key="yes"
-                               onClick={(e) => this.confirm(e)}
-                               title="Tak">Tak</Button>);
-        if (this.buttons & MW_BUTTONS.NO)
-            butts.push(<Button type={"danger"}
-                               focus={butts.length === 0}
-                               key="no"
-                               onClick={(e) => this.cancel(e)}
-                               title="Nie">Nie</Button>);
-        if (this.buttons & MW_BUTTONS.CLOSE)
-            butts.push(<Button type={"default"}
-                               focus={butts.length === 0}
-                               key="close"
-                               onClick={(e) => this.close(e)}
-                               title="Zamknij">Zamknij</Button>);
-        return <div style={{textAlign: 'center'}}>{butts}</div>;
-    }
 
     //
     render() {
+
+        const content = typeof(this.content) === 'string' ?
+            <div style={{
+                display: 'table',
+                height: '100%',
+                width: '100%',
+            }}>
+                <div style={{
+                    display: 'table-cell',
+                    textAlign: 'center',
+                    verticalAlign: 'middle'
+                }}>{this.content}</div>
+            </div>
+            : this.content;
+
+
         return (
             <Resizer
                 className="c-modal-window"
@@ -245,11 +243,12 @@ export class ModalWindow {
                             textOverflow: 'ellipsis',
                             overflow: 'hidden',
                             padding: '5px 20px'
-                        }}>{this.title}</span>
-                    {this.closeButton ? <span className={"c-modal-window-exit " + Icon.TIMES}
-                                              title="Zamknij"
-                                              style={{flex: '0 0 auto'}}
-                                              onClick={(e) => this.close(e)}/> : null}
+                        }}>{this._titleBar.render()}</span>
+                    {this.closeButton ? <span
+                        className={"c-modal-window-exit " + Icon.TIMES}
+                        title="Zamknij"
+                        style={{flex: '0 0 auto'}}
+                        onClick={(e) => this.close(e)}/> : null}
                 </div>
                 <div className="c-modal-window-content"
                      style={{
@@ -271,19 +270,7 @@ export class ModalWindow {
                     }}>
                         <Scrollbar/>
                         <Scrollbar horizontal/>
-                        {typeof(this.content) === 'string' ?
-                            <div style={{
-                                display: 'table',
-                                height: '100%',
-                                width: '100%',
-                            }}>
-                                <div style={{
-                                    display: 'table-cell',
-                                    textAlign: 'center',
-                                    verticalAlign: 'middle'
-                                }}>{this.content}</div>
-                            </div>
-                            : this.content}
+                        {content}
                     </span>
                 </div>
                 <div className="c-modal-window-footer"
@@ -292,7 +279,7 @@ export class ModalWindow {
                          width: '100%',
                          ...this.footerStyle
                      }}>
-                    {typeof(this.buttons) === 'number' ? this._renderButtons() : this.buttons}
+                    <ModalButtons modal={this}/>
                 </div>
             </Resizer>);
     }
@@ -313,3 +300,89 @@ export const MW_BUTTONS = {
     YES_NO: 12,
     YES_NO_CLOSE: 28
 };
+
+
+function ModalButtons(props) {
+
+    const modal: ModalWindow = props.modal;
+
+
+    if (Is.array(modal.buttons)) {
+
+        const arr = [];
+
+        const visitObject = (obj) => {
+
+            if (Is.array(obj)) {
+                Utils.forEach(obj, o => visitObject(o));
+                return;
+            }
+
+            if (obj && obj.type === Button) {
+                const props = Utils.clone(obj.props);
+
+                props.onClick = (e) => {
+                    let result;
+                    if (obj.props.onClick)
+                        result = obj.props.onClick(e);
+
+                    if (result !== false)
+                        modal.close(e);
+                };
+
+                arr.push(React.cloneElement(obj, props));
+                return;
+            }
+
+            arr.push(obj);
+
+        };
+
+
+        visitObject(modal.buttons);
+
+        return <div>{arr}</div>
+
+    }
+
+
+    if (!Is.number(modal.buttons)) {
+        return modal.buttons;
+
+    }
+
+    let butts = [];
+    if (modal.buttons & MW_BUTTONS.OK)
+        butts.push(<Button type={"default"}
+                           focus={butts.length === 0}
+                           key="ok"
+                           onClick={(e) => this.confirm(e)}
+                           title="OK">OK</Button>);
+    if (modal.buttons & MW_BUTTONS.CANCEL)
+        butts.push(<Button type={"default"}
+                           focus={butts.length === 0}
+                           key="cancel"
+                           onClick={(e) => this.cancel(e)}
+                           title="Anuluj">Anuluj</Button>);
+    if (modal.buttons & MW_BUTTONS.YES)
+        butts.push(<Button type={"success"}
+                           focus={butts.length === 0}
+                           key="yes"
+                           onClick={(e) => this.confirm(e)}
+                           title="Tak">Tak</Button>);
+    if (modal.buttons & MW_BUTTONS.NO)
+        butts.push(<Button type={"danger"}
+                           focus={butts.length === 0}
+                           key="no"
+                           onClick={(e) => this.cancel(e)}
+                           title="Nie">Nie</Button>);
+    if (modal.buttons & MW_BUTTONS.CLOSE)
+        butts.push(<Button type={"default"}
+                           focus={butts.length === 0}
+                           key="close"
+                           onClick={(e) => this.close(e)}
+                           title="Zamknij">Zamknij</Button>);
+    return <div style={{textAlign: 'center'}}>{butts}</div>;
+
+
+}

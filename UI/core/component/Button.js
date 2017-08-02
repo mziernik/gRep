@@ -1,15 +1,95 @@
-import {React, PropTypes, ReactDOM, Record, Repository, Field, Utils, Is, CRUDE, Endpoint, AppStatus} from "../core"
-import {Component, Spinner, Alert} from "../components"
+import {
+    React,
+    ReactUtils,
+    PropTypes,
+    ReactDOM,
+    Record,
+    Repository,
+    Field,
+    Utils,
+    Is,
+    CRUDE,
+    Endpoint,
+    AppStatus
+} from "../core"
+import {Component, Spinner, Alert, Dynamic, Icon} from "../components"
 
+
+export class Btn extends Dynamic {
+
+    title: string;
+    text: string;
+    type: string;
+    crude: CRUDE;
+    style: Object;
+
+    confirm: string;
+    onClick: (e) => any;
+    link: Endpoint;
+    icon: Icon;
+    disabled: boolean;
+    focus: boolean; //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
+
+    constructor(config: Btn | (button: Btn) => void) {
+        super(() => this.render());
+        if (Is.func(config))
+            config(this);
+    }
+
+    render() {
+        let type = this.type;
+        if (!type && this.crude)
+            switch (this.crude) {
+                case CRUDE.CREATE:
+                case CRUDE.UPDATE:
+                    type = "success";
+                    break;
+                case CRUDE.DELETE:
+                    type = "danger";
+                    break;
+                case CRUDE.EXECUTE:
+                    type = "primary";
+                    break;
+            }
+
+        return <button
+            ref={elem => this._tag = elem}
+            style={this.style}
+            className={"btn " + (type ? "btn-" + type : "") + " c-button"}
+            disabled={this.state.disabled}
+            title={this.title}
+            onClick={(e) => {
+                if (this.state.disabled) return;
+                if (this.confirm && Is.func(this.onClick))
+                    Alert.confirm(this, this.confirm, () => this.onClick(e));
+                else Is.func(this.onClick, f => f(e));
+
+                if (this.link instanceof Endpoint)
+                    (this.link: Endpoint).navigate(null, e);
+
+                if (typeof this.link === "string")
+                    Endpoint.navigate(this.link, e);
+            }}
+
+        >
+            {
+                this.icon ?
+                    <span className={"c-button-icon " + this.icon}/> : null}
+            {this.text}</button>
+    }
+
+}
 
 export default class Button extends Component {
+
+    _tag: HTMLButtonElement;
 
     state: {
         disabled: boolean
     };
 
 
-    static  propTypes = {
+    static propTypes = {
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
         confirm: PropTypes.string,
         type: PropTypes.oneOf(["basic", "default", "primary", "success", "info", "warning", "danger", "link"]),
@@ -30,8 +110,8 @@ export default class Button extends Component {
     }
 
     componentDidMount() {
-        if (!this._tag)return;
-        if (!this.props.focus)return;
+        if (!this._tag) return;
+        if (!this.props.focus) return;
         this._tag.focus();
     }
 
@@ -75,7 +155,7 @@ export default class Button extends Component {
         >
             {
                 this.props.icon ?
-                <span className={"c-button-icon " + this.props.icon} /> : null}
+                    <span className={"c-button-icon " + this.props.icon}/> : null}
             {this.children.render()}</button>
     }
 }  //

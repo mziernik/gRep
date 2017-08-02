@@ -1,7 +1,7 @@
 import {React, PropTypes} from "../core";
 import {Component, Resizer, Scrollbar, Splitter} from "../components"
 
-
+// ToDo: Wojtek dodaj możliwość zmiany rozmiaru (szerokość lub wysokość) przez resizera - propsy
 export default class Panel extends Component {
 
     static propTypes = {

@@ -10,6 +10,7 @@ export default class BaseRepositoryPage extends Page {
     repo: Repository;
     recordEndpoint: Endpoint;
     buttons: [] = [];
+    modalEdit: boolean;
 
     constructor(repository: Repository, recordEndpoint: Endpoint, props: Object, context: Object, updater: Object) {
         super(props, context, updater);
@@ -25,16 +26,19 @@ export default class BaseRepositoryPage extends Page {
     }
 
     navigate(rec: Record, e: Event) {
-        this.recordEndpoint.navigate({id: rec.pk}, e);
+        this.recordEndpoint.navigate({id: rec ? rec.pk : "~new"}, e);
     }
 
     render() {
         return [
             this.renderTitle(this.title),
             this.renderToolBar([...this.buttons,
-                <Button type="primary" icon={Icon.USER_PLUS}
-                        link={this.recordEndpoint.getLink({id: "~new", ...this.endpointParams})}>Dodaj</Button>]),
-            <RepoTable repository={this.repo} onClick={(...args) => this.navigate(...args)}/>
+                <Button
+                    type="primary"
+                    icon={Icon.USER_PLUS}
+                    onClick={e => this.navigate(null, e)}
+                >Dodaj</Button>]),
+            <RepoTable modalEdit={this.modalEdit} repository={this.repo} onClick={(...args) => this.navigate(...args)}/>
         ]
     }
 }

@@ -21,16 +21,18 @@ export class PageTab {
     key: string;
     id: string = Utils.randomId();
     node: AppNode;
-    element: HTMLElement;
+    element: ?HTMLElement = null; // dla zakładki
     _removed: boolean = false;
     modal: boolean;
     currentURL: string;
+    modalWindow: ModalWindow;
 
     constructor(key: string, title: string, modal: boolean = false) {
         this.title = title;
         this.modal = modal;
         this.key = key;
         tabs.push(this);
+        if (modal) return;
         this.element = document.createElement("div");
         this.element.className = "app-page";
         this.element.setAttribute("data-page", key);
@@ -95,13 +97,14 @@ export class PageTab {
 
         if (!this.node)
             if (this.modal) {
-                this.node = children;
-                ModalWindow.create((mw: ModalWindow) => {
-                    mw.content = this.node;
+
+                this.modalWindow = ModalWindow.create((mw: ModalWindow) => {
+                    mw.content = children;
                     mw.closeButton = true;
-                    //       mw.icon = null;
+                    mw.icon = null;
                     mw.onClose = (e: Event, result: boolean) => this.close() || true;
-                }).open();
+                });
+                this.node = this.modalWindow.open(this);
             } else {
                 containerElement.appendChild(this.element);
                 this.node = Application.render(children, this.element, this);
@@ -114,7 +117,7 @@ export class PageTab {
         //    tabs.forEach((tab: PageTab) => Is.condition(tab.node === this.node, () => tab.onNavigate(this)));
 
         if (this.node.currentPage)
-            this.element.setAttribute("data-page", this.node.currentPage.endpoint.key);
+            this.node.element.setAttribute("data-page", this.node.currentPage.endpoint.key);
     }
 
 

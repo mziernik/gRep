@@ -1,6 +1,7 @@
 import ReactCurrentOwner from "react/lib/ReactCurrentOwner";
 import {ReactComponent} from "../core";
 
+export {default as ELEMENT} from 'react-dom/lib/ReactElementSymbol';
 
 export function isReactElement(elem: any): boolean {
     return elem && elem.$$typeof && elem.props;
@@ -9,3 +10,4 @@ export function isReactElement(elem: any): boolean {
 export function getCurrentlyRenderedComponent(): ReactComponent {
     return ReactCurrentOwner.current;
 }
+

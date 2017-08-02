@@ -7,8 +7,7 @@ import {
     CRUDE,
     Utils,
     Is,
-    Debug,
-    Type,
+    Dev,
     AppEvent,
     PROD_MODE,
     Endpoint
@@ -29,6 +28,9 @@ export default class Repository {
     onChange: Dispatcher = new Dispatcher(); //CRUDE, Record, Map
 
     static defaultStorage: ?RepositoryStorage;
+
+    /** Błąd metadanych lub treści repozytorium */
+    error: ?Error = null;
 
     /** Lista wszystkich zarejestrowanych repozytoriów */
     static all = {};
@@ -241,8 +243,13 @@ export default class Repository {
                     repo = new DynamicRepo(data);
                     list.push(repo);
                 }
-                repo.config.load(data);
-                repo.config.update();
+                try {
+                    repo.config.load(data);
+                    repo.config.update();
+                } catch (e) {
+                    Dev.error(Repository, e);
+                    repo.error = e;
+                }
             }
         );
 
@@ -261,12 +268,21 @@ export default class Repository {
         // weryfikacja, utworzenie rekordów
         Utils.forEach(dto, (value, key) => {
             if (value instanceof Record) {
-                records.push(value);
+                const rec: Record = value;
+                if (rec.repo.error) {
+                    rec.repo.confirmReadyState();
+                    return;
+                }
+                records.push(rec);
                 return;
             }
             const repo: Repository = Repository.get(key, true);
-            repositories.push(repo);
 
+            if (repo.error) {
+                repo.confirmReadyState();
+                return;
+            }
+            repositories.push(repo);
 
             if (Is.array(value.rows))
                 repoStats.set(repo, {
@@ -414,10 +430,7 @@ export default class Repository {
 
 
         // zaktualizuj flagę gotowości dla wszystkich odebranych repozytoriów (włącznie z pustymi)
-        repositories.forEach(repo => {
-            repo.isReady = true;
-            Ready.confirm(Repository, repo);
-        });
+        repositories.forEach(repo => repo.confirmReadyState());
     }
 
     getDisplayValue(record: Record): string {
@@ -479,6 +492,11 @@ export default class Repository {
             });
         });
         return dto;
+    }
+
+    confirmReadyState() {
+        this.isReady = true;
+        Ready.confirm(Repository, this);
     }
 
     get primaryKeyColumn(): Column {

@@ -77,7 +77,7 @@ export default class List extends FormComponent {
                     </tr>)
             }
             <tr>
-                <td/>
+
                 <td className="c-field-list-data">
                     <Link
                         icon={Icon.PLUS_SQUARE}
@@ -86,6 +86,7 @@ export default class List extends FormComponent {
                             this.field.value = this.array;
                             this.forceUpdate();
                         }}/></td>
+                <td/>
             </tr>
             </tbody>
         </table>

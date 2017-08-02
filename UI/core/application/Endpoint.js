@@ -1,12 +1,24 @@
 /**
  * Definicja strony na potrzeby routingu
  */
-import {React, ReactComponent, AppEvent, Utils, Dispatcher, Check, Record, Repository} from "../core";
+import {
+    React,
+    ReactDOM,
+    ReactComponent,
+    AppEvent,
+    Utils,
+    Dispatcher,
+    Check,
+    Record,
+    Repository,
+    SyntheticMouseEvent
+} from "../core.js";
 import Route from "react-router-dom/es/Route";
 import Icon from "../component/glyph/Icon";
 
 export const ENDPOINT_TARGET_TAB = "tab";
 export const ENDPOINT_TARGET_POPUP = "popup";
+
 
 export default class Endpoint {
 
@@ -78,8 +90,14 @@ export default class Endpoint {
     }
 
     static navigate(link: string, target: string | MouseEvent = null, key: ?string = null, name: ?string = null) {
-        if (target && target.ctrlKey !== undefined && target.shiftKey !== undefined)
-            target = (target: MouseEvent).ctrlKey ? "tab" : (target: MouseEvent).shiftKey ? "popup" : null;
+
+        if (target instanceof SyntheticMouseEvent) {
+            const event: SyntheticMouseEvent = target;
+
+            event.preventDefault();
+            target = event.ctrlKey ? "tab" : event.shiftKey ? "popup" : null;
+        }
+
 
         if (!target) target = null;
         else target = target.toLowerCase().trim();
@@ -100,7 +118,7 @@ export default class Endpoint {
         if (target === ENDPOINT_TARGET_POPUP)
             new PageTab(key, name, true).setCurrent();
 
-        Application.router.history.push(link);
+        Application.router.history.push(link, {target: target});
     };
 
 

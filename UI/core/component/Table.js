@@ -73,6 +73,7 @@ export default class Table extends Component {
      * @private
      */
     _convertColumns(source): [] {
+        let filterable = false;
         let res = Utils.forEach(source, (col, key) => {
             if (!col) return;
 
@@ -91,10 +92,9 @@ export default class Table extends Component {
                 Cell: (row) => this._drawCell(row, k)
             };
 
-            let header = null;
             if (col instanceof Column) {
-                if (col.filterable && !this._filterable) this._filterable = true;
-                header = col.value || col.name;
+                column.name = col.name;
+                column.description = col.name + (col.description ? ('\n' + col.description) : '');
                 column.sortable = col.sortable;
                 column.filterable = col.filterable;
                 column.show = !col.hidden;
@@ -105,19 +105,22 @@ export default class Table extends Component {
                     this._sorted = [{id: column.id, desc: false}];
             }
             else {
-                header = col;
+                column.name = col;
+                column.description = col;
                 column.show = true;
                 column.filterable = this._filterable;
                 column.filterMethod = (filter, row) => this._filterColumn(filter, row[filter.pivotId || filter.id], null, null);
             }
             if (column.sortable === undefined) column.sortable = true;
 
-            column.Header = () => this._drawHeader(header, k);
+            column.Header = () => this._drawHeader(column);
             if (!this._updateWidths)
                 column.with = this._widths[k];
 
+            if (column.filterable) filterable = true;
             return column;
         });
+        this._filterable = filterable;
         //ostatnia pusta kolumna służąca jako wypełniacz i filtr
         res.push({
             style: {padding: 0},
@@ -133,6 +136,7 @@ export default class Table extends Component {
             res.unshift({
                 style: {padding: 0},
                 id: '__number',
+                name: '#',
                 resizable: false,
                 width: 40,
                 sortable: false,
@@ -152,37 +156,33 @@ export default class Table extends Component {
     }
 
     /** rysuje nagłówek kolumny
-     * @param row komórka
-     * @param accessor identyfikator kolumny
+     * @param column kolumna
      * @returns {*}
      * @private
      */
-    _drawHeader(row, accessor) {
+    _drawHeader(column) {
         if (this._updateWidths)
-            if (!this._widths[accessor]) this._widths[accessor] = [];
+            if (!this._widths[column.id]) this._widths[column.id] = [];
         let filtered = false;
         for (let i = 0; i < this._filtered.length; ++i)
-            if (this._filtered[i].id === accessor) {
+            if (this._filtered[i].id === column.id) {
                 filtered = true;
                 break;
             }
-        const val = row.original ? (row.original[accessor] !== null && row.original[accessor] !== undefined) ?
-            row.original[accessor] : row.value : row;
 
-        if (filtered || this._updateWidths)
-            return <div ref={elem => {
-                if (this._updateWidths)
-                    if (elem) this._widths[accessor].push(elem)
-            }}>
-                {val}
-                {filtered ? <span className={Icon.FILTER} style={{margin: '0 10px'}}
-                                  title="Usuń filtr"
-                                  onClick={(e) => {
-                                      e.stopPropagation();
-                                      this.setFilter(accessor, null);
-                                  }}/> : null}
-            </div>;
-        return val;
+        return <div ref={elem => {
+            if (this._updateWidths)
+                if (elem) this._widths[column.id].push(elem)
+        }}
+                    title={column.description}>
+            {column.name}
+            {filtered ? <span className={Icon.FILTER} style={{margin: '0 10px'}}
+                              title="Usuń filtr"
+                              onClick={(e) => {
+                                  e.stopPropagation();
+                                  this.setFilter(column.id, null);
+                              }}/> : null}
+        </div>;
     }
 
     /** rysuje komórki kolumn
@@ -330,16 +330,6 @@ export default class Table extends Component {
         this.forceUpdate(true);
     }
 
-    /** domyślny filtr kolumny
-     * @param filter wartość filtru
-     * @param cell komórka lub wartość
-     * @returns {*}
-     */
-    defaultFilter(filter: string, cell: ?any): boolean {
-        if (!cell) return false;
-        return Utils.toString(cell.value || cell).contains(filter);
-    }
-
     /** metoda globalnego filtru
      * @param filter obiekt filtru
      * @param data tablica z komórkami (kompletna tabela)
@@ -347,6 +337,13 @@ export default class Table extends Component {
      */
     globalFilterMethod(filter: {}, data: []): [] {
         if (!filter.value || filter.value === '') return data;
+        if (filter.value instanceof (CustomFilter)) {
+            return Utils.forEach(data, (row) => {
+                if (filter.value.filter(row, true))
+                    return row;
+            });
+        }
+
         let tmpFilter = {id: filter.id, value: filter.value};
         return Utils.forEach(data, (row) => {
             let ret = false;
@@ -371,26 +368,30 @@ export default class Table extends Component {
      */
     _filterColumn(filter: {}, cell, filterFn: ?() => boolean = null, sortFn: ?() => number = null): boolean {
         if (!cell) return false;
+        const val = Is.defined(cell.value) ? cell.value : cell;
+
         if (!(filter.value instanceof (Object)))
-            return Is.func(filterFn) ? filterFn(filter.value, cell) : this.defaultFilter(filter.value, cell);
+            return Is.func(filterFn) ? filterFn(filter.value, cell) : Utils.toString(val).contains(filter.value);
+
         const f: CustomFilter = filter.value;
-        return f.filter(cell.value || cell, sortFn);
+        return f.filter(val, false);
     }
 
     /** przypisuje filtr do kolumny
      * @param colId identyfikator kolumny
      * @param filter filtr (string lub CustomFilter) lub null
+     * @param search czy wyszukiwanie
      */
-    setFilter(colId: ?string, filter: ?any) {
+    setFilter(colId: ?string, filter: ?any, search: boolean = false) {
         if (filter === '') filter = null;
         const filtered = this._filtered.slice();
         for (let i = 0; i < filtered.length; ++i)
-            if (filtered[i].id === colId) {
+            if (filtered[i].id === colId && filtered[i].search === search) {
                 filtered.splice(i, 1);
                 break;
             }
         if (filter)
-            filtered.push({id: colId, value: filter});
+            filtered.push({id: colId, value: filter, search: search});
         this._filtered = filtered;
         this.forceUpdate(true);
 
@@ -402,21 +403,35 @@ export default class Table extends Component {
     filterDialog(colId: ?string) {
         //Todo okno z filtrami
         const mw = ModalWindow.create((mw: ModalWindow) => {
-            mw.title = "Filtr";
+            const cols = Utils.forEach(this.props.columns, (column, idx) => {
+                if (column instanceof (Column)) return column;
+                return {key: idx, name: column};
+            });
+
+            const col = colId !== undefined ? [cols.find(col => col.key === colId)] :
+                Utils.forEach(this._columns, (column) => {
+                    if (column.filterable && column.show && column.id)
+                        return cols.find(col => col.key === column.id);
+                });
+            mw.title = "Filtruj " + (col.length === 1 ? '"' + col[0].name + '"' : "tabelę");
             mw.icon = Icon.FILTER;
             mw.resizable = false;
             mw.closeButton = false;
             mw.buttons = MW_BUTTONS.OK_CANCEL;
             let f = null;
             for (let i = 0; i < this._filtered.length; ++i)
-                if (this._filtered[i].id === colId) {
+                if (this._filtered[i].id === colId && !this._filtered[i].search) {
                     if (this._filtered[i].value instanceof (CustomFilter))
                         f = this._filtered[i].value;
                     break;
                 }
-            mw.content = <FilterEditor/>;
+            let filter = null;
+            mw.content = <FilterEditor ref={elem => filter = elem}
+                                       filter={f}
+                                       dataSource={col}
+            />;
             mw.onConfirm = () => {
-                this.setFilter(colId, f);
+                this.setFilter(colId, filter.getFilter());
                 return true;
             };
             mw.mainStyle = {maxWidth: '500px', minWidth: '500px', minHeight: '50%'};
@@ -496,7 +511,7 @@ export default class Table extends Component {
      * @param allColumns czy ma zwracać również id ukrytych
      * @returns {*[]} ['id0', 'id1', ...]
      */
-    getVisiblieColumns(allColumns: boolean = false): [] {
+    getVisibleColumns(allColumns: boolean = false): [] {
         return Utils.forEach(this._columns, (col) => {
             if (col.id && col.id !== '__number')
                 if (col.show || allColumns)
@@ -555,14 +570,18 @@ export default class Table extends Component {
 
             getTbodyProps={() => {
                 //wyłączenie flexa w wierszach
-                return {style: {display: 'block'}}
+                return {
+                    style: {display: 'block'},
+                    onContextMenu: (e) => PopupMenu.openMenu(e, this.ROWS_MENU_ITEMS)
+                }
             }}
             getTheadFilterProps={() => {
                 return {style: {display: 'none'}}
             }}
             getTdProps={(state, row, column, instance) => {
                 return {
-                    onClick: Is.func(this._onRowClick) ? (e) => this._onRowClick(row, column, instance, e) : null
+                    onClick: Is.func(this._onRowClick) ? (e) => this._onRowClick(row, column, instance, e) : null,
+                    onContextMenu: (e) => PopupMenu.openMenu(e, this.ROWS_MENU_ITEMS, {row: row.row, column: column})
                 };
             }}
             getTrGroupProps={(state, row, column, instance) => {
@@ -609,7 +628,7 @@ export default class Table extends Component {
             PaginationComponent={Pagination}
             getPaginationProps={(state) => {
                 return {
-                    onSearch: (val => this.setFilter(undefined, val)),
+                    onSearch: (val => this.setFilter(undefined, val, true)),
                     filterable: this._filterable,
                     visibleRecNum: state.sortedData.length
                 }
@@ -662,6 +681,46 @@ export default class Table extends Component {
         this.forceUpdate(true);
     }
 
+    /** pozycje menu kontekstowego wierszy */
+    ROWS_MENU_ITEMS: [] = [
+        //ToDo pozostałe opcje
+        MenuItem.createItem((c: MenuItem) => {
+            c.name = "Filtruj tabelę";
+            c.icon = Icon.FILTER;
+            c.hint = "Otwiera okno do filtrowania tabeli";
+            c.onClick = () => this.filterDialog(undefined);
+            c.onBeforeOpen = (item, props) => {
+                item.disabled = !this._filterable;
+            }
+        }),
+        MenuItem.createItem((c: MenuItem) => {
+            c.name = "Usuń filtr tabeli";
+            c.icon = Icon.MINUS;
+            c.hint = "Usuwa globalny filtr tabeli";
+            c.onClick = () => this.setFilter(undefined, null);
+            c.onBeforeOpen = (item) => {
+                item.disabled = true;
+                for (let i = 0; i < this._filtered.length; ++i)
+                    if (!this._filtered[i].search && this._filtered[i].id === undefined) {
+                        item.disabled = false;
+                        break;
+                    }
+            }
+        }),
+        MenuItem.createSeparator(),
+        MenuItem.createItem((c: MenuItem) => {
+            c.icon = Icon.FILTER;
+            c.hint = "Filtruje kolumnę po danej wartości";
+            c.onBeforeOpen = (item, props) => {
+                if (props.column && props.row) {
+                    item.disabled = !props.column.filterable;
+                    item.onClick = (e, props) => this.setFilter(props.column.id, CustomFilter.orEqual(props.row[props.column.id]));
+                } else item.disabled = true;
+                item.name = item.disabled ? "Niedostępne" : ('Pokaż tylko: "' + props.row[props.column.id].toString() + '"');
+            }
+        }),
+    ];
+
     /** pozycje menu kontekstowego kolumn*/
     COLUMNS_MENU_ITEMS: [] = [
         MenuItem.createItem((c: MenuItem) => {
@@ -671,8 +730,7 @@ export default class Table extends Component {
             c.onBeforeOpen = (item, props) => {
                 item.disabled = !props.column.id;
                 if (!props.column.id) return;
-                item.name = 'Ukryj "'
-                    + (Is.func(props.column.Header) ? props.column.Header() : (props.column.Header || props.column.id)) + '"';
+                item.name = 'Ukryj "' + props.column.name + '"';
             }
         }),
         MenuItem.createItem((c: MenuItem) => {
@@ -683,7 +741,7 @@ export default class Table extends Component {
                 item.subMenu = Utils.forEach(this._columns, (col) => {
                     if (col.show === false)
                         return MenuItem.createItem((c: MenuItem) => {
-                            c.name = Is.func(col.Header) ? col.Header() : (col.Header || col.id);
+                            c.name = col.name;
                             c.icon = Icon.EYE;
                             c.hint = "Odkrywa kolumnę";
                             c.onClick = (e, props) => this.changeColumnVisibility(col.id, true);

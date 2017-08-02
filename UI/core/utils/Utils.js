@@ -39,11 +39,10 @@ export function asArray(elm: any): [] {
 
 }
 
-export function toString(argument: any): string {
-    if (argument === undefined)
-        return "";
-    if (argument === null)
-        return "null";
+export function toString(argument: any): ?string {
+
+    if (argument === undefined || argument === null)
+        return argument;
 
     if (typeof argument.toString === "function")
         return argument.toString();

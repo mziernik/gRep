@@ -62,13 +62,13 @@ export default class FCtrl extends Component {
 
     /* domyślne ikony */
     defError: Object = <span className={Icon.EXCLAMATION_CIRCLE.className}
-                             style={{color: 'red'}}/>;
+                             style={{color: '#c00'}}/>;
     defWarning: Object = <span className={Icon.EXCLAMATION_TRIANGLE.className}
                                style={{color: '#ffad00'}}/>;
     defDesc: Object = <span className={Icon.QUESTION_CIRCLE.className}
                             style={{color: '#0091ff'}}/>;
     defReq: Object = <span className={Icon.ASTERISK.className}
-                           style={{fontSize: '.7em', verticalAlign: 'top', color: 'red'}}/>;
+                           style={{fontSize: '.6em', verticalAlign: 'top', color: '#c00'}}/>;
 
 
     props: {

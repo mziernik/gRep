@@ -83,7 +83,7 @@ export default class Column {
             this.foreign = () => Repository.get(foreignRepoKey, true);
         }
 
-        if (this.type.enumerate && !this.enumerate)
+        if (!this.enumerate && this.type.enumerate)
             this.enumerate = () => this.type.enumerate;
 
         this.enumIcons = this.enumIcons || this.type.enumIcons;

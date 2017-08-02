@@ -79,7 +79,7 @@
     background-color: #303336;
     color: #ccc;
     font-size: 1.15em;
-    line-height: 2em;
+    line-height: 2.2em;
     padding: 0;
     /* text-shadow: 0 -1px 0 rgba(0, 0, 0, .5); */
     -webkit-transition: height .3s, color .3s, background-color .3s;
@@ -109,7 +109,7 @@
 }
 
 .x-tree-main[data-menu=true] .x-tree-expand-indicator {
-    line-height: 2em;
+    line-height: 2.2em;
     color: #bbb;
     height: 100%;
     padding-right: 20px;
