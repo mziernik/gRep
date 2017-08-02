@@ -31,10 +31,11 @@ export default class Record {
     context: any;
     changedReferences: Record[] = [];
     endpoint: Endpoint; // endpoint edycyjny rekordu
+    _row: [] = null;
 
     constructor(repo: Repository, context: any) {
-        this.context = Check.isDefined(context);
         this.repo = Check.instanceOf(repo, [Repository]);
+        if (!context) return;
         this.repo.refs.push(this);
         ContextObject.add(context, this, () => this.repo.refs.remove(this));
 
@@ -58,6 +59,7 @@ export default class Record {
             const field: Field = this.fields.get(this.repo.columns[i]);
             field.value = row[i];
             field.changed = false;
+            this._row[i] = row[i];
         }
     }
 
@@ -65,12 +67,6 @@ export default class Record {
         return this.repo.key + "[" + this.repo.primaryKeyColumn.key + "=" + this.primaryKey.escapedValue + "]";
     }
 
-    _getColumnIndex(col: Column): number {
-        const idx: number = this.repo.columns.indexOf(col);
-        if (idx < 0)
-            throw new Error("Repozytorium " + this.repo.key + " nie posiada kolumny " + col.key);
-        return idx;
-    }
 
     get displayValue(): string {
         return this.repo.getDisplayValue(this);
@@ -129,6 +125,16 @@ export default class Record {
         if (!field)
             throw new Error("Repozytorium " + this.repo.key + " nie posiada kolumny " + col.key);
         return field;
+    }
+
+    getValue(col: Column): any {
+        if (!this._row)
+            throw new `Rekord ${this.fullId} nie ma przypisanych danych`;
+
+        const idx: number = this.repo.columns.indexOf(col);
+        if (idx < 0)
+            throw new Error("Repozytorium " + this.repo.key + " nie posiada kolumny " + col.key);
+        return this._row[idx];
     }
 
     /** Walidacja danych - do przeciążenia */

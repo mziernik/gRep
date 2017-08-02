@@ -41,7 +41,7 @@ public class Db extends PostgreSQL {
     public final static RThreads THREADS = Repository.register(new RThreads());
     public final static RAttribute ATTRIBUTE = Repository.register(new RAttribute());
     public final static RAttributeElement ATTRIBUTE_ELEMENT = Repository.register(new RAttributeElement());
-    public final static RAttributeElements ATTRIBUTE_ELEMENTs = Repository.register(new RAttributeElements());
+    public final static RAttributeElements ATTRIBUTE_ELEMENTS = Repository.register(new RAttributeElements());
 
     public final static RCategory CATEGORY = Repository.register(new RCategory());
     public final static RCategoryAttribute CATEGORY_ATTRIBUTE = Repository.register(new RCategoryAttribute());

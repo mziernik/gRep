@@ -119,10 +119,10 @@ INSERT INTO data.catalog_attribute(catalog, attribute) VALUES
 INSERT INTO data.catalog_attribute_values(cat_attr, attr_elm, value) VALUES 
     (1, 1, 'Asus'),          
     (2, 1, 'RT-AC1200G+'),    
-    (3, 9, 'lan'),            
-    (3, 11, '192.168.1.1'),   
-    (4, 9, 'wan'),            
-    (4, 11, '192.168.0.254'),  
+    (3, 11, 'lan'),            
+    (3, 8, '192.168.1.1'),   
+    (4, 11, 'wan'),            
+    (4, 8, '192.168.0.254'),  
     (5, 6, 'admin'),     
     (5, 7, 'hasło')
 ; 

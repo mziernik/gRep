@@ -28,8 +28,10 @@ model/Db.class
 model/data.7z
 model/repository/RAttribute.class
 model/repository/RAttributeElement.class
+model/repository/RAttributeElements.class
 model/repository/RCatalog.class
 model/repository/RCatalogAttribute.class
+model/repository/RCatalogAttributeValues.class
 model/repository/RCategory.class
 model/repository/RCategoryAttribute.class
 model/repository/RCryptKey.class

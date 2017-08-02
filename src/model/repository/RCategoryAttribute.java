@@ -3,7 +3,6 @@ package model.repository;
 import com.model.repository.Column;
 import com.model.repository.ForeignColumn;
 import com.model.repository.Repository;
-import com.utils.reflections.datatype.ArrayDataType;
 import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
 
@@ -14,6 +13,7 @@ public class RCategoryAttribute extends Repository<Integer> {
         c.type = DataType.INT;
         c.key = "id";
         c.name = "ID";
+        c.hidden = true;
     });
 
     public final static Column<UUID> UID = new Column<>(c -> {
@@ -50,6 +50,7 @@ public class RCategoryAttribute extends Repository<Integer> {
         c.daoName = "display_mask";
         c.key = "mask";
         c.name = "Maska wyświetlania";
+        c.hidden = true;
     });
 
     public final static Column<Boolean> REQUIRED = new Column<>(c -> {
@@ -86,6 +87,7 @@ public class RCategoryAttribute extends Repository<Integer> {
             c.key = "categoryAttr";
             c.daoName = "data.category_attribute";
             c.name = "Atrybut kategorii";
+             c.group = "Kategorie";
             c.primaryKey = ID;
         });
 

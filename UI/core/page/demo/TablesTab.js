@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, Utils, Column} from '../../core';
-import {Component, FCtrl, Table}from '../../components';
+import {Component, FCtrl, Table} from '../../components';
 
 export default class TablesTab extends Component {
 
@@ -14,6 +14,7 @@ export default class TablesTab extends Component {
             <div style={{width: '100%'}}>
                 <Table columns={COLUMNS}
                        showRowNum
+                       selectable
                        rows={generateData(COLUMNS, 50)}
                        rowMapper={(row) => {
                            let res = {};
@@ -29,6 +30,7 @@ export default class TablesTab extends Component {
 
 function generateData(columns: [], n: number): [] {
     if (n < 1) return [];
+
     function generateValue(type: simpleType): ?string | number | boolean {
         const strings = ['Abecadło', 'Długopis', 'Komórka', 'Omega', 'Mikrofalówka',
             'Klawiatura bezprzewodowa', 'Żarówka energiooszczędna', 'Królik doświadczalny',

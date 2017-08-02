@@ -141,9 +141,7 @@ export default class Repository {
     createRecord(context: any, crude: CRUDE): Record {
         Check.instanceOf(crude, [CRUDE.Crude]);
         const rec: Record = new (this.config.record || Record)(this, context);
-
         rec.action = crude;
-
         if (PROD_MODE)
             return rec;
 
@@ -338,6 +336,8 @@ export default class Repository {
         Repository.onUpdate.dispatch(context, {map: map});
 
 
+        const changes = [];
+
         records.forEach((rec: Record) => {
             const pk = rec.primaryKey.value;
             const repo: Repository = rec.repo;
@@ -373,14 +373,43 @@ export default class Repository {
                 });
 
             refs.forEach((r: Record) => r.onChange.dispatch(context, {action: action, changed: changed}));
+            rec._row = row;
 
-            repo.displayMap.set(pk, row[repo.columns.indexOf(repo.config.displayNameColumn
-                ? repo.config.displayNameColumn : repo.config.primaryKeyColumn)]);
+            changes.push({
+                pk: pk,
+                row: row,
+                repo: repo,
+                action: action,
+                record: rec,
+                changed: changed
+            });
+        });
 
-            rec.repo.onChange.dispatch(context, {action: action, record: rec, changed: changed});
+        changes.forEach(obj => {
+            const repo: Repository = obj.repo;
+            const rec: Record = obj.record;
 
-            if (repo.isReady && changed.size)
-                repo.recordsUpdateTsMap.set(pk, new Date().getTime());
+            const getDisplayValue = (repo: Repository, rec: Record) => {
+                let col: Column = repo.config.displayNameColumn || repo.config.primaryKeyColumn;
+                if (col && col.foreign) {
+                    const r: Repository = col.foreign();
+                    return getDisplayValue(r, r.get(null, rec.pk));
+                }
+                return rec.getValue(col);
+            };
+
+            const val = getDisplayValue(repo, rec);
+
+            if (val === undefined) {
+                debugger;
+                getDisplayValue(repo, rec);
+            }
+            repo.displayMap.set(obj.pk, val);
+
+            rec.repo.onChange.dispatch(context, {action: obj.action, record: rec, changed: obj.changed});
+
+            if (repo.isReady && obj.changed.size)
+                repo.recordsUpdateTsMap.set(obj.pk, new Date().getTime());
         });
 
 

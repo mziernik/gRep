@@ -16,7 +16,11 @@ export default class Table extends Component {
     _prevTableWidth = 0;
     _updateWidths = true;
     _sorted = [];
+    _filterable = false;
     _filtered = [];
+    _selectable = false;
+    _selected = [];
+    _selecting = false;
     /** Flaga ustawiana w momencie zmiany danych w repozytorium */
     _dataChanged: ?Record = null;
     _dataSource: ?Array | ?Object = null;
@@ -40,7 +44,8 @@ export default class Table extends Component {
         // zdarzenie kliknięcia na komórkę (row, column, table, event)
         onRowClick: PropTypes.func,
         // czy tabela może filtrować dane
-        filterable: PropTypes.bool
+        filterable: PropTypes.bool,
+        selectable: PropTypes.bool
     };
 
     state: {
@@ -59,6 +64,8 @@ export default class Table extends Component {
         this._onRowClick = this.props.onRowClick;
         this._showRowNum = this.props.showRowNum;
         this._filterable = this.props.filterable === undefined ? true : this.props.filterable;
+        this._selectable = this.props.selectable === undefined ? false : this.props.selectable;
+        if (!this._showRowNum && this._selectable) this._selecting = true;
     }
 
     /** mapuje kolumny pod format ReactTable
@@ -81,7 +88,7 @@ export default class Table extends Component {
                     if (!curr.$$typeof) return curr;
                     return curr.props.field ? curr.props.field : null;
                 },
-                Cell: (row) => this._drawRow(row, k)
+                Cell: (row) => this._drawCell(row, k)
             };
 
             let header = null;
@@ -122,7 +129,7 @@ export default class Table extends Component {
             filterMethod: (filter, rows) => this.globalFilterMethod(filter, rows)
         });
 
-        if (this._showRowNum)
+        if (this._showRowNum || this._selectable)
             res.unshift({
                 style: {padding: 0},
                 id: '__number',
@@ -130,7 +137,7 @@ export default class Table extends Component {
                 width: 40,
                 sortable: false,
                 filterable: false,
-                Cell: (row) => this._drawRow(row, '__number', true),
+                Cell: (row) => this._drawCell(row, '__number', true),
                 Header: '#'
             });
 
@@ -167,14 +174,14 @@ export default class Table extends Component {
                 if (this._updateWidths)
                     if (elem) this._widths[accessor].push(elem)
             }}>
-            {val}
+                {val}
                 {filtered ? <span className={Icon.FILTER} style={{margin: '0 10px'}}
                                   title="Usuń filtr"
                                   onClick={(e) => {
                                       e.stopPropagation();
                                       this.setFilter(accessor, null);
                                   }}/> : null}
-        </div>;
+            </div>;
         return val;
     }
 
@@ -185,7 +192,7 @@ export default class Table extends Component {
      * @returns {XML}
      * @private
      */
-    _drawRow(row, accessor, number = false) {
+    _drawCell(row, accessor, number = false) {
         let start = 1;
         if (this._table)
             start = (this._table.state.page * this._table.state.pageSize) + 1;
@@ -199,7 +206,11 @@ export default class Table extends Component {
 
         if (!this._updateWidths && number)
             return <div
-                className={number ? "c-table-number" : null}>{val}</div>;
+                className={number ? "c-table-number" : null}>{this._selecting ?
+                <input type='checkbox'
+                       checked={!!this._isSelected(row.index)}
+                       onClick={(e) => e.stopPropagation()}
+                       onChange={(e) => this._select(row.index, row.row, e.currentTarget.checked)}/> : val}</div>;
         if (!this._updateWidths) return val;
 
         return <span ref={elem => {
@@ -403,7 +414,7 @@ export default class Table extends Component {
                         f = this._filtered[i].value;
                     break;
                 }
-            mw.content = <FilterEditor filter={f} onChange={(filter) => f = filter}/>;
+            mw.content = <FilterEditor/>;
             mw.onConfirm = () => {
                 this.setFilter(colId, f);
                 return true;
@@ -411,6 +422,103 @@ export default class Table extends Component {
             mw.mainStyle = {maxWidth: '500px', minWidth: '500px', minHeight: '50%'};
         });
         mw.open();
+    }
+
+    /** ustawia tryb zaznaczania
+     * @param selecting czy aktywny
+     * @private
+     */
+    _setSelectable(selecting: boolean) {
+        this._selecting = selecting;
+        if (!selecting) this._selected = [];
+        this.forceUpdate(true);
+    }
+
+    /** sprawdza czy dany wiersz jest zaznaczony
+     * @param index indeks wiersza
+     * @returns obiekt zaznaczenia lub undefined
+     * @private
+     */
+    _isSelected(index: number = -1): {} {
+        if (index < 0) return false;
+        return this._selected.find((o) => o.index === index);
+    }
+
+    /** zaznacza dany wiersz
+     * @param index indeks wiersza
+     * @param row dane wiersza
+     * @param check czy zaznaczony
+     * @private
+     */
+    _select(index: number = -1, row, check: boolean = false) {
+        if (index < 0) return;
+        const idx = this._selected.findIndex((o) => o.index === index);
+        if (idx >= 0 === check) return;
+        const selected = this._selected.slice();
+        if (check)
+            selected.push({index: index, row: row, show: true});
+        else
+            selected.splice(idx, 1);
+        this._selected = selected;
+        this.forceUpdate(true);
+    }
+
+    /** Zwraca tablicę zaznaczonych wierszy
+     * @param allColumns czy ma zwracać zawartość ukrytych kolumn
+     * @param allRows czy ma zwracać zawartość ukrytych wierszy
+     * @returns {*[]} tablica wierszy [{colID:data,...},...]
+     */
+    getSelectedRows(allColumns: boolean = false, allRows: boolean = false): [] {
+        return Utils.forEach(this._selected, (selected) => {
+            if (selected.show || allRows) {
+                let row = {};
+                Utils.forEach(this._columns, (col) => {
+                    if (col.id && col.id !== '__number')
+                        if (col.show || allColumns)
+                            row[col.id] = selected.row[col.id];
+                });
+                return row;
+            }
+        });
+    }
+
+    /** Zwraca tablicę indeksów zaznaczonych wierszy
+     * @param allRows czy ma zwracać zawartość ukrytych wierszy
+     * @returns {*[]} tablica indeksów [0, 1, 5,...]
+     */
+    getSelectedIndexes(allRows: boolean = false) {
+        return Utils.forEach(this._selected, (selected) => {
+            if (selected.show || allRows) return selected.index;
+        })
+    }
+
+    /** Zwraca tablicę id widocznych kolumn
+     * @param allColumns czy ma zwracać również id ukrytych
+     * @returns {*[]} ['id0', 'id1', ...]
+     */
+    getVisiblieColumns(allColumns: boolean = false): [] {
+        return Utils.forEach(this._columns, (col) => {
+            if (col.id && col.id !== '__number')
+                if (col.show || allColumns)
+                    return col.id;
+        })
+    }
+
+    /** określa które zaznaczone wiersze są widoczne
+     * @param table ref do tabeli ReactTable
+     * @private
+     */
+    _updateSelected(table: ReactTable) {
+        if (!table) return;
+        const data = table.state.sortedData;
+        Utils.forEach(this._selected, (sel) => {
+            sel.show = false;
+            for (let i = 0; i < data.length; ++i)
+                if (data[i]._index === sel.index) {
+                    sel.show = true;
+                    break;
+                }
+        })
     }
 
     render() {
@@ -431,7 +539,10 @@ export default class Table extends Component {
         }
 
         return <ReactTable
-            ref={elem => this._computeWidths(elem)}
+            ref={elem => {
+                this._computeWidths(elem);
+                this._updateSelected(elem);
+            }}
             className={this._className.join(" ")}
             defaultSorted={this._sorted}
             columns={this._columns} //this.state.columns
@@ -480,7 +591,9 @@ export default class Table extends Component {
                         this._drag = null;
                     },
                     onContextMenu: (e) => PopupMenu.openMenu(e, this.COLUMNS_MENU_ITEMS, {column: column}),
-                    onClick: column.sortable ? (e) => this.sortColumn(column.id, null, true) : null
+                    onClick: column.id !== '__number' ?
+                        column.sortable ? (e) => this.sortColumn(column.id, null, true) : null
+                        : (this._selectable && this._showRowNum ? (e) => this._setSelectable(!this._selecting) : null)
                 };
             }}
 
@@ -763,7 +876,7 @@ class Pagination extends React.Component {
                     </PreviousComponent>
                 </div>
                 <span className='-pageInfo'>
-            {this.props.pageText}{' '}
+        {this.props.pageText}{' '}
                     {showPageJump
                         ? <div className='-pageJump'>
                             <input
@@ -790,7 +903,7 @@ class Pagination extends React.Component {
               </span>}{' '}
                     {this.props.ofText}{' '}
                     <span className='-totalPages'>{pages || 1}</span>
-          </span>
+        </span>
                 <div className='-next'>
                     <NextComponent
                         onClick={e => {

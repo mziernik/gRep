@@ -1,6 +1,7 @@
 import {React, PropTypes, Field, Utils, Column, Repository, Record, CRUDE, Endpoint} from '../../core.js';
 import {Page, Icon, Link, Table, FCtrl, Panel, Button} from '../../components.js';
 
+//ToDo: Hint dla wiersza - lista field + displayValue
 
 export default class RepoTable extends Table {
 
@@ -80,20 +81,20 @@ export default class RepoTable extends Table {
 
     }
 
-    editRecord(record: Record) {
-        const ctrl: RecordCtrl = new RecordCtrl(this.node.currentPage, record, CRUDE.UPDATE);
-        ModalWindow.create((mw: ModalWindow) => {
-            mw.content = ctrl.render();
-            mw.title = "Edycja rekordu " + Utils.escape(record.displayValue);
-        }).open();
-    }
+    // editRecord(record: Record) {
+    //     const ctrl: RecordCtrl = new RecordCtrl(this.node.currentPage, record, CRUDE.UPDATE);
+    //     ModalWindow.create((mw: ModalWindow) => {
+    //         mw.content = ctrl.render();
+    //         mw.title = "Edycja rekordu " + Utils.escape(record.displayValue);
+    //     }).open();
+    // }
 
-    _drawRow(row, accessor, number = false) {
-        const result = super._drawRow(row, accessor, number);
-        return <div>
-            {result}
-        </div>;
-
-    }
+    // _drawCell(row, accessor, number = false) {
+    //     const result = super._drawCell(row, accessor, number);
+    //     return <div>
+    //         {result}
+    //     </div>;
+    //
+    // }
 
 }
