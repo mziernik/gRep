@@ -35,20 +35,14 @@ export default class PModules extends Page {
             }
         });
 
-        return <Panel fit>
-            {super.renderTitle("Moduły")}
-
-            <Table
-                columns={{
-                    id: "ID",
-                    file: "Plik",
-                    name: "Nazwa",
-                }}
-                rows={rows}
-            />
-        </Panel>;
+        return <Table
+            columns={{
+                id: "ID",
+                file: "Plik",
+                name: "Nazwa",
+            }}
+            rows={rows}
+        />
     }
-
-
 }
 

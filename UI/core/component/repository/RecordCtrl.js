@@ -1,20 +1,23 @@
-import {React, PropTypes, Type, Utils, Field, Repository, CRUDE, Record, EError, Dev} from "../../core";
+import {React, PropTypes, Type, Utils, Field, Repository, CRUDE, Record, EError, Dev, Is} from "../../core";
 import {Button, Page, Icon, Spinner, Alert, Link, ModalWindow, MW_BUTTONS, Panel} from "../../components";
 import AppStatus from "../../application/Status";
 import {RepoAction} from "../../repository/Repository";
 import JsonViewer from "../JsonViewer";
 import DTO from "./DTO";
 import AttributesRecord from "./AttributesRecord";
+import {PageButtons} from "../../page/Page";
+import {Btn} from "../Button";
 
 export default class RecordCtrl {
 
     page: Page;
     record: Record;
     crude: CRUDE;
-    buttons: Button[] = [];
     spinner: boolean = true;
     viewer: JsonViewer;
-
+    buttons: Btn[] = [];
+    showAdvances: boolean;
+    local: boolean;
 
     constructor(page: Page, record: Record) {
         this.page = page;
@@ -32,7 +35,7 @@ export default class RecordCtrl {
         if (spinner) spinner.hide();
 
         if (!this.page.modal)
-            this.buttons.forEach(btn => btn.setState({disabled: false}));
+            this.buttons.forEach(btn => btn.disabled = false);
 
         if (object instanceof Error || object instanceof EError)
             Alert.error(this, object);
@@ -43,7 +46,7 @@ export default class RecordCtrl {
 
         if (!this.validate()) return false;
 
-        this.buttons.forEach(btn => btn.setState({disabled: true}));
+        this.buttons.forEach(btn => btn.disabled = true);
         const spinner = this.spinner ? new Spinner() : null;
 
         const ts = new Date().getTime();
@@ -65,51 +68,68 @@ export default class RecordCtrl {
     }
 
     render(): AttributesRecord {
-        return <AttributesRecord record={this.record} fill={true} edit={true}/>
+        return <AttributesRecord record={this.record} fill={true} edit={true} showAdvanced={this.showAdvances}
+                                 local={this.local}/>
     }
 
-    createButtons(): [] {
-        this.buttons = [];
-        return [this.createCancelButton(), this.createDeleteButton(), this.createSaveButton()];
+    /** Dodaje przyciski obsługi rekordu do paska nawigacyjnego strony */
+    createButtons(btns: PageButtons): [] {
+        this.buttons.clear();
+        Is.def(this.saveButton(), btn => btns.buttons.unshift(btn));
+        Is.def(this.deleteButton(), btn => btns.buttons.unshift(btn));
+        Is.def(this.cancelButton(), btn => btns.buttons.unshift(btn));
     }
 
-    createSaveButton(onSuccess: () => void) {
+    saveButton(onSuccess: () => void): Btn {
 
         if (!onSuccess)
             onSuccess = () => this.goBack(true);
 
-        return <Button
-            key="btnSave"
-            ref={btn => this.buttons.push(btn)}
-            icon={Icon.CHECK}
-            type="success"
-            onClick={e => this.commit(this.crude, onSuccess)}
-        > {this.crude === CRUDE.CREATE ? "Utwórz" : "Zapisz"} </Button>
+        const btn = new Btn((btn: Btn) => {
+            btn.key = "btnSave";
+            btn.type = "success";
+            btn.icon = Icon.CHECK;
+            btn.text = this.crude === CRUDE.CREATE ? "Utwórz" : "Zapisz";
+            btn.onClick = e => this.commit(this.crude, onSuccess);
+        });
+        this.buttons.push(btn);
+        return btn;
     }
 
 
-    createCancelButton(onSuccess: () => void) {
-        return <Button
-            key="btnCancel"
-            ref={btn => this.buttons.push(btn)}
-            icon={Icon.CHEVRON_LEFT}
-            type="default"
-            onClick={e => this.goBack(false)}
-        >Anuluj</Button>
+    cancelButton(onSuccess: (e) => void) {
+
+        if (!onSuccess)
+            onSuccess = e => this.goBack(true);
+
+        const btn = new Btn((btn: Btn) => {
+            btn.key = "btnCancel";
+            btn.type = "default";
+            btn.icon = Icon.CHEVRON_LEFT;
+            btn.text = "Anuluj";
+            btn.onClick = e => onSuccess(e);
+        });
+        this.buttons.push(btn);
+        return btn;
     }
 
-    createDeleteButton(confirm: string) {
+    deleteButton(confirm: string, onSuccess: (e) => void) {
+
+        if (this.crude === CRUDE.CREATE) return null;
 
         if (confirm === undefined)
             confirm = "Czy na pewno usunąć " + Utils.escape(this.record.displayValue);
 
-        return this.crude === CRUDE.CREATE ? null :
-            <Button
-                key="btnDelete"
-                ref={btn => this.buttons.push(btn)}
-                icon={Icon.TIMES}
-                type="danger"
-                confirm={confirm} onClick={e => this.commit(CRUDE.DELETE)}>Usuń</Button>
+
+        const btn = new Btn((btn: Btn) => {
+            btn.key = "btnDelete";
+            btn.type = "danger";
+            btn.icon = Icon.TIMES;
+            btn.text = "Usuń";
+            btn.onClick = e => this.commit(CRUDE.DELETE, onSuccess);
+        });
+        this.buttons.push(btn);
+        return btn;
     }
 
 

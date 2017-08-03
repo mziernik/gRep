@@ -99,8 +99,7 @@ export default class PWebTester extends Page {
     };
 
     render() {
-
-        super.renderTitle("WEB Tester");
+        this.title.set("WEB Tester");
 
         this.changed.run();
 

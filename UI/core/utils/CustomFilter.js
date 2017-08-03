@@ -11,11 +11,36 @@ export default class CustomFilter {
     static CONDITIONS = {
         EQUAL: 'równe',
         NOT_EQUAL: 'różne od',
-        BIGGER: 'większe od',
-        SMALLER: 'mniejsze od',
+        GREATER: 'większe od',
+        LESS: 'mniejsze od',
         CONTAINS: 'zawiera',
         NOT_CONTAINS: 'nie zawiera'
     };
+
+    static getConditions(type: ?string = null): {} {
+        if (type === null) return CustomFilter.CONDITIONS;
+        switch (type) {
+            case 'string':
+                return {
+                    EQUAL: CustomFilter.CONDITIONS.EQUAL,
+                    NOT_EQUAL: CustomFilter.CONDITIONS.NOT_EQUAL,
+                    CONTAINS: CustomFilter.CONDITIONS.CONTAINS,
+                    NOT_CONTAINS: CustomFilter.CONDITIONS.NOT_CONTAINS
+                };
+            case 'number':
+                return {
+                    EQUAL: CustomFilter.CONDITIONS.EQUAL,
+                    NOT_EQUAL: CustomFilter.CONDITIONS.NOT_EQUAL,
+                    GREATER: CustomFilter.CONDITIONS.GREATER,
+                    LESS: CustomFilter.CONDITIONS.LESS
+                };
+            default:
+                return {
+                    EQUAL: CustomFilter.CONDITIONS.EQUAL,
+                    NOT_EQUAL: CustomFilter.CONDITIONS.NOT_EQUAL
+                }
+        }
+    }
 
     operator: string = CustomFilter.OPERATORS.AND;
     condition: string = CustomFilter.CONDITIONS.EQUAL;
@@ -57,7 +82,7 @@ export default class CustomFilter {
      * @returns {CustomFilter} nowy obiekt CustomFilter
      */
     static andBigger(value, accessor = null, negation = false): CustomFilter {
-        return new CustomFilter(value, CustomFilter.CONDITIONS.BIGGER, CustomFilter.OPERATORS.AND, accessor, negation);
+        return new CustomFilter(value, CustomFilter.CONDITIONS.GREATER, CustomFilter.OPERATORS.AND, accessor, negation);
     }
 
     /** Tworzy warunek || (x > value).
@@ -67,7 +92,7 @@ export default class CustomFilter {
      * @returns {CustomFilter} nowy obiekt CustomFilter
      */
     static orBigger(value, accessor = null, negation = false): CustomFilter {
-        return new CustomFilter(value, CustomFilter.CONDITIONS.BIGGER, CustomFilter.OPERATORS.OR, accessor, negation);
+        return new CustomFilter(value, CustomFilter.CONDITIONS.GREATER, CustomFilter.OPERATORS.OR, accessor, negation);
     }
 
     /** Tworzy warunek && (x < value).
@@ -77,7 +102,7 @@ export default class CustomFilter {
      * @returns {CustomFilter} nowy obiekt CustomFilter
      */
     static andSmaller(value, accessor = null, negation = false): CustomFilter {
-        return new CustomFilter(value, CustomFilter.CONDITIONS.SMALLER, CustomFilter.OPERATORS.AND, accessor, negation);
+        return new CustomFilter(value, CustomFilter.CONDITIONS.LESS, CustomFilter.OPERATORS.AND, accessor, negation);
     }
 
     /** Tworzy warunek || (x < value).
@@ -87,7 +112,7 @@ export default class CustomFilter {
      * @returns {CustomFilter} nowy obiekt CustomFilter
      */
     static orSmaller(value, accessor = null, negation = false): CustomFilter {
-        return new CustomFilter(value, CustomFilter.CONDITIONS.SMALLER, CustomFilter.OPERATORS.OR, accessor, negation);
+        return new CustomFilter(value, CustomFilter.CONDITIONS.LESS, CustomFilter.OPERATORS.OR, accessor, negation);
     }
 
     /** Tworzy warunek && (x === value).
@@ -174,10 +199,10 @@ export default class CustomFilter {
             case CustomFilter.CONDITIONS.NOT_EQUAL:
                 res = compareFn(tmpVal, this.value) !== 0;
                 break;
-            case CustomFilter.CONDITIONS.SMALLER:
+            case CustomFilter.CONDITIONS.LESS:
                 res = compareFn(tmpVal, this.value) < 0;
                 break;
-            case CustomFilter.CONDITIONS.BIGGER:
+            case CustomFilter.CONDITIONS.GREATER:
                 res = compareFn(tmpVal, this.value) > 0;
                 break;
             case CustomFilter.CONDITIONS.CONTAINS:

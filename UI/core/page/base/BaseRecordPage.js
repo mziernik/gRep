@@ -4,11 +4,11 @@
 import {React, Check, Record, Repository, CRUDE} from "../../core.js";
 import Page from "../Page";
 import RecordCtrl from "../../component/repository/RecordCtrl";
+import RepoPage from "./RepoPage";
 
 /** Klasa bazowa dla formatek edycji rekordu, parametrem jest zawsze id */
-export default class BaseRecordPage extends Page {
+export default class BaseRecordPage extends RepoPage {
 
-    repo: Repository;
     isNew: boolean;
     record: Record;
     controller: RecordCtrl;
@@ -17,22 +17,19 @@ export default class BaseRecordPage extends Page {
 
 
     constructor(repo: Repository | string, props: any, context: any, state: any) {
-        super(props, context, state);
-
+        super(repo, props, context, state);
         Check.isDefined(this.props.id);
+    }
 
-        const init = () => {
-            this.isNew = this.props.id === "~new";
-            this.repo = repo instanceof Repository ? repo : Repository.get(repo, true);
-            this.record = this.isNew ? this.repo.createRecord(this, this.isNew
-                ? CRUDE.CREATE : CRUDE.UPDATE)
-                : this.repo.get(this, this.props.id, true);
-            this.controller = new RecordCtrl(this, this.record);
-        };
-
-        if (this.requireRepo(repo, () => {
-                init();
-                this.forceUpdate(true);
-            })) init();
+    onReady(repo: Repository, list: Repository[]) {
+        this.isNew = this.props.id === "~new";
+        this.repo = repo instanceof Repository ? repo : Repository.get(repo, true);
+        this.record = this.isNew ? this.repo.createRecord(this, this.isNew
+            ? CRUDE.CREATE : CRUDE.UPDATE)
+            : this.repo.get(this, this.props.id, true);
+        this.controller = new RecordCtrl(this, this.record);
+        this.controller.local = false;
+        this.controller.showAdvances = false;
+        this.controller.createButtons(this.buttons);
     }
 }

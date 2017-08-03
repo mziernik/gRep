@@ -22,46 +22,41 @@ export default class PDemo extends Page {
     };
 
     render() {
-
-        return <Panel fit>
-            {super.renderTitle("Demo")}
-
-            <TabSet selectedIndex={this.state.selectedTab}>
-                <Tab title="Formularz"
-                     label={<span><span className={Icon.USER_CIRCLE_O}/><span>Formularz</span></span>}>
-                    <FormTab/>
-                </Tab>
-                <Tab title="Listy"
-                     label={<span><span className={Icon.LIST}/><span>Listy</span></span>}>
-                    <ListsTab/>
-                </Tab>
-                <Tab label="ReactTable">
-                    <TablesTab/>
-                </Tab>
-                <Tab label="Modal Window">
-                    <ModalWindowTab/>
-                </Tab>
-                <Tab label="Popup Menu">
-                    <PopupMenuTab/>
-                </Tab>
-                <Tab label="Alerty"> <AlertsTab/> </Tab>
-                <Tab label="Splitter"><SplitterTab/></Tab>
-                <Tab label="Drag&Drop"><DragAndDropTab/></Tab>
-                <Tab label="Dodatkowe Opcje">
-                    <div>różne opcje</div>
-                </Tab>
-                <Tab label="Extra" hidden={true}>
-                    <div>Jakaś tam zawartość 4</div>
-                </Tab>
-                <Tab disabled={true} label="Zakładka">
-                    <div>Jakaś tam zawartość 5</div>
-                </Tab>
-                <Tab label="Ostateczna zakładka "
-                     onSelect={(e, i) => console.log('Zakładka: ' + i)}>
-                    <div>Jakaś tam zawartość 6</div>
-                </Tab>
-            </TabSet>
-        </Panel>;
+        return <TabSet selectedIndex={this.state.selectedTab}>
+            <Tab title="Formularz"
+                 label={<span><span className={Icon.USER_CIRCLE_O}/><span>Formularz</span></span>}>
+                <FormTab/>
+            </Tab>
+            <Tab title="Listy"
+                 label={<span><span className={Icon.LIST}/><span>Listy</span></span>}>
+                <ListsTab/>
+            </Tab>
+            <Tab label="ReactTable">
+                <TablesTab/>
+            </Tab>
+            <Tab label="Modal Window">
+                <ModalWindowTab/>
+            </Tab>
+            <Tab label="Popup Menu">
+                <PopupMenuTab/>
+            </Tab>
+            <Tab label="Alerty"> <AlertsTab/> </Tab>
+            <Tab label="Splitter"><SplitterTab/></Tab>
+            <Tab label="Drag&Drop"><DragAndDropTab/></Tab>
+            <Tab label="Dodatkowe Opcje">
+                <div>różne opcje</div>
+            </Tab>
+            <Tab label="Extra" hidden={true}>
+                <div>Jakaś tam zawartość 4</div>
+            </Tab>
+            <Tab disabled={true} label="Zakładka">
+                <div>Jakaś tam zawartość 5</div>
+            </Tab>
+            <Tab label="Ostateczna zakładka "
+                 onSelect={(e, i) => console.log('Zakładka: ' + i)}>
+                <div>Jakaś tam zawartość 6</div>
+            </Tab>
+        </TabSet>
     }
 
 }

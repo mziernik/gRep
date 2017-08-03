@@ -148,7 +148,7 @@ export class TabSet extends Component {
         const children = Utils.asArray(super.renderChildren());
 
         return (
-            <span className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}
+            <div className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}
                   style={{display: 'flex', flexDirection: 'column', flex: "1", overflow: "hidden"}}
             >
                 <div ref={() => this._showArrows()}
@@ -160,28 +160,28 @@ export class TabSet extends Component {
                          style={{display: 'none', borderRight: '1px solid'}}
                          onMouseDown={() => this._scroll(-1)}>
                         <span className={(this.props.vertical ? Icon.CHEVRON_UP : Icon.CHEVRON_LEFT)}/></div>
-                    <span ref={(elem) => this.tabs = elem}
+                    <div ref={(elem) => this.tabs = elem}
                           className={"tabs " + (this.props.vertical ? "tabsVertical" : "")}
                           style={{position: 'relative'}}>
                         {Utils.forEach(children, (chld, index) => {
                             if (chld.props.hidden) return null;
                             if (!chld.props.disabled && this.state.selected === index)
-                                return <span ref={(elem) => this._setScroll(elem)}
+                                return <div ref={(elem) => this._setScroll(elem)}
                                              title={chld.props.title}
                                              tabIndex="0"
                                              key={index}
                                              className="tab tab_selected">
                                         {chld.props.label}
-                                    </span>;
-                            return (<span tabIndex="0"
+                                    </div>;
+                            return (<div tabIndex="0"
                                           title={chld.props.title}
                                           key={index}
                                           className={"tab " + (chld.props.disabled ? "tab_disabled" : "")}
                                           onFocus={chld.props.disabled ? null : (e) => this._handleSelect(e, index, chld.props.onSelect)}>
                                     {chld.props.label}
-                                    </span>)
+                                    </div>)
                         })}
-                    </span>
+                    </div>
                     <span style={{
                         borderBottom: '1px solid black',
                         position: 'relative',
@@ -197,7 +197,7 @@ export class TabSet extends Component {
                 <div className="tabContent" style={{display: 'flex', flex: '1', position: 'relative'}}>
                     {this._isSelectable(children[this.state.selected]) ? children[this.state.selected] : null}
                 </div>
-            </span>
+            </div>
         );
     }
 }

@@ -11,6 +11,8 @@ export default class PContextObject extends Page {
 
     render() {
 
+        this.title.set("Obiekty kontekstu");
+
         const objects = Utils.forEach(ContextObject.getMap(), (arr, ctx) => {
             return {
                 context: Utils.className(ctx),
@@ -18,17 +20,14 @@ export default class PContextObject extends Page {
             }
         });
 
-        return <Panel fit>
-            {super.renderTitle("Obiekty kontekstu")}
+        return <Table
+            columns={{
+                context: "Kontekst",
+                objects: "Obiekty"
+            }}
+            rows={objects}
+        />
 
-            <Table
-                columns={{
-                    context: "Kontekst",
-                    objects: "Obiekty"
-                }}
-                rows={objects}
-            />
-        </Panel>;
     }
 
 

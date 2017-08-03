@@ -17,23 +17,32 @@ import {Component, Spinner, Alert, Dynamic, Icon} from "../components"
 
 export class Btn extends Dynamic {
 
+    key: string;
     title: string;
     text: string;
     type: string;
     crude: CRUDE;
     style: Object;
+    /** Wariant okna modalnego - czy ma być zamknięte po kliknięciu */
+    modalClose: Boolean = true;
 
     confirm: string;
     onClick: (e) => any;
     link: Endpoint;
     icon: Icon;
-    disabled: boolean;
+    _disabled: boolean;
     focus: boolean; //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
+
 
     constructor(config: Btn | (button: Btn) => void) {
         super(() => this.render());
         if (Is.func(config))
             config(this);
+    }
+
+    set disabled(state: boolean) {
+        this._disabled = state;
+        this.update();
     }
 
     render() {
@@ -53,13 +62,14 @@ export class Btn extends Dynamic {
             }
 
         return <button
+            key={this.key}
             ref={elem => this._tag = elem}
             style={this.style}
             className={"btn " + (type ? "btn-" + type : "") + " c-button"}
-            disabled={this.state.disabled}
+            disabled={this._disabled}
             title={this.title}
             onClick={(e) => {
-                if (this.state.disabled) return;
+                if (this._disabled) return;
                 if (this.confirm && Is.func(this.onClick))
                     Alert.confirm(this, this.confirm, () => this.onClick(e));
                 else Is.func(this.onClick, f => f(e));

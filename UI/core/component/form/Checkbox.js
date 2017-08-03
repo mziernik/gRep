@@ -54,25 +54,22 @@ export default class Checkbox extends FormComponent {
     }
 
     render() {
-        if (!this.field)return null;
+        if (!this.field) return null;
 
         if (this.props.preview)
-            return (
-                <span>
-                    <span style={{marginRight: '10px'}}
+            return (<span style={{marginRight: '10px'}}
                           title={this.field.name}
-                          className={this.field.value ? Icon.CHECK : Icon.TIMES}/>
-                </span>);
+                          className={this.field.value ? Icon.CHECK : Icon.TIMES}/>);
 
         return (
-            <span className="c-check-box">
+            <div className="c-check-box">
                 <span className={this.state.icon}
                       title={this.field.hint}
                       tabIndex="0"
                       onClick={(e) => this.field.readOnly ? null : this._handleClick(e)}
                       onKeyPress={(e) => this.field.readOnly ? null : e.charCode === 32 ? this._handleClick(e) : null}/>
                 {this.props.label ? this.field.name : null}
-            </span>);
+            </div>);
         //
 
     }

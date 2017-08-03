@@ -4,42 +4,38 @@ import {React, Repository, Endpoint, Is, Record} from "../../core.js";
 import {Page, Panel, Icon, Button} from "../../components.js";
 import RepoTable from "../../component/repository/RepoTable";
 import {object} from "../../utils/Is";
+import {Btn} from "../../component/Button";
+import RepoPage from "./RepoPage";
 
-export default class BaseRepositoryPage extends Page {
+export default class BaseRepositoryPage extends RepoPage {
 
-    repo: Repository;
+
     recordEndpoint: Endpoint;
-    buttons: [] = [];
     modalEdit: boolean;
+    defaultTarget: string = null; //tab, popup
 
     constructor(repository: Repository, recordEndpoint: Endpoint, props: Object, context: Object, updater: Object) {
-        super(props, context, updater);
-        this.repo = repository;
+        super(repository, props, context, updater);
         this.recordEndpoint = recordEndpoint;
-        const list: Repository[] = this.requireRepo(repository, (repos: Repository[]) => {
-            if (!this.repo || !(this.repo instanceof Repository))
-                this.repo = repos[0];
-            this.forceUpdate(true);
-        });
-        if (list && (!this.repo || !(this.repo instanceof Repository)))
-            this.repo = list[0];
+
+        this.buttons.add((btn: Btn) => {
+            btn.type = "primary";
+            btn.text = "Dodaj";
+            btn.icon = Icon.USER_PLUS;
+            btn.onClick = e => this.navigate(null, this.defaultTarget || e);
+        })
     }
 
     navigate(rec: Record, e: Event) {
-        this.recordEndpoint.navigate({id: rec ? rec.pk : "~new"}, e);
+        this.recordEndpoint.navigate({id: rec ? rec.pk : "~new"}, this.defaultTarget || e);
     }
 
     render() {
-        return [
-            this.renderTitle(this.title),
-            this.renderToolBar([...this.buttons,
-                <Button
-                    type="primary"
-                    icon={Icon.USER_PLUS}
-                    onClick={e => this.navigate(null, e)}
-                >Dodaj</Button>]),
-            <RepoTable modalEdit={this.modalEdit} repository={this.repo} onClick={(...args) => this.navigate(...args)}/>
-        ]
+        return <RepoTable
+            modalEdit={this.modalEdit}
+            repository={this.repo}
+            onClick={(...args) => this.navigate(...args)}
+        />
     }
 }
 

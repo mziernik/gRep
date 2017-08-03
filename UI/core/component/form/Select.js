@@ -108,11 +108,11 @@ export default class Select extends FormComponent {
         if (!this.field.isEmpty)
             props.item.checked = this.field.value.contains(props.item.value);
         return (
-            <span>
+            <div>
                 <span className={props.item.checked ? Icon.CHECK_SQUARE_O : Icon.SQUARE_O}
                       style={{width: '20px'}}/>
                 {props.item.text}
-            </span>);
+            </div>);
     }
 
     /** obsługa wyszukiwania pozycji na liście
@@ -139,7 +139,7 @@ export default class Select extends FormComponent {
     render() {
         if (!this.field)return null;
         return (
-            <span className="c-select" style={{...this.props.style}}>
+            <div className="c-select" style={{...this.props.style}}>
                 <DropdownList
                     {...this._multiselectProps}
                     textField='text'
@@ -160,7 +160,7 @@ export default class Select extends FormComponent {
                         emptyFilter: 'Brak wyników.'
                     }}
                 />
-            </span>
+            </div>
         )
     }
 }

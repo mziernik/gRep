@@ -251,17 +251,17 @@ export class PopupMenu extends Component {
      */
     renderSubmenu(items: [], opened: boolean) {
         if (!opened) return null;
-        return <span className="c-popup-menu" ref={elem => this._setPosition(elem, true)}
+        return <div className="c-popup-menu" ref={elem => this._setPosition(elem, true)}
                      style={{
                          ...this._style,
                          left: '100%'
                      }}>
             {this.renderItems(items)}
-        </span>
+        </div>
     }
 
     render() {
-        return <span className="c-popup-menu" ref={elem => {
+        return <div className="c-popup-menu" ref={elem => {
             if (elem) this._menu = elem;
             this._setPosition(elem, false);
         }}
@@ -270,10 +270,10 @@ export class PopupMenu extends Component {
                          display: this.state.opened ? null : 'none',
                          left: this.state.x,
                          top: this.state.y,
-                         zIndex: 1000,
+                         zIndex: Component.zIndex,
                      }}
                      onContextMenu={(e) => e.preventDefault()}
-        >{this.renderItems(this.state.items)}</span>;
+        >{this.renderItems(this.state.items)}</div>;
     }
 }
 

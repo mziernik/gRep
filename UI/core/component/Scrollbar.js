@@ -26,7 +26,10 @@ export class Scrollbar extends Component {
 
     /* obsługa zdarzeń */
     _wheelListener = (e: WheelEvent) => this._scroll(e);
-    _enterListener = (e: MouseEvent) => this._bar.style.opacity = '1';
+    _enterListener = (e: MouseEvent) => {
+        this._setBar();
+        this._bar.style.opacity = '1';
+    };
     _leaveListener = (e: MouseEvent) => this._bar.style.opacity = '0';
     _moveListener = (e: MouseEvent) => this.mouseMove(e);
     _upListener = (e: MouseEvent) => {

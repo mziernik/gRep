@@ -9,33 +9,28 @@ export default class PRepositories extends Page {
     }
 
     render() {
-        const data = [];
-
-        return <Panel fit>
-            {super.renderTitle("Repozytoria")}
-
-            <Table
-                columns={{
-                    actions: "Akcje",
-                    id: "ID",
-                    name: "Nazwa",
-                    group: "Grupa",
-                    recs: "Rekordów",
-                    updates: "Ilość aktualizacji",
-                    last: "Ostatnia aktualizacja",
-                    refs: "Referencje",
-                    crude: "CRUDE"
-                }}
-                rows={Repository.all}
-                rowMapper={(repo: Repository) => {
-                    return {
-                        name: repo.name,
-                        group: repo.config.group,
-                        id: repo.key,
-                        recs: repo.rows.size,
-                        updates: repo.updates,
-                        last: repo.lastUpdated ? repo.lastUpdated.toLocaleString() : "",
-                        actions: (<span>
+        return <Table
+            columns={{
+                actions: "Akcje",
+                id: "ID",
+                name: "Nazwa",
+                group: "Grupa",
+                recs: "Rekordów",
+                updates: "Ilość aktualizacji",
+                last: "Ostatnia aktualizacja",
+                refs: "Referencje",
+                crude: "CRUDE"
+            }}
+            rows={Repository.all}
+            rowMapper={(repo: Repository) => {
+                return {
+                    name: repo.name,
+                    group: repo.config.group,
+                    id: repo.key,
+                    recs: repo.rows.size,
+                    updates: repo.updates,
+                    last: repo.lastUpdated ? repo.lastUpdated.toLocaleString() : "",
+                    actions: (<span>
                             <Link
                                 downloadName={repo.key + ".json"}
                                 downloadData={() => repo.storage.build()}
@@ -46,13 +41,11 @@ export default class PRepositories extends Page {
                                 icon={Icon.EYE}
                             />
                         </span>),
-                        refs: repo.refs.length,
-                        crude: repo.config.crude
-                    }
+                    refs: repo.refs.length,
+                    crude: repo.config.crude
                 }
-                }
-            />
-
-        </Panel>
+            }
+            }
+        />
     }
 }

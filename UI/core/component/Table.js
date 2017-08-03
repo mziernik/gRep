@@ -428,7 +428,7 @@ export default class Table extends Component {
             let filter = null;
             mw.content = <FilterEditor ref={elem => filter = elem}
                                        filter={f}
-                                       dataSource={col}
+                                       dataSource={{columns: col, rows: []}}
             />;
             mw.onConfirm = () => {
                 this.setFilter(colId, filter.getFilter());

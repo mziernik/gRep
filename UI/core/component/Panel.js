@@ -1,7 +1,6 @@
 import {React, PropTypes} from "../core";
 import {Component, Resizer, Scrollbar, Splitter} from "../components"
 
-// ToDo: Wojtek dodaj możliwość zmiany rozmiaru (szerokość lub wysokość) przez resizera - propsy
 export default class Panel extends Component {
 
     static propTypes = {
@@ -14,12 +13,21 @@ export default class Panel extends Component {
         resizable: PropTypes.bool,
         split: PropTypes.bool,
         fit: PropTypes.bool, // dopasuj do rodzica
+        // krawędzie resizera
+        north: PropTypes.bool,
+        east: PropTypes.bool,
+        west: PropTypes.bool,
+        south: PropTypes.bool
     };
 
     static defaultProps = {
         resizable: false,
         scrollable: false,
-        split: false
+        split: false,
+        north: false,
+        east: false,
+        west: false,
+        south: false
     };
 
     //
@@ -53,10 +61,14 @@ export default class Panel extends Component {
                 {super.renderChildren()}
             </div>;
 
-        if (this.props.resizable || this.props.scrollable)
+        if (this.props.scrollable || this.props.resizable)
             return <Resizer
                 className="c-panel"
                 resizable={this.props.resizable}
+                north={this.props.north}
+                east={this.props.east}
+                west={this.props.west}
+                south={this.props.south}
                 style={{
                     flex: '1',
                     height: this.props.fit ? "100%" : null,

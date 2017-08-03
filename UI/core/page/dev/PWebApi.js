@@ -21,14 +21,11 @@ export default class PWebApi extends Page {
 
         const rctrl: RepoCtrl = new RepoCtrl(this, WebApiRepo.RWEBAPI);
 
-        return <Panel fit>
-            {super.renderTitle("WebApi")}
-
+        return [
             <div>
                 <span>URL:</span>
                 <a href={api.url}>{api.url} </a>
-            </div>
-
+            </div>,
             <RepoTable
                 key={Utils.randomId()}
                 repository={WebApiRepo.RWEBAPI}
@@ -38,9 +35,8 @@ export default class PWebApi extends Page {
                         mw.title = "Dane";
                     }).open();
                 }}/>
-        </Panel>
+        ]
     }
-
 
 }
 

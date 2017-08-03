@@ -16,19 +16,24 @@ export default class Memo extends FormComponent {
         if (this.props.preview) {
             const singleLineStyle = this.props.inline ? {overflow: "hidden", textOverflow: "ellipsis"} : null;
 
-            return <span title={this.field.name} style={{display: 'flex'}}>
+            return <div title={this.field.name} style={{display: 'flex'}}>
                 <pre
                     style={{fontFamily: "inherit", flex: 'auto', ...singleLineStyle}}
                     disabled={true}
                 >{super.renderChildren(this.field.simpleValue, false)}</pre>
-            </span>;
+            </div>;
         }
 
         //
         return (
-            <span className="c-memo" style={{display: 'flex'}}>
+            <div className="c-memo" style={{display: 'flex'}}>
                 <textarea
-                    key={Utils.randomId()}
+                    ref={elem => {
+                        if (!elem) return;
+                        const value = this.field.simpleValue;
+                        if (elem.value !== value)
+                            elem.value = value;
+                    }}
                     title={this.field.hint}
                     placeholder={this.field.name}
                     name={this.field.key}
@@ -44,8 +49,7 @@ export default class Memo extends FormComponent {
                     onBlur={e => {
                         if (this._changed) this._handleChange(true, e, e.target.value);
                     }}
-                    defaultValue={this.field.simpleValue}
                 />
-            </span>);
+            </div>);
     }
 }

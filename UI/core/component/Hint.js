@@ -57,7 +57,7 @@ export default class Hint extends Component {
         }
         //
         return (
-            <span className="c-hint" ref={(elem) => this._setPosition(elem)}
+            <div className="c-hint" ref={(elem) => this._setPosition(elem)}
                   style={{
                       ...this.props.style,
                   }}>
@@ -65,7 +65,7 @@ export default class Hint extends Component {
                 || this.props.message ? Utils.forEach(this.props.message.split('\n'), (line, index) => {
                     return <div key={index}>{line}</div>;
                 }) : null}
-            </span>
+            </div>
         )
     }
 }

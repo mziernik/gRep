@@ -126,7 +126,7 @@ export default class Repository {
     }
 
 
-    get(context: any, pk: any, mustExists: boolean = true): Record {
+    get (context: any, pk: any, mustExists: boolean = true): Record {
         if (Is.defined(pk))
             pk = this.config.primaryKeyColumn.parse(pk);
         const row: [] = this.rows.get(pk);
@@ -417,7 +417,7 @@ export default class Repository {
             const val = getDisplayValue(repo, rec);
 
             if (val === undefined) {
-                debugger;
+     //           debugger;
                 getDisplayValue(repo, rec);
             }
             repo.displayMap.set(obj.pk, val);
@@ -450,7 +450,7 @@ export default class Repository {
             })
         );
 
-        const storageMap: Map = Utils.agregate(records, (rec: Record) => rec.repo.storage || "LOCAL");
+        const storageMap: Map = Utils.agregate(records, (rec: Record) => (!rec.localCommit && rec.repo.storage) || "LOCAL");
 
         const result: Promise[] = [];
 
@@ -504,7 +504,7 @@ export default class Repository {
     }
 
     /** Zwraca repozytorium na podstawie klucza, opcjonalnie wyjątek jeśli nie znaleziono obiektu */
-    static get(key: string, mustExists: boolean = true): Repository {
+    static get (key: string, mustExists: boolean = true): Repository {
         const result = Repository.all[key];
         if (mustExists && !result)
             throw new Error("Nie znaleziono repozytorium " + Utils.escape(key));
@@ -742,7 +742,7 @@ export class RepoTree {
         this.children.push(child);
     }
 
-    get(column: Column): any {
+    get (column: Column): any {
         return this.row[this.repo.getColumnIndex(column)];
     }
 
@@ -811,7 +811,7 @@ export class RepoCursor {
         return rec;
     }
 
-    get(column: Column): any {
+    get (column: Column): any {
         const idx = this.repo.getColumnIndex(column);
 
         if (this._index < 0 || this._index >= this._rows.length)

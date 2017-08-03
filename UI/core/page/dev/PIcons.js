@@ -36,9 +36,6 @@ export default class PIcons extends Page {
 
 
         return <Panel fit noPadding>
-
-            {this.renderTitle("Ikony")}
-
             <Panel>
                 <div>
                     <input
@@ -55,7 +52,6 @@ export default class PIcons extends Page {
                     {icons}
                 </div>
             </Panel>
-
         </Panel>
     }
 

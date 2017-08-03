@@ -4,6 +4,8 @@ import {React, ReactUtils, PropTypes, ReactDOM, Application, Is, AppNode, Utils}
 import {Component, Button, Icon, Resizer, Dragger, Scrollbar} from '../components';
 import {PageTab} from "../page/PageContainer";
 import {Children, Dynamic} from "./Component";
+import {PageButtons} from "../page/Page";
+import {Btn} from "./Button";
 
 export class ModalWindow {
 
@@ -97,7 +99,7 @@ export class ModalWindow {
         this._instance.style.top = 0;
         this._instance.style.bottom = 0;
         this._instance.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        this._instance.style.zIndex = 1000;
+        this._instance.style.zIndex = Component.zIndex;
 
         if (!this.title && tab)
             this.title = tab.title;
@@ -243,7 +245,7 @@ export class ModalWindow {
                             textOverflow: 'ellipsis',
                             overflow: 'hidden',
                             padding: '5px 20px'
-                        }}>{this._titleBar.render()}</span>
+                        }}>{this._titleBar.$}</span>
                     {this.closeButton ? <span
                         className={"c-modal-window-exit " + Icon.TIMES}
                         title="Zamknij"
@@ -307,42 +309,23 @@ function ModalButtons(props) {
     const modal: ModalWindow = props.modal;
 
 
-    if (Is.array(modal.buttons)) {
+    if (modal.buttons instanceof PageButtons) {
+        const pb: PageButtons = modal.buttons;
 
-        const arr = [];
+        Utils.forEach(pb.buttons, (btn: Btn) => {
+            if (!btn.modalClose) return;
 
-        const visitObject = (obj) => {
+            const act = btn.onClick;
 
-            if (Is.array(obj)) {
-                Utils.forEach(obj, o => visitObject(o));
-                return;
-            }
+            btn.onClick = e => {
+                if (act)
+                    act(e);
+                modal.close(e);
+            };
 
-            if (obj && obj.type === Button) {
-                const props = Utils.clone(obj.props);
+        });
 
-                props.onClick = (e) => {
-                    let result;
-                    if (obj.props.onClick)
-                        result = obj.props.onClick(e);
-
-                    if (result !== false)
-                        modal.close(e);
-                };
-
-                arr.push(React.cloneElement(obj, props));
-                return;
-            }
-
-            arr.push(obj);
-
-        };
-
-
-        visitObject(modal.buttons);
-
-        return <div>{arr}</div>
-
+        return pb.$;
     }
 
 
@@ -356,31 +339,31 @@ function ModalButtons(props) {
         butts.push(<Button type={"default"}
                            focus={butts.length === 0}
                            key="ok"
-                           onClick={(e) => this.confirm(e)}
+                           onClick={(e) => modal.confirm(e)}
                            title="OK">OK</Button>);
     if (modal.buttons & MW_BUTTONS.CANCEL)
         butts.push(<Button type={"default"}
                            focus={butts.length === 0}
                            key="cancel"
-                           onClick={(e) => this.cancel(e)}
+                           onClick={(e) => modal.cancel(e)}
                            title="Anuluj">Anuluj</Button>);
     if (modal.buttons & MW_BUTTONS.YES)
         butts.push(<Button type={"success"}
                            focus={butts.length === 0}
                            key="yes"
-                           onClick={(e) => this.confirm(e)}
+                           onClick={(e) => modal.confirm(e)}
                            title="Tak">Tak</Button>);
     if (modal.buttons & MW_BUTTONS.NO)
         butts.push(<Button type={"danger"}
                            focus={butts.length === 0}
                            key="no"
-                           onClick={(e) => this.cancel(e)}
+                           onClick={(e) => modal.cancel(e)}
                            title="Nie">Nie</Button>);
     if (modal.buttons & MW_BUTTONS.CLOSE)
         butts.push(<Button type={"default"}
                            focus={butts.length === 0}
                            key="close"
-                           onClick={(e) => this.close(e)}
+                           onClick={(e) => modal.close(e)}
                            title="Zamknij">Zamknij</Button>);
     return <div style={{textAlign: 'center'}}>{butts}</div>;
 

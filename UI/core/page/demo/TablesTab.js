@@ -102,5 +102,6 @@ const COLUMNS = [
         fc.key = "active";
         fc.name = "Aktywność";
         fc.sortable = true;
+        fc.filterable = true;
     })
 ];

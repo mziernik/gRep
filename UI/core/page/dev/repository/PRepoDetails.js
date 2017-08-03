@@ -2,26 +2,23 @@ import {React, PropTypes, Field, Utils, Column, Repository, Record, Type, Is, CR
 import {Page, Icon, Link, Table, FCtrl, Panel, Button} from '../../../components';
 import {Attr, Attributes} from "../../../component/form/Attributes";
 import {RepoConfig} from "../../../repository/Repository";
+import RepoPage from "../../base/RepoPage";
 
 
-export default class PRepoDetails extends Page {
+export default class PRepoDetails extends RepoPage {
 
 
-    constructor() {
-        super(...arguments);
-        this.requireRepo(this.props.repo);
-
+    constructor(props: Object, context: Object, updater: Object) {
+        super(props.repo, props, context, updater);
     }
 
     render() {
 
         const repo: Repository = Repository.get(this.props.repo, true);
         const rc: RepoConfig = repo.config;
+        this.title.set("Szczegóły repozytorium " + Utils.escape(repo.name));
 
         return <Panel fit scrollable>
-            {super.renderTitle("Szczegóły repozytorium " + Utils.escape(repo.name))}
-
-
             <Attributes>
                 <Attr name="Klucz" value={rc.key}/>
                 <Attr name="Nazwa" value={rc.name}/>

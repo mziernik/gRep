@@ -8,8 +8,6 @@ import RepoCtrl from "../repository/RepoCtrl";
  * Komponent ułatwiający obsługę obiektu Field. Umożliwia edycję i podgląd wartości, błędów i innych flag
  */
 
-//FixMe: Zamienić span-y na div-y
-
 const mode = [
     "inline", // kontrolery wyświetlane w jednej linii obok siebie: required, name, value, error, description
     "row", // wiersz tabeli <tr> required, name, value, error, description </tr>
@@ -109,9 +107,13 @@ export default class FCtrl extends Component {
             this.forceUpdate(true);
         });
 
+        this.field.onChange.listen(this, data => {
+            Is.func(this.props.onChange, f => f(this, data));
+        });
+
         this.tagProps = {
             style: this.props.style,
-            title: this.props.title,
+            title: this.props.title || (this.field && this.field.config.description),
             className: "c-fctrl",
             ref: e => this._setHtmlElement(e)
         }
@@ -213,7 +215,7 @@ export default class FCtrl extends Component {
             case "required":
                 icon = this.defReq;
                 msg = "Pole obowiązkowe";
-                visible = this.field.config.required;
+                visible = this.field.required;
                 break;
             case "description":
                 icon = this.defDesc;
@@ -245,7 +247,7 @@ export default class FCtrl extends Component {
         if (msg === '') msg = null;
 
         return (
-            <span
+            <div
                 key={type}
                 style={{
                     position: 'relative',
@@ -256,7 +258,7 @@ export default class FCtrl extends Component {
                 onMouseLeave={() => this._handleMouseLeave()}>
                 {icon}
                 <span/>
-            </span>);
+            </div>);
     }
 
     /** zwraca pole edycyjne lub podgląd opakowane w <span display=flex>
@@ -264,7 +266,7 @@ export default class FCtrl extends Component {
      */
     renderFlexValue() {
         if (!this.props.value && !this.props.preview && !this.props.inline) return null;
-        return <span key="value" style={{flex: '1 1 auto'}}>{this.renderValue()}</span>;
+        return <div key="value" style={{flex: '1 1 auto'}}>{this.renderValue()}</div>;
     }
 
     /** zwraca pole edycyjne lub podgląd
@@ -390,7 +392,7 @@ export default class FCtrl extends Component {
      */
     renderInline() {
         return (
-            <span
+            <div
                 {...this.tagProps}
                 style={{
                     ...this.tagProps.style,
@@ -400,7 +402,7 @@ export default class FCtrl extends Component {
                     position: 'relative'
                 }}>
                 {this.sortedCtrl()}
-                    </span>);
+            </div>);
     }
 
     /** zwraca kontrolki w trybie row <tr><td>...
@@ -419,7 +421,7 @@ export default class FCtrl extends Component {
      * @returns {XML} zestaw kontrolek
      */
     renderBlock() {
-        return <span
+        return <div
             {...this.tagProps}
             style={{...this.tagProps.style, position: 'relative'}}>
             {this.props.required || this.props.name ?
@@ -431,8 +433,8 @@ export default class FCtrl extends Component {
                 {this.props.description ? this.renderCtrl('description') : null}
                 {this.renderFlexValue()}
                 {this.props.error ? this.renderCtrl('error') : null}
+            </div>
         </div>
-        </span>
     }
 
     /** zwraca inputa z podanymi propsami

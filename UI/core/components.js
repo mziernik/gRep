@@ -13,6 +13,7 @@ export {default as FCtrl} from "./component/form/FCtrl";
 export {default as Link} from "./component/Link";
 export {default as Table} from "./component/Table";
 export {default as Button} from "./component/Button";
+export {Btn} from "./component/Button";
 export {default as Panel} from "./component/Panel";
 export {default as Resizer} from "./component/Resizer";
 export {default as Dragger} from "./component/Dragger.js";

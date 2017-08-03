@@ -187,11 +187,17 @@ if (ENV === 'production' || ENV === 'test') {
         new webpack.optimize.MinChunkSizePlugin({minChunkSize: 10000}), // Minimum number of characters
         new webpack.optimize.UglifyJsPlugin({
             sourceMap: true,
-            mangle: false,
-            comments: false
+            compress: {
+                warnings: false,
+                keep_fnames: true
+            },
+            mangle: {
+                warnings: false,
+                keep_fnames: true
+            }
         })
     )
-    ;
+
 }
 
 

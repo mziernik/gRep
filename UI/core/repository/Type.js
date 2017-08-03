@@ -115,7 +115,7 @@ export class DataType {
 }
 
 
-export function get(name: string): DataType {
+export function get (name: string): DataType {
 
     let result: DataType = all[name];
     if (result)
@@ -508,7 +508,7 @@ export const ENUMS: DataType = new DataType((dt: DataType) => {
 
 function frmt(value: any, map: ?Map): string {
     value = map ? map.get(value) : value;
-    const val: string = Utils.escape(Utils.toString(value));
+    const val: string = Utils.escape(Utils.toString(value)) || "";
     return val.substring(1, val.length - 1);
 }
 

@@ -81,6 +81,6 @@ export default class Application extends ReactComponent {
         node: PropTypes.instanceOf(AppNode)
     }
 }
-
+export const DEV_MODE = process && process.env ? process.env.NODE_ENV !== 'production' : false;
 Object.preventExtensions(Application);
 

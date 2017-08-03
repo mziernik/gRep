@@ -13,12 +13,18 @@ import * as ContextObject from "../application/ContextObject";
 
 let renderCount = 0; // ilość aktualnie renderowanych komponentów
 
+let zIndex = 10;
+
 // $FlowFixMe
 export default class Component<DefaultProps: any, Props: any, State: any>
     extends ReactComponent<*, *, *> {
 
     /** @private */
     __render: () => any;
+
+    static get zIndex() {
+        return ++zIndex;
+    }
 
     static contextTypes = {
         router: PropTypes.object.isRequired,
@@ -417,7 +423,11 @@ export class Dynamic {
     _state: Object = {};
 
     constructor(render: () => ReactComponent): Dynamic {
-        this._render = render;
+        this._render = render || (() => this.render());
+    }
+
+    render() {
+        return this._render();
     }
 
     update(delayed: boolean = true) {
@@ -433,7 +443,7 @@ export class Dynamic {
     get $() {
         return <DynamicComponent dyn={this}/>
     }
- }
+}
 
 export class DynamicComponent extends Component {
 

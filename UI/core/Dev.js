@@ -602,8 +602,8 @@ function format(context: ?any | any[], value: ?mixed): string {
 
     Utils.forEach(ctxArr, (ctx) => {
 
-        if (ctx && ctx.node && ctx.node.currentPage && ctx.node.currentPage.title)
-            ctxArr.push('"' + ctx.node.currentPage.title + '"');
+        if (ctx && ctx.node && ctx.node.currentPage && ctx.node.currentPage.title.title)
+            ctxArr.push('"' + ctx.node.currentPage.title.title + '"');
 
     });
 

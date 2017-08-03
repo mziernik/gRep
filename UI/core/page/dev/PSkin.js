@@ -22,24 +22,17 @@ export default class PSkin extends Page {
 
         }
 
-        return <Panel fit>
-
-            {super.renderTitle("Skórki")}
-
-            <Table
-                columns={ {
-                    sec: "Sekcja",
-                    elm: "Element",
-                    css: "CSS",
-                    val: "Wartość"
-                } }
-            >
-                <tbody>
-                {   visit(Skin.MAIN, "")    }
-                </tbody>
-            </Table>
-
-        </Panel>
+        return <Table
+            columns={{
+                sec: "Sekcja",
+                elm: "Element",
+                css: "CSS",
+                val: "Wartość"
+            }}>
+            <tbody>
+            {visit(Skin.MAIN, "")}
+            </tbody>
+        </Table>
     }
 
 

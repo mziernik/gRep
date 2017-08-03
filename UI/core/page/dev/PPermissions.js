@@ -28,34 +28,31 @@ export default class PPermissions extends Page {
                        height: "16px"
                    }}/>;
 
-        return <Panel fit>
+        this.title.set("Uprawnienia / funkcjonalności");
 
-            {super.renderTitle("Uprawnienia / funkcjonalności")}
-
-            <Table
-                columns={{
-                    id: "ID",
-                    name: "Nazwa",
-                    c: "Tworzenie",
-                    r: "Odczyt",
-                    u: "Aktualizacja",
-                    d: "Usunięcie",
-                    e: "Wykonanie"
-                }}
-                rows={this.records}
-                rowMapper={(p: PermissionRecord) => {
-                    return {
-                        id: p.ID.value,
-                        name: p.NAME.value,
-                        c: add(p, p.CREATE),
-                        r: add(p, p.READ),
-                        u: add(p, p.UPDATE),
-                        d: add(p, p.DELETE),
-                        e: add(p, p.EXECUTE)
-                    }
-                }}
-            />
-        </Panel>
+        return <Table
+            columns={{
+                id: "ID",
+                name: "Nazwa",
+                c: "Tworzenie",
+                r: "Odczyt",
+                u: "Aktualizacja",
+                d: "Usunięcie",
+                e: "Wykonanie"
+            }}
+            rows={this.records}
+            rowMapper={(p: PermissionRecord) => {
+                return {
+                    id: p.ID.value,
+                    name: p.NAME.value,
+                    c: add(p, p.CREATE),
+                    r: add(p, p.READ),
+                    u: add(p, p.UPDATE),
+                    d: add(p, p.DELETE),
+                    e: add(p, p.EXECUTE)
+                }
+            }}
+        />
     }
 
 

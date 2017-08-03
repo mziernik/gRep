@@ -1,5 +1,5 @@
 import {React, PropTypes, Utils, Field, Repository, Record, CRUDE, Column, AppStatus, Endpoint} from '../../../core';
-import {Component, Page, FCtrl, Panel, Resizer, Button, Icon} from '../../../components';
+import {Component, Page, FCtrl, Panel, Resizer, Btn, Icon} from '../../../components';
 import BaseRecordPage from "../../base/BaseRecordPage";
 import AttributesRecord from "../../../component/repository/AttributesRecord";
 import DTO from "../../../component/repository/DTO";
@@ -14,6 +14,20 @@ export default class PRecord extends BaseRecordPage {
 
     constructor(props: any, context: any, state: any) {
         super(props.repo, ...arguments);
+
+    }
+
+    onReady(repo: Repository, list: Repository[]) {
+        super.onReady(repo, list);
+
+        this.buttons.insert((btn: Btn) => {
+            btn.key = "btnDetails";
+            btn.type = "default";
+            btn.link = Endpoint.devRouter.REPO_DETAILS.getLink({repo: repo.key});
+            btn.title = "Szczegóły repozytorium";
+            btn.icon = Icon.INFO;
+            btn.text = "Szczegóły";
+        });
     }
 
 
@@ -27,31 +41,21 @@ export default class PRecord extends BaseRecordPage {
             this._saveTs = null;
         });
 
+        this.title.set((this.isNew ? "Nowy rekord" : "Edycja rekordu "
+            + Utils.escape(this.record.displayValue) + " (" + this.repo.primaryKeyColumn.key + "="
+            + Utils.escape(this.record.pk) + ")" ) + " repozytorium " + this.repo.name);
 
         return <Panel fit>
-            {super.renderTitle((this.isNew ? "Nowy rekord" : "Edycja rekordu "
-                + Utils.escape(this.record.displayValue) + " (" + this.repo.primaryKeyColumn.key + "="
-                + Utils.escape(this.record.pk) + ")" ) + " repozytorium " + this.repo.name)}
-
 
             <Panel fit scrollable vertical>
 
                 <div style={{flex: "auto"}}>
-                    <AttributesRecord record={this.record} fill edit advancedCheckBox/>
+                    <AttributesRecord record={this.record} fill edit/>
                 </div>
 
                 <DTO record={this.record}/>
 
             </Panel>
-
-            {this.renderToolBar(
-                <Button
-                    key="btnDetails"
-                    type="default"
-                    link={Endpoint.devRouter.REPO_DETAILS.getLink({repo: this.record.repo.key})}
-                    title="Szczegóły repozytorium"
-                    icon={Icon.INFO}>Szczegóły</Button>,
-                this.controller.createButtons())}
 
         </Panel>
     }
