@@ -42,7 +42,7 @@ export default class AppStatus {
         return AppStatus.set(context, "warning", message, details, timeout);
     }
 
-    static set(context: any, type: StatusType, message: string, details: ?string = null, timeout: ?number = null) {
+    static set (context: any, type: StatusType, message: string, details: ?string = null, timeout: ?number = null) {
         const status = AppStatus.factory ? AppStatus.factory(context) : new AppStatus();
         Is.string(type, t => type = t.trim().toLowerCase());
         status.type = Check.oneOf(type, ["debug", "info", "success", "warning", "error"]);

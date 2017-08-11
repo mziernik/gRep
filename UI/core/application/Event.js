@@ -64,6 +64,9 @@ export default class AppEvent {
     static REPOSITORY_REGISTERED: EventType = new EventType("Zarejestrowano repozytorium");
 
     /** @type {EventType}  */
+    static REPOSITORY_UPDATED: EventType = new EventType("Aktualizacja danych repozytorium");
+
+    /** @type {EventType}  */
     static NAVIGATE: EventType = new EventType("Nawigacja do strony");
 
     /** @type {EventType}  */

@@ -16,11 +16,11 @@ wapi.onError = (error: EError, response: WebApiResponse, handled: boolean) => {
 
 Repository.defaultStorage = new WebApiRepositoryStorage(wapi, api.repository);
 
-wapi.onEvent.listen("API", (source: string, event: string, data: object, context: WebApiResponse) => {
+wapi.onEvent.listen("API", obj => {
 
-    switch (source) {
+    switch (obj.source) {
         case "repository":
-            Repository.update(context, data);
+            Repository.update(obj.response, obj.data);
             return;
     }
 

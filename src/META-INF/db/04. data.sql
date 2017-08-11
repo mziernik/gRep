@@ -172,8 +172,8 @@ CREATE TABLE data.catalog_attribute
 CREATE TABLE data.catalog_attribute_values
 (
      id              SERIAL PRIMARY KEY,
-     cat_attr        INT NOT NULL REFERENCES data.catalog_attribute (id),
-     attr_elm        INT NOT NULL REFERENCES data.attribute_elements (id),
+     attr            INT NOT NULL REFERENCES data.catalog_attribute (id),
+     elm             INT NOT NULL REFERENCES data.attribute_elements (id),
      value           VARCHAR,
-     crypt_ey        INTEGER REFERENCES data.crypt_key (id)
+     crypt_ky        INTEGER REFERENCES data.crypt_key (id)
 )

@@ -27,11 +27,10 @@ export default class Page extends Component {
     /** @private */
     __render: () => any;
     __error: EError;
-    _toolBar: any;
     _waitingForRepo: boolean;
 
 
-    endpoint: Endpoint = this.props.route.endpoint;
+    endpoint: ?Endpoint = this.props.route ? this.props.route.endpoint : null;
 
     title: PageTitle = new PageTitle(this);
     icon: PageIcon = new PageIcon(this);
@@ -43,20 +42,22 @@ export default class Page extends Component {
         super(...arguments);
         this.node.currentPage = this;
         Utils.makeFinal(this, ["endpoint", "buttons", "title", "icon", "buttons", "titleBar"]);
+        this.node.componentsStack.length = 0;
 
         const modal: ModalWindow = this.modal;
 
         if (modal)
             this.titleBar._render = () => {
                 modal.buttons = this.buttons;
-                modal.icon = this.icon.icon;
-                modal.title = this.title._title;
+                modal.icon.set(this.icon.value);
+                modal.title.set(this.title.value);
                 return null;
             };
 
         this.render = () => {
             try {
                 this.node.currentPage = this;
+
                 if (this.__error)
                     try {
                         return Page.renderError(this, this.__error);
@@ -85,6 +86,28 @@ export default class Page extends Component {
         return this.node.tab ? this.node.tab.modalWindow : null;
     }
 
+    static renderError(context: any, e: string | Error | EError) {
+
+        const err: EError = new EError(e);
+
+        const comp: Component = context instanceof Component ? context : null;
+
+        return <div style={{
+            marginTop: "10%",
+            textAlign: "center",
+            userSelect: "text"
+        }}>
+            <div style={{
+                fontWeight: "bold",
+            }}>{Utils.className(context)}</div>
+            <div>{comp && comp.node && comp.node.componentsStack ? comp.node.componentsStack.map((c: Component) => c.name).join(", ") : null}</div>
+            <div style={{
+                fontSize: "20pt",
+                fontWeight: "bold",
+                color: "#c00",
+            }}>{Utils.toString(err.message)}</div>
+        </div>
+    }
 
     /**
      * Zwraca tru jeśli repozytoria [repos] zostały zainicjowane, w przeciwnym razie czeka na inicjalizację i wywołuje forceUpdate na stronie
@@ -140,7 +163,6 @@ export default class Page extends Component {
         return ready ? list : null;
     }
 
-
     componentWillMount() {
         super.componentWillMount();
         //  this._watcher.watch(true);
@@ -160,72 +182,60 @@ export default class Page extends Component {
         super.componentDidUpdate();
         //    this._watcher.watch(false);
     }
-
-    static renderError(context: any, e: string | Error | EError) {
-
-        const err: EError = new EError(e);
-
-        return <div style={{
-            marginTop: "10%",
-            textAlign: "center",
-            fontSize: "20pt",
-            fontWeight: "bold",
-            color: "#c00",
-            userSelect: "text"
-        }}>
-            <div>{Utils.className(context)}</div>
-            <div>{Utils.toString(err.message)}</div>
-        </div>
-    }
 }
 
 
-export class PageIcon extends Dynamic {
-
-    icon: Icon;
-
+export class PageIcon extends Dynamic<Icon> {
     constructor(page: Page) {
-        super(() => <span className={"c-title-bar-icon " + this.icon}/>);
-        this.icon = page.endpoint._icon;
+        super(page.endpoint ? page.endpoint._icon : page.modal ? page.modal.icon : null,
+            v => v ? <span className={"c-title-bar-icon " + v}/> : null);
     }
 }
 
 
 export class PageButtons extends Dynamic {
 
-    buttons: Btn[] = [];
+    list: Btn[] = [];
     style: Object;
 
     constructor() {
-        super(() => <div
-            style={{float: "right", ...this.style}}>{Utils.forEach(this.buttons, (btn: Btn) => btn.$)}</div>);
+        super(null, () => <div
+            style={{float: "right", ...this.style}}>{Utils.forEach(this.list, (btn: Btn) => {
+            if (!btn._key)
+                btn._key = Utils.randomId();
+            return btn.$
+        })}</div>);
+    }
+
+    remove(btn: Btn) {
+        this.list.remove(btn);
     }
 
     insert(config: Btn | (button: Btn) => void): Btn {
         const btn = new Btn(config);
-        this.buttons.unshift(btn);
+        this.list.unshift(btn);
+        this.update(true);
         return btn;
     }
 
     add(config: Btn | (button: Btn) => void): Btn {
         const btn = new Btn(config);
-        this.buttons.push(btn);
+        this.list.push(btn);
+        this.update(true);
         return btn;
     }
 
 }
 
-export class PageTitle extends Dynamic {
-
-    _title: string;
+export class PageTitle extends Dynamic<string> {
 
     constructor(page: Page) {
-        super(() => <h5>{Utils.toString(this._title)}</h5>);
-        this._title = page.endpoint._name;
+        super(page.endpoint ? page.endpoint._name : page.modal ? page.modal.title.value : null,
+            v => <h5>{Utils.toString(v)}</h5>);
     }
 
     set (title: string) {
-        this._title = title;
+        super.set(title);
         document.title = title;
     }
 
@@ -236,10 +246,10 @@ export class PageTitle extends Dynamic {
  */
 export class PageTitleBar extends Dynamic {
 
-    title: string;
+    visible: boolean = true;
 
     constructor(page: Page) {
-        super(() => <div className="c-title-bar">
+        super(null, () => !this.visible ? null : <div className="c-title-bar">
             {page.icon.$}
             {page.title.$}
             <span style={{flex: "auto"}}/>

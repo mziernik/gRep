@@ -87,7 +87,7 @@ public class RCategoryAttribute extends Repository<Integer> {
             c.key = "categoryAttr";
             c.daoName = "data.category_attribute";
             c.name = "Atrybut kategorii";
-             c.group = "Kategorie";
+            c.group = "Kategorie";
             c.primaryKey = ID;
         });
 

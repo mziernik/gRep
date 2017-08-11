@@ -5,6 +5,7 @@ import {Utils, Is, Check, Field, EError, Trigger, Dev} from "../core.js";
 import {React, ReactUtils, PropTypes, AppNode, ReactComponent} from "../core.js";
 
 import * as ContextObject from "../application/ContextObject";
+import Dispatcher from "../utils/Dispatcher";
 
 /**
  * Klasa bazowa, po której powinny dziedziczyć wszystkie komponenty pełniące role kontrolerów
@@ -19,41 +20,30 @@ let zIndex = 10;
 export default class Component<DefaultProps: any, Props: any, State: any>
     extends ReactComponent<*, *, *> {
 
-    /** @private */
-    __render: () => any;
-
-    static get zIndex() {
-        return ++zIndex;
-    }
-
     static contextTypes = {
         router: PropTypes.object.isRequired,
         node: PropTypes.any.isRequired, //AppNode
     };
-
     static propTypes = {
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
         style: PropTypes.object,
         className: PropTypes.object,
     };
-
     static defaultProps = {
         ignore: false
     };
-
+    /** @private */
+    __render: () => any;
     /** @type {AppNode}*/
     node: AppNode;
     /** Element drzewa dom, na którym bazuje komponent */
     element: HTMLElement;
-
     children: Children;
-
     _forceUpdateTrigger: Trigger = new Trigger();
-
     _onDestroy: [] = [];
-
     /** @type {string} Nazwa gałęzi - do celów deweloperskiech  */
     name: ?string = null;
+    beforeRender: Dispatcher = new Dispatcher(this);
 
     constructor(props: Object, context: Object, updater: Object) {
         super(...arguments);
@@ -90,6 +80,8 @@ export default class Component<DefaultProps: any, Props: any, State: any>
                 return null;
             try {
                 ++renderCount;
+                this.beforeRender.dispatch(this, {});
+                this.node.componentsStack.push(this);
                 return Dev.duration(this, "Render", () => this.__render());
             } catch (e) {
                 if (this.node && this.node.currentPage) {
@@ -102,6 +94,10 @@ export default class Component<DefaultProps: any, Props: any, State: any>
                 --renderCount;
             }
         }
+    }
+
+    static get zIndex() {
+        return ++zIndex;
     }
 
     setTimeout(func: () => void, delay: number, ...args: any) {
@@ -216,6 +212,9 @@ export default class Component<DefaultProps: any, Props: any, State: any>
     }
 
     forceUpdate(delayed: boolean = true) {
+
+        // komponent nie zamontowany
+        if (!this._reactInternalInstance) return;
 
         const doUpdate = () => Dev.duration(this, "ForceUpdate", () => super.forceUpdate());
 
@@ -415,15 +414,25 @@ export class Child {
 
 }
 
-export class Dynamic {
+type T = any;
+
+export class Dynamic<T> {
 
     _ref: DynamicComponent;
     _render: () => any;
-    _props: Object = {};
-    _state: Object = {};
+    _key: string;
+    _value: ?T;
+    _visible: boolean | () => boolean = true;
 
-    constructor(render: () => ReactComponent): Dynamic {
+
+    constructor(value: T, render: (value: T) => ReactComponent) {
         this._render = render || (() => this.render());
+        this._value = value;
+        //this._key = Utils.className(this);
+    }
+
+    get $(): DynamicComponent {
+        return <DynamicComponent dyn={this} key={this._key}/>
     }
 
     render() {
@@ -435,14 +444,39 @@ export class Dynamic {
             this._ref.forceUpdate(delayed);
     }
 
-    state(state: Object) {
-        this._state = state;
-        this.update();
+
+    set(value: ?T): Dynamic<T> {
+        if (value === this._value) return;
+        this._value = value;
+        this.update(true);
+        return this;
     }
 
-    get $() {
-        return <DynamicComponent dyn={this}/>
+    set visible(visible: boolean | () => boolean) {
+        //   if (visible === this._visible) return;
+
+        Dev.log([this, this._key], "visible: " + visible);
+        this._visible = visible;
+        this.update(true);
+        return this;
     }
+
+    get visible(): boolean | () => boolean {
+        return this._visible;
+    }
+
+    set value(value: ?T) {
+        this.set(value);
+    }
+
+    get(): ?T {
+        return this._value;
+    }
+
+    get value(): ?T {
+        return this.get();
+    }
+
 }
 
 export class DynamicComponent extends Component {
@@ -458,6 +492,10 @@ export class DynamicComponent extends Component {
 
     render() {
         const dyn: Dynamic = this.props.dyn;
-        return dyn._render(dyn._state || {});
+        let visible = dyn.visible;
+        Is.func(visible, v => visible = v());
+        if (!visible)
+            return null;
+        return dyn._render(dyn.value);
     }
 }

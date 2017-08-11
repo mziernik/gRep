@@ -13,17 +13,16 @@ export class State {
     static CLOSED: State = new State("Rozłączone", "red");
 
     static onChange: Dispatcher = new Dispatcher();
+    name: string;
+    color: string;
+
+    constructor(name: string, color: string) {
+        this.name = name;
+        this.color = color;
+    }
 
     static get current(): State {
         return currentState;
-    }
-
-    static reconnect() {
-        if (State.current !== State.CLOSED)
-            return;
-
-        if (_reconnect)
-            _reconnect();
     }
 
     static set current(state: State) {
@@ -32,12 +31,12 @@ export class State {
         State.onChange.dispatch(State, {state: state});
     }
 
-    name: string;
-    color: string;
+    static reconnect() {
+        if (State.current !== State.CLOSED)
+            return;
 
-    constructor(name: string, color: string) {
-        this.name = name;
-        this.color = color;
+        if (_reconnect)
+            _reconnect();
     }
 }
 

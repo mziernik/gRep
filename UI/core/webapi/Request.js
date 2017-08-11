@@ -62,7 +62,6 @@ export default class WebApiRequest {
                 this.headers[name] = WebApi.headers[name];
 
 
-
         window.setTimeout(() => webApi.send(this));
     }
 

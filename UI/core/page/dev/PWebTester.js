@@ -3,6 +3,7 @@ import {Page, Panel} from "../../components";
 import CodeMirror from "../../component/CodeMirror/CodeMirror";
 import {SplitPanel, Splitter} from "../../component/Splitter";
 //https://jsfiddle.net/
+//https://codepen.io/
 
 //ToDo: Dodać tryb konwersji danych - panele: wejściowy, skryptu, wyjściowy)
 

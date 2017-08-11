@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, PropTypes, Utils, Type, Is} from '../../core';
+import {React, ReactDOM, PropTypes, Utils, Type, Is} from '../../core';
 import {FormComponent, Icon} from '../../components';
 import {DropdownList} from 'react-widgets';
 
@@ -37,29 +37,22 @@ export default class Select extends FormComponent {
         super(...arguments);
         this.state = {open: undefined};
         this._multiSelect = !this.field.type.single || this.field.type === Type.ENUMS;
-        if (this.props.units) {
-            this._enumerate = Utils.forEach(this.props.units, (item) => {
-                return {text: item[1], value: item}
-            });
-        } else {
+        if (!this.props.units && this._multiSelect)
+            this._multiselectProps = {
+                onBlur: () => this.setState({open: false}),
+                onClick: (e) => this._handleClick(e),
+                valueComponent: (props) => this._valueRenderer(props),
+                itemComponent: (props) => this._itemRenderer(props),
+                // onToggle: () => {
+                // }
+            };
+        this._wheelListener = () => this._setDropdown(null, true);
+        window.addEventListener('wheel', this._wheelListener, {passive: true});
+    }
 
-            Utils.forEach(this.field.enumerate, (value, key) => this._enumerate.push({
-                    text: Utils.toString(value),
-                    value: Utils.toString(key),
-                    checked: false
-                })
-            );
-
-            if (this._multiSelect)
-                this._multiselectProps = {
-                    onBlur: () => this.setState({open: false}),
-                    onClick: (e) => this._handleClick(e),
-                    valueComponent: (props) => this._valueRenderer(props),
-                    itemComponent: (props) => this._itemRenderer(props),
-                    onToggle: () => {
-                    }
-                };
-        }
+    componentWillUnmount() {
+        super.componentWillUnmount(...arguments);
+        window.removeEventListener('wheel', this._wheelListener, {passive: true});
     }
 
     /** Obsługa wybrania pozycji
@@ -136,16 +129,48 @@ export default class Select extends FormComponent {
             this._selected = false;
     }
 
+    _setDropdown(select, open) {
+        if (!this._tag) {
+            if (!select) return;
+            this._tag = ReactDOM.findDOMNode(select);
+        }
+        if (!open) return;
+        const poff = this._tag.getBoundingClientRect();
+        const child = this._tag.children[2];
+        if (!child) return;
+        child.style.top = (poff.top + poff.height) + 'px';
+        child.style.left = (poff.left) + 'px';
+        child.style.width = (poff.width) + 'px';
+    }
+
+
     render() {
-        if (!this.field)return null;
+        if (!this.field) return null;
+
+        if (this.props.units) {
+            this._enumerate = Utils.forEach(this.props.units, (item) => {
+                return {text: item[1], value: item}
+            });
+        } else {
+            this._enumerate = Utils.forEach(this.field.enumerate, (value, key) => {
+                return {
+                    text: Utils.toString(value),
+                    value: Utils.toString(key),
+                    checked: false
+                }
+            });
+        }
+        const value = this.props.units ? this.field.unit : Is.defined(this.field.value) ? Utils.toString(this.field.value) : this.field.value;
         return (
             <div className="c-select" style={{...this.props.style}}>
                 <DropdownList
+                    ref={elem => this._setDropdown(elem)}
                     {...this._multiselectProps}
                     textField='text'
                     valueField='value'
                     data={this._enumerate}
-                    defaultValue={this.props.units ? this.field.unit : Is.defined(this.field.value) ? Utils.toString(this.field.value) : this.field.value}
+                    value={value}
+                    onChange={() => this.forceUpdate(true)}
                     title={this.field.hint}
                     open={this.state.open}
                     filter={(this._enumerate.length < 10 || this._multiSelect || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}
@@ -153,6 +178,9 @@ export default class Select extends FormComponent {
                     placeholder={this.field.name}
                     onSelect={(value) => this._handleSelect(value)}
                     duration={100}
+                    onToggle={(open) => {
+                        if (open) this._setDropdown(null, open)
+                    }}
                     messages={{
                         open: 'Rozwiń',
                         filterPlaceholder: 'Wyszukaj...',

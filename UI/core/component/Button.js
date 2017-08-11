@@ -23,6 +23,7 @@ export class Btn extends Dynamic {
     type: string;
     crude: CRUDE;
     style: Object;
+
     /** Wariant okna modalnego - czy ma być zamknięte po kliknięciu */
     modalClose: Boolean = true;
 
@@ -30,15 +31,16 @@ export class Btn extends Dynamic {
     onClick: (e) => any;
     link: Endpoint;
     icon: Icon;
-    _disabled: boolean;
     focus: boolean; //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
 
-
     constructor(config: Btn | (button: Btn) => void) {
-        super(() => this.render());
+        super(null, () => this.render());
         if (Is.func(config))
             config(this);
+        this._key = this.key;
     }
+
+    _disabled: boolean;
 
     set disabled(state: boolean) {
         this._disabled = state;
@@ -46,6 +48,7 @@ export class Btn extends Dynamic {
     }
 
     render() {
+
         let type = this.type;
         if (!type && this.crude)
             switch (this.crude) {
@@ -92,13 +95,6 @@ export class Btn extends Dynamic {
 
 export default class Button extends Component {
 
-    _tag: HTMLButtonElement;
-
-    state: {
-        disabled: boolean
-    };
-
-
     static propTypes = {
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
         confirm: PropTypes.string,
@@ -110,6 +106,10 @@ export default class Button extends Component {
         disabled: PropTypes.bool,
         focus: PropTypes.bool, //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
         style: PropTypes.object
+    };
+    _tag: HTMLButtonElement;
+    state: {
+        disabled: boolean
     };
 
     constructor() {

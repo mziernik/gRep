@@ -5,17 +5,7 @@ import {Component, Icon} from '../components';
 
 let INSTANCE: PopupMenu;
 
-//FixMe ukrycie itemu z otwartą podlistą powoduje, że przy odkryciu podlista jest rozwinięta
-
 export class PopupMenu extends Component {
-    /** styl menu
-     * @private
-     */
-    _style = {
-        visibility: 'hidden',
-        position: 'absolute',
-    };
-
     static propTypes = {
         // czy menu jest otwarte
         opened: PropTypes.bool,
@@ -28,7 +18,13 @@ export class PopupMenu extends Component {
         itemEventProps: PropTypes.object,
         onClick: PropTypes.func
     };
-
+    /** styl menu
+     * @private
+     */
+    _style = {
+        visibility: 'hidden',
+        position: 'absolute',
+    };
     state: {
         opened: boolean, // czy otwarte
         x: Number, // współrzędne
@@ -37,6 +33,29 @@ export class PopupMenu extends Component {
         itemEventProps: {}, // obiekt z propsami dla zdarzeń
         onClick: (e: Event, props: {}) => void // callback zdarzenia onClick pozycji menu. props to itemEventProps
     };
+
+    constructor() {
+        super(...arguments);
+        this.state = {
+            opened: this.props.opened || false,
+            x: this.props.x || 0,
+            y: this.props.y || 0,
+            items: this.props.items || null,
+            itemEventProps: this.props.itemEventProps || {}
+        };
+
+        this._onMouseUpListener = (e) => {
+            if (!this.state.opened || !this._menu) return;
+
+            let target = e.target;
+            while (target) {
+                if (target === this._menu) return;
+                target = target.parentElement;
+            }
+            this.setState({opened: false});
+        };
+        window.addEventListener('mousedown', this._onMouseUpListener);
+    }
 
     /** Otwiera menu kontekstowe
      * @param e obiekt zdarzenia myszy (onContextMenu)
@@ -71,27 +90,20 @@ export class PopupMenu extends Component {
         });
     }
 
-    constructor() {
-        super(...arguments);
-        this.state = {
-            opened: this.props.opened || false,
-            x: this.props.x || 0,
-            y: this.props.y || 0,
-            items: this.props.items || null,
-            itemEventProps: this.props.itemEventProps || {}
-        };
-
-        this._onMouseUpListener = (e) => {
-            if (!this.state.opened || !this._menu) return;
-
-            let target = e.target;
-            while (target) {
-                if (target === this._menu) return;
-                target = target.parentElement;
+    /** zamyka otwarte podlisty
+     * @private
+     */
+    _close() {
+        const closer = (item: MenuItem) => {
+            if (item.openSubmenu) {
+                item.openSubmenu = false;
+                Utils.forEach(item.subMenu, (item) => closer(item));
             }
-            this.setState({opened: false});
         };
-        window.addEventListener('mousedown', this._onMouseUpListener);
+
+        Utils.forEach(this.state.items, (item) => closer(item));
+
+        this.setState({opened: false});
     }
 
     componentWillUnmount() {
@@ -209,7 +221,7 @@ export class PopupMenu extends Component {
                                     Is.func(item.onClick, item.onClick(e, this.state.itemEventProps));
                                 else if (this.state.onClick)
                                     Is.func(this.state.onClick, this.state.onClick(e));
-                                if (!item.subMenu && item.closeOnClick) this.setState({opened: false});
+                                if (!item.subMenu && item.closeOnClick) this._close();
                             }}
                     {...subProps}
                 >
@@ -252,10 +264,10 @@ export class PopupMenu extends Component {
     renderSubmenu(items: [], opened: boolean) {
         if (!opened) return null;
         return <div className="c-popup-menu" ref={elem => this._setPosition(elem, true)}
-                     style={{
-                         ...this._style,
-                         left: '100%'
-                     }}>
+                    style={{
+                        ...this._style,
+                        left: '100%'
+                    }}>
             {this.renderItems(items)}
         </div>
     }
@@ -265,14 +277,14 @@ export class PopupMenu extends Component {
             if (elem) this._menu = elem;
             this._setPosition(elem, false);
         }}
-                     style={{
-                         ...this._style,
-                         display: this.state.opened ? null : 'none',
-                         left: this.state.x,
-                         top: this.state.y,
-                         zIndex: Component.zIndex,
-                     }}
-                     onContextMenu={(e) => e.preventDefault()}
+                    style={{
+                        ...this._style,
+                        display: this.state.opened ? null : 'none',
+                        left: this.state.x,
+                        top: this.state.y,
+                        zIndex: Component.zIndex,
+                    }}
+                    onContextMenu={(e) => e.preventDefault()}
         >{this.renderItems(this.state.items)}</div>;
     }
 }

@@ -1,4 +1,6 @@
-import {React, PropTypes, Type, Utils, Field, Repository, CRUDE, Record, EError, Dev, Is} from "../../core";
+import {
+    React, PropTypes, Type, Utils, Field, Cell, Repository, CRUDE, Record, EError, Dev, Is, Column
+} from "../../core";
 import {Button, Page, Icon, Spinner, Alert, Link, ModalWindow, MW_BUTTONS, Panel} from "../../components";
 import AppStatus from "../../application/Status";
 import {RepoAction} from "../../repository/Repository";
@@ -10,38 +12,103 @@ import {Btn} from "../Button";
 
 export default class RecordCtrl {
 
-    page: Page;
     record: Record;
     crude: CRUDE;
     spinner: boolean = true;
     viewer: JsonViewer;
     buttons: Btn[] = [];
-    showAdvances: boolean;
-    local: boolean;
+    showAdvanced: boolean = false;
+    local: boolean = false;
+    title: string;
+    _modal: ModalWindow;
+    _onSuccess: () => void;
+    showSuccessHint: boolean = true;
 
-    constructor(page: Page, record: Record) {
-        this.page = page;
+    _btnSave: Btn;
+    _btnCancel: Btn;
+    _btnDelete: Btn;
+    _btnNew: Btn;
+
+
+    get btnNew(): Btn {
+        return this._btnNew || (this._btnNew = new Btn((btn: Btn) => {
+            this.buttons.push(btn);
+            btn.key = "new";
+            btn.type = "primary";
+            btn.icon = Icon.PLUS;
+            btn.text = "Nowy";
+            btn.onClick = e => {
+                new RecordCtrl(this.record.repo.createRecord(this, CRUDE.CREATE)).modalEdit();
+                if (this._modal)
+                    this._modal.close(e);
+            };
+            btn.modalClose = !this._modal;
+        }));
+
+    }
+
+    get btnSave(): Btn {
+        return this._btnSave || (this._btnSave = new Btn((btn: Btn) => {
+            this.buttons.push(btn);
+            btn.key = "save";
+            btn.type = "success";
+            btn.icon = Icon.CHECK;
+            btn.text = this.crude === CRUDE.CREATE ? "Utwórz" : "Zapisz";
+            btn.onClick = e => this.commit(this.crude);
+            btn.modalClose = !this._modal;
+        }));
+
+    }
+
+    get btnBack(): Btn {
+        return this._btnCancel || (this._btnCancel = new Btn((btn: Btn) => {
+            this.buttons.push(btn);
+            btn.key = "back";
+            btn.type = "default";
+            btn.icon = Icon.CHEVRON_LEFT;
+            btn.text = "Anuluj";
+            btn.onClick = e => this.goBack(false);
+        }));
+    }
+
+    get btnDelete(): Btn {
+        return this._btnDelete || (this._btnDelete = new Btn((btn: Btn) => {
+            this.buttons.push(btn);
+            btn.key = "delete";
+            btn.type = "danger";
+            btn.icon = Icon.TIMES;
+            btn.text = "Usuń";
+            btn.confirm = "Czy na pewno usunąć " + Utils.escape(this.record.displayValue);
+            btn.onClick = e => this.commit(CRUDE.DELETE);
+            btn.modalClose = !this._modal;
+            //    btn._visible = this.crude === CRUDE.CREATE;
+        }));
+    }
+
+
+    constructor(record: Record) {
         this.record = record;
         this.crude = record.action;
+        this.title = record.repo.name;
     }
 
 
     goBack(isCommit: boolean) {
-        if (!isCommit && (!this.page || !this.page.modal))
+        if (!isCommit && (!this._modal))
             window.history.back();
     }
 
     onReponse(object: any, spinner: Spinner) {
         if (spinner) spinner.hide();
 
-        if (!this.page.modal)
-            this.buttons.forEach(btn => btn.disabled = false);
+        this.buttons.forEach(btn => btn.disabled = false);
 
         if (object instanceof Error || object instanceof EError)
             Alert.error(this, object);
     }
 
     commit(crude: CRUDE, onSuccess: () => void) {
+
         this.record.action = crude;
 
         if (!this.validate()) return false;
@@ -56,9 +123,14 @@ export default class RecordCtrl {
             Repository.commit(this, [this.record])
                 .then((e, f, g) => {
                     this.onReponse(e, spinner);
-                    AppStatus.success(this, "Zaktualizowano dane", "Czas: " + (new Date().getTime() - ts) + " ms");
+                    if (this.showSuccessHint)
+                        AppStatus.success(this, "Zaktualizowano dane", "Czas: " + (new Date().getTime() - ts) + " ms");
                     if (onSuccess)
                         onSuccess();
+                    if (this._onSuccess)
+                        this._onSuccess();
+                    if (this._modal)
+                        this._modal.close();
                 })
                 .catch((e) => this.onReponse(e, spinner));
         } catch (e) {
@@ -67,69 +139,59 @@ export default class RecordCtrl {
         }
     }
 
+    renderNavBar() {
+        const pk = this.record.pk;
+
+        let prevPk = null;
+        let nextPk = null;
+        let found = false;
+
+
+        Utils.forEach(this.record.repo.rows, (val, key, stop) => {
+            if (found) {
+                nextPk = key;
+                stop();
+                return;
+            }
+            prevPk = key;
+            if (key === pk)
+                found = true;
+        });
+
+        if (!nextPk) return null;
+
+
+        const prev: Record = this.record.repo.get(null, prevPk, true);
+        const next: Record = this.record.repo.get(null, nextPk, true);
+
+        return <div style={{
+            display: "flex",
+            marginBottom: "20px"
+        }}>
+            <div style={{flex: "auto"}}>
+                <span className={Icon.CHEVRON_LEFT}/>
+                <span>{prev.displayValue}</span>
+            </div>
+            <div style={{flex: "auto", textAlign: "right"}}>
+                <span>{next.displayValue}</span>
+                <span className={Icon.CHEVRON_RIGHT}/>
+            </div>
+        </div>
+    }
+
     render(): AttributesRecord {
-        return <AttributesRecord record={this.record} fill={true} edit={true} showAdvanced={this.showAdvances}
-                                 local={this.local}/>
-    }
 
-    /** Dodaje przyciski obsługi rekordu do paska nawigacyjnego strony */
-    createButtons(btns: PageButtons): [] {
-        this.buttons.clear();
-        Is.def(this.saveButton(), btn => btns.buttons.unshift(btn));
-        Is.def(this.deleteButton(), btn => btns.buttons.unshift(btn));
-        Is.def(this.cancelButton(), btn => btns.buttons.unshift(btn));
-    }
+        return <div>
+            {this.renderNavBar()}
+            <AttributesRecord
+                recordCtrl={this}
+                fit={true}
+                edit={true}
+                showAdvanced={this.showAdvanced}
+                local={this.local}
+            />
+        </div>
 
-    saveButton(onSuccess: () => void): Btn {
-
-        if (!onSuccess)
-            onSuccess = () => this.goBack(true);
-
-        const btn = new Btn((btn: Btn) => {
-            btn.key = "btnSave";
-            btn.type = "success";
-            btn.icon = Icon.CHECK;
-            btn.text = this.crude === CRUDE.CREATE ? "Utwórz" : "Zapisz";
-            btn.onClick = e => this.commit(this.crude, onSuccess);
-        });
-        this.buttons.push(btn);
-        return btn;
-    }
-
-
-    cancelButton(onSuccess: (e) => void) {
-
-        if (!onSuccess)
-            onSuccess = e => this.goBack(true);
-
-        const btn = new Btn((btn: Btn) => {
-            btn.key = "btnCancel";
-            btn.type = "default";
-            btn.icon = Icon.CHEVRON_LEFT;
-            btn.text = "Anuluj";
-            btn.onClick = e => onSuccess(e);
-        });
-        this.buttons.push(btn);
-        return btn;
-    }
-
-    deleteButton(confirm: string, onSuccess: (e) => void) {
-
-        if (this.crude === CRUDE.CREATE) return null;
-
-        if (confirm === undefined)
-            confirm = "Czy na pewno usunąć " + Utils.escape(this.record.displayValue);
-
-
-        const btn = new Btn((btn: Btn) => {
-            btn.key = "btnDelete";
-            btn.type = "danger";
-            btn.icon = Icon.TIMES;
-            btn.text = "Usuń";
-            btn.onClick = e => this.commit(CRUDE.DELETE, onSuccess);
-        });
-        this.buttons.push(btn);
-        return btn;
     }
 
 
@@ -163,24 +225,29 @@ export default class RecordCtrl {
         return errors.isEmpty();
     }
 
-    renderEdit(modal: boolean, onConfirm: () => boolean) {
 
-
+    modalEdit(onSuccess: () => void) {
+        this._onSuccess = onSuccess;
         ModalWindow.create((mw: ModalWindow) => {
-            mw.content = <Panel fill>{this.render()}</Panel>;
-            mw.title = this.record.action === CRUDE.CREATE
+            this._modal = mw;
+            mw.content = <Panel fit style={{padding: "30px"}}>
+                {this.render()}
+            </Panel>;
+            mw.title.set(this.title || (this.record.action === CRUDE.CREATE
                 ? "Tworzenie rekordu " + Utils.escape(this.record.repo.name)
-                : "Edycja rekordu " + Utils.escape(this.record.displayValue);
-            mw.buttons = MW_BUTTONS.OK_CANCEL;
-            mw.onConfirm = () => {
+                : "Edycja rekordu " + Utils.escape(this.record.displayValue)));
 
-                if (!this.validate())
-                    return false;
 
-                if (onConfirm)
-                    return onConfirm();
-                this.commit(CRUDE.UPDATE, () => mw.close());
-            }
+            const btns: PageButtons = mw.buttons = new PageButtons();
+
+            btns.list.push(mw.btnCancel);
+            if (this.record.action !== CRUDE.CREATE)
+                btns.list.push(this.btnNew);
+            btns.list.push(this.btnDelete);
+            btns.list.push(this.btnSave);
+
+            this.btnDelete._visible = this.record.action !== CRUDE.CREATE;
+            mw.onClose = () => this._modal = null;
 
         }).open();
     }

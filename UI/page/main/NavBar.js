@@ -44,7 +44,7 @@ export default class NavBar extends Component<*, *, *> {
 
 
         return (
-            <Panel scrollable noPadding id="app-navbar">
+            <Panel scrollable resizable east noPadding id="app-navbar">
                 <CTree key={Utils.randomId()} data={tree}/>
             </Panel>
         );

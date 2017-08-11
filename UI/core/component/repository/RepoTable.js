@@ -1,5 +1,6 @@
-import {React, PropTypes, Field, Utils, Column, Repository, Record, CRUDE, Endpoint} from '../../core.js';
-import {Page, Icon, Link, Table, FCtrl, Panel, Button} from '../../components.js';
+import {React, PropTypes, Field, Utils, Column, Repository, Record, CRUDE, Endpoint, Is} from '../../core.js';
+import {Page, Icon, Link, Table, FCtrl, Panel, Button, ModalWindow} from '../../components.js';
+import {ENDPOINT_TARGET_POPUP} from "../../application/Endpoint";
 
 //ToDo: Hint dla wiersza - lista field + displayValue
 
@@ -12,6 +13,14 @@ export default class RepoTable extends Table {
         onClick: PropTypes.func, //(rec, e,  row, column, table)
         showAdvanced: PropTypes.bool,
         modalEdit: PropTypes.bool,
+        rowFilter: PropTypes.func,
+        references: PropTypes.array,
+        fit: PropTypes.bool,
+        style: PropTypes.object
+    };
+
+    static defaultProps = {
+        showAdvanced: false
     };
 
     constructor() {
@@ -20,10 +29,10 @@ export default class RepoTable extends Table {
         this._className.unshift("c-repo-table");
 
         let mapping = [];
+        const indexes: Map = new Map();
 
         const repo: Repository = this.repo = this.props.repository;
 
-        let rowIdx = 0;
 
         this._onRowClick = (row, column, instance, e) => {
             let rec: Record = mapping[row.index];
@@ -37,33 +46,50 @@ export default class RepoTable extends Table {
             Endpoint.devRouter.RECORD.navigate({
                 repo: repo.key,
                 id: rec.primaryKey.value
-            }, e);
+            }, this.props.modalEdit ? ENDPOINT_TARGET_POPUP : e);
 
         };
 
         this._dataSource = () => {
             const rows = {};
             mapping.clear();
+            indexes.clear();
 
-            Utils.forEach(repo.rows, (_row, pk) => {
-                let cellIdx = 0;
+            let idx = 0;
 
+            const addRec = (rec: Record, cellIdx) => {
                 const row = {};
-                const rec: Record = repo.createRecord(this, CRUDE.UPDATE);
-                rec.row = _row;
+                if (this.props.rowFilter && this.props.rowFilter(rec) === false)
+                    return;
+                //
+                // rec.onUpdateMarkerChange.listen(this, state => {
+                //     debugger;
+                // });
 
                 const mark = this._dataChanged && this._dataChanged.fullId === rec.fullId;
 
                 rec.fields.forEach((f: Field) =>
                     row[f.key] = <FCtrl
-                        ref={(e: FCtrl) => mark && e && e._markAsChanged(true)}
-                        key={rowIdx++ + "." + (cellIdx++)}
+                        key={++idx}
                         field={f}
                         inline
                     />);
 
+                indexes.set(rec.pk, mapping.length);
                 mapping.push(rec);
                 rows[rec.pk] = row;
+            };
+
+            Utils.forEach(repo.rows, (_row, pk) => {
+
+                const rec: Record = repo.createRecord(this, CRUDE.UPDATE);
+                rec.row = _row;
+                addRec(rec);
+            });
+
+            Utils.forEach(this.props.references, (rec: Record) => {
+                debugger;
+                addRec(rec);
             });
 
             return rows;
@@ -71,8 +97,19 @@ export default class RepoTable extends Table {
 
         repo.onChange.listen(this, data => {
             // zdarzenie modyfikacji repozytorium ustawia tylko flagę, metoda render() zostanie wywołana z zewnątrz
-            if (data.action !== CRUDE.UPDATE)  // ignorujemy aktualizacje komórek - obsługiwane będą przez FCtrl
+            if (data.action !== CRUDE.UPDATE) {  // ignorujemy aktualizacje komórek - obsługiwane będą przez FCtrl
                 this._dataChanged = data.record;
+                this.forceUpdate(true);
+                return;
+            }
+
+            if (!this._htmlTableElement) return;
+            const idx = indexes.get(data.record.pk);
+            if (!Is.defined(idx)) return;
+            const tr = document.querySelector(".rt-tr-group[data-idx='" + idx + "']");
+            if (!tr) return;
+            tr.setAttribute("data-changed", "true");
+            this.setTimeout(() => tr.setAttribute("data-changed", "false"), 3000);
         });
 
         this._columns = this._convertColumns(Utils.forEach(repo.columns, (c: Column) => {

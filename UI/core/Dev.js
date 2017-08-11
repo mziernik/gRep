@@ -11,57 +11,6 @@ export const TEST_MODE = PROCESS_ENV.NODE_ENV === 'test';
 
 export default class Dev {
 
-    /**
-     * Pomiar czasu wykonywania metody
-     * @param context
-     * @param name
-     * @param callback
-     * @param args
-     * @return {*}
-     */
-    static duration(context: ?any, name: string, callback: () => any, ...args) {
-        let ts = new Date().getTime();
-
-        const result = callback(...args);
-
-        ts = new Date().getTime() - ts;
-        if (ts > 30)
-            Dev.warning(context, name + ", czas trwania - " + ts + " ms");
-
-        return result;
-    }
-
-
-    static group(context: ?any | any[], value: ?mixed, ...other: any) {
-        window.console.groupCollapsed(format(context, value));
-        (other || []).forEach(item => window.console.debug(item));
-        window.console.groupEnd();
-    }
-
-    static log(context: ?any | any[], value: ?mixed, ...args: any) {
-        window.console.debug(format(context, value), ...args);
-    }
-
-    static warning(context: ?any | any[], value: ?mixed, ...args: any) {
-        window.console.warn(value instanceof Error ? value : format(context, value), ...args);
-    }
-
-    static error(context: ?any | any[], value: ?mixed, ...args: any) {
-        window.console.error(value instanceof Error ? value : format(context, value), ...args);
-        if (DEV_MODE)
-            ErroHandler.onError(Utils.getContextName(context) + ": " + value);
-    }
-
-    static dir(value: ?mixed, ...args: any) {
-        window.console.dir(value, ...args);
-    }
-
-    static randomPostCode(): string {
-        const rnd = () => "" + Math.floor(Math.random() * 10);
-        return rnd() + rnd() + "-" + rnd() + rnd() + rnd();
-
-    }
-
     static OCCUPATIONS = ["Grafik", "Pracownik biurowy", "Urzędnik państwowy", "Lekarz", "Specjalista ds. zakupów",
         "Specjalista ds. PR", "Programista", "Architekt wnętrz / krajobrazu", "Ekonomista", "Specjalista ds. marketingu",
         "Programista baz danych", "Prawnik", "Inżynier Środowiska", "Webmaster", "Specjalista ds. ochrony środowiska",
@@ -83,7 +32,6 @@ export default class Dev {
         "Radca prawny", "Dyrektor ds. Marketingu", "Kosztorysant", "Telemarketer", "Specjalista ds. dostaw",
         "Specjalista ds. pozycjonowania", "Doradca podatkowy", "Specjalista ds. ofertowania", "Dyrektor ds. Produkcji",
         "Kierownik kontraktu", "Analityk systemów", "Nauczyciel", "Specjalista ds. kadr i płac", "Specjalista ds. rekrutacji"];
-
     static CITIES: string[] = ["Warszawa", "Kraków", "Łódź", "Wrocław", "Poznań", "Gdańsk", "Szczecin", "Bydgoszcz",
         "Lublin", "Katowice", "Białystok", "Gdynia", "Częstochowa", "Radom", "Sosnowiec", "Toruń", "Kielce", "Gliwice",
         "Rzeszów", "Zabrze", "Olsztyn", "Bielsko-Biała", "Bytom", "Ruda Śląska", "Rybnik", "Tychy", "Gorzów Wielkopolski",
@@ -96,7 +44,6 @@ export default class Dev {
         "Biała Podlaska", "Zgierz", "Piekary Śląskie", "Racibórz", "Legionowo", "Ostrołęka", "Świętochłowice", "Zawiercie",
         "Starachowice", "Wejherowo", "Puławy", "Wodzisław Śląski", "Skierniewice", "Starogard Gdański", "Tarnobrzeg",
         "Radomsko", "Skarżysko-Kamienna", "Rumia", "Krosno", "Kołobrzeg", "Dębica", "Kutno", "Otwock"];
-
     static STREETS: string[] = ["Polna", "Lesna", "Sloneczna", "Krótka", "Szkolna", "Ogrodowa", "Lipowa", "Brzozowa",
         "Lakowa", "Kwiatowa", "Sosnowa", "Koscielna", "Akacjowa", "Parkowa", "Zielona", "Kolejowa", "Sportowa",
         "Debowa", "Kosciuszki", "3 Maja", "Mickiewicza", "Cicha", "Spokojna", "Klonowa", "Spacerowa", "Świerkowa",
@@ -108,7 +55,6 @@ export default class Dev {
         "Reymonta", "Pilsudskiego", "Zacisze", "Cmentarna", "Okrezna", "Kochanowskiego", "ArmiiKrajowej", "Mila", "Jasna",
         "Wodna", "Zamkowa", "Witosa", "Reja", "Warszawska", "Miodowa", "Partyzantów", "Krzywa", "Kilinskiego", "Dolna",
         "Podgórna", "Kreta", "Jarzebinowa", "Moniuszki", "Targowa", "Prosta", "Orzeszkowej", "Spóldzielcza", "Jagodowa"];
-
     static MALES: string[] = [
         "Adam",
         "Hubert",
@@ -172,7 +118,6 @@ export default class Dev {
         "Wiktor",
         "Wilhelm",
         "Zenon"];
-
     static FEMALES: string[] = [
         "Adrianna",
         "Agata",
@@ -265,7 +210,6 @@ export default class Dev {
         "Zofia",
         "Zuzanna"
     ];
-
     static SURNAMES: string[] = [
         "Nowak",
         "Kowalski",
@@ -571,8 +515,57 @@ export default class Dev {
         "Ptak",
         "Strzelecki"
     ];
-
     static LOREM_IPSUM: string = "Lorem ipsum dolor sit amet enim. Etiam ullamcorper. Suspendisse a pellentesque dui, non felis. Maecenas malesuada elit lectus felis, malesuada ultricies. Curabitur et ligula. Ut molestie a, ultricies porta urna. Vestibulum commodo volutpat a, convallis ac, laoreet enim. Phasellus fermentum in, dolor. Pellentesque facilisis. Nulla imperdiet sit amet magna. Vestibulum dapibus, mauris nec malesuada fames ac turpis velit, rhoncus eu, luctus et interdum adipiscing wisi. Aliquam erat ac ipsum. Integer aliquam purus. Quisque lorem tortor fringilla sed, vestibulum id, eleifend justo vel bibendum sapien massa ac turpis faucibus orci luctus non, consectetuer lobortis quis, varius in, purus. Integer ultrices posuere cubilia Curae, Nulla ipsum dolor lacus, suscipit adipiscing. Cum sociis natoque penatibus et ultrices volutpat. Nullam wisi ultricies a, gravida vitae, dapibus risus ante sodales lectus blandit eu, tempor diam pede cursus vitae, ultricies eu, faucibus quis, porttitor eros cursus lectus, pellentesque eget, bibendum a, gravida ullamcorper quam. Nullam viverra consectetuer. Quisque cursus et, porttitor risus. Aliquam sem. In hendrerit nulla quam nunc, accumsan congue. Lorem ipsum primis in nibh vel risus. Sed vel lectus. Ut sagittis, ipsum dolor quam.";
+
+    /**
+     * Pomiar czasu wykonywania metody
+     * @param context
+     * @param name
+     * @param callback
+     * @param args
+     * @return {*}
+     */
+    static duration(context: ?any, name: string, callback: () => any, ...args) {
+        let ts = new Date().getTime();
+
+        const result = callback(...args);
+
+        ts = new Date().getTime() - ts;
+        if (ts > 30)
+            Dev.warning(context, name + ", czas trwania - " + ts + " ms");
+
+        return result;
+    }
+
+    static group(context: ?any | any[], value: ?mixed, ...other: any) {
+        window.console.groupCollapsed(format(context, value));
+        (other || []).forEach(item => window.console.debug(item));
+        window.console.groupEnd();
+    }
+
+    static log(context: ?any | any[], value: ?mixed, ...args: any) {
+        window.console.debug(format(context, value), ...args);
+    }
+
+    static warning(context: ?any | any[], value: ?mixed, ...args: any) {
+        window.console.warn(value instanceof Error ? value : format(context, value), ...args);
+    }
+
+    static error(context: ?any | any[], value: ?mixed, ...args: any) {
+        window.console.error(value instanceof Error ? value : format(context, value), ...args);
+        if (DEV_MODE)
+            ErroHandler.onError(Utils.getContextName(context) + ": " + value);
+    }
+
+    static dir(value: ?mixed, ...args: any) {
+        window.console.dir(value, ...args);
+    }
+
+    static randomPostCode(): string {
+        const rnd = () => "" + Math.floor(Math.random() * 10);
+        return rnd() + rnd() + "-" + rnd() + rnd() + rnd();
+
+    }
 
     static randomUser() {
         const male = Math.random() >= 0.5;

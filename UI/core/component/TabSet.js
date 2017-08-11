@@ -5,16 +5,14 @@ import './TabSet.css';
 /** Klasa do obsługi zakładek */
 export class TabSet extends Component {
 
-    props: {
-        vertical: boolean,
-        selectedIndex: number
-    };
-
     static propTypes = {
         vertical: PropTypes.bool,
         selectedIndex: PropTypes.number
     };
-
+    props: {
+        vertical: boolean,
+        selectedIndex: number
+    };
     state: {
         selected: Number, // index otwartej zakładki
         arrows: boolean, // czy widoczne są strzałki od przewijania
@@ -149,7 +147,7 @@ export class TabSet extends Component {
 
         return (
             <div className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}
-                  style={{display: 'flex', flexDirection: 'column', flex: "1", overflow: "hidden"}}
+                 style={{display: 'flex', flexDirection: 'column', flex: "1", overflow: "hidden"}}
             >
                 <div ref={() => this._showArrows()}
                      className={"tabsCtrl " + (this.props.vertical ? "tabsVertical" : "")}
@@ -161,25 +159,25 @@ export class TabSet extends Component {
                          onMouseDown={() => this._scroll(-1)}>
                         <span className={(this.props.vertical ? Icon.CHEVRON_UP : Icon.CHEVRON_LEFT)}/></div>
                     <div ref={(elem) => this.tabs = elem}
-                          className={"tabs " + (this.props.vertical ? "tabsVertical" : "")}
-                          style={{position: 'relative'}}>
+                         className={"tabs " + (this.props.vertical ? "tabsVertical" : "")}
+                         style={{position: 'relative'}}>
                         {Utils.forEach(children, (chld, index) => {
                             if (chld.props.hidden) return null;
                             if (!chld.props.disabled && this.state.selected === index)
                                 return <div ref={(elem) => this._setScroll(elem)}
-                                             title={chld.props.title}
-                                             tabIndex="0"
-                                             key={index}
-                                             className="tab tab_selected">
-                                        {chld.props.label}
-                                    </div>;
-                            return (<div tabIndex="0"
-                                          title={chld.props.title}
-                                          key={index}
-                                          className={"tab " + (chld.props.disabled ? "tab_disabled" : "")}
-                                          onFocus={chld.props.disabled ? null : (e) => this._handleSelect(e, index, chld.props.onSelect)}>
+                                            title={chld.props.title}
+                                            tabIndex="0"
+                                            key={index}
+                                            className="tab tab_selected">
                                     {chld.props.label}
-                                    </div>)
+                                </div>;
+                            return (<div tabIndex="0"
+                                         title={chld.props.title}
+                                         key={index}
+                                         className={"tab " + (chld.props.disabled ? "tab_disabled" : "")}
+                                         onFocus={chld.props.disabled ? null : (e) => this._handleSelect(e, index, chld.props.onSelect)}>
+                                {chld.props.label}
+                            </div>)
                         })}
                     </div>
                     <span style={{
@@ -205,14 +203,6 @@ export class TabSet extends Component {
 /** Klasa zakładki. Przyjmuje tylko jedno dziecko */
 export class Tab extends Component {
 
-    props: {
-        label: any,
-        title: ?string,
-        disabled: boolean,
-        hidden: boolean,
-        onSelect: ?(e: ?Event, index: number) => void
-    };
-
     static propTypes = {
         label: PropTypes.oneOfType([PropTypes.node, PropTypes.element]),
         title: PropTypes.string,
@@ -220,7 +210,13 @@ export class Tab extends Component {
         hidden: PropTypes.bool,
         onSelect: PropTypes.func
     };
-
+    props: {
+        label: any,
+        title: ?string,
+        disabled: boolean,
+        hidden: boolean,
+        onSelect: ?(e: ?Event, index: number) => void
+    };
 
     render() {
         return super.renderChildren(null, true);

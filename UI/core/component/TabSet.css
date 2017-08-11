@@ -20,8 +20,8 @@
     padding: 0 10px 0 10px;
     align-items: center;
     flex: 1;
-    border-color: #aaa;
-    border-bottom: 1px solid #474747;
+    border-color: #999;
+    border-bottom: 1px solid #999;
 }
 
 .tabArrow:hover {
@@ -37,8 +37,8 @@
     white-space: nowrap;
     padding: 5px 20px 5px 20px;
     cursor: default;
-    border: 1px solid #aaa;
-    border-bottom-color: #474747;
+    border: 1px solid #999;
+    border-bottom-color: #999;
 }
 
 .tab:hover {
@@ -46,7 +46,7 @@
 }
 
 .tab_selected {
-    border: 1px solid #474747;
+    border: 1px solid #999;
     border-bottom: none;
     text-shadow: #a5a5a5 1px 1px 1px;
 }
@@ -54,12 +54,12 @@
 .tab_disabled {
     color: #bbbbbb;
     background-color: rgba(0, 0, 0, 0.6);
-    border: 1px solid #474747;
+    border: 1px solid #999;
 }
 
 .tabContent {
     padding: 8px;
-    border-left: 1px solid #474747;
-    border-right: 1px solid #474747;
-    border-bottom: 1px solid #474747;
+    border-left: 1px solid #999;
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;
 }

@@ -1,12 +1,18 @@
 //@Flow
 'use strict';
-import {React, Utils} from '../../core';
-import {Component, Button, Icon} from '../../components';
+import {React, Utils, Dev} from '../../core';
+import {Component, Button, Icon, Page} from '../../components';
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
 import FormTab from "./FormTab";
 import Resizer from "../../component/Resizer";
 import {Scrollbar} from "../../component/Scrollbar";
 import Panel from "../../component/Panel";
+
+export class DemoModalPage extends Page {
+    render() {
+        return "HELLO";
+    }
+}
 
 export default class ModalWindowTab extends Component {
 
@@ -15,34 +21,15 @@ export default class ModalWindowTab extends Component {
             <div style={{overflow: 'auto'}}>
                 <div>
                     {Utils.forEach(this.MODAL_WINDOWS, (mw, index) => {
-                        return <Button key={index} onClick={() => mw.modalWindow.open()}>{mw.name}</Button>
+                        return <Button key={index}
+                                       type="primary"
+                                       onClick={() => mw.modalWindow.open()}>{mw.name}</Button>
                     })}
                 </div>
-                <Panel resizable split border style={{width: '500px', height: '300px'}}>
-                    <div style={{background: '#ff5d00'}}>
-                        Lorem ipsum dolor sit amet,
-                        consectetur adipiscing elit. Proin nibh
-                        augue, suscipit a, scelerisque sed, lacinia in, mi. Cras vel lorem. Etiam pellentesque aliquet
-                        tellus. Phasellus pharetra nulla ac diam. Quisque semper justo at risus. Donec venenatis, turpis
-                        vel hendrerit interdum, dui ligula ultricies purus, sed posuere libero dui id orci. Nam congue,
-                        pede vitae dapibus aliquet, elit magna vulputate arcu, vel tempus metus leo non est. Etiam sit
-                        amet lectus quis est congue mollis. Phasellus congue lacus eget neque. Phasellus ornare, ante
-                        vitae consectetuer consequat, purus sapien ultricies dolor, et mollis pede metus eget nisi.
-                        Praesent sodales velit quis augue. Cras suscipit, urna at aliquam rhoncus, urna quam viverra
-                        nisi, in interdum massa nibh nec erat.
-                    </div>
-                    <div style={{background: '#ffa500'}}>
-                        Lorem ipsum dolor sit amet,
-                        consectetur adipiscing elit. Proin nibh
-                        augue, suscipit a, scelerisque sed, lacinia in, mi. Cras vel lorem. Etiam pellentesque aliquet
-                        tellus. Phasellus pharetra nulla ac diam. Quisque semper justo at risus. Donec venenatis, turpis
-                        vel hendrerit interdum, dui ligula ultricies purus, sed posuere libero dui id orci. Nam congue,
-                        pede vitae dapibus aliquet, elit magna vulputate arcu, vel tempus metus leo non est. Etiam sit
-                        amet lectus quis est congue mollis. Phasellus congue lacus eget neque. Phasellus ornare, ante
-                        vitae consectetuer consequat, purus sapien ultricies dolor, et mollis pede metus eget nisi.
-                        Praesent sodales velit quis augue. Cras suscipit, urna at aliquam rhoncus, urna quam viverra
-                        nisi, in interdum massa nibh nec erat.
-                    </div>
+                <Panel foldable border name={"Tytuł testowy rozwijalnego panelu"}
+                       style={{width: '500px'}}
+                       icon={Icon.BUG.className}>
+                    {Dev.LOREM_IPSUM}
                 </Panel>
             </div>
         )
@@ -73,7 +60,6 @@ export default class ModalWindowTab extends Component {
             name: "Bez ikony",
             modalWindow: ModalWindow.create((mw: ModalWindow) => {
                 mw.content = "Bez ikony z lewej strony";
-                mw.icon = null;
             })
         },
         {
@@ -88,20 +74,19 @@ export default class ModalWindowTab extends Component {
             name: "Długi tytuł",
             modalWindow: ModalWindow.create((mw: ModalWindow) => {
                 mw.content = "Okno z długim tytułem";
-                mw.title = "Wyjątkowo długi tytuł okna modalnego, by zaprezentować przycinanie tekstu na nim. Gdyby okno było zbyt duże, to zawsze można je zmniejszyć :)";
+                mw.title.set("Wyjątkowo długi tytuł okna modalnego, by zaprezentować przycinanie tekstu na nim. Gdyby okno było zbyt duże, to zawsze można je zmniejszyć :)");
             })
         },
         {
             name: "Lorem Ipsum",
             modalWindow: ModalWindow.create((mw: ModalWindow) => {
-                mw.content = "…neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
+                mw.content = Dev.LOREM_IPSUM;
             })
         },
         {
             name: "Złożona zawartość",
             modalWindow: ModalWindow.create((mw: ModalWindow) => {
-                mw.title = "Formularz";
-                mw.icon = null;
+                mw.title.set("Formularz");
                 mw.buttons = null;
                 mw.closeButton = true;
                 mw.content = <FormTab/>;
@@ -122,17 +107,17 @@ export default class ModalWindowTab extends Component {
                     >Zagnieżdżone</Button></div>;
             })
         },
-        {
-            name: "HTML zamiast ikony",
-            modalWindow: ModalWindow.create((mw: ModalWindow) => {
-                mw.content = "W miejsce ikony wstawiony HTML";
-                mw.icon = <div style={{background: 'lightgray', padding: '10px', fontSize: '2.5em'}}>
-                    <div className={Icon.STOP_CIRCLE_O} style={{color: "red", display: 'block'}}/>
-                    <div className={Icon.PAUSE_CIRCLE_O} style={{color: "orange", display: 'block'}}/>
-                    <div className={Icon.PLAY_CIRCLE_O} style={{color: "green", display: 'block'}}/>
-                </div>
-            })
-        },
+        /*   {
+               name: "HTML zamiast ikony",
+               modalWindow: ModalWindow.create((mw: ModalWindow) => {
+                   mw.content = "W miejsce ikony wstawiony HTML";
+                   mw.icon = <div style={{background: 'lightgray', padding: '10px', fontSize: '2.5em'}}>
+                       <div className={Icon.STOP_CIRCLE_O} style={{color: "red", display: 'block'}}/>
+                       <div className={Icon.PAUSE_CIRCLE_O} style={{color: "orange", display: 'block'}}/>
+                       <div className={Icon.PLAY_CIRCLE_O} style={{color: "green", display: 'block'}}/>
+                   </div>
+               })
+           },*/
         {
             name: "Własna stopka",
             modalWindow: ModalWindow.create((mw: ModalWindow) => {
@@ -199,6 +184,13 @@ export default class ModalWindowTab extends Component {
             modalWindow: ModalWindow.create((mw: ModalWindow) => {
                 mw.content = "Okno bez możliwości zmiany pozycji";
                 mw.draggable = false;
+            })
+        },
+        {
+            name: "Strona",
+            modalWindow: ModalWindow.create((mw: ModalWindow) => {
+                mw.title.set("Strona w oknie modalnym");
+                mw.content = <DemoModalPage/>;
             })
         }
 

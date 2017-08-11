@@ -1,36 +1,63 @@
+//@Flow
+'use strict';
 import {React, ReactDOM, ReactUtils, PropTypes, Utils, Is, CustomFilter, Field, Column, Type} from "../core";
 import {Component, Icon, Select} from "../components";
 import FCtrl from "./form/FCtrl";
 
 export default class FilterEditor extends Component {
+    static propTypes = {
+        dataSource: PropTypes.object, //{columns:[Column,...], rows:[]}
+        filter: PropTypes.object
+    };
     _key: number = 0;
     _columns: [] = []; // [Column, ...]
     _rows: [] = []; //ToDo enumeraty
     _filters: [] = []; //{filter:CustomFilter, _key:any}
 
-    static propTypes = {
-        dataSource: PropTypes.object, //{columns:[Column,...], rows:[]}
-        filters: PropTypes.array,
-        filter: PropTypes.object
-    };
-
     constructor() {
         super(...arguments);
         this._columns = this.props.dataSource.columns || [];
         this._rows = this.props.dataSource.rows || [];
-        this._setFilters(this.props.filters);
         if (this.props.filter)
             this._setFilter(this.props.filter);
+        else
+            this._filters.push(this._createFilter())
     }
 
-    _createFilter() {
+    _createFilter(based: ?CustomFilter = null) {
         let last = this._filters.last();
         let res = {
-            value: Field.create(last ? last.value.type : (this._columns[0].type || Type.STRING), 'filter_value_' + this._key, 'Wartość'),
-            filter: last ? last.filter.clone() : CustomFilter.andEqual('', this._columns[0].key),
+            accessor: new Field((cfg: Column) => {
+                cfg.type = Type.ENUM;
+                cfg.key = 'filter_accessor_' + this._key;
+                cfg.name = 'Kolumna';
+                cfg.enumerate = {};
+                Utils.forEach(this._columns, (col) => cfg.enumerate[col.key] = col.name);
+                cfg.readOnly = this._columns.length === 1;
+                cfg.defaultValue = based ? based.accessor : last ? last.accessor.value : this._columns[0].key;
+            }),
+            condition: new Field((cfg: Column) => {
+                cfg.type = Type.ENUM;
+                cfg.key = 'filter_condition_' + this._key;
+                cfg.name = 'Warunek';
+                cfg.enumerate = () => this._getConditionsEnum(res);
+                cfg.defaultValue = based ? based.condition : last ? last.condition.value : CustomFilter.CONDITIONS.EQUAL;
+            }),
+            value: new Field((cfg: Column) => {
+                const i = based ? this._columns.find((col) => col.key === based.accessor) : this._columns[0];
+                cfg.type = last ? last.value.type : (i.type || Type.STRING);
+                cfg.key = 'filter_value_' + this._key;
+                cfg.name = 'Wartość';
+                cfg.defaultValue = based ? based.value : last ? last.value.value : null;
+            }),
             _key: this._key++
         };
-        res.value.value = res.filter.value;
+        return res;
+    }
+
+    _getConditionsEnum(filter: {}): {} {
+        const res = {};
+        Utils.forEach(CustomFilter.getConditions(filter.value.type.simpleType), (cond) => res[cond] = cond);
         return res;
     }
 
@@ -50,64 +77,55 @@ export default class FilterEditor extends Component {
         this.forceUpdate(true);
     }
 
-    _setFilters(filters: []) {
-        this._filters = filters || [this._createFilter()];
-        this.forceUpdate(true);
-    }
-
     _setFilter(filter: CustomFilter) {
         const filters = [];
 
         const helper = (filter: CustomFilter) => {
-            const tmp = this._createFilter();
-            tmp.filter = filter;
+            const tmp = this._createFilter(filter);
             const ds = this._columns.find((col) => col.key === filter.accessor);
             if (ds) tmp.value.config.type = ds.type;
             tmp.value.value = filter.value;
             filters.push(tmp);
             Utils.forEach(filter.conditions, (c) => helper(c));
-            filter.conditions = [];
         };
 
-        helper(filter.clone());
+        helper(filter);
         this._filters = filters;
         this.forceUpdate(true);
     }
 
-    _change(filter: {}, operator = null, condition = null, accessor = null) {
-        const cfilter = filter.filter;
-        if (operator !== null) cfilter.operator = operator;
-        if (condition !== null) cfilter.condition = condition;
-        if (accessor !== null) {
-            cfilter.accessor = accessor;
-            cfilter.condition = CustomFilter.CONDITIONS.EQUAL;
-            const ds: Column = this._columns.find(col => col.key === accessor);
+    _change(filter: {}, newAccessor: boolean = false) {
+        if (newAccessor) {
+            const ds: Column = this._columns.find(col => col.key === filter.accessor.value);
             if (ds) {
-                cfilter.compareFn = ds.compare;
-                cfilter.filterFn = ds.filter;
                 if (ds.type) {
                     filter.value.config.type = ds.type;
                     filter.value.value = null;
                 }
             }
+            filter.condition.value = CustomFilter.CONDITIONS.EQUAL;
         }
-        cfilter.value = filter.value.value;
         this.forceUpdate(true);
     }
 
-    getFilters(): [] {
-        return this._filters;
-    }
-
     getFilter(): CustomFilter {
-        const filters = Utils.forEach(this._filters, (f) => f.filter.clone());
+        const filters = Utils.forEach(this._filters, (f) => {
+            const filter = new CustomFilter(f.value.value, f.condition.value, CustomFilter.OPERATORS.AND, f.accessor.value);
+            const c = this._columns.find((col) => col.key === filter.accessor);
+            if (c) {
+                filter.filterFn = c.filter;
+                filter.compareFn = c.compare;
+            }
+            return filter;
+        });
+        filters.sort((a, b) => CustomFilter.defaultCompareFn('string')(a.accessor, b.accessor));
         const filter = filters[0];
         if (filters.length === 0) return null;
         let added = false;
         for (let i = 1; i < filters.length; ++i) {
             added = false;
-            filters[i].operator = CustomFilter.OPERATORS.AND;
-            if (filters[i].condition !== CustomFilter.CONDITIONS.NOT_EQUAL)
+            if (filters[i].condition !== CustomFilter.CONDITIONS.NOT_EQUAL
+                && filters[i].condition !== CustomFilter.CONDITIONS.NOT_CONTAINS)
                 for (let j = i - 1; j >= 0; --j)
                     if ((filters[j].condition === filters[i].condition
                             || filters[i].condition === CustomFilter.CONDITIONS.EQUAL)
@@ -128,32 +146,13 @@ export default class FilterEditor extends Component {
         return <div>{!filter ? 'Brak' : filter.toString()}</div>;
     }
 
-    //ToDo layout
-    //ToDo selecty na FCtrl
-    renderEdit(filter: { value: Field, filter: CustomFilter, key: string }) {
-        const colSelect = <select defaultValue={filter.filter.accessor}
-                                  disabled={this._columns.length === 1}
-                                  onChange={e => this._change(filter, null, null, e.currentTarget.value)}>
-            {Utils.forEach(this._columns, (col, idx) => {
-                    return <option key={idx + '.' + col.key} value={col.key}>{col.name}</option>;
-                }
-            )}
-        </select>;
-
-        const condSelect = <select defaultValue={filter.filter.condition}
-                                   onChange={e => this._change(filter, null, e.currentTarget.value)}>
-            {Utils.forEach(CustomFilter.getConditions(filter.value.type.simpleType), (cond, idx) => {
-                return <option key={idx} value={cond}>{cond}</option>
-            })}
-        </select>;
-        const valInput = <FCtrl fit field={filter.value} value onChange={(e) => this._change(filter)}/>;
-
-        return <div key={filter._key} style={{display: 'flex'}}>
-            {colSelect}
-            {condSelect}
-            {valInput}
-            <span className={Icon.TIMES}
-                  title="Usuń"
+    renderEdit(filter: { accessor: Field, condition: Field, value: Field, filter: CustomFilter, key: string }) {
+        return <div key={filter._key} style={{display: 'flex', width: '100%'}}>
+            <FCtrl fit field={filter.accessor} value onChange={(e) => this._change(filter, true)}/>
+            <FCtrl fit field={filter.condition} value onChange={(e) => this._change(filter)}/>
+            <FCtrl style={{textAlign: 'center'}} field={filter.value} fit value boolMode={"radio"}
+                   onChange={(e) => this._change(filter)}/>
+            <span className={Icon.TIMES} title="Usuń"
                   style={{
                       color: 'red',
                       alignSelf: 'center'
@@ -166,7 +165,7 @@ export default class FilterEditor extends Component {
     }
 
     render() {
-        return <div>
+        return <div style={{width: '100%'}}>
             {this.renderPreview()}
             {Utils.forEach(this._filters, (filter, idx) => {
                 return this.renderEdit(filter, idx);

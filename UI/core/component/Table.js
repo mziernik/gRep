@@ -2,14 +2,33 @@ import {React, ReactDOM, ReactUtils, PropTypes, CustomFilter} from "../core";
 import {Utils, Is, Check, Column, AppEvent, Trigger, Record, Dev, Field} from "../core";
 import {Component, PopupMenu, MenuItem, Icon, ModalWindow, MW_BUTTONS} from "../components";
 import ReactTable from 'react-table';
+import TablePagination from './TablePagination';
 import 'react-table/react-table.css';
-import classnames from "classnames";
 import FilterEditor from "./FilterEditor";
 
 const resizeTrigger: Trigger = new Trigger();
 
 export default class Table extends Component {
 
+    static propTypes = {
+        // tablica Fieldów lub {idKolumny:nazwaKolumny,...}
+        columns: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+        // tablica obiektów {idKolumny:wartośćKomórki,...}
+        // lub cokolwiek jeśli jest zdefiniowany rowMapper, który przemapuje rekordy
+        rows: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+        // czy ma być wstawiona kolumna na numery wierszy
+        showRowNum: PropTypes.bool,
+        // mapper rekordów, (row)=>{idKolumny:wartośćKomórki,...}
+        rowMapper: PropTypes.func,
+        // zdarzenie kliknięcia na komórkę (row, column, table, event)
+        onRowClick: PropTypes.func,
+        // czy tabela może filtrować dane
+        filterable: PropTypes.bool,
+        selectable: PropTypes.bool,
+        style: PropTypes.object,
+    };
+
+    _htmlTableElement: HTMLElement;
     _widths = {};
     _tableTag = null;
     _table: ReactTable = null;
@@ -27,27 +46,10 @@ export default class Table extends Component {
     _tableProps: Object;
     _rowMapper: (row) => any;
     _columns: [] | {};
+
     _onRowClick: (row, column, instance, e) => void;
     _showRowNum: boolean;
     _className: string[] = ["c-table", "-striped", "-highlight"];
-
-    static propTypes = {
-        // tablica Fieldów lub {idKolumny:nazwaKolumny,...}
-        columns: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-        // tablica obiektów {idKolumny:wartośćKomórki,...}
-        // lub cokolwiek jeśli jest zdefiniowany rowMapper, który przemapuje rekordy
-        rows: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-        // czy ma być wstawiona kolumna na numery wierszy
-        showRowNum: PropTypes.bool,
-        // mapper rekordów, (row)=>{idKolumny:wartośćKomórki,...}
-        rowMapper: PropTypes.func,
-        // zdarzenie kliknięcia na komórkę (row, column, table, event)
-        onRowClick: PropTypes.func,
-        // czy tabela może filtrować dane
-        filterable: PropTypes.bool,
-        selectable: PropTypes.bool
-    };
-
     state: {
         columns: [] // kolumny ;)
     };
@@ -241,7 +243,6 @@ export default class Table extends Component {
         return row;
     }
 
-
     /** Oblicza szerokość kolumn  i wymusza ponowne rysowanie
      * @param table
      * @private
@@ -413,16 +414,19 @@ export default class Table extends Component {
                     if (column.filterable && column.show && column.id)
                         return cols.find(col => col.key === column.id);
                 });
-            mw.title = "Filtruj " + (col.length === 1 ? '"' + col[0].name + '"' : "tabelę");
-            mw.icon = Icon.FILTER;
+            mw.title.set("Filtruj " + (col.length === 1 ? '"' + col[0].name + '"' : "tabelę"));
+            mw.icon.set(Icon.FILTER.className);
             mw.resizable = false;
             mw.closeButton = false;
             mw.buttons = MW_BUTTONS.OK_CANCEL;
+            mw.contentStyle = {padding: '10px'};
             let f = null;
             for (let i = 0; i < this._filtered.length; ++i)
                 if (this._filtered[i].id === colId && !this._filtered[i].search) {
-                    if (this._filtered[i].value instanceof (CustomFilter))
+                    if (this._filtered[i].value instanceof (CustomFilter)) {
                         f = this._filtered[i].value;
+                        if (!f.accessor) f.accessor = colId;
+                    }
                     break;
                 }
             let filter = null;
@@ -437,6 +441,43 @@ export default class Table extends Component {
             mw.mainStyle = {maxWidth: '500px', minWidth: '500px', minHeight: '50%'};
         });
         mw.open();
+    }
+
+    /** zmienia widoczność kolumny
+     * @param colId id kolumny
+     * @param visible czy ma być widoczna
+     */
+    changeColumnVisibility(colId: ?string, visible: boolean) {
+        let cols = this._columns.slice();
+        Utils.forEach(cols, (col) => {
+            if (!colId || col.id === colId) col.show = visible;
+        });
+        this._columns = cols;
+        this.forceUpdate(true);
+    }
+
+    /** ustawia lub usuwa sortowanie kolumny
+     * @param colId id kolumny
+     * @param desc kierunek sortowania. false - asc, true - desc, null - !desc || asc
+     * @param clear czy usunąć sortowanie pozostałych kolumn
+     * @param remove czy usunąć sortowanie aktualnej kolumny
+     */
+    sortColumn(colId: ?string, desc: ?boolean = null, clear: boolean = false, remove: boolean = false) {
+        const sort = {id: colId, desc: desc};
+        let sorted = this._sorted.slice();
+        for (let i = 0; i < sorted.length; ++i)
+            if (sorted[i].id === colId) {
+                if (sort.desc === null) sort.desc = !sorted[i].desc;
+                if (sorted[i].desc === sort.desc && !remove) return;
+                sorted.splice(i, 1);
+                break;
+            }
+        if (sort.desc === null) sort.desc = false;
+        if (clear) sorted = [];
+        if (!remove)
+            sorted.push(sort);
+        this._sorted = sorted;
+        this.forceUpdate(true);
     }
 
     /** ustawia tryb zaznaczania
@@ -555,6 +596,7 @@ export default class Table extends Component {
 
         return <ReactTable
             ref={elem => {
+                this._htmlTableElement  = ReactDOM.findDOMNode(elem);
                 this._computeWidths(elem);
                 this._updateSelected(elem);
             }}
@@ -562,12 +604,13 @@ export default class Table extends Component {
             defaultSorted={this._sorted}
             columns={this._columns} //this.state.columns
             {...this._tableProps}
+
             showPageSizeOptions={false}
             pageSizeOptions={[5, 10, 25, 50]}
             defaultPageSize={25}
             filtered={this._filtered || []}
             sorted={this._sorted || []}
-
+            style={this.props.style}
             getTbodyProps={() => {
                 //wyłączenie flexa w wierszach
                 return {
@@ -585,7 +628,7 @@ export default class Table extends Component {
                 };
             }}
             getTrGroupProps={(state, row, column, instance) => {
-                return row ? null : {style: {display: 'none'}};
+                return row ? {"data-idx": row.index} : {style: {display: 'none'}};
             }}
 
             getTheadThProps={(state, row, column, instance) => {
@@ -625,7 +668,7 @@ export default class Table extends Component {
                 }
             }}
             FilterComponent={null}
-            PaginationComponent={Pagination}
+            PaginationComponent={TablePagination}
             getPaginationProps={(state) => {
                 return {
                     onSearch: (val => this.setFilter(undefined, val, true)),
@@ -644,42 +687,9 @@ export default class Table extends Component {
         />;
     }
 
-    /** zmienia widoczność kolumny
-     * @param colId id kolumny
-     * @param visible czy ma być widoczna
-     */
-    changeColumnVisibility(colId: ?string, visible: boolean) {
-        let cols = this._columns.slice();
-        Utils.forEach(cols, (col) => {
-            if (!colId || col.id === colId) col.show = visible;
-        });
-        this._columns = cols;
-        this.forceUpdate(true);
-    }
-
-    /** ustawia lub usuwa sortowanie kolumny
-     * @param colId id kolumny
-     * @param desc kierunek sortowania. false - asc, true - desc, null - !desc || asc
-     * @param clear czy usunąć sortowanie pozostałych kolumn
-     * @param remove czy usunąć sortowanie aktualnej kolumny
-     */
-    sortColumn(colId: ?string, desc: ?boolean = null, clear: boolean = false, remove: boolean = false) {
-        const sort = {id: colId, desc: desc};
-        let sorted = this._sorted.slice();
-        for (let i = 0; i < sorted.length; ++i)
-            if (sorted[i].id === colId) {
-                if (sort.desc === null) sort.desc = !sorted[i].desc;
-                if (sorted[i].desc === sort.desc && !remove) return;
-                sorted.splice(i, 1);
-                break;
-            }
-        if (sort.desc === null) sort.desc = false;
-        if (clear) sorted = [];
-        if (!remove)
-            sorted.push(sort);
-        this._sorted = sorted;
-        this.forceUpdate(true);
-    }
+    /* ============================================================================================================= */
+    /* ===== Menu kontekstowe ====================================================================================== */
+    /* ============================================================================================================= */
 
     /** pozycje menu kontekstowego wierszy */
     ROWS_MENU_ITEMS: [] = [
@@ -720,7 +730,6 @@ export default class Table extends Component {
             }
         }),
     ];
-
     /** pozycje menu kontekstowego kolumn*/
     COLUMNS_MENU_ITEMS: [] = [
         MenuItem.createItem((c: MenuItem) => {
@@ -820,160 +829,5 @@ export default class Table extends Component {
                 }
             }
         })
-    ]
-}
-
-/**********************************************************************************************************************/
-/***** Paginacja ******************************************************************************************************/
-
-/**********************************************************************************************************************/
-
-class Pagination extends React.Component {
-    defaultButton = props => {
-        return <button type='button' {...props} className='-btn'>
-            {props.children}
-        </button>;
-    };
-
-    constructor(props) {
-        super();
-
-        this.getSafePage = this.getSafePage.bind(this);
-        this.changePage = this.changePage.bind(this);
-        this.applyPage = this.applyPage.bind(this);
-
-        this.state = {
-            page: props.page,
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({page: nextProps.page})
-    }
-
-    getSafePage(page) {
-        if (isNaN(page)) {
-            page = this.props.page
-        }
-        return Math.min(Math.max(page, 0), this.props.pages - 1)
-    }
-
-    changePage(page) {
-        page = this.getSafePage(page);
-        this.setState({page});
-        if (this.props.page !== page) {
-            this.props.onPageChange(page)
-        }
-    }
-
-    applyPage(e) {
-        e && e.preventDefault();
-        const page = this.state.page;
-        this.changePage(page === '' ? this.props.page : page)
-    }
-
-    render() {
-        const {
-            // Computed
-            pages,
-            // Props
-            page,
-            showPageSizeOptions,
-            pageSizeOptions,
-            pageSize,
-            showPageJump,
-            canPrevious,
-            canNext,
-            onPageSizeChange,
-            className,
-            PreviousComponent = this.defaultButton,
-            NextComponent = this.defaultButton,
-        } = this.props;
-
-        return (
-            <div
-                className={classnames(className, '-pagination')}
-                style={this.props.paginationStyle}
-            >
-                <div className='-center'>
-                    {this.props.filterable ?
-                        <div className="-searchbar">
-                            <input type="text"
-                                   placeholder="Wyszukaj..."
-                                   onChange={e => this.props.onSearch(e.target.value)}/>
-                        </div> : null}
-                    <div className="-recordsNumber">
-                        <span style={{fontWeight: 'bolder'}}>{"Liczba rekordów: "}</span>
-                        <span>{this.props.visibleRecNum}</span>
-                    </div>
-                    {showPageSizeOptions &&
-                    <span className='select-wrap -pageSizeOptions'>
-              <select
-                  onChange={e => onPageSizeChange(Number(e.target.value))}
-                  value={pageSize}
-              >
-                {pageSizeOptions.map((option, i) => {
-                    return (
-                        <option key={i} value={option}>
-                            {option} {this.props.rowsText}
-                        </option>
-                    )
-                })}
-              </select>
-            </span>}
-                </div>
-                <div className='-previous'>
-                    <PreviousComponent
-                        onClick={e => {
-                            if (!canPrevious) return;
-                            this.changePage(page - 1)
-                        }}
-                        disabled={!canPrevious}
-                    >
-                        {this.props.previousText}
-                    </PreviousComponent>
-                </div>
-                <span className='-pageInfo'>
-        {this.props.pageText}{' '}
-                    {showPageJump
-                        ? <div className='-pageJump'>
-                            <input
-                                type={this.state.page === '' ? 'text' : 'number'}
-                                onChange={e => {
-                                    const val = e.target.value;
-                                    const page = val - 1;
-                                    if (val === '') {
-                                        return this.setState({page: val})
-                                    }
-                                    this.setState({page: this.getSafePage(page)})
-                                }}
-                                value={this.state.page === '' ? '' : this.state.page + 1}
-                                onBlur={this.applyPage}
-                                onKeyPress={e => {
-                                    if (e.which === 13 || e.keyCode === 13) {
-                                        this.applyPage()
-                                    }
-                                }}
-                            />
-                        </div>
-                        : <span className='-currentPage'>
-                {page + 1}
-              </span>}{' '}
-                    {this.props.ofText}{' '}
-                    <span className='-totalPages'>{pages || 1}</span>
-        </span>
-                <div className='-next'>
-                    <NextComponent
-                        onClick={e => {
-                            if (!canNext) return;
-                            this.changePage(page + 1)
-                        }}
-                        disabled={!canNext}
-                    >
-                        {this.props.nextText}
-                    </NextComponent>
-                </div>
-            </div>
-        )
-    }
+    ];
 }

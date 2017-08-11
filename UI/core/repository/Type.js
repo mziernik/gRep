@@ -41,6 +41,31 @@ export class DataType {
         Check.instanceOf(this.simpleType, ["any", "boolean", "number", "string", "object", "array"]);
     }
 
+    get isList(): boolean {
+        return this instanceof ListDataType;
+    }
+
+    get isMultiple(): boolean {
+        return this instanceof MultipleDataType;
+    }
+
+    /** Formatuje dane enumeraty z mapy, obiektu lub tablicy do postaci funkcji zwrotnej */
+    static getMap(source: any): () => Map {
+        if (!source) return null;
+
+        return () => {
+            if (If.func(source))
+                source = source();
+
+            if (source instanceof Map)
+                return source;
+
+            const map = new Map();
+            Utils.forEach(source, (v, k) => map.set(k, v));
+            return map;
+        };
+    }
+
     /** Zwraca wartość wyświetlaną */
     formatDisplayValue(value: any, enumerate: ?Map): string {
 
@@ -66,32 +91,6 @@ export class DataType {
 
     serialize(value: ?any): any {
         return value === null || value === undefined ? value : this.serializer ? this.serializer(value) : value;
-    }
-
-    get isList(): boolean {
-        return this instanceof ListDataType;
-    }
-
-    get isMultiple(): boolean {
-        return this instanceof MultipleDataType;
-    }
-
-
-    /** Formatuje dane enumeraty z mapy, obiektu lub tablicy do postaci funkcji zwrotnej */
-    static getMap(source: any): () => Map {
-        if (!source) return null;
-
-        return () => {
-            if (If.func(source))
-                source = source();
-
-            if (source instanceof Map)
-                return source;
-
-            const map = new Map();
-            Utils.forEach(source, (v, k) => map.set(k, v));
-            return map;
-        };
     }
 
     // /** @private */
@@ -277,7 +276,7 @@ export const REGEX: DataType = new DataType((dt: DataType) => {
 });
 
 export const FILE_NAME: DataType = new DataType((dt: DataType) => {
-    dt.name = "file_name";
+    dt.name = "fileName";
     dt.simpleType = "string";
     dt.parser = val => val;
 });
@@ -423,18 +422,20 @@ export const DOUBLE: DataType = new DataType((dt: DataType) => {
 
 export const DATE: DataType = new DataType((dt: DataType) => {
     dt.name = "date";
-    dt.simpleType = "string";
+    dt.simpleType = "number";
     dt.parser = val => {
         const date = new Date(val);
         if (isNaN(date))
             throw new Error('Nieprawidłowa wartość daty');
         return date;
-    }
+    };
+    dt.formatter = (val: Date) => val.toLocaleString();
+    dt.serializer = (val: Date) => val.getTime();
 });
 
 export const TIME: DataType = new DataType((dt: DataType) => {
     dt.name = "time";
-    dt.simpleType = "string";
+    dt.simpleType = "number";
     dt.parser = val => {
         const date = new Date(val);
         if (isNaN(date))
@@ -445,7 +446,7 @@ export const TIME: DataType = new DataType((dt: DataType) => {
 
 export const TIMESTAMP: DataType = new DataType((dt: DataType) => {
     dt.name = "timestamp";
-    dt.simpleType = "string";
+    dt.simpleType = "number";
     dt.parser = val => {
         const date = new Date(val);
         if (isNaN(date))

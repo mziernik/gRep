@@ -14,7 +14,7 @@ export class Store {
      * @param {type} name
      * @returns {undefined|Array|Object}
      */
-    get(name: string): ?any {
+    get (name: string): ?any {
         let value = this._base.getItem(name)
         try {
             if (value && value.length > 1 && value.indexOf("#") === 0)
@@ -32,7 +32,7 @@ export class Store {
      * @param {type} value
      * @returns {undefined}
      */
-    set(name: string, value: ?any, encode: boolean = false) {
+    set (name: string, value: ?any, encode: boolean = false) {
         if (value === undefined) return;
         value = JSON.stringify(value);
         this._base.setItem(name, encode ? "#" + window.btoa(value) : value);

@@ -20,12 +20,12 @@ export default class Notify {
         this.timeout = timeout;
     }
 
-    send() {
-        listeners.forEach((callback) => callback(this.message, this));
-    }
-
     static addListsners(callback) {
         if (typeof callback === "function")
             listeners.add(callback);
+    }
+
+    send() {
+        listeners.forEach((callback) => callback(this.message, this));
     }
 }

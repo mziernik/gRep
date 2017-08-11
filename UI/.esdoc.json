@@ -1,9 +1,13 @@
 {
-  "source": "./",
-  "destination": "./doc",
-  "excludes": ["node_modules", "public", "webpack.config.js"],
-   "experimentalProposal": {
-    "classProperties": true,
-    "objectRestSpread": true
-  }
+    "source": "./",
+    "destination": "./doc",
+    "excludes": [
+        "node_modules",
+        "public",
+        "webpack.config.js"
+    ],
+    "experimentalProposal": {
+        "classProperties": true,
+        "objectRestSpread": true
+    }
 }

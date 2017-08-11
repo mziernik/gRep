@@ -81,8 +81,7 @@ function Bar(props) {
                 display: "inline-table",
                 border: "1px solid " + border,
                 backgroundColor: background,
-                opacity: "0.9",
-                zIndex: Component.zIndex
+                opacity: "0.9"
             }}
             ref={id => status._tag = id}
             onClick={(e) => status.hide()}

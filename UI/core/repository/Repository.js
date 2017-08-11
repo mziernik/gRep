@@ -8,6 +8,7 @@ import {
     Utils,
     Is,
     Dev,
+    Cell,
     AppEvent,
     PROD_MODE,
     Endpoint
@@ -25,16 +26,12 @@ import {RecordDataGenerator} from "./Record";
 export default class Repository {
 
     static onUpdate: Dispatcher = new Dispatcher();
-    onChange: Dispatcher = new Dispatcher(); //CRUDE, Record, Map
-
     static defaultStorage: ?RepositoryStorage;
-
-    /** Błąd metadanych lub treści repozytorium */
-    error: ?Error = null;
-
     /** Lista wszystkich zarejestrowanych repozytoriów */
     static all = {};
-
+    onChange: Dispatcher = new Dispatcher(); //CRUDE, Record, Map
+    /** Błąd metadanych lub treści repozytorium */
+    error: ?Error = null;
     actions: RepoAction[] = [];
     refs: Record[] = [];
 
@@ -107,108 +104,6 @@ export default class Repository {
         return Utils.find(Endpoint.ALL, (e: Endpoint) => e.repositories.has(this.constructor));
     }
 
-    getRefs(pk: any): Record[] {
-        return Utils.forEach(this.refs, (rec: Record) => rec.pk === pk ? rec : undefined);
-    }
-
-    getColumnIndex(column: Column) {
-        const idx = this.columns.indexOf(column);
-        if (idx < 0)
-            throw new Error(`Repozytorium ${this.key} nie posiada kolumny ${column.key}`);
-        return idx;
-    }
-
-    getColumn(key: string, mustExists: boolean = true): Column {
-        const result = this.columns.find(c => c.key === key);
-        if (!result && mustExists)
-            throw new Error("Kolumna " + this.key + "." + key + " nie istnieje");
-        return result;
-    }
-
-
-    get (context: any, pk: any, mustExists: boolean = true): Record {
-        if (Is.defined(pk))
-            pk = this.config.primaryKeyColumn.parse(pk);
-        const row: [] = this.rows.get(pk);
-        if (!row) {
-            if (mustExists)
-                throw new Error("Nie znaleziono rekordu " + this.key + "[" + this.primaryKeyColumn.key + "=" + Utils.escape(pk) + "]");
-            return null;
-        }
-        const rec: Record = this.createRecord(context, row ? CRUDE.UPDATE : CRUDE.CREATE);
-        rec.row = row;
-        return rec;
-    }
-
-    createRecord(context: any, crude: CRUDE): Record {
-        Check.instanceOf(crude, [CRUDE.Crude]);
-        const rec: Record = new (this.config.record || Record)(this, context);
-        rec.action = crude;
-        if (PROD_MODE)
-            return rec;
-
-        this.columns.forEach((col: Column) => Is.condition(!rec.fields.has(col), () => new Field(col, rec)));
-        Utils.forEachSafe(rec.fields, (f, c) => Is.condition(!this.columns.contains(c)), () => rec.fields.delete(c));
-
-        return rec;
-    }
-
-    toObject(columns: Column[], filter: (cursor: RepoCursor) => boolean): [] {
-        const result: [] = [];
-        const cursor: RepoCursor = this.cursor();
-        while (cursor.next()) {
-            if (filter && !filter(cursor))
-                continue;
-            const obj = {};
-            columns.forEach((col: Column) => obj[col.key] = cursor.get(col));
-            result.push(obj);
-        }
-        return result;
-    }
-
-    min(col: Column, initValue: number = null) {
-        let min = initValue;
-        const idx = this.getColumnIndex(col);
-
-        Utils.forEach(this.rows, (row: [], pk) => {
-            if (min === null || min > row[idx])
-                min = row[idx];
-        });
-
-        return min;
-    }
-
-    max(col: Column, initValue: number = null) {
-        let max = initValue;
-        const idx = this.getColumnIndex(col);
-
-        Utils.forEach(this.rows, (row: [], pk) => {
-            if (max === null || max < row[idx])
-                max = row[idx];
-        });
-
-        return max;
-    }
-
-    find(context: any, filter: (cursor: RepoCursor) => boolean): Record[] {
-        const result: Record[] = [];
-        const cursor: RepoCursor = this.cursor();
-        while (cursor.next()) {
-            if (filter(cursor))
-                result.push(cursor.getRecord(context));
-        }
-        return result;
-    }
-
-
-    /**
-     * Wypełnia rekord wygenerowanymi danymi losowymi danymi
-     */
-
-    fillRecord(generator: RecordDataGenerator, rec: Record, index: number) {
-        generator.fill(rec, index);
-    }
-
     get references(): ?RepoReference[] {
         if (!this.config.references)
             return null;
@@ -227,6 +122,14 @@ export default class Repository {
             return result;
         });
 
+    }
+
+    get primaryKeyColumn(): Column {
+        return this.config.primaryKeyColumn;
+    }
+
+    get isEmpty(): boolean {
+        return this.rows.size === 0;
     }
 
     /**
@@ -312,7 +215,11 @@ export default class Repository {
 
             const processObject = (value) =>
                 Utils.forEach(value, obj => {
-                    const rec: Record = repo.createRecord(context, CRUDE.CREATE);
+
+                    const pk = obj[repo.primaryKeyColumn.key];
+                    Check.isDefined(pk, "Pusta wartość klucza głównego repozytorium " + repo.key);
+
+                    const rec: Record = repo.createRecord(context, repo.has(pk) ? CRUDE.UPDATE : CRUDE.CREATE);
                     repo.refs.remove(rec); // nie traktuj jako referencję
                     const map: Map = new Map();
                     Utils.forEach(obj, (v, k) => {
@@ -414,13 +321,15 @@ export default class Repository {
                 return rec.getValue(col);
             };
 
-            const val = getDisplayValue(repo, rec);
+            if (rec.action !== CRUDE.DELETE) {
+                const val = getDisplayValue(repo, rec);
 
-            if (val === undefined) {
-     //           debugger;
-                getDisplayValue(repo, rec);
+                if (val === undefined) {
+                    //           debugger;
+                    getDisplayValue(repo, rec);
+                }
+                repo.displayMap.set(obj.pk, val);
             }
-            repo.displayMap.set(obj.pk, val);
 
             rec.repo.onChange.dispatch(context, {action: obj.action, record: rec, changed: obj.changed});
 
@@ -429,12 +338,10 @@ export default class Repository {
         });
 
 
+        AppEvent.REPOSITORY_UPDATED.send(Repository, {changes: changes});
+
         // zaktualizuj flagę gotowości dla wszystkich odebranych repozytoriów (włącznie z pustymi)
         repositories.forEach(repo => repo.confirmReadyState());
-    }
-
-    getDisplayValue(record: Record): string {
-        return record.get(this.config.displayNameColumn || this.config.primaryKeyColumn).displayValue;
     }
 
     /**
@@ -449,6 +356,23 @@ export default class Repository {
                     throw new Error(Utils.escape(f.name) + ": " + f.error);
             })
         );
+
+
+        records = Utils.forEach(records, (rec: Record) => {
+
+            const parent: Record = rec.parent;
+            if (!parent) return rec;
+
+            if (rec.action && !parent.changedReferences.contains(rec))
+                parent.changedReferences.push(rec);
+
+            if (!rec.action && parent.changedReferences.contains(rec))
+                parent.changedReferences.remove(rec);
+
+            parent.onReferenceChange.dispatch(this, {record: rec});
+
+        });
+
 
         const storageMap: Map = Utils.agregate(records, (rec: Record) => (!rec.localCommit && rec.repo.storage) || "LOCAL");
 
@@ -494,15 +418,6 @@ export default class Repository {
         return dto;
     }
 
-    confirmReadyState() {
-        this.isReady = true;
-        Ready.confirm(Repository, this);
-    }
-
-    get primaryKeyColumn(): Column {
-        return this.config.primaryKeyColumn;
-    }
-
     /** Zwraca repozytorium na podstawie klucza, opcjonalnie wyjątek jeśli nie znaleziono obiektu */
     static get (key: string, mustExists: boolean = true): Repository {
         const result = Repository.all[key];
@@ -521,6 +436,124 @@ export default class Repository {
         return repository;
     }
 
+    getRefs(pk: any): Record[] {
+        return Utils.forEach(this.refs, (rec: Record) => rec.pk === pk ? rec : undefined);
+    }
+
+    getColumnIndex(column: Column) {
+        const idx = this.columns.indexOf(column);
+        if (idx < 0)
+            throw new Error(`Repozytorium ${this.key} nie posiada kolumny ${column.key}`);
+        return idx;
+    }
+
+    getColumn(key: string, mustExists: boolean = true): Column {
+        const result = this.columns.find(c => c.key === key);
+        if (!result && mustExists)
+            throw new Error("Kolumna " + this.key + "." + key + " nie istnieje");
+        return result;
+    }
+
+    has(pk: any): boolean {
+        pk = this.config.primaryKeyColumn.parse(pk);
+        return this.rows.has(pk);
+    }
+
+    get (context: any, pk: any, mustExists: boolean = true): Record {
+        if (Is.defined(pk))
+            pk = this.config.primaryKeyColumn.parse(pk);
+        const row: [] = this.rows.get(pk);
+        if (!row) {
+            if (mustExists)
+                throw new Error("Nie znaleziono rekordu " + this.key + "[" + this.primaryKeyColumn.key + "=" + Utils.escape(pk) + "]");
+            return null;
+        }
+        const rec: Record = this.createRecord(context, row ? CRUDE.UPDATE : CRUDE.CREATE);
+        rec.row = row;
+        return rec;
+    }
+
+    getOrCreate(context: any, pk: any): Record {
+        return Is.defined(pk) ? this.get(context, pk, true) : this.createRecord(context, CRUDE.CREATE);
+    }
+
+    createRecord(context: any, crude: CRUDE): Record {
+
+        Check.instanceOf(crude, [CRUDE.Crude]);
+        const rec: Record = new (this.config.record || Record)(this, context);
+        rec.action = crude;
+        if (PROD_MODE)
+            return rec;
+
+        this.columns.forEach((col: Column) => Is.condition(!rec.fields.has(col), () => new Cell(rec, col)));
+        Utils.forEachSafe(rec.fields, (f, c) => Is.condition(!this.columns.contains(c)), () => rec.fields.delete(c));
+
+        return rec;
+    }
+
+    toObject(columns: Column[], filter: (cursor: RepoCursor) => boolean): [] {
+        const result: [] = [];
+        const cursor: RepoCursor = this.cursor();
+        while (cursor.next()) {
+            if (filter && !filter(cursor))
+                continue;
+            const obj = {};
+            columns.forEach((col: Column) => obj[col.key] = cursor.get(col));
+            result.push(obj);
+        }
+        return result;
+    }
+
+    min(col: Column, initValue: number = null) {
+        let min = initValue;
+        const idx = this.getColumnIndex(col);
+
+        Utils.forEach(this.rows, (row: [], pk) => {
+            if (min === null || min > row[idx])
+                min = row[idx];
+        });
+
+        return min;
+    }
+
+    max(col: Column, initValue: number = null) {
+        let max = initValue;
+        const idx = this.getColumnIndex(col);
+
+        Utils.forEach(this.rows, (row: [], pk) => {
+            if (max === null || max < row[idx])
+                max = row[idx];
+        });
+
+        return max;
+    }
+
+    find(context: any, filter: (cursor: RepoCursor) => boolean): Record[] {
+        const result: Record[] = [];
+        const cursor: RepoCursor = this.cursor();
+        while (cursor.next()) {
+            if (filter(cursor))
+                result.push(cursor.getRecord(context));
+        }
+        return result;
+    }
+
+    /**
+     * Wypełnia rekord wygenerowanymi danymi losowymi danymi
+     */
+
+    fillRecord(generator: RecordDataGenerator, rec: Record, index: number) {
+        generator.fill(rec, index);
+    }
+
+    getDisplayValue(record: Record): string {
+        return record.get(this.config.displayNameColumn || this.config.primaryKeyColumn).displayValue;
+    }
+
+    confirmReadyState() {
+        this.isReady = true;
+        Ready.confirm(Repository, this);
+    }
 
     cursor(): RepoCursor {
         return new RepoCursor(this);
@@ -735,17 +768,6 @@ export class RepoTree {
         this.repo = repo;
     }
 
-    add(child: RepoTree) {
-        if (child.parent)
-            child.parent.children.remove(child);
-        child.parent = this;
-        this.children.push(child);
-    }
-
-    get (column: Column): any {
-        return this.row[this.repo.getColumnIndex(column)];
-    }
-
     static create(repo: Repository, parentColumn: Column): RepoTree {
 
         const map: Map = new Map();
@@ -778,6 +800,17 @@ export class RepoTree {
         });
 
         return root;
+    }
+
+    add(child: RepoTree) {
+        if (child.parent)
+            child.parent.children.remove(child);
+        child.parent = this;
+        this.children.push(child);
+    }
+
+    get (column: Column): any {
+        return this.row[this.repo.getColumnIndex(column)];
     }
 }
 
@@ -847,5 +880,11 @@ export class RepoReference {
     column: Column;
     name: string;
     records: Record[] = [];
+    parent: Record;
+
+    update(parent: Record) {
+        this.parent = parent;
+        this.records.addAll(this.repo.find(this, (cursor: RepoCursor) => cursor.get(this.column) === parent.pk))
+    }
 }
 

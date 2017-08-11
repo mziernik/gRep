@@ -1,4 +1,3 @@
-
 export class Section {
     name: string;
     elements: Element[] = [];

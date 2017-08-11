@@ -35,7 +35,7 @@ export default class PRepository extends RepoPage {
 
     onReady(repo: Repository, list: Repository[]) {
 
-        new RepoCtrl(this, repo).renderActionButtons();
+        new RepoCtrl(repo).renderActionButtons(this.buttons);
 
         this.buttons.add((btn: Btn) => {
             btn.key = "btnGenerator";
@@ -90,24 +90,34 @@ export default class PRepository extends RepoPage {
 
     _generateData(mw: ModalWindow) {
 
+        const gen: RecordDataGenerator = new RecordDataGenerator(this.repo);
         const seq: Field = Field.create(Type.BOOLEAN, "seq", "Sekwencyjny", false);
         const rnd: Field = Field.create(Type.BOOLEAN, "rnd", "Losowe wartości", false);
-        const all: Field = Field.create(Type.BOOLEAN, "all", "Wszystkie pola", false);
         const local: Field = Field.create(Type.BOOLEAN, "local", "Lokalne", true);
+        const instance: Field = Field.create(Type.BOOLEAN, "instance", "Numer instancji", false);
         const cnt: Field = Field.create(Type.INT, "cnt", "Ilość", 10);
+        const factor: Field = Field.create(Type.INT, "factor", "Procent wypełnienia", 30);
 
-        const fields = Utils.forEach(this.repo.columns, (c: Column) => new Field(c));
+        seq.config.description = "Tryb sekwencyjny - generuj rekordy kolejno jeden po drugim zamiast zbiorczo";
+        rnd.config.description = "Generuj wartości losowe zamiast sekwencyjnych (kolejnych)";
+        local.config.description = "Generuj rekordy tylko lokalnie (nie zapisuj w bazie)";
+        instance.config.description = "Dodaj wartość instancji do pol tekstowych\n(przydatne do identyfikacji grup generowanych rekordów)";
+        cnt.config.description = "Ilość generowanych rekordów";
+        factor.config.description = "Procent wypełnienia wartości nie wymaganych pól";
+        factor.config.defaultUnit = "%";
 
         mw.title = "Wypełniacz";
         mw.icon = Icon.CLOCK_O;
         mw.content = <Attributes fill style={{margin: "10px"}} edit>
             <Attr field={seq}/>
-            <Attr field={rnd}/>
-            <Attr field={all}/>
-            <Attr field={cnt}/>
             <Attr field={local}/>
+            <Attr field={rnd}/>
+            <Attr field={local}/>
+            <Attr field={instance}/>
+            <Attr field={cnt}/>
+            <Attr field={factor}/>
             <h6>Wartości domyślne:</h6>
-            {fields.map((f: Field) => <Attr field={f} edit/>)}
+            {gen.fields.map((f: Field) => <Attr field={f} edit/>)}
         </Attributes>;
 
         mw.buttons = MW_BUTTONS.OK_CANCEL;
@@ -115,12 +125,9 @@ export default class PRepository extends RepoPage {
             const spinner: Spinner = new Spinner();
 
             try {
-                const gen: RecordDataGenerator = new RecordDataGenerator();
-                gen.fields = fields;
                 gen.random = rnd.value;
                 gen.sequence = seq.value;
                 gen.total = cnt.value;
-                gen.all = all.value;
                 gen.local = local.value;
 
                 const rec = (idx: number) => {

@@ -81,7 +81,7 @@ public class RCatalogAttribute extends Repository<Integer> {
             c.daoName = "data.catalog_attribute";
             c.name = "Atrybut katalogu";
             c.group = "Katalogi";
-            c.reference("Wartości", RCatalogAttributeValues.ATTR);
+            //  c.reference("Wartości", RCatalogAttributeValues.ATTR);
             c.primaryKey = ID;
             c.displayName = ATTR;
             c.order(CATALOG, true);

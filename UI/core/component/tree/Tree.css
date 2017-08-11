@@ -105,7 +105,7 @@
 }
 
 .x-tree-main[data-menu=true] .x-tree-header[selected] {
-    background-color: #f53;
+    background: #f53 linear-gradient(to bottom, #f64 0%, #e42 100%);
 }
 
 .x-tree-main[data-menu=true] .x-tree-expand-indicator {

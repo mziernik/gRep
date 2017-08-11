@@ -1,6 +1,7 @@
 import {React, AppNode, Application, EventType} from "../../core";
 import {Page, Component, Table, Panel} from "../../components";
 import {Observer} from "../../utils/Dispatcher";
+import {Dynamic} from "../../component/Component";
 
 
 export default class PComponents extends Page {
@@ -39,7 +40,7 @@ export default class PComponents extends Page {
 
                 return {
                     node: component.node.name,
-                    name: component.name,
+                    name: component.name instanceof Dynamic ? component.name.$ : component.name,
                     listen: observers.join(", "),
                     rec: received
                 }

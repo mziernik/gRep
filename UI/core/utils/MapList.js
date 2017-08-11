@@ -14,7 +14,7 @@ export default class MapList<K, V> {
         arr.push(value);
     }
 
-    get(key: K): V[] {
+    get (key: K): V[] {
         return this.map.get(key);
     }
 

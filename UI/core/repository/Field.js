@@ -8,52 +8,33 @@ import Column from "./Column";
 export default class Field {
 
     _locked: boolean = false; // blokada możliwości zmiany edycji (tryb REMOTE i SYNCHRONIZED)
-    _error: ?string = null; // błędy walidacji
-    _warning: ?string = null; // ostrzeżenie (np. pole wymagane)
     _store: ?FieldStore = null;
-    _unit: ?[] = null;
     record: Record = null;
-
     /** Lista kontrolerów (FCtrl) powiązanych z polem, kontrolery usuwają się z listy automatycznie w momencie zniszczenia komponentu*/
     _fctrls: [] = [];
-
     config: Column;
-
     lastUpdate: ?number = null; // timestamp
-
-    _value: ?T = null;
-
     /** Walidator wartości
      * @type value wartość do zwalidatowania
      * @type done czy jest to wywołanie na koniec edycji
      * @return prawda jeśli jest ok, w innym przypadku false
      */
     validator: ?(value: ?any, done: boolean) => boolean = null;
-
     /** Lista handlerów błędów walidacji */
     onError: Dispatcher = new Dispatcher(this);
     /** Lista handlerów ostrzeżeń walidacji */
     onWarning: Dispatcher = new Dispatcher(this);
-
     /** Lista handlerów zdarzenia zmiany wartości */
     onChange: Dispatcher = new Dispatcher(this); // prevValue, currValue, wasChanged
 
     /** Zdarzenie aktualizacji pola z zewnątrz */
     onUpdate: Dispatcher = new Dispatcher(this);
+    /** Zdarzenie zmiany flagi [wasChangedRecently]*/
+    onUpdateMarkerChange = new Dispatcher(this);
 
     /** Zawartość pola uległa zmianie */
     changed: boolean = false;
-
     _getFullId: ?() => string = null;
-
-    static create(type: DataType, key: string, name: string, defaultValue: any = null) {
-        return new Field((c: Column) => {
-            c.type = type;
-            c.key = key;
-            c.name = name;
-            c.defaultValue = defaultValue;
-        })
-    }
 
     constructor(cfg: Column | (cfg: Column) => void) {
 
@@ -72,7 +53,82 @@ export default class Field {
         if (DEV_MODE)
             this["#" + this.key + "[" + this.type.name + "]"] = null;
 
+
+        let onChangeForward = false;
+        this.onUpdateMarkerChange._onListen = () => {
+            if (onChangeForward) return;
+            this.onUpdate.listen(this, () => {
+                this.onUpdateMarkerChange.dispatch(this, {state: true});
+                setTimeout(() => this.onUpdateMarkerChange.dispatch(this, {state: false}), 3000)
+            });
+            onChangeForward = true;
+        };
+
         Object.preventExtensions(this);
+    }
+
+    _error: ?string = null; // błędy walidacji
+
+    get error(): ?string {
+        return this._error;
+    }
+
+    set error(err: ?string) {
+        const prev = this._error;
+        this._error = err;
+        if (err !== prev)
+            this.onError.dispatch(this, {field: this, error: this._error, prev: prev});
+    }
+
+    _warning: ?string = null; // ostrzeżenie (np. pole wymagane)
+
+    get warning(): ?string {
+        return this._warning;
+    }
+
+    set warning(war: ?string) {
+        const prev = this._warning;
+        this._warning = war;
+        if (war !== prev)
+            this.onWarning.dispatch(this, {field: this, warning: this._warning, prev: prev});
+    }
+
+    _unit: ?[] = null;
+
+    get unit(): ?[] {
+        return this._unit;
+    }
+
+    set unit(value: ?[]) {
+        let val = this.unitValue;
+        this._unit = value;
+        this.value = val;
+    }
+
+    _value: ?T = null;
+
+    get value(): ?any {
+        let val = this._value;
+        if (typeof  val === "string") {
+            if (this.config.trimmed)
+                val = val.trim();
+
+            switch (this.config.textCasing) {
+                case TEXT_CASING.LOWERCASE:
+                    val = val.toLowerCase();
+                    break;
+                case TEXT_CASING.UPPERCASE:
+                    val = val.toUpperCase();
+                    break;
+                default:
+                    break;
+            }
+        }
+        return val;
+    }
+
+    set value(value: ?any) {
+        this.set(value, true);
     }
 
     /** Pełny identyfikator pola uwzględniający wszystkie elementy nadrzędne */
@@ -114,6 +170,97 @@ export default class Field {
         return this.config.readOnly;
     }
 
+    get escapedValue(): string {
+        return Utils.escape(this.value);
+    }
+
+    get isValid(): boolean {
+        return this.config.readOnly || ( !(this._error) && (!this.required || this._value));
+    }
+
+    get isEmpty(): boolean {
+        if (this._value === null || this._value === undefined || this._value === "")
+            return true;
+        return this.config.enumerate !== null && !this.config.type.single && this._value.length === 0;
+
+    }
+
+    /** Zwraca wartość przeliczoną przez jednostkę
+     * @returns {?T}
+     */
+    get unitValue(): ?any {
+        let val = this._value;
+        if (val !== null && val !== undefined && this.unit && this.config.type.simpleType === 'number')
+            val /= this.unit[2];
+        return val;
+    }
+
+    /** Zwraca przeliczoną wartość, którą może wyświetlić react
+     * @returns {string|number|boolean}
+     */
+    get displayValue(): string | number | boolean {
+
+        const value = this.value;
+        if (value === null)
+            return null;
+
+        const val = this.unitValue;
+
+        // wartość przed formatowaniem jest identyczna jak po formatowaniu
+        if (val === this._value)
+            return Field.formatValue(this.config.type.formatDisplayValue(val, this.config.enumerate ? this.config.enumerate() : null));
+
+        let res = Field.formatValue(val);
+        if (this.unit) res += " " + this.unit[0];
+        return res;
+    }
+
+    /** Zwraca wartość, którą może wyświetlić react
+     * @returns {string|number|boolean}
+     */
+    get simpleValue(): string | number | boolean {
+        return Field.formatValue(this.value);
+    }
+
+    static create(type: DataType, key: string, name: string, defaultValue: any = null) {
+        return new Field((c: Column) => {
+            c.type = type;
+            c.key = key;
+            c.name = name;
+            c.defaultValue = defaultValue;
+        })
+    }
+
+    /** Formatuje wartość do postaci, którą może wyświetlić react*/
+    static formatValue(value: any): string | number | boolean {
+        if (value === null || value === undefined)
+            return null;
+
+        switch (typeof value) {
+            case "string":
+            case "number":
+            case "boolean":
+                return value;
+        }
+
+        if (value instanceof Repository)
+            return (value: Repository).name;
+
+        if (value instanceof Record)
+            return (value: Record).fullId;
+
+        if (value instanceof Date)
+            return value.toLocaleString();
+
+        if (value instanceof Array)
+            return Utils.forEach(value, val => Field.formatValue(val)).join(", ");
+
+        if (value instanceof Map)
+            return Utils.forEach(value, (val, key) => Field.formatValue(key) + ": " + Field.formatValue(val)).join(", ");
+
+        return Utils.toString(value);
+    }
+
     /** Aktualizacja wartości 'z zewnątrz' (np z api) */
     update(context: any, value: ?any) {
         const prev = this._value;
@@ -125,6 +272,11 @@ export default class Field {
         this.onUpdate.dispatch(context, {field: this, value: value, prev: prev});
     }
 
+
+    /** Czy w pole zostało ostatnio zmienione (na potrzeby wizualne)*/
+    get wasChangedRecently() {
+        return this.lastUpdate && (new Date().getTime() - this.lastUpdate < 3000);
+    }
 
     /**
      * Ustaw wartość pola, zweryfikuj poprawność danych
@@ -158,9 +310,8 @@ export default class Field {
         this._value = value;
         this.validate(done);
 
-        //FixMe rzuca błędem, gdy zmieni się type. Próba dopisania pola do zablokowanego obiektu
-        //if (DEV_MODE)
-        //    this["#" + this.key + "[" + this.type.name + "]"] = value;
+        if (DEV_MODE && this["#" + this.key + "[" + this.type.name + "]"])
+            this["#" + this.key + "[" + this.type.name + "]"] = value;
 
 
         this.onChange.dispatch(this, {
@@ -172,77 +323,6 @@ export default class Field {
             wasChanged: wasChanged
         });
         return this;
-    }
-
-    set value(value: ?any) {
-        this.set(value, true);
-    }
-
-    get escapedValue(): string {
-        return Utils.escape(this.value);
-    }
-
-    get value(): ?any {
-        let val = this._value;
-        if (typeof  val === "string") {
-            if (this.config.trimmed)
-                val = val.trim();
-
-            switch (this.config.textCasing) {
-                case TEXT_CASING.LOWERCASE:
-                    val = val.toLowerCase();
-                    break;
-                case TEXT_CASING.UPPERCASE:
-                    val = val.toUpperCase();
-                    break;
-                default:
-                    break;
-            }
-        }
-        return val;
-    }
-
-    set unit(value: ?[]) {
-        let val = this.unitValue;
-        this._unit = value;
-        this.value = val;
-    }
-
-    get unit(): ?[] {
-        return this._unit;
-    }
-
-    get isValid(): boolean {
-        return this.config.readOnly || ( !(this._error) && (!this.required || this._value));
-    }
-
-    get warning(): ?string {
-        return this._warning;
-    }
-
-    set warning(war: ?string) {
-        const prev = this._warning;
-        this._warning = war;
-        if (war !== prev)
-            this.onWarning.dispatch(this, {field: this, warning: this._warning, prev: prev});
-    }
-
-    get error(): ?string {
-        return this._error;
-    }
-
-    set error(err: ?string) {
-        const prev = this._error;
-        this._error = err;
-        if (err !== prev)
-            this.onError.dispatch(this, {field: this, error: this._error, prev: prev});
-    }
-
-    get isEmpty(): boolean {
-        if (this._value === null || this._value === undefined || this._value === "")
-            return true;
-        return this.config.enumerate !== null && !this.config.type.single && this._value.length === 0;
-
     }
 
     /** walidacja wartości
@@ -300,79 +380,10 @@ export default class Field {
         return !err;
     }
 
-
     toString() {
         //$FlowFixMe
         return "" + this._value;
     }
-
-    /** Zwraca wartość przeliczoną przez jednostkę
-     * @returns {?T}
-     */
-    get unitValue(): ?any {
-        let val = this._value;
-        if (val !== null && val !== undefined && this.unit && this.config.type.simpleType === 'number')
-            val /= this.unit[2];
-        return val;
-    }
-
-    /** Zwraca przeliczoną wartość, którą może wyświetlić react
-     * @returns {string|number|boolean}
-     */
-    get displayValue(): string | number | boolean {
-
-        const value = this.value;
-        if (value === null)
-            return null;
-
-        const val = this.unitValue;
-
-        // wartość przed formatowaniem jest identyczna jak po formatowaniu
-        if (val === this._value)
-            return Field.formatValue(this.config.type.formatDisplayValue(val, this.config.enumerate ? this.config.enumerate() : null));
-
-        let res = Field.formatValue(val);
-        if (this.unit) res += " " + this.unit[0];
-        return res;
-    }
-
-    /** Zwraca wartość, którą może wyświetlić react
-     * @returns {string|number|boolean}
-     */
-    get simpleValue(): string | number | boolean {
-        return Field.formatValue(this.value);
-    }
-
-    /** Formatuje wartość do postaci, którą może wyświetlić react*/
-    static formatValue(value: any): string | number | boolean {
-        if (value === null || value === undefined)
-            return null;
-
-        switch (typeof value) {
-            case "string":
-            case "number":
-            case "boolean":
-                return value;
-        }
-
-        if (value instanceof Repository)
-            return (value: Repository).name;
-
-        if (value instanceof Record)
-            return (value: Record).fullId;
-
-        if (value instanceof Date)
-            return value.toLocaleString();
-
-        if (value instanceof Array)
-            return Utils.forEach(value, val => Field.formatValue(val)).join(", ");
-
-        if (value instanceof Map)
-            return Utils.forEach(value, (val, key) => Field.formatValue(key) + ": " + Field.formatValue(val)).join(", ");
-
-        return Utils.toString(value);
-    }
-
 
     //FixMe: Miłosz: Przenieść do konfiguracji
     store(key: string, store: Store = Store.local): Field {

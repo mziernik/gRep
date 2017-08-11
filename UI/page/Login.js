@@ -38,8 +38,9 @@ export default class Login extends Component {
 
     static logout() {
         password.value = undefined;
-        Application.nodes.clone().forEach(node => node.remove());
-        Login.display(Login.onAuthorized);
+        window.location.reload();
+        // Application.nodes.clone().forEach(node => node.remove());
+        // Login.display(Login.onAuthorized);
     }
 
     static display(onAuthorized: (data: Object) => void) {
@@ -93,7 +94,7 @@ export default class Login extends Component {
 
 
         Login.instance.element.css({
-            transition: "all .4s ease-in"
+            transition: "all .5s ease-in"
         });
 
         setTimeout(() => {

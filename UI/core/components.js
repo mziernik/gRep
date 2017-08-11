@@ -26,8 +26,10 @@ export {PopupMenu, MenuItem, MenuItemSeparator} from "./component/PopupMenu";
 
 /************************* KONTROLKI FORMULARZA *************************/
 export {default as Checkbox} from "./component/form/Checkbox";
+export {default as Toggle} from "./component/form/Toggle";
 export {default as DatePicker} from "./component/form/DatePicker";
 export {default as Select} from "./component/form/Select";
+export {default as RadioButton} from "./component/form/RadioButton";
 export {default as Input} from "./component/form/Input.js";
 export {default as Memo} from "./component/form/Memo.js";
 export {default as List} from "./component/form/List.js";

@@ -2,6 +2,8 @@ import {React, PropTypes, Is} from "../core"
 import {Component} from "../components"
 import * as Utils from "../utils/Utils";
 
+//FiXMe: Używać twardych spacji zamiast paddingu - problemy z kopiowaniem
+
 export default class JsonViewer extends Component {
 
     static propTypes = {
@@ -55,7 +57,7 @@ export default class JsonViewer extends Component {
 
         function Block(props) {
             return <span>
-                <Opr char={props.opr[0]} level={ props.intent ? props.level : 0}/>
+                <Opr char={props.opr[0]} level={props.intent ? props.level : 0}/>
                 {props.singleLine ? null : <Br/>}
                 {props.children}
                 {props.singleLine ? null : <Br/>}
@@ -144,6 +146,7 @@ export default class JsonViewer extends Component {
             <div style={{
                 fontFamily: "consolas",
                 fontSize: "10pt",
+                userSelect: "text"
             }}>
                 {draw(this.object, null, false, 0)}
             </div>

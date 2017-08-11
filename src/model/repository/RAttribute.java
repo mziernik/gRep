@@ -104,7 +104,7 @@ public class RAttribute extends Repository<Integer> {
             c.group = "Atrybuty";
             c.primaryKey = ID;
             c.displayName = NAME;
-            c.reference("Elementy", RAttributeElements.ATTR);
+            // c.reference("Elementy", RAttributeElements.ATTR);
         });
 
     }

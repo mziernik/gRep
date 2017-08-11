@@ -57,8 +57,8 @@ export default function neatJSON(value, opts) {
                 } else {
                     var indent2 = indent + opts.indent;
                     return indent + '[\n' + o.map(function (v) {
-                            return build(v, indent2)
-                        }).join(',\n') + '\n' + (opts.indentLast ? indent2 : indent) + ']';
+                        return build(v, indent2)
+                    }).join(',\n') + '\n' + (opts.indentLast ? indent2 : indent) + ']';
                 }
             } else if (o instanceof Object) {
                 var sortedKV = [], i = 0;

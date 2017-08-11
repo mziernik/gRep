@@ -3,14 +3,13 @@ import {Component} from "../components"
 
 export default class Hint extends Component {
 
-    props: {
-        visible: boolean,
-        message: ?string
-    };
-
     static propTypes = {
         visible: PropTypes.bool,
         message: PropTypes.string
+    };
+    props: {
+        visible: boolean,
+        message: ?string
     };
 
     constructor() {
@@ -34,7 +33,7 @@ export default class Hint extends Component {
     }
 
     _setPosition(elem) {
-        if (!elem)return;
+        if (!elem) return;
         const el = elem.getBoundingClientRect();
         const parent = elem.parentElement.getBoundingClientRect();
         /* poziom */
@@ -58,9 +57,9 @@ export default class Hint extends Component {
         //
         return (
             <div className="c-hint" ref={(elem) => this._setPosition(elem)}
-                  style={{
-                      ...this.props.style,
-                  }}>
+                 style={{
+                     ...this.props.style,
+                 }}>
                 {super.renderChildren()
                 || this.props.message ? Utils.forEach(this.props.message.split('\n'), (line, index) => {
                     return <div key={index}>{line}</div>;

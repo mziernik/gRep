@@ -19,7 +19,7 @@ export default class PWebApi extends Page {
 
         const api: WebApi = WebApi.instance;
 
-        const rctrl: RepoCtrl = new RepoCtrl(this, WebApiRepo.RWEBAPI);
+        const rctrl: RepoCtrl = new RepoCtrl(WebApiRepo.RWEBAPI);
 
         return [
             <div>

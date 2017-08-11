@@ -1,4 +1,4 @@
-import {React, PropTypes, Type, Utils, Field, Record, Column, Repository, CRUDE, Is} from "../../core";
+import {React, PropTypes, Type, Utils, Field, Record, Column, Repository, CRUDE, Is, Check} from "../../core";
 import {Component, Attributes, Attr, FCtrl, Link, Icon} from "../../components";
 import RecordCtrl from "./RecordCtrl";
 import {RepoReference} from "../../repository/Repository";
@@ -9,15 +9,12 @@ export default class AttributesRecord extends Component {
 
     static propTypes = {
         ...Component.propTypes,
-        record: PropTypes.instanceOf(Record),
-        fill: PropTypes.bool,
+        recordCtrl: PropTypes.instanceOf(RecordCtrl),
+        fit: PropTypes.bool,
         edit: PropTypes.bool,
         showAdvanced: PropTypes.bool,
         local: PropTypes.bool
     };
-
-    advanced: boolean;
-    local: boolean;
 
     showAdvField: Field;
     localField: Field;
@@ -25,48 +22,52 @@ export default class AttributesRecord extends Component {
     constructor() {
         super(...arguments);
 
+        const ctrl: RecordCtrl = Check.instanceOf(this.props.recordCtrl, [RecordCtrl]);
+
         if (!Is.defined(this.props.showAdvanced)) {
             this.showAdvField = Field.create(Type.BOOLEAN, "showAdv", "Pokaż zaawansowane", false);
             this.showAdvField.onChange.listen(this, () => this.forceUpdate(true));
         }
 
-        if (!Is.defined(this.props.local)) {
+        if (this.props.local !== false) {
             this.localField = Field.create(Type.BOOLEAN, "local", "Lokalne", false);
             this.localField.config.description = "Zapisuj zmiany tylko lokalnie (nie wysyłaj do serwera)";
-            this.localField.onChange.listen(this, (value) => this.props.record.localCommit = value);
-
+            this.localField.onChange.listen(this, (value) => ctrl.record.localCommit = value);
         }
     }
 
     render() {
-        let hasAdv = this.showAdvField && !!Utils.find(this.props.record.fields, (field: Field) => field.config.disabled);
 
-        const refs: RepoReference[] = this.props.record.references;
+        const ctrl: RecordCtrl = Check.instanceOf(this.props.recordCtrl, [RecordCtrl]);
+        const rec: Record = ctrl.record;
+
+        let hasAdv = this.showAdvField && !!Utils.find(rec.fields, (field: Field) => field.config.disabled);
 
         return <Attributes
             key={Utils.randomId()}
             style={{
                 ...this.props.style,
-                width: this.props.fill ? "100%" : null
+                width: this.props.fit ? "100%" : null
             }}>
 
-            {hasAdv || this.local ? <div>
-                <FCtrl ignore={!this.showAdvField} field={this.showAdvField} value={1} name={2}/>
-                <span style={{marginRight: "50px"}}/>
+            {hasAdv || this.localField ? <div>
+                <FCtrl style={{marginRight: "50px"}} ignore={!hasAdv || !this.showAdvField} field={this.showAdvField}
+                       value={1} name={2}/>
+
                 <FCtrl ignore={!this.localField} field={this.localField} value={1} name={2}/>
             </div> : null}
 
-            {Utils.forEach(this.props.record.fields, (f: Field) =>
+            {Utils.forEach(rec.fields, (f: Field) =>
                 (this.showAdvField && this.showAdvField.value) || !f.config.disabled ?
                     <Attr key={f.key} edit={this.props.edit} field={f}/> : undefined
             )}
 
             {
-                Utils.forEach(refs, (ref: RepoReference) => {
+                Utils.forEach(rec.references, (ref: RepoReference) => {
                     return <Attr
                         key={Utils.randomId()}
                         name={ref.name}
-                        value={<ReferencesTable fit record={this.props.record} reference={ref}/>}/>
+                        value={<ReferencesTable fit recordCtrl={ctrl} reference={ref}/>}/>
                 })
             }
 

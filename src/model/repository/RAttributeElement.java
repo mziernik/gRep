@@ -145,10 +145,10 @@ public class RAttributeElement extends Repository<Integer> {
             c.key = "attrElm";
             c.daoName = "data.attribute_element";
             c.name = "Element atrybutu";
-             c.group = "Atrybuty";
+            c.group = "Atrybuty";
             c.primaryKey = ID;
             c.displayName = NAME;
-            c.reference("Elementy", RAttributeElements.ELM);
+            //     c.reference("Elementy", RAttributeElements.ELM);
         });
     }
 

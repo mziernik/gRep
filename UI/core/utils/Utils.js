@@ -53,19 +53,11 @@ export function toString(argument: any): ?string {
     return "" + argument;
 }
 
-class ForEach {
-
-    _break: boolean = false;
-
-    break() {
-        this._break = true;
-    }
-}
 
 export function find(object: ?any, callback: (object: ?any, index: number | string) => ?boolean) {
-    return forEach(object, (obj, idx, fe) => {
+    return forEach(object, (obj, idx, stop) => {
         if (callback(obj, idx)) {
-            fe.break();
+            stop();
             return obj;
         }
     }) [0];
@@ -77,36 +69,37 @@ export function find(object: ?any, callback: (object: ?any, index: number | stri
  * @param callback
  * @return {Array}
  */
-export function forEachSafe(object: ?any, callback: (object: ?any, index: number | string, forEach: ForEach) => ?any): [] {
+export function forEachSafe(object: ?any, callback: (object: ?any, index: number | string, stop: () => void) => ?any): [] {
 
     const items = [];
     forEach(object, (item, index) => items.push([item, index]));
 
     const result = [];
+    let _break: false;
 
     for (let i = 0; i < items.length; i++) {
-        const res = callback(items[i][0], items[i][1], forEach);
+        const res = callback(items[i][0], items[i][1], () => _break = true);
         if (res !== undefined) result.push(res);
-        if (forEach._break) return result;
+        if (_break) return result;
     }
     return result;
 }
 
-export function forEach(object: ?any, callback: (object: ?any, index: number | string, forEach: ForEach) => ?any): [] {
+export function forEach(object: ?any, callback: (object: ?any, index: number | string, stop: () => void) => ?any): [] {
     if (!Check.isFunction(callback))
         throw new Error("Nieprawidłowe wywołanie funkcji forEach");
 
     const result = [];
-    const forEach: ForEach = new ForEach;
+    let _break: false;
 
     if (If.func(object))
         object = object();
 
     if (object instanceof Array) {
         for (let i = 0; i < (object: Array).length; i++) {
-            const res = callback(object[i], i, forEach);
+            const res = callback(object[i], i, () => _break = true);
             if (res !== undefined) result.push(res);
-            if (forEach._break) return result;
+            if (_break) return result;
         }
         return result;
     }
@@ -114,18 +107,18 @@ export function forEach(object: ?any, callback: (object: ?any, index: number | s
     if (object instanceof Set) {
         let i = 0;
         for (const value of object) {
-            const res = callback(value, i++, forEach);
+            const res = callback(value, i++, () => _break = true);
             if (res !== undefined) result.push(res);
-            if (forEach._break) return result;
+            if (_break) return result;
         }
         return result;
     }
 
     if (object instanceof Map) {
         for (const [key, value] of object) {
-            const res = callback(value, key, forEach);
+            const res = callback(value, key, () => _break = true);
             if (res !== undefined) result.push(res);
-            if (forEach._break) return result;
+            if (_break) return result;
         }
         return result;
     }
@@ -211,7 +204,8 @@ export function clone(src: any, dst: ?any = null): any {
  */
 
 export function makeFinal(obj: any, filter: ?(name: string, value: any) => boolean | string | string[] = null): any {
-    if (!obj) return obj;
+    if (!obj || Dev.PROD_MODE) return obj;
+
     Object.entries(obj).forEach(en => {
         if (If.func(filter) && !filter(en[0], en[1]))
             return;

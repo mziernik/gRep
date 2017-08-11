@@ -55,7 +55,8 @@ export default class Column {
 
     _load(data: Object) {
         for (let name in this)
-            this[name] = data[name] || null;
+            if (data[name] !== undefined)
+                this[name] = data[name];
         this._update();
     }
 

@@ -1,22 +1,14 @@
 //@Flow
 'use strict';
 import {React, ReactUtils, PropTypes, ReactDOM, Application, Is, AppNode, Utils} from '../core';
-import {Component, Button, Icon, Resizer, Dragger, Scrollbar} from '../components';
+import {Component, Button, Icon, Resizer, Dragger, Scrollbar, DynamicValue} from '../components';
 import {PageTab} from "../page/PageContainer";
 import {Children, Dynamic} from "./Component";
 import {PageButtons} from "../page/Page";
 import {Btn} from "./Button";
+import {isFunction} from "../utils/Check";
 
 export class ModalWindow {
-
-    /** treść na belce tytułowej
-     * @type {string}
-     */
-    _title: ?string = null;
-    /** ikona z lewej strony
-     *
-     */
-    icon: ?Icon = null;
     /** zawartość okna
      * @type {null}
      */
@@ -57,6 +49,10 @@ export class ModalWindow {
      * @type {null}
      */
     mainStyle: ?Object = null;
+    /** styl zawartości okna
+     * @type {null}
+     */
+    contentStyle: ?Object = null;
     /** styl belki tytułowej
      * @type {null}
      */
@@ -68,11 +64,25 @@ export class ModalWindow {
     /** styl tagu z ikoną
      * @type {null}
      */
-    iconStyle: ?Object = null;
 
     _node: AppNode;
 
-    _titleBar: Dynamic = new Dynamic(() => <span>{this.title}</span>);
+
+    /** treść na belce tytułowej
+     * @type {string}
+     */
+    title: Dynamic<string> = new Dynamic(null, v => <span>{v}</span>);
+
+    icon: Dynamic<string> = new Dynamic(null, v => v ? <span style={{
+        fontSize: '3em',
+        paddingTop: "30px",
+        paddingLeft: "20px"
+    }} className={v}/> : null);
+
+    constructor() {
+        Utils.makeFinal(this, ["title", "icon"]);
+    }
+
 
     /** Tworzy nową instancję ModalWindow
      * @param config - callback konfigurujący instancję
@@ -91,7 +101,7 @@ export class ModalWindow {
     /** otwiera okno */
     open(tab: PageTab): AppNode {
         if (this._instance) return;
-        this._instance = document.createElement('span');
+        this._instance = document.createElement('div');
         document.body.appendChild(this._instance);
         this._instance.style.position = 'fixed';
         this._instance.style.left = 0;
@@ -101,8 +111,8 @@ export class ModalWindow {
         this._instance.style.backgroundColor = 'rgba(0,0,0,0.5)';
         this._instance.style.zIndex = Component.zIndex;
 
-        if (!this.title && tab)
-            this.title = tab.title;
+        if (!this.title.value && tab)
+            this.title.set(tab.title);
 
         this._node = Application.render(this.render(), this._instance, tab);
         this.result = false;
@@ -125,16 +135,6 @@ export class ModalWindow {
         if (close)
             this.close(e);
         if (err) throw err;
-    }
-
-
-    set title(title: string) {
-        this._title = title;
-        this._titleBar.update();
-    }
-
-    get title(): string {
-        return this._title;
     }
 
     /** zamknięcie okna z statusem false
@@ -189,12 +189,27 @@ export class ModalWindow {
         elem.style.top = (y - pos.height / 2) + 'px';
     }
 
+    /** Utwórz domyslny przycisk "Anuluj" */
+    get btnCancel() {
+        return new Btn((btn: Btn) => {
+            btn.key = "cancel";
+            btn.type = "default";
+            //btn.icon = Icon.PLUS;
+            btn.text = "Anuluj";
+            btn.modalClose = true;
+        });
+    }
 
     //
     render() {
 
-        const content = typeof(this.content) === 'string' ?
-            <div style={{
+        let content = this.content;
+
+        if (Is.func(content))
+            content = content();
+
+        if (Is.string(content))
+            content = <div style={{
                 display: 'table',
                 height: '100%',
                 width: '100%',
@@ -204,8 +219,7 @@ export class ModalWindow {
                     textAlign: 'center',
                     verticalAlign: 'middle'
                 }}>{this.content}</div>
-            </div>
-            : this.content;
+            </div>;
 
 
         return (
@@ -223,8 +237,8 @@ export class ModalWindow {
                     top: '0',
                     minWidth: '300px',
                     minHeight: '200px',
-                    maxWidth: '85%',
-                    maxHeight: '85%',
+                    maxWidth: '95%',
+                    maxHeight: '95%',
                     ...this.mainStyle
                 }}
             >
@@ -234,46 +248,40 @@ export class ModalWindow {
                     ...this.titleStyle
                 }}>
                     <span
-                        title={this.title}
+                        className="c-modal-window-title-text"
+                        title={this.title.value}
                         onMouseDown={this.draggable ? (e) => Dragger.dragStart(e, e.currentTarget.parentElement.parentElement) : null}
                         style={{
-                            cursor: 'default',
-                            fontWeight: 'bolder',
                             flex: '1 1 auto',
-                            textAlign: 'center',
                             whiteSpace: 'nowrap',
                             textOverflow: 'ellipsis',
                             overflow: 'hidden',
-                            padding: '5px 20px'
-                        }}>{this._titleBar.$}</span>
+                        }}>{this.title.$}</span>
                     {this.closeButton ? <span
                         className={"c-modal-window-exit " + Icon.TIMES}
                         title="Zamknij"
                         style={{flex: '0 0 auto'}}
                         onClick={(e) => this.close(e)}/> : null}
                 </div>
-                <div className="c-modal-window-content"
+                <div className="c-modal-window-body"
                      style={{
                          position: 'relative',
                          flex: '1 1 auto',
                          display: 'flex',
                          overflow: 'hidden'
                      }}>
-                    {this.icon ?
-                        <span style={{padding: '20px 0px 20px 20px', ...this.iconStyle}}>
-                    {this.icon instanceof Icon ?
-                        <span className={this.icon} style={{fontSize: '5em'}}/> : this.icon}
-                    </span> : null}
-                    <span style={{
-                        display: 'flex',
-                        flex: '1 1 auto',
-                        overflow: 'auto',
-                        padding: '10px'
-                    }}>
+                    {this.icon.$}
+                    <div className="c-modal-window-body-content"
+                         style={{
+                             display: 'flex',
+                             flex: '1 1 auto',
+                             overflow: 'auto',
+                             ...this.contentStyle
+                         }}>
                         <Scrollbar/>
                         <Scrollbar horizontal/>
                         {content}
-                    </span>
+                    </div>
                 </div>
                 <div className="c-modal-window-footer"
                      style={{
@@ -312,15 +320,14 @@ function ModalButtons(props) {
     if (modal.buttons instanceof PageButtons) {
         const pb: PageButtons = modal.buttons;
 
-        Utils.forEach(pb.buttons, (btn: Btn) => {
+        Utils.forEach(pb.list, (btn: Btn) => {
             if (!btn.modalClose) return;
-
             const act = btn.onClick;
-
             btn.onClick = e => {
                 if (act)
                     act(e);
-                modal.close(e);
+                if (btn.modalClose)
+                    modal.close(e);
             };
 
         });

@@ -27,6 +27,9 @@ export default class Dispatcher {
     /** Nazwy klas nadawców */
     senders: string[] = [];
 
+    _onDispatch: (sender: any, data: Object) => boolean;
+    _onListen: (context: any, func: (data: Object) => ?any) => boolean;
+
     constructor(parent: any) {
         this.context = parent;
         this.beforeDispatch = parent instanceof Dispatcher ? null : new Dispatcher(this);
@@ -40,6 +43,9 @@ export default class Dispatcher {
      */
     listen(context: any, func: (data: Object) => ?any): Observer {
         Check.isDefined(context, "Brak definicji kontekstu");
+
+        if (this._onListen && !this._onListen(context, func) === false) return;
+
         const o = new Observer(this, context, func);
         this.observers.push(o);
         ContextObject.add(context, o, () => this.observers.remove(o));
@@ -65,6 +71,8 @@ export default class Dispatcher {
      */
     dispatch(sender: any, data: Object): Dispatcher {
 
+        if (this._onDispatch && this._onDispatch(sender, data) === false) return;
+
         const name = Utils.className(sender);
         if (this.senders.indexOf(name) === -1)
             this.senders.push(name);
@@ -73,6 +81,7 @@ export default class Dispatcher {
         this.observers.forEach((o: Observer) => o.dispatch(sender, data));
         return this;
     }
+
 
     /**
      * Usuń obserwator na podstawie funkcji zwrotnej

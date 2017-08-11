@@ -1,5 +1,3 @@
-
-
 /* ====================================================== IKONY ======================================================*/
 
 .app-page[data-page="dev.icons"] ._ico {
@@ -10,7 +8,7 @@
     padding: 10px 0;
 }
 
-.app-page[data-page="dev.icons"] ._ico  > div {
+.app-page[data-page="dev.icons"] ._ico > div {
     font-size: 40px;
 }
 

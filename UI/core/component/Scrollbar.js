@@ -37,6 +37,35 @@ export class Scrollbar extends Component {
         document.body.style.userSelect = '';
     };
 
+    /** czy element można scrollować w pionie
+     * @param tag element drzewa DOM
+     * @returns {boolean}
+     */
+    static isScrollableV(tag: HTMLElement): boolean {
+        if (!tag) return false;
+        const overflow = getComputedStyle(tag).overflow;
+        if (overflow !== 'hidden' && overflow !== 'auto' && overflow !== 'scroll') return false;
+        return tag.scrollHeight > tag.clientHeight;
+    }
+
+    /** czy element można scrollować w poziomie
+     * @param tag element drzewa DOM
+     * @returns {boolean}
+     */
+    static isScrollableH(tag: HTMLElement): boolean {
+        if (!tag) return false;
+        const overflow = getComputedStyle(tag).overflow;
+        if (overflow !== 'hidden' && overflow !== 'auto' && overflow !== 'scroll') return false;
+        return tag.scrollWidth > tag.clientWidth;
+    }
+
+    /** czy element można scrollować
+     * @param tag element drzewa DOM
+     * @returns {boolean}
+     */
+    static isScrollable(tag: HTMLElement): boolean {
+        return Scrollbar.isScrollableH(tag) || Scrollbar.isScrollableV(tag);
+    }
 
     constructor() {
         super(...arguments);
@@ -73,6 +102,14 @@ export class Scrollbar extends Component {
      * @private
      */
     _scroll(e: WheelEvent) {
+        const scrollable = e.deltaX !== 0 ? Scrollbar.isScrollableH
+            : e.deltaY !== 0 ? Scrollbar.isScrollableV : Scrollbar.isScrollable;
+        if (!scrollable(this._parent)) return;
+        let target = e.target;
+        while (target !== e.currentTarget && target !== null) {
+            if (scrollable(target)) return;
+            target = target.parentElement;
+        }
         this._parent.scrollTop += (e.deltaY > 0 ? 50 : e.deltaY < 0 ? -50 : 0);
         this._parent.scrollLeft += (e.deltaX > 0 ? 50 : e.deltaX < 0 ? -50 : 0);
         this._setBar();

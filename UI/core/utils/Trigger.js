@@ -32,7 +32,7 @@ export default class Trigger {
         }, this.timeout);
     }
 
-  //  @autobind
+    //  @autobind
     call(func: (...arg: ?any) => void, timeout: number = 0, ...arg: ?any) {
         this.cancel();
         this._timeout = window.setTimeout(() => {

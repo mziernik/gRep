@@ -1,3 +1,20 @@
+.c-input > input,
+.c-memo > textarea {
+    padding: 4px 12px;
+    border-radius: 2px;
+    border: 1px solid #aaa;
+}
+
+/*placeholder dla selecta, date pickera*/
+.rw-placeholder {
+    color: #888;
+}
+
+.rw-widget {
+    border-radius: 2px;
+    border: 1px solid #aaa;
+}
+
 /*================================================== Przycisk ToolBa ==================================================*/
 
 .c-tool-bar {
@@ -78,6 +95,18 @@
     background-color: rgba(255, 0, 0, 0.3);
 }
 
+.c-attributes-row[data-changed=true] {
+    background-color: rgba(255, 200, 0, 0.3);
+}
+
+.c-attributes-name {
+    text-align: right;
+}
+
+.c-attributes-value {
+    /*width: 100%;*/
+}
+
 /*==================================================== BreadCrumbs ===================================================*/
 
 .c-breadcrumbs a,
@@ -101,11 +130,19 @@
     width: 100%
 }
 
+.c-table .rt-tr-group[data-changed=true] {
+    background-color: rgba(255, 200, 0, 0.3);
+}
+
 .c-table .rt-thead .rt-th {
     padding: 8px 4px;
     font-weight: normal;
-    background-color: #505356;
+
     color: #bbb
+}
+
+.c-table .rt-thead {
+    background-color: #505356;
 }
 
 .c-table .rt-thead .rt-th.-sort-asc,
@@ -233,7 +270,13 @@
 .c-modal-window-title {
     background: #303336;
     color: white;
-    border-bottom: 1px solid lightgray;
+}
+
+.c-modal-window-title-text {
+    cursor: default;
+    font-weight: bolder;
+    text-align: center;
+    padding: 5px 20px;
 }
 
 .c-modal-window-exit {
@@ -248,9 +291,12 @@
     color: darkgray;
 }
 
-.c-modal-window-content {
+.c-modal-window-body {
     background: #DDDDDD;
-    border-bottom: 1px solid lightgray;
+}
+
+.c-modal-window-body-content {
+
 }
 
 .c-modal-window-footer {
@@ -264,10 +310,40 @@
 .c-panel {
     font-size: 16px;
     padding: 6px 12px;
-    margin-right: 10px;
-    margin-top: 10px;
+    /*margin-right: 10px;*/
+    /*margin-top: 10px;*/
     cursor: pointer;
     box-sizing: border-box;
+}
+
+.c-panel-titlebar {
+    cursor: pointer;
+    display: flex;
+    align-items: baseline;
+    padding: 5px 0;
+    background: #505356;
+    color: #bbb;
+}
+
+.c-panel-titlebar:hover {
+    background: #696969;
+}
+
+.c-panel-titlebar-icon {
+    padding-left: 10px;
+}
+
+.c-panel-titlebar-title {
+    flex: 1;
+    font-weight: bolder;
+    padding: 0 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.c-panel-titlebar-button {
+    padding-right: 10px;
 }
 
 /*========================================================= Resizer ==================================================*/
@@ -286,9 +362,16 @@
 /*========================================================= CheckBox =================================================*/
 
 .c-check-box {
-    width: 16px;
-    margin-right: 6px;
+    font-size: 1.1em;
+    line-height: 0;
+}
+
+.c-check-box-icon, .c-check-box-label {
     cursor: pointer;
+}
+
+.c-check-box > span {
+    width: 16px;
 }
 
 .c-check-box:hover {
@@ -296,10 +379,13 @@
 }
 
 /*========================================================= Input ====================================================*/
+.c-input {
+    height: 100%;
+}
 
 .c-input > input {
     flex: auto;
-    padding: 3px 8px;
+    width: 100%;
 }
 
 /*========================================================= List =====================================================*/
@@ -324,13 +410,13 @@
 
 }
 
-/*======================================================== Select =====================================================*/
+/*======================================================== Select ====================================================*/
 
 .c-select {
 
 }
 
-/*====================================================== PopupMenu ====================================================*/
+/*====================================================== PopupMenu ===================================================*/
 
 .c-popup-menu {
     box-shadow: 2px 2px 5px gray;
@@ -358,7 +444,7 @@
     background-color: rgba(0, 50, 100, 0.1);
 }
 
-/*========================================== Resizer/Splitter Handle ==================================================*/
+/*========================================== Resizer/Splitter Handle =================================================*/
 .c-splitter-handle:hover {
     opacity: 0.6;
     background: linear-gradient(to right, transparent 30%, black, transparent 70%);
@@ -369,7 +455,7 @@
     background: linear-gradient(to bottom, transparent 30%, black, transparent 70%);
 }
 
-/*====================================================== Scrollbar ====================================================*/
+/*====================================================== Scrollbar ===================================================*/
 .c-scrollbar {
     transition: background 250ms;
     overflow: hidden;
@@ -388,7 +474,7 @@
     background: rgba(127, 127, 127, 0.6);
 }
 
-/*====================================================== FCtrl ====================================================*/
+/*====================================================== FCtrl =======================================================*/
 
 .c-fctrl {
 
@@ -397,6 +483,7 @@
 .c-fctrl-name {
     /*margin: '0 4px',*/
     flex: 1 1 auto;
+    font-size: 0.9em;
 }
 
 .c-fctrl-name-link {
@@ -404,11 +491,105 @@
     cursor: pointer;
 }
 
-*[fctrl-changed=true] {
-    background-color: rgba(255, 200, 0, 0.3);
+/*============================================== FCtrl - ikony =======================================================*/
+.c-fctrl-icon {
+    position: relative;
+    margin: 0 4px;
+    text-align: center;
 }
 
-/*=================================================== ReferencesTable =================================================*/
+.c-fctrl-icon-error {
+    color: #c00;
+}
+
+.c-fctrl-icon-warning {
+    color: #ffad00;
+}
+
+.c-fctrl-icon-description {
+    color: #08d;
+    font-size: 0.8em;
+    vertical-align: top;
+    opacity: 0.6;
+}
+
+.c-fctrl-icon-required {
+    color: #c00;
+    font-size: 0.6em;
+    vertical-align: top;
+}
+
+/*==================================================== Toggle ========================================================*/
+.c-toggle {
+
+}
+
+.c-toggle-label {
+    padding-left: 10px;
+}
+
+.c-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.c-toggle-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #303336;
+    border: 1px solid #444;
+    transition: .1s;
+}
+
+.c-toggle-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 90%;
+    width: 45%;
+    top: 5%;
+    left: 5%;
+    background-color: #DDDDDD;
+    border: 1px solid #444;
+    transition: .1s;
+}
+
+input:checked + .c-toggle-switch-slider {
+    background-color: #f53;
+}
+
+input:checked + .c-toggle-switch-slider:before {
+    transform: translateX(100%);
+}
+
+/*=====================================================Radio Button ==================================================*/
+
+.c-radio-button {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.c-radio-button-icon {
+    cursor: pointer;
+    font-size: 1.1em;
+}
+
+.c-radio-button-icon:hover {
+    color: #696969;
+}
+
+.c-radio-button-label {
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+/*=================================================== ReferencesTable ================================================*/
 
 .c-references-table td:first-child > div {
     cursor: pointer;
@@ -420,38 +601,33 @@
     text-decoration: underline;
 }
 
-/*====================================================== Dashboard ====================================================*/
-/*#EDEBE8*/
-.c-dashboard-content {
-    background-color: #efefef;
-    min-height: 98%;
+/*====================================================== Widget ======================================================*/
+
+.c-widget {
+    background-color: rgba(255, 255, 255, 0.5);
     color: #939291;
     border: 1px solid rgba(48, 51, 54, .25);
-    /*background-clip: padding-box;*/
-    /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
 }
 
-.c-dashboard-content-after {
-    color: #303336;
-    opacity: 0.03;
-    z-index: 1;
-    font-size: 5em;
+.c-widget-content {
+    padding: 8px;
 }
 
-.c-dashboard-header {
+.c-widget-header {
     text-align: center;
-    color: #91918F;
     font-weight: bold;
-    /*text-shadow: 1px 1px 5px rgba(150, 150, 150, 1);*/
+    padding: 6px;
 }
 
-.c-dashboard-exit-btn {
-    text-align: center;
-    color: #91918F;
-    transition: all 150ms linear;
+/*================================================= Dropdown ========================================================*/
+.rw-popup-container {
+    position: fixed;
+    left: initial;
+    right: initial;
 }
 
-.c-dashboard-exit-btn:hover {
-    color: #61605F;
-    cursor: pointer;
+.rw-popup {
+    left: 0;
+    right: 0;
 }
+

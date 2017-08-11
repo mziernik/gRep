@@ -15,7 +15,6 @@ export default class BaseRecordPage extends RepoPage {
 
     //   afterSaveNavigate: string;
 
-
     constructor(repo: Repository | string, props: any, context: any, state: any) {
         super(repo, props, context, state);
         Check.isDefined(this.props.id);
@@ -27,9 +26,13 @@ export default class BaseRecordPage extends RepoPage {
         this.record = this.isNew ? this.repo.createRecord(this, this.isNew
             ? CRUDE.CREATE : CRUDE.UPDATE)
             : this.repo.get(this, this.props.id, true);
-        this.controller = new RecordCtrl(this, this.record);
+        this.controller = new RecordCtrl(this.record);
         this.controller.local = false;
-        this.controller.showAdvances = false;
-        this.controller.createButtons(this.buttons);
+        this.controller.showAdvanced = false;
+
+        this.buttons.list.push(this.controller.btnBack);
+        this.buttons.list.push(this.controller.btnDelete);
+        this.buttons.list.push(this.controller.btnSave);
+        this.controller.btnDelete._visible = !this.isNew;
     }
 }

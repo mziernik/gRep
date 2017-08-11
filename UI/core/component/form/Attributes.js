@@ -50,11 +50,10 @@ export class Attributes extends Component {
         return <table className="c-attributes" style={this.props.style}>
 
             <tbody>
-            {this.children
-                .props({
-                    preview: this.props.preview,
-                    edit: this.props.edit
-                })
+            {this.children.props({
+                preview: this.props.preview,
+                edit: this.props.edit
+            })
                 .instanceOf(Attr)
                 .filter((child: Child) => {
 
@@ -99,7 +98,7 @@ export class Attr extends Component {
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
         mode: PropTypes.oneOf(["preview", "edit", "mixed"]),
         onClick: PropTypes.func,
-        record: PropTypes.instanceOf(Record) // wartość pomocnicza, np w obsłudze metody onAttrClick
+        record: PropTypes.instanceOf(Record), // wartość pomocnicza, np w obsłudze metody onAttrClick
     };
 
     /** Wartość jest aktualnie edytowana */
@@ -113,29 +112,38 @@ export class Attr extends Component {
         this.field = this.props.field;
         this.edit = this.props.edit && !this.props.preview;
         this.record = this.props.record;
+        if (this.field)
+            this.field.onUpdateMarkerChange.listen(this, obj => this._updateChangeMarker(obj.state));
     }
 
+    _updateChangeMarker = (state) => {
+        if (this.field && !Is.defined(state)) state = this.field.wasChangedRecently;
+        if (this.tr)
+            this.tr.setAttribute("data-changed", state);
+    };
+
+
     render() {
-
-
         const mixedMode = this.field && this.props.edit && this.props.preview;
 
         let field: Field = mixedMode && this.field ? new Field(this.field.config) : this.field;
         if (field && mixedMode)
             field._value = this.field.value;
 
-        if (field)
+        if (field) {
             field.onChange.listen(this, () => updateErrorMarker());
-
+            field.onError.listen(this, () => updateErrorMarker());
+        }
 
         const updateErrorMarker = () => {
+
             if (this.tr && field)
                 this.tr.setAttribute("data-error", !!field.error);
         };
 
+
         if (this.props.ifDefined && !Is.defined(this.props.value) && (!field || !Is.defined(field.value) ))
             return null;
-
 
         if (!field && this.props.type)
             field = new Field((c: Column) => {
@@ -145,26 +153,35 @@ export class Attr extends Component {
                 c.defaultValue = this.props.value;
             });
 
-
         return <tr
             ref={e => Is.defined(e, () => {
                 this.tr = e;
                 updateErrorMarker();
+                this._updateChangeMarker(null)
             })}
             className="c-attributes-row"
             onClick={e => Is.func(this.props.onClick, f => f(e, this))}
         >
 
-            <td>{field ?
-                <FCtrl field={field} name={1} required={2} error={3}/> : this.children.render(this.props.name)}</td>
-            <td>
+            <td className="c-attributes-name">{field ?
+                <FCtrl
+                    field={field}
+                    description={1}
+                    name={2}
+                    required={3}
+                    error={4}
+                /> : this.children.render(this.props.name)}</td>
+            <td className="c-attributes-value">
                 {field ? <div style={{display: "flex"}}>
                     <FCtrl
                         key={(this.edit ? "#edt" : "") + field.key}
                         field={field}
                         fit={this.edit}
                         value={this.edit}
-                        preview={!this.edit}/>
+                        preview={!this.edit}
+                        boolMode="radio"
+                        markChangesFunc={state => updateChangeMarker(state)}
+                    />
 
                     <span style={{display: "table-cell", whiteSpace: "nowrap"}}>
                              <Link ignore={!mixedMode || this.edit}
@@ -196,8 +213,6 @@ export class Attr extends Component {
                 </div> : super.renderChildren(this.props.value)
                 }
             </td>
-
-            {field ? <td><FCtrl field={field} description/></td> : null}
         </tr>;
     }
 }

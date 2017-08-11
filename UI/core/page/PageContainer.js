@@ -101,7 +101,9 @@ export class PageTab {
                 this.modalWindow = ModalWindow.create((mw: ModalWindow) => {
                     mw.content = children;
                     mw.closeButton = true;
-                    mw.icon = null;
+                    mw.contentStyle = {
+                        padding: "20px"
+                    };
                     mw.onClose = (e: Event, result: boolean) => this.close() || true;
                 });
                 this.node = this.modalWindow.open(this);

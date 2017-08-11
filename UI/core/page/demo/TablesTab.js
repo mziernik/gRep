@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, Field, Type, Utils, Column} from '../../core';
+import {React, Field, Type, Utils, Column, CustomFilter} from '../../core';
 import {Component, FCtrl, Table} from '../../components';
 
 export default class TablesTab extends Component {
@@ -34,7 +34,8 @@ function generateData(columns: [], n: number): [] {
     function generateValue(type: simpleType): ?string | number | boolean {
         const strings = ['Abecadło', 'Długopis', 'Komórka', 'Omega', 'Mikrofalówka',
             'Klawiatura bezprzewodowa', 'Żarówka energiooszczędna', 'Królik doświadczalny',
-            'Jakieś bezużyteczne badziewie', '2076,4C', '007', 'Kwiat tlenotwórczy', 'Ósmy pasażer'];
+            'Jakieś bezużyteczne badziewie', '2076,4C', '007', 'Kwiat tlenotwórczy', 'Ósmy pasażer',
+            'Pompa próżniowa', 'Rower stacjonarny', 'Zęby dziadka', '1', '2', '10', '20', null];
         const booleans = [null, false, true];
         switch (type) {
             case 'string':
@@ -52,7 +53,7 @@ function generateData(columns: [], n: number): [] {
     for (let i = 0; i < n; ++i) {
         res.push(Utils.forEach(columns, (column) => {
             if (!(column instanceof Column)) return;
-            return new Field((fc: FieldConfig) => {
+            return new Field((fc: Column) => {
                 fc.type = column.type;
                 fc.key = column.key;
                 fc.name = column.name;
@@ -70,7 +71,8 @@ const COLUMNS = [
         fc.name = "Nazwa";
         fc.sortable = true;
         fc.filterable = true;
-        fc.filter = (filter, cell) => cell ? cell.value ? cell.value.contains(filter) : false : false;
+        fc.compare = (a, b) => CustomFilter.defaultCompareFn('string')(a.value, b.value);
+        fc.filter = (filter, cell) => cell ? cell.value ? cell.value.contains(filter) : cell.contains(filter) : false;
     }),
     new Column((fc: Column) => {
         fc.type = Type.INT;

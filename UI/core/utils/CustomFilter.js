@@ -17,6 +17,30 @@ export default class CustomFilter {
         NOT_CONTAINS: 'nie zawiera'
     };
 
+    operator: string = CustomFilter.OPERATORS.AND;
+    condition: string = CustomFilter.CONDITIONS.EQUAL;
+    value: ?any; //wartość filtru
+    negation: boolean = false; //negacja wyniku
+    conditions: [] = []; //warunki [CustomFilter]
+    accessor: ?string = null; //nazwa/indeks pola w danych
+    compareFn: (a, b) => number = null; //funkcja porównująca
+    filterFn: (filter, val) => boolean = null; //funkcja szukająca
+
+    /** konstruktor
+     * @param value wartość do której ma być porównanie
+     * @param condition typ porównania CustomFilter.CONDITIONS
+     * @param operator typ operacji (łączenia warunków) CustomFilter.OPERATORS
+     * @param accessor nazwa/id pola w danych
+     * @param negation czy negacja warunku
+     */
+    constructor(value, condition = null, operator = null, accessor = null, negation = false) {
+        this.value = (value !== null && typeof(value) === 'object' && 'value' in value) ? value.value : value;
+        this.condition = condition || CustomFilter.CONDITIONS.EQUAL;
+        this.operator = operator || CustomFilter.OPERATORS.AND;
+        this.accessor = accessor;
+        this.negation = negation;
+    }
+
     static getConditions(type: ?string = null): {} {
         if (type === null) return CustomFilter.CONDITIONS;
         switch (type) {
@@ -40,39 +64,6 @@ export default class CustomFilter {
                     NOT_EQUAL: CustomFilter.CONDITIONS.NOT_EQUAL
                 }
         }
-    }
-
-    operator: string = CustomFilter.OPERATORS.AND;
-    condition: string = CustomFilter.CONDITIONS.EQUAL;
-    value: ?any; //wartość filtru
-    negation: boolean = false; //negacja wyniku
-    conditions: [] = []; //warunki [CustomFilter]
-    accessor: ?string = null; //nazwa/indeks pola w danych
-    compareFn: (a, b) => number = null; //funkcja porównująca
-    filterFn: (filter, val) => boolean = null; //funkcja szukająca
-
-    /** konstruktor
-     * @param value wartość do której ma być porównanie
-     * @param condition typ porównania CustomFilter.CONDITIONS
-     * @param operator typ operacji (łączenia warunków) CustomFilter.OPERATORS
-     * @param accessor nazwa/id pola w danych
-     * @param negation czy negacja warunku
-     */
-    constructor(value, condition = null, operator = null, accessor = null, negation = false) {
-        this.value = (typeof(value) === 'object' && 'value' in value) ? value.value : value;
-        this.condition = condition || CustomFilter.CONDITIONS.EQUAL;
-        this.operator = operator || CustomFilter.OPERATORS.AND;
-        this.accessor = accessor;
-        this.negation = negation;
-    }
-
-    /** dodaje n warunków
-     * @param CustomFilter warunki
-     * @returns {CustomFilter} this
-     */
-    addCondition([...CustomFilter]): CustomFilter {
-        Utils.forEach(arguments, (arg) => this.conditions.push(arg));
-        return this;
     }
 
     /** Tworzy warunek && (x > value).
@@ -155,6 +146,62 @@ export default class CustomFilter {
         return new CustomFilter(value, CustomFilter.CONDITIONS.NOT_EQUAL, CustomFilter.OPERATORS.ORaccessor, accessor, negation);
     }
 
+    /** zwraca podstawową funkcję porównania dla danego typu prostego
+     * @param type typ prosty string|number|boolean
+     * @returns {*}
+     */
+    static defaultCompareFn(type: string): ?(a, b) => number {
+        switch (type) {
+            case 'number':
+                return (a, b) => a - b;
+            case 'boolean':
+                return (a, b) => {
+                    if (a === b) return 0;
+                    if (a === null || a === undefined) return 1;
+                    if (b === null || b === undefined) return -1;
+                    return a ? -1 : 1;
+                };
+            case 'string':
+                return (a, b) => {
+                    a = a ? a.toLowerCase() : a;
+                    b = b ? b.toLowerCase() : b;
+                    if (a === b) return 0;
+                    if (a === null || a === undefined) return 1;
+                    if (b === null || b === undefined) return -1;
+                    return a.localeCompare(b, 'pl', {sensitivity: 'accent', numeric: true});
+                };
+            default:
+                return (a, b) => {
+                    a = Utils.toString(a);
+                    b = Utils.toString(b);
+                    a = a ? a.toLowerCase() : a;
+                    b = b ? b.toLowerCase() : b;
+                    if (a === b) return 0;
+                    if (a === null || a === undefined) return 1;
+                    if (b === null || b === undefined) return -1;
+                    return a.localeCompare(b, 'pl', {sensitivity: 'accent', numeric: true});
+                };
+        }
+    }
+
+    /** domyślna funkcja filrująca (contains)
+     * @param filter wartość szukana
+     * @param value wartość sprawdzana
+     * @returns {boolean}
+     */
+    static defaultFilterFn(filter, value): boolean {
+        return Utils.toString(value).contains(Utils.toString(filter));
+    }
+
+    /** dodaje n warunków
+     * @param CustomFilter warunki
+     * @returns {CustomFilter} this
+     */
+    addCondition([...CustomFilter]): CustomFilter {
+        Utils.forEach(arguments, (arg) => this.conditions.push(arg));
+        return this;
+    }
+
     /** sprawdza czy filtr korzysta z różnych pól (accessor)
      * @param filter filtr do sprawdzenia
      * @returns {boolean}
@@ -229,56 +276,6 @@ export default class CustomFilter {
             }
         });
         return this.negation ? !res : res;
-    }
-
-    /** zwraca podstawową funkcję porównania dla danego typu prostego
-     * @param type typ prosty string|number|boolean
-     * @returns {*}
-     */
-    static defaultCompareFn(type: string): ?(a, b) => number {
-        switch (type) {
-            case 'number':
-                return (a, b) => a - b;
-            case 'boolean':
-                return (a, b) => {
-                    if (a === b) return 0;
-                    if (a === null || a === undefined) return 1;
-                    if (b === null || b === undefined) return -1;
-                    return a ? -1 : 1;
-                };
-            case 'string':
-                // ToDo obsługa polskich znaków
-                return (a, b) => {
-                    a = a ? a.toLowerCase() : a;
-                    b = b ? b.toLowerCase() : b;
-                    if (a === b) return 0;
-                    if (a === null || a === undefined) return 1;
-                    if (b === null || b === undefined) return -1;
-                    if (a > b) return 1;
-                    return -1;
-                };
-            default:
-                return (a, b) => {
-                    a = Utils.toString(a);
-                    b = Utils.toString(b);
-                    a = a ? a.toLowerCase() : a;
-                    b = b ? b.toLowerCase() : b;
-                    if (a === b) return 0;
-                    if (a === null || a === undefined) return 1;
-                    if (b === null || b === undefined) return -1;
-                    if (a > b) return 1;
-                    return -1;
-                };
-        }
-    }
-
-    /** domyślna funkcja filrująca (contains)
-     * @param filter wartość szukana
-     * @param value wartość sprawdzana
-     * @returns {boolean}
-     */
-    static defaultFilterFn(filter, value): boolean {
-        return Utils.toString(value).contains(Utils.toString(filter));
     }
 
     /** tekstowa reprezentacja zbudowanego warunku

@@ -1,7 +1,26 @@
-import {React, PropTypes} from "../core";
-import {Component, Resizer, Scrollbar, Splitter} from "../components"
+import {React, ReactDOM, PropTypes, Is} from "../core";
+import {Component, Resizer, Scrollbar, Splitter, Dynamic} from "../components"
+import Icon from "./glyph/Icon";
 
 export default class Panel extends Component {
+    /** panel w drzewie DOM
+     * @type {null}
+     * @private
+     */
+    _panel = null;
+    /** ostatnia wysokość panelu
+     * @type {string}
+     * @private
+     */
+    _panelHeight: string = 'initial';
+    /** czy zwinięty
+     * @type {boolean}
+     * @private
+     */
+    _isFolded: boolean = true;
+
+    name: Dynamic<string> = new Dynamic(null, v => <span className="c-panel-titlebar-title">{v}</span>);
+    icon: Dynamic<string> = new Dynamic(null, v => v ? <span className={"c-panel-titlebar-icon " + v}/> : null);
 
     static propTypes = {
         type: PropTypes.oneOf(["raised", "lowered"]),
@@ -11,18 +30,25 @@ export default class Panel extends Component {
         border: PropTypes.bool,
         noPadding: PropTypes.bool,
         resizable: PropTypes.bool,
+        foldable: PropTypes.bool,
+        folded: PropTypes.bool,
         split: PropTypes.bool,
         fit: PropTypes.bool, // dopasuj do rodzica
         // krawędzie resizera
         north: PropTypes.bool,
         east: PropTypes.bool,
         west: PropTypes.bool,
-        south: PropTypes.bool
+        south: PropTypes.bool,
+
+        name: PropTypes.node,
+        icon: PropTypes.string,
     };
 
     static defaultProps = {
         resizable: false,
         scrollable: false,
+        foldable: false,
+        folded: false,
         split: false,
         north: false,
         east: false,
@@ -30,20 +56,70 @@ export default class Panel extends Component {
         south: false
     };
 
+    constructor() {
+        super(...arguments);
+        this._isFolded = this.props.folded;
+        this.name.set(this.props.name);
+        this.icon.set(this.props.icon);
+    }
+
+    /** zmienia wysokość panelu
+     * @param panel panel w drzewie DOM
+     * @private
+     */
+    _setSize(panel) {
+        if (!panel && !this._panel) return;
+        if (panel) this._panel = panel;
+        this._panel.style.height = this._isFolded ? 'initial' : this._panelHeight;
+    }
+
+    /** zwija lub rozwija panel
+     * @param folded czy ma zostać zwinięty. null neguje ostatni stan zwinięcia
+     */
+    fold(folded: boolean = null) {
+        if (!Is.defined(folded)) folded = !this._isFolded;
+        if (folded === this._isFolded) return;
+        this._isFolded = folded;
+        if (this._panel && folded)
+            this._panelHeight = this._panel.style.height;
+        this.forceUpdate(true);
+    }
+
+    /** zwraca belkę z tytułem, ikoną i opcją zwijania
+     * @returns {*}
+     */
+    renderTitleBar() {
+        if (!this.props.foldable) return null;
+        return <div className="c-panel-titlebar"
+                    onClick={e => {
+                        e.stopPropagation();
+                        this.fold();
+                    }}>
+            {this.icon.$}
+            {this.name.$}
+            <span className={"c-panel-titlebar-button " + (this._isFolded ? Icon.PLUS : Icon.MINUS)}/>
+        </div>
+    }
+
     //
     render() {
         let size = this.props.fit || this.props.resizable || this.props.scrollable ? '100%' : null;
         let panel = null;
+        const panelBorder = this.props.border && !this.props.resizable && !this.props.scrollable && !this.props.foldable;
         if (this.props.split)
-            panel = <Splitter horizontal={this.props.vertical}
-                              style={{
-                                  width: size,
-                                  height: size,
-                                  outline: '1px solid #444'
-                              }}>
+            panel = <Splitter
+                horizontal={this.props.vertical}
+                style={{
+                    width: size,
+                    height: size,
+                    outline: '1px solid #444'
+                }}>
                 {super.renderChildren()}
             </Splitter>;
-        else
+        else {
+            let style = null;
+            if (!this.props.resizable)
+                style = this.props.style;
             panel = <div
                 className="c-panel-child"
                 data-fit={!!this.props.fit}
@@ -54,15 +130,19 @@ export default class Panel extends Component {
                     width: size,
                     height: size,
                     padding: this.props.noPadding ? null : "8px",
-                    border: this.props.border && !this.props.resizable && !this.props.scrollable ? "1px solid #444" : null,
+                    border: panelBorder ? "1px solid #444" : null,
+                    flex: '1',
+                    ...style
                 }}>
                 {this.props.scrollable || this.props.resizable ? <Scrollbar/> : null}
                 {this.props.scrollable || this.props.resizable ? <Scrollbar horizontal/> : null}
                 {super.renderChildren()}
             </div>;
+        }
 
-        if (this.props.scrollable || this.props.resizable)
+        if (this.props.scrollable || this.props.resizable || this.props.foldable)
             return <Resizer
+                ref={elem => this._setSize(ReactDOM.findDOMNode(elem))}
                 className="c-panel"
                 resizable={this.props.resizable}
                 north={this.props.north}
@@ -71,16 +151,19 @@ export default class Panel extends Component {
                 south={this.props.south}
                 style={{
                     flex: '1',
+                    display: this.props.foldable ? 'flex' : null,
+                    flexDirection: this.props.foldable ? 'column' : null,
                     height: this.props.fit ? "100%" : null,
                     width: this.props.fit ? "100%" : null,
-                    overflow: this.props.scrollable ? "hidden" : undefined,
+                    overflow: "hidden",
                     border: this.props.border ? "1px solid #444" : null,
                     ...this.props.style
                 }}
                 outerProps={{
                     title: this.props.title
                 }}>
-                {panel}
+                {this.renderTitleBar()}
+                {this._isFolded ? null : panel}
             </Resizer>;
         return panel;
     }

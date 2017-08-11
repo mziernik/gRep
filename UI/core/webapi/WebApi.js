@@ -19,25 +19,20 @@ export type OnError = (error: Object, response: WebApiResponse) => void;
 export default class WebApi {
 
     static instance: WebApi;
-
-    url: string;
-    httpUrl: string;
-    wsUrl: string;
-    hash: string;
-    maxRetries: number = 10;
-
-    processed: Map<string, WebApiRequest> = new Map();
-    transport: WebApiTransport;
-    onEvent: Dispatcher = new Dispatcher(); //(source: string, event: string, data: object, context: WebApiResponse)
-    onClose: Dispatcher = new Dispatcher();
-
-
     static headers: Object = {
         "Local-TS": -1,
         "User-Agent": window.navigator.userAgent,
         "Accept-Language": window.navigator.language
     };
-
+    url: string;
+    httpUrl: string;
+    wsUrl: string;
+    hash: string;
+    maxRetries: number = 10;
+    processed: Map<string, WebApiRequest> = new Map();
+    transport: WebApiTransport;
+    onEvent: Dispatcher = new Dispatcher(); //(source: string, event: string, data: object, context: WebApiResponse)
+    onClose: Dispatcher = new Dispatcher();
 
     constructor(url: string, transportClass) {
         this.url = url;

@@ -10,15 +10,13 @@ import {Component, Icon, Link} from "../components";
 
 export default class Breadcrumb extends Component {
 
-    page: Endpoint;
-
     static propTypes = {
         home: PropTypes.bool.isRequired
     };
-
     static defaultProps = {
         home: true
     };
+    page: Endpoint;
 
     constructor() {
         super(...arguments);

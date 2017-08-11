@@ -17,9 +17,8 @@ INSERT INTO data.attribute_element (type, key, name, MIN, MAX, description, enum
     ('string', 'addrType','Typ adresu', 0, 32, 'Typ adresu',  --12
         '"none"=>"Brak", "static"=>"Statyczny", "dhcp"=>"DHCP"'),
     ('string', 'login',  'Login', 1, 100, 'Login', NULL), --13
-    ('string', 'pass',   'Hasło', 1, 100, 'Hasło', NULL), --14
+    ('password', 'pass',   'Hasło', 1, 100, 'Hasło', NULL), --14
     ('string', 'key',    'Klucz', 1, 100, 'Klucz, numer seryjny', NULL) --15
-
 ;
 
 INSERT INTO data.attribute (key, name, display_mask, icon) VALUES
@@ -116,15 +115,15 @@ INSERT INTO data.catalog_attribute(catalog, attribute) VALUES
 ; 
 
 
-INSERT INTO data.catalog_attribute_values(cat_attr, attr_elm, value) VALUES 
+INSERT INTO data.catalog_attribute_values(attr, elm, value) VALUES 
     (1, 1, 'Asus'),          
     (2, 1, 'RT-AC1200G+'),    
     (3, 11, 'lan'),            
     (3, 8, '192.168.1.1'),   
     (4, 11, 'wan'),            
     (4, 8, '192.168.0.254'),  
-    (5, 6, 'admin'),     
-    (5, 7, 'hasło')
+    (5, 13, 'admin'),     
+    (5, 14, 'hasło')
 ; 
 
 

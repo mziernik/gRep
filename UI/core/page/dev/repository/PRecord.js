@@ -28,18 +28,19 @@ export default class PRecord extends BaseRecordPage {
             btn.icon = Icon.INFO;
             btn.text = "Szczegóły";
         });
-    }
-
-
-    render() {
 
         this.record.onChange.listen(this, data => {
-            if (!this._saveTs) return;
+            if (!this._saveTs)
+                return;
             let changes = Utils.forEach(data.changes, (arr: [], col: Column) =>
                 col.key + ": " + Utils.escape(arr[0]) + " => " + Utils.escape(arr[1]));
             AppStatus.debug(this, "Czas: " + (new Date().getTime() - this._saveTs) + " ms", changes.join("\n"), 30000);
             this._saveTs = null;
         });
+    }
+
+
+    render() {
 
         this.title.set((this.isNew ? "Nowy rekord" : "Edycja rekordu "
             + Utils.escape(this.record.displayValue) + " (" + this.repo.primaryKeyColumn.key + "="
@@ -50,7 +51,13 @@ export default class PRecord extends BaseRecordPage {
             <Panel fit scrollable vertical>
 
                 <div style={{flex: "auto"}}>
-                    <AttributesRecord record={this.record} fill edit/>
+                    <AttributesRecord
+                        recordCtrl={this.controller}
+                        fit
+                        edit
+                        showAdvanced={null}
+                        local={null}
+                    />
                 </div>
 
                 <DTO record={this.record}/>

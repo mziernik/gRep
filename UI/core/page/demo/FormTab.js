@@ -1,7 +1,7 @@
 //@Flow
 'use strict';
 import {React, Field, Type, Column, Utils} from '../../core';
-import {Component, Page, Icon, FCtrl}    from        '../../components';
+import {Component, Page, Icon, FCtrl} from '../../components';
 import JsonViewer from "../../component/JsonViewer";
 import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
 import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
@@ -37,14 +37,14 @@ export default class FormTab extends Component {
                         let field = DATA[prop];
                         return <tr key={index}>
                             <td style={{width: '20px'}}>
-                                <FCtrl field={field} name required description/>
+                                <FCtrl field={field} name required description constWidth/>
                             </td>
 
                             <td style={{paddingLeft: "20px"}}>
-                                <FCtrl field={field} mode="block" value error/>
+                                <FCtrl field={field} mode="block" fit value error boolMode="radio" selectMode="radio"/>
                             </td>
 
-                            <td style={{padding: "4px"} }><FCtrl field={field} preview value/></td>
+                            <td style={{padding: "4px"}}><FCtrl field={field} boolMode="radio" preview value/></td>
 
                             <td style={{
                                 maxWidth: "200px",
@@ -85,8 +85,8 @@ export default class FormTab extends Component {
             }
 
         let mwin = ModalWindow.create((mw: ModalWindow) => {
-            mw.title = error ? "Bład" : "Informacja";
-            mw.icon = error ? Icon.EXCLAMATION_CIRCLE : Icon.INFO;
+            mw.title.set(error ? "Bład" : "Informacja");
+            mw.icon.set(error ? Icon.EXCLAMATION_CIRCLE : Icon.INFO);
             mw.onConfirm = () => {
                 console.log("OK");
                 return true
@@ -195,17 +195,11 @@ const DATA = {
                 '1': 'wartość 1',
                 '2': 'wartość 2',
                 '3': 'wartość 3',
-                '4': 'wartość 4',
-                '5': 'wartość 5',
-                '6': 'wartość 6',
-                '7': 'wartość 7',
-                '8': 'wartość 8',
-                '9': 'wartość 9'
             }
         };
         c.name = 'Lista wyboru';
         c.required = true;
-        c.defaultValue = "5";
+        c.defaultValue = "2";
     }),
 
 

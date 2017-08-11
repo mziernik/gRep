@@ -1,6 +1,4 @@
-
 // ToDo: Przerobić na ECMA6
-
 
 
 /*  okno komunikatu na środku ekranu */

@@ -6,7 +6,6 @@ import * as Utils from "./utils/Utils";
 export default class Var<T> {
     _store: Store = null;
     _key: string = null;
-    _value: T = null;
     _storeLoaded: boolean = false;
     _instanceOf: [] = null;
     _notNull: boolean = false;
@@ -15,6 +14,29 @@ export default class Var<T> {
     constructor(value: T) {
         this._value = value;
         Object.preventExtensions(this);
+    }
+
+    _value: T = null;
+
+    get value(): T {
+        if (this._store && this._key && !this._storeLoaded) {
+            const v = this._store.get(this._key);
+            this._value = v === undefined ? this._value : v;
+            this._storeLoaded = true;
+        }
+        return this._value;
+    }
+
+    set value(value: T) {
+        if (this._instanceOf)
+            Check.instanceOf(value, this._instanceOf);
+        if (this._notNull)
+            Check.isDefined(value);
+        if (this._nonEmpty)
+            Check.nonEmptyString(value);
+        if (this._store && this._key)
+            value === undefined ? this._store.remove(this._key) : this._store.set(this._key, value);
+        this._value = value;
     }
 
     localStorage(key: string): Var<T> {
@@ -42,27 +64,6 @@ export default class Var<T> {
     nonEmpty(nonEmpty: boolean): Var<T> {
         this._nonEmpty = !!nonEmpty;
         return this;
-    }
-
-    set value(value: T) {
-        if (this._instanceOf)
-            Check.instanceOf(value, this._instanceOf);
-        if (this._notNull)
-            Check.isDefined(value);
-        if (this._nonEmpty)
-            Check.nonEmptyString(value);
-        if (this._store && this._key)
-            value === undefined ? this._store.remove(this._key) : this._store.set(this._key, value);
-        this._value = value;
-    }
-
-    get value(): T {
-        if (this._store && this._key && !this._storeLoaded) {
-            const v = this._store.get(this._key);
-            this._value = v === undefined ? this._value : v;
-            this._storeLoaded = true;
-        }
-        return this._value;
     }
 
 

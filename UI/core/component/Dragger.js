@@ -55,9 +55,9 @@ export default class Dragger {
      * @param target element, który ma być przeciągany. Jeśli brak, to brany jest e. currenTarget
      */
     dragStart(e: MouseEvent, target = null) {
-        if (!e)throw Error("Brak obiektu zdarzenia");
+        if (!e) throw Error("Brak obiektu zdarzenia");
         this._target = target || e.currentTarget;
-        if (!this._target)throw Error("Brak elementu do przeciągania");
+        if (!this._target) throw Error("Brak elementu do przeciągania");
 
 
         this._startPos.x = e.pageX;

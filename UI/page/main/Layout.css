@@ -112,11 +112,15 @@ table th {
     top: 0;
     right: 0;
     bottom: 0;
-    z-index: 10;
+    z-index: 100000;
     pointer-events: none; /* aby można było klikać między warstwami*/
 }
 
-#app-navbar .x-tree {
+#app-navbar > .c-resizer {
     width: 250px;
+}
+
+#app-navbar .x-tree {
+    width: 100%;
 }
 
