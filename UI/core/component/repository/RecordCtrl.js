@@ -153,9 +153,12 @@ export default class RecordCtrl {
                 stop();
                 return;
             }
-            prevPk = key;
-            if (key === pk)
+            if (key === pk) {
                 found = true;
+                return;
+            }
+            prevPk = key;
+
         });
 
         if (!nextPk) return null;
@@ -168,11 +171,23 @@ export default class RecordCtrl {
             display: "flex",
             marginBottom: "20px"
         }}>
-            <div style={{flex: "auto"}}>
+            <div style={{flex: "auto"}}
+                 onClick={e => {
+
+                     new RecordCtrl(prev).modalEdit();
+                     this._modal.close(e);
+                 }}
+            >
                 <span className={Icon.CHEVRON_LEFT}/>
                 <span>{prev.displayValue}</span>
             </div>
-            <div style={{flex: "auto", textAlign: "right"}}>
+
+            <div style={{flex: "auto", textAlign: "right"}}
+                 onClick={e => {
+                     new RecordCtrl(next).modalEdit();
+                     this._modal.close(e);
+                 }}
+            >
                 <span>{next.displayValue}</span>
                 <span className={Icon.CHEVRON_RIGHT}/>
             </div>

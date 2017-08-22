@@ -70,7 +70,8 @@ export default class Panel extends Component {
     _setSize(panel) {
         if (!panel && !this._panel) return;
         if (panel) this._panel = panel;
-        this._panel.style.height = this._isFolded ? 'initial' : this._panelHeight;
+        else
+            this._panel.style.height = this._isFolded ? 'initial' : this._panelHeight;
     }
 
     /** zwija lub rozwija panel
@@ -103,9 +104,10 @@ export default class Panel extends Component {
 
     //
     render() {
-        let size = this.props.fit || this.props.resizable || this.props.scrollable ? '100%' : null;
+        const resizer = this.props.resizable || this.props.scrollable || this.props.foldable;
+        let size = this.props.fit || resizer ? '100%' : null;
         let panel = null;
-        const panelBorder = this.props.border && !this.props.resizable && !this.props.scrollable && !this.props.foldable;
+        const panelBorder = this.props.border && !resizer;
         if (this.props.split)
             panel = <Splitter
                 horizontal={this.props.vertical}
@@ -118,7 +120,7 @@ export default class Panel extends Component {
             </Splitter>;
         else {
             let style = null;
-            if (!this.props.resizable)
+            if (!resizer)
                 style = this.props.style;
             panel = <div
                 className="c-panel-child"
@@ -131,7 +133,7 @@ export default class Panel extends Component {
                     height: size,
                     padding: this.props.noPadding ? null : "8px",
                     border: panelBorder ? "1px solid #444" : null,
-                    flex: '1',
+                    flex: this.props.foldable ? '1' : null,
                     ...style
                 }}>
                 {this.props.scrollable || this.props.resizable ? <Scrollbar/> : null}
@@ -140,7 +142,7 @@ export default class Panel extends Component {
             </div>;
         }
 
-        if (this.props.scrollable || this.props.resizable || this.props.foldable)
+        if (resizer)
             return <Resizer
                 ref={elem => this._setSize(ReactDOM.findDOMNode(elem))}
                 className="c-panel"

@@ -26,7 +26,8 @@ export function confirm(context: any, object: any) {
 
 export function waitFor(context: any, objects: [], onReady: () => void, onError: (e: Error) => void): boolean {
     let ready = true;
-    Check.isArray(objects).forEach(obj => {
+    objects = Utils.asArray(objects);
+    objects.forEach(obj => {
         if (confirmed.indexOf(obj) === -1)
             ready = false;
     });

@@ -34,7 +34,7 @@ export default class CustomFilter {
      * @param negation czy negacja warunku
      */
     constructor(value, condition = null, operator = null, accessor = null, negation = false) {
-        this.value = (value !== null && typeof(value) === 'object' && 'value' in value) ? value.value : value;
+        this.value = Utils.getPropValue('value', value, value);
         this.condition = condition || CustomFilter.CONDITIONS.EQUAL;
         this.operator = operator || CustomFilter.OPERATORS.AND;
         this.accessor = accessor;
@@ -231,8 +231,7 @@ export default class CustomFilter {
         let tmpVal = val;
         if (Is.defined(this.accessor) && useAccessor && Is.defined(val))
             tmpVal = val[this.accessor];
-        if (typeof(tmpVal) === 'object' && 'value' in tmpVal)
-            tmpVal = tmpVal.value;
+        tmpVal = Utils.getPropValue('value', tmpVal, tmpVal);
 
         const compareFn = Is.func(this.compareFn) ? this.compareFn : CustomFilter.defaultCompareFn(typeof(tmpVal));
         if (!Is.func(compareFn)) throw new Error("Brak poprawnej funkcji 'compareFn'");

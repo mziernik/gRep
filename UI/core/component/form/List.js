@@ -40,6 +40,8 @@ export default class List extends FormComponent {
                 c.foreign = field.config.foreign;
             });
 
+            f.parent = field;
+            f.record = field.record;
             f.set(value);
 
             f.onChange.listen(props.parent, () => {
@@ -47,13 +49,8 @@ export default class List extends FormComponent {
                 props.field.value = array;
             });
 
-            return <td>
-                <FCtrl
-                    fit={true}
-                    field={f}
-                    value
-                    style={{width: "100%"}}
-                />
+            return <td style={{width: "100%"}}>
+                <FCtrl field={f} fit value/>
             </td>;
         }
 

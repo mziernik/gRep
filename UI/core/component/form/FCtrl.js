@@ -64,6 +64,9 @@ export default class FCtrl extends Component {
         onChange: PropTypes.func,
         title: PropTypes.string,
 
+        /** Opcjonalna etykieta - jeśli chcemy nadpisać [name] w [field] */
+        label: PropTypes.string,
+
         /** Rozciągnij zawartość */
         fit: PropTypes.bool,
 
@@ -225,7 +228,7 @@ export default class FCtrl extends Component {
             case "required":
                 icon = this.defReq;
                 msg = "Pole obowiązkowe";
-                visible = this.field.required;
+                visible = this.field.required && !this.props.preview;
                 break;
             case "description":
                 icon = this.defDesc;
@@ -235,21 +238,21 @@ export default class FCtrl extends Component {
             case "error":
                 icon = this.state.error ? this.defError : this.defWarning;
                 msg = msg || this.state.error || this.state.warning;
-                visible = !!(this.state.error || this.state.warning);
+                visible = (!!(this.state.error || this.state.warning)) && !this.props.preview;
                 break;
             case "name":
-
+                const label = Utils.toString(Is.defined(this.props.label) ? this.props.label : this.field.name);
                 if (this.field.config.foreign) {
-                    const repo: Repository = this.field.config.foreign();
+                    const repo: Repository = this.field.config.foreign.repo;
                     if (!this.field.record || repo !== this.field.record.repo)
                         return <span
                             key="name"
                             className="c-fctrl-name c-fctrl-name-link"
-                            onClick={(e) => new RecordCtrl(repo.getOrCreate(this, this.field.value)).modalEdit()}
-                        >{this.field.name}</span>;
+                            onClick={(e) => new RecordCtrl(repo.getOrCreate(this, this.field.type.isList ? null : this.field.value)).modalEdit()}
+                        >{label}</span>;
                 }
 
-                return <span key="name" className="c-fctrl-name">{this.field.name}</span>;
+                return <span key="name" className="c-fctrl-name">{label}</span>;
         }
         if (msg === '') msg = null;
         if (!this.props.constWidth && !visible) return null;
@@ -301,9 +304,8 @@ export default class FCtrl extends Component {
             return <span title={this.field.hint} className={value ? Icon.CHECK : Icon.TIMES}/>;
 
         if (this.props.preview && this.field.enumerate) {
-            const map: Map = this.field.enumerate();
-            const v = map.get(value);
-            return <span>{Field.formatValue(Is.defined(v) ? v : value)}</span>
+            const title = field.name + ": " + field.displayValue;
+            return <span title={title}>{this.field.displayValue}</span>;
         }
 
         if (this.field.type instanceof Type.ListDataType || this.field.type instanceof Type.MapDataType)
@@ -339,6 +341,7 @@ export default class FCtrl extends Component {
             case "email":
                 return this.renderInput({type: "email"});
             case "memo":
+            case "json":
                 return <Memo field={this.field} preview={this.props.preview} inline={this.props.inline}/>;
             case "length":
                 return this.renderInput({type: "number", min: 0});
@@ -393,7 +396,7 @@ export default class FCtrl extends Component {
         let props = [
             {n: 'required', v: this.props.required},
             {n: 'name', v: this.props.name},
-            {n: 'value', v: this.props.value || this.props.preview || this.props.inline},
+            {n: 'value', v: this.props.value},
             {n: 'error', v: this.props.error},
             {n: 'description', v: this.props.description},
         ].sort((a, b) => {

@@ -5,8 +5,10 @@ import {Check, Is, Type, Record, Repository, Trigger, Utils, Dispatcher, Store, 
 import {DataType, TEXT_CASING} from "./Type";
 import Column from "./Column";
 import Field from "./Field";
+import {Constraint} from "./Repository";
 
 export default class Cell extends Field {
+
 
     constructor(record: ?Record, cfg: Column | (cfg: Column) => void) {
         super(cfg);
@@ -22,5 +24,6 @@ export default class Cell extends Field {
     set value(value: any) {
         return super.value = value;
     }
+
 
 }

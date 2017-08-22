@@ -2,7 +2,7 @@ import * as Check from "../utils/Check";
 import Repository from "./Repository";
 import Record from "./Record";
 import * as Utils from "../utils/Utils";
-import * as If from "../utils/Is";
+import * as Is from "../utils/Is";
 import Icon from "../component/glyph/Icon";
 
 export type SimpleType = "any" | "boolean" | "number" | "string" | "object" | "array";
@@ -54,7 +54,7 @@ export class DataType {
         if (!source) return null;
 
         return () => {
-            if (If.func(source))
+            if (Is.func(source))
                 source = source();
 
             if (source instanceof Map)
@@ -114,7 +114,7 @@ export class DataType {
 }
 
 
-export function get (name: string): DataType {
+export function get(name: string): DataType {
 
     let result: DataType = all[name];
     if (result)
@@ -122,6 +122,7 @@ export function get (name: string): DataType {
 
     if (name.endsWith("[]"))
         return new ListDataType(get(name.substring(0, name.length - 2).trim()));
+    //  return ENUMS;
 
     if (name.startsWith("{") && name.endsWith("}"))
         return new MapDataType(get(name.substring(1, name.length - 1).trim()));
@@ -257,7 +258,9 @@ export const UUID: DataType = new DataType((dt: DataType) => {
     dt.name = "uid";
     dt.simpleType = "string";
     dt.parser = val => {
-        if (!If.string(val) || !val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
+        if (!Is.defined(val))
+            return;
+        if (!Is.string(val) || !val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
             throw new Error(Utils.escape(val) + " nie jest prawidłowym identyfikatorem UUID");
         return val;
     }
@@ -508,7 +511,12 @@ export const ENUMS: DataType = new DataType((dt: DataType) => {
 });
 
 function frmt(value: any, map: ?Map): string {
-    value = map ? map.get(value) : value;
+    if (value instanceof (Array))
+        value = Utils.forEach(value, (val) => {
+            return map ? map.get(val) : val;
+        });
+    else
+        value = map ? map.get(value) : value;
     const val: string = Utils.escape(Utils.toString(value)) || "";
     return val.substring(1, val.length - 1);
 }

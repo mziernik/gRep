@@ -28,6 +28,7 @@ export default class DTO extends Component {
 
     buildDTO(): ?Object {
         let dto = Repository.buildDTO([this.record], true);
+        if (!dto) return;
         dto = dto[this.record.repo.key];
         if (!dto) return;
         dto = dto[0];

@@ -136,7 +136,6 @@ export class Attr extends Component {
         }
 
         const updateErrorMarker = () => {
-
             if (this.tr && field)
                 this.tr.setAttribute("data-error", !!field.error);
         };
@@ -166,10 +165,12 @@ export class Attr extends Component {
             <td className="c-attributes-name">{field ?
                 <FCtrl
                     field={field}
+                    label={this.props.name}
                     description={1}
                     name={2}
                     required={3}
                     error={4}
+                    preview={!this.edit}
                 /> : this.children.render(this.props.name)}</td>
             <td className="c-attributes-value">
                 {field ? <div style={{display: "flex"}}>
@@ -177,7 +178,7 @@ export class Attr extends Component {
                         key={(this.edit ? "#edt" : "") + field.key}
                         field={field}
                         fit={this.edit}
-                        value={this.edit}
+                        value
                         preview={!this.edit}
                         boolMode="radio"
                         markChangesFunc={state => updateChangeMarker(state)}

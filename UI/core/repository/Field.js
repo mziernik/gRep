@@ -3,7 +3,8 @@
 
 import {Check, Is, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store, DEV_MODE} from "../core";
 import {DataType, TEXT_CASING} from "./Type";
-import Column from "./Column";
+import Column, {Foreign, ForeignConstraint} from "./Column";
+import {Constraint, RepoCursor} from "./Repository";
 
 export default class Field {
 
@@ -35,6 +36,9 @@ export default class Field {
     /** Zawartość pola uległa zmianie */
     changed: boolean = false;
     _getFullId: ?() => string = null;
+
+    /** Pole nadrzędne - wykorzystywane w listach */
+    parent: ?Field = null;
 
     constructor(cfg: Column | (cfg: Column) => void) {
 
@@ -159,7 +163,68 @@ export default class Field {
     }
 
     get enumerate(): Map {
-        return DataType.getMap(this.config.enumerate);
+
+
+        if (!this.config.foreign && !this.config.enumerate) return null;
+
+        if (!this.config.foreign)
+            return DataType.getMap(this.config.enumerate);
+
+        const foreign: Foreign = this.config.foreign;
+        const map: Map = foreign.repo.displayMap;
+        const repo: Repository = this.record.repo;
+        /*
+                const constraints: [] = repo.config.constraints;
+
+                if (!constraints || !constraints.length)
+                    return map; // brak ograniczeń, zwracam całą mapę
+
+                const result: Map = new Map();
+
+                const column: Column = this.parent ? this.parent.config : this.config;
+
+                Utils.forEach(constraints, (cst: Constraint) => {
+
+
+                    if (cst.target.local !== column) return;
+
+                    debugger;
+
+                    let currentValues: [];
+
+                    const localValue = this.record.getValue(cst.target.local);
+                    if (!cst.target.foreign)
+                        currentValues = Utils.asArray(localValue);
+                    else {
+
+                        const fRecord: Record = cst.target.foreign.repository.get(this, localValue, true);
+
+                        currentValues = Utils.asArray(fRecord.getValue(cst.target.foreign));
+
+                    }
+
+                });
+        */
+
+        if (!foreign.constraints.length)
+            return map; // brak ograniczeń, zwracam całą mapę
+
+        const result: Map = new Map();
+
+        Utils.forEach(foreign.constraints, (fc: ForeignConstraint) => {
+
+            const currentValue = this.record.getValue(fc.localColumn);
+            const fRecord: Record = fc.foreignColumn.repository.get(this, currentValue, true);
+            const allowed = Utils.asArray(fRecord.getValue(fc.foreignColumn));
+
+            Utils.forEach(map, (v, k) => {
+                if (allowed.contains(k))
+                    result.set(k, v);
+            });
+
+        });
+
+        return result;
     }
 
     get units(): ?() => {} {
@@ -284,7 +349,7 @@ export default class Field {
      * @param done {boolean}
      * @return {Field}
      */
-    set (value: ?any = null, done: boolean = false): Field {
+    set(value: ?any = null, done: boolean = false): Field {
         const prev = this._value;
         if (this._locked)
             throw new Error(`Pole ${this.fullId} jest zablokowane`);
@@ -385,17 +450,17 @@ export default class Field {
         return "" + this._value;
     }
 
-    //FixMe: Miłosz: Przenieść do konfiguracji
-    store(key: string, store: Store = Store.local): Field {
-        this._store = new FieldStore(this, key, store);
-        let val = this._store.load();
+    /*
+        store(key: string, store: Store = Store.local): Field {
+            this._store = new FieldStore(this, key, store);
+            let val = this._store.load();
 
-        if (val !== undefined)
-            this.set(val);
+            if (val !== undefined)
+                this.set(val);
 
-        return this;
-    }
-
+            return this;
+        }
+    */
     /**
      *  Mapowanie wartości typu tablica lub elementy repozytorium na inną tablicę. Przydatne w komponentach reacta
      *  */

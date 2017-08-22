@@ -2,6 +2,7 @@
 import * as Utils from "./Utils";
 
 'use strict';
+import {asArray} from "./Utils";
 
 
 // Zamienia wszystkie wystąpienia frazy
@@ -126,6 +127,16 @@ Array.prototype.isEmpty = Array.prototype.isEmpty || function (): boolean {
 // $FlowFixMe
 Array.prototype.contains = Array.prototype.contains || function (element: any): boolean {
     return this.indexOf(element) >= 0;
+};
+
+/**
+ * Czy tablica zawiera dowolny element z innej tablicy
+ * @return {boolean}
+ */
+// $FlowFixMe
+Array.prototype.containsAny = Array.prototype.containsAny || function (elements: any[]): boolean {
+    return asArray(elements).find(elm => this.indexOf(elm) >= 0);
+
 };
 
 /**

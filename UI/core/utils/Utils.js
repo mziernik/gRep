@@ -228,7 +228,6 @@ export function makeFinal(obj: any, filter: ?(name: string, value: any) => boole
     return obj;
 }
 
-
 export function setReadOnly(object: Object, key: string, value: ?any, checkInstance: ?[] = null): any {
     if (checkInstance)
         Check.instanceOf(value, checkInstance);
@@ -239,6 +238,36 @@ export function setReadOnly(object: Object, key: string, value: ?any, checkInsta
     });
     return value;
 }
+
+
+/**
+ * Funkcja definiuje pole, którego parser wywoływany będzie tylko gdy wartość jest odczytywana.
+ * Rezultat jest zapamiętywany i zwracany każdorazowo, dopóki nie zostanie zmodyfikowana.
+ * @param object
+ * @param fieldName
+ * @param parser
+ * @returns {Object}
+ */
+export function lazyProvider(object: Object, fieldName: string, parser: (value: any) => any): void {
+
+    let _value: undefined;
+    let parsed: boolean;
+
+    Object.defineProperty(object, fieldName, {
+        get: () => {
+            if (!parsed) {
+                _value = parser(_value);
+                parsed = true;
+            }
+            return _value;
+
+        },
+        set: function (value) {
+            _value = value;
+        }
+    });
+}
+
 
 export function agregate(object: any, aggregator: (element: any) => any): Map<*, []> {
     const result: Map<*, []> = new Map();
@@ -555,6 +584,54 @@ export function round(a: number, precision: number = 2): number {
     precision = Math.pow(10, precision);
     a = Math.round(a * precision);
     return a / precision;
+}
+
+
+export function processVariables(value: string, provider: (name: string) => any): string {
+    if (!value)
+        return value;
+
+    let name = null;
+    let result = "";
+
+    for (let i = 0; i < value.length; i++) {
+        const prev = value[i - 1];
+        const curr = value[i];
+        const next = value[i + 1];
+
+
+        if (curr === "$" && next === "{") {
+            name = "";
+            ++i;
+            continue;
+        }
+
+        if (curr === "}" && name !== null) {
+            let val = provider(name);
+            name = null;
+            result += val;
+            continue;
+        }
+
+        if (name !== null) name += curr; else result += curr;
+
+
+    }
+
+    return result;
+}
+
+/** Zwraca wartość z podanego pola w obiekcie lub wartość [def]
+ * @param name nazwa pola
+ * @param src obiekt źródłowy
+ * @param def domyślny wynik
+ * @returns {*} wartość pola [name] lub [def=null]
+ */
+export function getPropValue(name: string, src: ?any, def: ?any = null): ?any {
+    if (!src) return def;
+    if (!(src instanceof (Object))) return def;
+    if (name in src) return src[name];
+    return def;
 }
 
 export class AtomicNumber {

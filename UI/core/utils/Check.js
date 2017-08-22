@@ -34,31 +34,32 @@ export function oneOf<T:any>(value: T, allowed: any[], error: ?Error = null): T 
 export function isString(value: ?string, error: ?Error = null): string {
     if (typeof value === "string")
         return value;
-    throw error ? error : new Error("Wymagana wartość typu string, aktualna: " + Utils.className(value));
+    throw error ? error : new Error("Wymagana wartość typu string" + _details(value));
 }
 
 export function isFunction(value: ?() => ?any, error: ?Error = null): () => ?any {
     if (typeof value === "function")
         return value;
-    throw error ? error : new Error("Wymagana funkcja, aktualnie: " + Utils.className(value));
+    throw error ? error : new Error("Wymagana funkcja" + _details(value));
 }
+
 
 export function isArray(value: ?[], error: ?Error = null): Array {
     if (value instanceof Array)
         return value;
-    throw error ? error : new Error("Wymagana tablica, aktualnie: " + Utils.className(value));
+    throw error ? error : new Error("Wymagana tablica" + _details(value));
 }
 
 export function isObject(value: ?Object, error: ?Error = null): Object {
     if (value instanceof Object)
         return value;
-    throw error ? error : new Error("Wymagany obiekt, aktualnie: " + Utils.className(value));
+    throw error ? error : new Error("Wymagany obiekt" + _details(value));
 }
 
 export function isBoolean(value: ?[], error: ?Error = null): Array {
     if (typeof value === "boolean")
         return value;
-    throw error ? error : new Error("Wymagana boolean, aktualnie: " + Utils.className(value));
+    throw error ? error : new Error("Wymagany boolean" + _details(value));
 }
 
 
@@ -134,7 +135,12 @@ export function instanceOf<T:any>(object: T, instances: any[], error: ?Error = n
     if (res === null)
         return object;
     throw error ? error : new Error("Nieprawidłowa instancja obiektu.\nOczekiwana "
-        + (res: string[]).join(" lub ") + ", aktualna " + Utils.className(object));
+        + (res: string[]).join(" lub ") + ", aktualna " + Utils.className(object))
+        + (object !== null && object !== undefined ? " (" + Utils.escape(object) + ")" : "");
 }
 
 
+function _details(value: any) {
+    return ", aktualnie: " + Utils.className(value)
+        + (value !== null && value !== undefined ? " (" + Utils.escape(value) + ")" : "");
+}

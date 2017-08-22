@@ -1,4 +1,5 @@
 import {
+    DEV_MODE,
     Ready,
     Check,
     Record,
@@ -19,11 +20,15 @@ import Dispatcher from "../utils/Dispatcher";
 import RepositoryStorage from "./storage/RepositoryStorage";
 import Alert from "../component/alert/Alert";
 import {RecordDataGenerator} from "./Record";
+import AppStatus from "../application/Status";
 
 
 //ToDo: Opcja inline - edycja rekordów podobnie jak w uprawnieniach
 
 export default class Repository {
+
+    /** Ignoruj błędy w rekordach i dodawaj je nawet jeśli nie przeszły walidacji*/
+    static ignoreErrors: boolean = true;
 
     static onUpdate: Dispatcher = new Dispatcher();
     static defaultStorage: ?RepositoryStorage;
@@ -69,6 +74,8 @@ export default class Repository {
                 continue;
             this.config._columns.push(col);
             col.repository = this;
+            if (DEV_MODE)
+                col["#instance"] = this.config.key + "." + col.key;
         }
 
         this.config._processColumns(this.config);
@@ -251,7 +258,16 @@ export default class Repository {
         if (!records.length)
             return;
 
-        Utils.forEach(records, (rec: Record) => rec.validate());
+        Utils.forEachSafe(records, (rec: Record) => {
+            try {
+                rec.validate();
+            } catch (e) {
+                if (!Repository.ignoreErrors)
+                    throw e;
+                console.warn(e);
+                AppStatus.error(Repository, e);
+            }
+        });
 
 
         // zastosowanie zmian (na tym etapie dane są zwalidowane)
@@ -311,22 +327,24 @@ export default class Repository {
         changes.forEach(obj => {
             const repo: Repository = obj.repo;
             const rec: Record = obj.record;
-
-            const getDisplayValue = (repo: Repository, rec: Record) => {
-                let col: Column = repo.config.displayNameColumn || repo.config.primaryKeyColumn;
-                if (col && col.foreign) {
-                    const r: Repository = col.foreign();
-                    return getDisplayValue(r, r.get(null, rec.pk));
-                }
-                return rec.getValue(col);
-            };
-
+            /*
+                        const getDisplayValue = (repo: Repository, rec: Record) => {
+                            let col: Column = repo.config.displayNameColumn || repo.config.primaryKeyColumn;
+                            if (col && col.foreign) {
+                                const r: Repository = col.foreign();
+                                return getDisplayValue(r, r.get(null, rec.get(col).value));
+                            }
+                            return rec.getValue(col);
+                        };
+            */
             if (rec.action !== CRUDE.DELETE) {
-                const val = getDisplayValue(repo, rec);
 
+                //    if (repo.key === "attrElm") debugger;
+
+                const val = repo.getDisplayValue(rec);
                 if (val === undefined) {
                     //           debugger;
-                    getDisplayValue(repo, rec);
+                    repo.getDisplayValue(rec);
                 }
                 repo.displayMap.set(obj.pk, val);
             }
@@ -350,12 +368,7 @@ export default class Repository {
     static commit(context: any, records: Record[]): Promise {
         records = Utils.asArray(records);
 
-        Utils.forEach(records, (rec: Record) =>
-            Utils.forEach(rec.fields, (f: Field) => {
-                if (!f.validate(true))
-                    throw new Error(Utils.escape(f.name) + ": " + f.error);
-            })
-        );
+        Utils.forEach(records, (rec: Record) => rec.validate());
 
 
         records = Utils.forEach(records, (rec: Record) => {
@@ -389,12 +402,17 @@ export default class Repository {
         const dto: Object = {};
         const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repo);
 
+        let hasChanges = includeUnchanged;
+
         map.forEach((records: Record[], repo: Repository) => {
 
             const obj = dto[repo.key] = [];
             records.forEach((record: Record) => {
                 const r = {};
+                let add: boolean = false;
                 r["#action"] = record.action ? record.action.name : null;
+                if (record.action !== CRUDE.UPDATE) hasChanges = true;
+
                 record.fields.forEach((field: Field) => {
 
                     if (record.action === CRUDE.DELETE && field !== record.primaryKey)
@@ -405,21 +423,36 @@ export default class Repository {
                         if (value === null && record.action === CRUDE.CREATE)
                             return;
                         r[field.key] = field.type.serialize(value);
+                        if (field !== record.primaryKey)
+                            add = true;
                     }
 
                 });
 
                 if (record.changedReferences.length)
-                    r["#refs"] = Repository.buildDTO(record.changedReferences, includeUnchanged);
+                    Is.defined(Repository.buildDTO(record.changedReferences, includeUnchanged), d => {
+                        r["#refs"] = d;
+                        add = true;
+                    });
 
-                obj.push(r);
+                if (add) {
+                    hasChanges = true;
+                    obj.push(r);
+                }
             });
         });
-        return dto;
+        return hasChanges ? dto : null;
     }
 
     /** Zwraca repozytorium na podstawie klucza, opcjonalnie wyjątek jeśli nie znaleziono obiektu */
-    static get (key: string, mustExists: boolean = true): Repository {
+    static get(key: string | () => any, mustExists: boolean = true): Repository {
+
+        if (Is.func(key))
+            key = key();
+
+        if (key instanceof Repository)
+            return key;
+
         const result = Repository.all[key];
         if (mustExists && !result)
             throw new Error("Nie znaleziono repozytorium " + Utils.escape(key));
@@ -447,7 +480,34 @@ export default class Repository {
         return idx;
     }
 
-    getColumn(key: string, mustExists: boolean = true): Column {
+    /**
+     * Zwraca kolumnę należącą do bieżącego lub innego repozytorium (w zależności od flagi [checkOwnership])
+     * @param key
+     * @param mustExists
+     * @param checkOwnership
+     * @return {*}
+     */
+    getColumn(key: string | Column, mustExists: boolean = true, checkOwnership: boolean = true): Column {
+
+        if (key instanceof Column) {
+            if (checkOwnership && !this.columns.contains(key))
+                throw new Error("Kolumna " + key.key + " nie należy do repozytorium " + this.key);
+            return key;
+        }
+
+        const elements: string[] = Check.isString(key).split(".");
+
+        if (elements.length === 2) {
+            const repo = Repository.get(elements[0], true);
+            if (checkOwnership && repo !== this)
+                throw new Error("Kolumna " + key + " nie należy do repozytorium " + this.key);
+            return repo.getColumn(elements[1], mustExists, false);
+        }
+
+
+        if (!this.columns.length)
+            throw new RepoError(this, "Repozytorium nie posiada kolumn");
+
         const result = this.columns.find(c => c.key === key);
         if (!result && mustExists)
             throw new Error("Kolumna " + this.key + "." + key + " nie istnieje");
@@ -459,7 +519,7 @@ export default class Repository {
         return this.rows.has(pk);
     }
 
-    get (context: any, pk: any, mustExists: boolean = true): Record {
+    get(context: any, pk: any, mustExists: boolean = true): Record {
         if (Is.defined(pk))
             pk = this.config.primaryKeyColumn.parse(pk);
         const row: [] = this.rows.get(pk);
@@ -491,7 +551,7 @@ export default class Repository {
         return rec;
     }
 
-    toObject(columns: Column[], filter: (cursor: RepoCursor) => boolean): [] {
+    toObjects(columns: Column[], filter: (cursor: RepoCursor) => boolean): [] {
         const result: [] = [];
         const cursor: RepoCursor = this.cursor();
         while (cursor.next()) {
@@ -504,25 +564,25 @@ export default class Repository {
         return result;
     }
 
+    getValues(col: Column): any[] {
+        const idx = this.getColumnIndex(col);
+        return Utils.forEach(this.rows, (row: [], pk) => row[idx]);
+    }
+
     min(col: Column, initValue: number = null) {
         let min = initValue;
-        const idx = this.getColumnIndex(col);
-
-        Utils.forEach(this.rows, (row: [], pk) => {
-            if (min === null || min > row[idx])
-                min = row[idx];
+        Utils.forEach(this.getValues(col), val => {
+            if (min === null || min > val)
+                min = val;
         });
-
         return min;
     }
 
     max(col: Column, initValue: number = null) {
         let max = initValue;
-        const idx = this.getColumnIndex(col);
-
-        Utils.forEach(this.rows, (row: [], pk) => {
-            if (max === null || max < row[idx])
-                max = row[idx];
+        Utils.forEach(this.getValues(col), val => {
+            if (max === null || max < val)
+                max = val;
         });
 
         return max;
@@ -547,7 +607,17 @@ export default class Repository {
     }
 
     getDisplayValue(record: Record): string {
-        return record.get(this.config.displayNameColumn || this.config.primaryKeyColumn).displayValue;
+
+        if (this.config.displayMask)
+            return Utils.processVariables(this.config.displayMask, name => record.get(name).displayValue);
+
+        let col: Column = this.config.displayNameColumn || this.config.primaryKeyColumn;
+        if (col && col.foreign) {
+            const r: Repository = col.foreign.repo;
+            return r.getDisplayValue(r.get(null, record.get(col).value));
+        }
+
+        return record.get(col).displayValue;
     }
 
     confirmReadyState() {
@@ -570,6 +640,51 @@ export default class Repository {
  * onwersja następuje po zdefiniowaniu kolumny wskazującej na rodzica.
  */
 
+export class ColumnReference {
+    local: Column;
+    foreign: Column;
+    constraint: Constraint;
+
+    constructor(constraint: Constraint, arg: string) {
+        this.constraint = constraint;
+        const items: string[] = Check.isString(arg).split(".");
+
+        const repo: Repository = constraint.repo;
+
+        this.local = repo.getColumn(items[0], true, true);
+
+        if (items.length === 2) {
+            let key = items[1];
+            if (!this.local.foreign)
+                throw new RepoError(repo, "Kolumna " + key + " nie posiada klucza obcego");
+            this.foreign = this.local.foreign.repo.getColumn(key, true, true);
+        }
+
+    }
+
+}
+
+export class Constraint {
+    repo: Repository;
+    target: ColumnReference; // kolumna docelowa, której dotyczy ograniczenie
+    condition: string; //contains
+    column: ColumnReference;
+    values: any[];
+
+    constructor(repo: Repository, left: string, condition: string, right: string | any[]) {
+        this.repo = Check.instanceOf(repo, [Repository]);
+        this.condition = Check.oneOf(condition, ["in", "equals"])
+        if (Is.array(right))
+            this.values = right;
+
+        Ready.waitFor(this, repo, () => {
+            this.target = new ColumnReference(this, left);
+            if (Is.string(right))
+                this.column = new ColumnReference(this, right);
+        });
+
+    }
+}
 
 export class RepoConfig {
     static defaultCrudeRights = "CRUD"; //"CRUDE"
@@ -580,6 +695,7 @@ export class RepoConfig {
     group: ?string = null;
     primaryKeyColumn: Column = null;
     displayNameColumn: ?Column = null;
+    displayMask: ?string = null;
     actions: ?Object | RepoAction[] = null;
     onDemand: boolean = false;
     broadcast: boolean = false;
@@ -602,6 +718,7 @@ export class RepoConfig {
     _columns: Column[] = [];
     /** Repozytorium utworzone dynamicznie (rezultat metody [list] z webapi)*/
     dynamic: boolean = false;
+    constraints: ?Constraint[] = null;
 
     _repo: Repository;
 
@@ -628,6 +745,7 @@ export class RepoConfig {
         this.displayNameColumn = getColumn(data.displayNameColumn);
         this.orderColumn = getColumn(data.orderColumn);
         this.parentColumn = getColumn(data.parentColumn);
+        this.displayMask = data.displayMask;
     }
 
     /**
@@ -675,6 +793,11 @@ export class RepoConfig {
      */
     update() {
         const repo: Repository = this._repo;
+
+        const constraints: [] = this.constraints;
+        this.constraints = [];
+
+        Utils.forEach(constraints, obj => this.constraints.push(new Constraint(repo, ...obj)));
 
         repo.actions = Is.def(this.actions, acts => Utils.forEach(acts, (obj, key) => {
             const act = new RepoAction();
@@ -809,7 +932,7 @@ export class RepoTree {
         this.children.push(child);
     }
 
-    get (column: Column): any {
+    get(column: Column): any {
         return this.row[this.repo.getColumnIndex(column)];
     }
 }
@@ -824,6 +947,14 @@ export class RepoCursor {
         repo.rows.forEach(row => this._rows.push(row));
     }
 
+    forEach(consumer: (cursor: RepoCursor, stop: () => void) => void) {
+        this.reset();
+        let stopped: false;
+        const stop = () => stopped = true;
+        while (!stopped && this.next())
+            consumer(this, stop);
+    }
+
     next(): boolean {
         ++this._index;
         return this._index < this._rows.length;
@@ -835,7 +966,11 @@ export class RepoCursor {
     }
 
     reset() {
-        this._index = 0
+        this._index = -1
+    }
+
+    get primaryKey(): any {
+        return this.get(this.repo.primaryKeyColumn);
     }
 
     getRecord(context: any) {
@@ -844,7 +979,7 @@ export class RepoCursor {
         return rec;
     }
 
-    get (column: Column): any {
+    get(column: Column): any {
         const idx = this.repo.getColumnIndex(column);
 
         if (this._index < 0 || this._index >= this._rows.length)
@@ -867,10 +1002,10 @@ class DynamicRepo extends Repository {
 
 }
 
-class RepoError extends Error {
+export class RepoError extends Error {
 
     constructor(repo: Repository, message: string) {
-        super(repo.key + ": " + Utils.toString(message))
+        super("Repozytorium " + repo.key + ": " + Utils.toString(message))
     }
 }
 

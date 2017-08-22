@@ -1,5 +1,3 @@
-// ToDo: Przerobić na ECMA6
-
 
 /*  okno komunikatu na środku ekranu */
 function CenterBox(data) {

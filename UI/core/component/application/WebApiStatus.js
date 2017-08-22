@@ -1,6 +1,5 @@
 // @flow
 'use strict';
-//FixMe importy
 import React from 'react';
 import Component from "../Component";
 import {State} from "../../webapi/Transport";

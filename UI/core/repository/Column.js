@@ -1,8 +1,21 @@
 // @flow
 'use strict';
 
-import {Check, Is, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store} from "../core";
+import {Check, Is, React, Type, DEV_MODE, Record, Repository, Trigger, Utils, Dispatcher, Store} from "../core";
 import {DataType} from "./Type";
+import {RepoError} from "./Repository";
+
+export class ForeignConstraint {
+    localColumn: Column;
+    foreignColumn: Column;
+    values: ?any[];
+}
+
+export class Foreign {
+    repo: Repository; // zewnętrzne repozytorium
+    column: Column;
+    constraints: ForeignConstraint[] = [];
+}
 
 
 //ToDo: Miłosz: readOnly + !autoUpdate = konflikt
@@ -43,13 +56,74 @@ export default class Column {
     hidden: ? boolean = null;
     compare: ?(a: ?any, b: ?any) => number = null;
     filter: ?(filter: ?any, cell: ?any) => boolean = null;
-    foreign: ?() => Repository | string = null;
+    foreign: ?Foreign = null;
     repository: ?Repository = null;
 
     constructor(config: (c: Column) => void) {
+
+        Utils.lazyProvider(this, "foreign", value => {
+            if (!Is.defined(value) || value instanceof Foreign)
+                return value;
+
+
+            const f: Foreign = new Foreign();
+
+            if (Is.func(value)) {
+                f.repo = Check.instanceOf(value(), [Repository]);
+                f.column = f.repo.primaryKeyColumn;
+                return f;
+            }
+
+            if (Is.string(value)) {
+                const items = value.split(".");
+                f.repo = Repository.get(items[0], true);
+                f.column = items[1] ? f.repo.getColumn(items[1]) : f.repo.primaryKeyColumn;
+                return f;
+            }
+
+            f.repo = Repository.get(value.repository, true);
+            f.column = value.column ? Is.string(value.column, c => f.repo.getColumn(c, true), c => Check.instanceOf(c, [Column]))
+                : f.repo.primaryKeyColumn;
+
+
+            if (Is.string(value.constraints)) {
+
+                const fc: ForeignConstraint = new ForeignConstraint();
+                f.constraints.push(fc);
+                const items: string[] = Check.isString(value.constraints).split(".");
+                fc.localColumn = this.repository.getColumn(items[0], true, true);
+                if (items.length === 2) {
+                    let key = items[1];
+                    if (!fc.localColumn.foreign)
+                        throw new RepoError(this.repository, "Kolumna " + key + " nie posiada klucza obcego");
+                    fc.foreignColumn = fc.localColumn.foreign.repo.getColumn(key, true, true);
+                }
+
+                return f;
+            }
+
+            //
+            // Utils.forEach(value.constraints, (obj, key) => {
+            //     const fc: ForeignConstraint = new ForeignConstraint();
+            //     fc.values = Utils.asArray(obj.value);
+            //     fc.localColumns = Utils.forEach(Utils.asArray(obj.column), c => this.repository.getColumn(c));
+            //     fc.foreignColumn = f.repo.getColumn(key, true, false);
+            //     f.constraints.push(fc);
+            // });
+
+            return f;
+        });
+
+        if (DEV_MODE)
+            this["#instance"] = null;
+
         Object.preventExtensions(this);
         Check.isFunction(config);
         config(this);
+
+        if (DEV_MODE)
+            this["#instance"] = this.key;
+
         this._update();
     }
 
@@ -78,11 +152,11 @@ export default class Column {
         Check.nonEmptyString(this.name);
 
         this.hint = this.hint || this.name;
-
-        if (Is.string(this.foreign)) {
-            const foreignRepoKey = this.foreign;
-            this.foreign = () => Repository.get(foreignRepoKey, true);
-        }
+        //
+        // if (Is.string(this.foreign)) {
+        //     const foreignRepoKey = this.foreign;
+        //     this.foreign = () => Repository.get(foreignRepoKey, true);
+        // }
 
         if (!this.enumerate && this.type.enumerate)
             this.enumerate = () => this.type.enumerate;
@@ -115,8 +189,6 @@ export default class Column {
         Is.defined(this.enumerate, e => Check.isFunction(e));
         Is.defined(this.units, e => Check.isFunction(e));
 
-        if (this.foreign)
-            this.enumerate = () => Check.instanceOf(this.foreign(), [Repository]).displayMap;
     }
 
     parse(value: any): any {

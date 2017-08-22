@@ -1,6 +1,7 @@
 import {Cell, Column, RepoConfig, Repository, Record} from "../core/core";
 
 
+
 //--------------------------------- Status ----------------------------------------------
 
 export class RStatus extends Repository {
@@ -552,7 +553,7 @@ export class RTest extends Repository {
         c.name = "Ikona";
         c.type = "enum";
         c.defaultValue = "ADJUST";
-        c.required = true;
+        c.required = false;
     });
 
     static DESC: Column = new Column((c: Column) => {
@@ -700,41 +701,10 @@ export class RUsers extends Repository {
             c.icon = "fa fa-users";
             c.actions = {
                 add: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-user-plus"},
-                rem: {
-                    record: true,
-                    name: "Usuń",
-                    confirm: "Czy na pewno usunąć?",
-                    type: "danger",
-                    icon: "fa fa-user-times"
-                },
-                editRandom: {
-                    record: false,
-                    name: "Modyfikuj losowy",
-                    confirm: null,
-                    type: "primary",
-                    icon: "fa fa-user-secret"
-                },
-                addRandom: {
-                    record: false,
-                    name: "Dodaj losowy",
-                    confirm: null,
-                    type: "primary",
-                    icon: "fa fa-user-plus"
-                },
-                removeRandom: {
-                    record: false,
-                    name: "Usuń losowy",
-                    confirm: null,
-                    type: "danger",
-                    icon: "fa fa-user-times"
-                }
-            };
-            c.references = {
-                repoState_lastModById: {
-                    name: "Status repozytorium",
-                    repo: "repoState",
-                    column: "lastModById"
-                }
+                rem: {record: true, name: "Usuń", confirm: "Czy na pewno usunąć?", type: "danger", icon: "fa fa-user-times"},
+                editRandom: {record: false, name: "Modyfikuj losowy", confirm: null, type: "primary", icon: "fa fa-user-secret"},
+                addRandom: {record: false, name: "Dodaj losowy", confirm: null, type: "primary", icon: "fa fa-user-plus"},
+                removeRandom: {record: false, name: "Usuń losowy", confirm: null, type: "danger", icon: "fa fa-user-times"}
             };
         });
     }
@@ -757,8 +727,6 @@ export class EUsers extends Record {
     DISPLAY_NAME: Cell = new Cell(this, RUsers.DISPLAY_NAME); // "Nazwa wyświetlana"
     EMAIL: Cell = new Cell(this, RUsers.EMAIL); // "e-mail"
     LAST_LOGIN: Cell = new Cell(this, RUsers.LAST_LOGIN); // "Ostatnio zalogowany"
-
-    repoState_lastModById = (context: any): ERepoSate[] => this._getReferences(context, RRepoSate.LAST_MOD_BY_ID); // referencja repoState.lastModById -> id
 
     add = (params: ?Object = null) => this._execute('add', params); // akcja "Dodaj"
     rem = (params: ?Object = null) => this._execute('rem', params); // akcja "Usuń"
@@ -861,13 +829,7 @@ export class RThreads extends Repository {
             c.crude = "R";
             c.local = true;
             c.actions = {
-                term: {
-                    record: true,
-                    name: "Zatrzymaj",
-                    confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?",
-                    type: "warning",
-                    icon: "fa fa-times"
-                }
+                term: {record: true, name: "Zatrzymaj", confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?", type: "warning", icon: "fa fa-times"}
             };
         });
     }
@@ -985,9 +947,9 @@ export class RAttribute extends Repository {
             c.crude = "CRUD";
             c.local = false;
             c.references = {
-                attrElms_attr: {
-                    name: "Elementy atrybutu",
-                    repo: "attrElms",
+                attrElm_attr: {
+                    name: "Element atrybutu",
+                    repo: "attrElm",
                     column: "attr"
                 },
                 category_attr: {
@@ -1030,7 +992,7 @@ export class EAttribute extends Record {
 
     parentForeign = (context: any): ECategory => this._getForeign(context, RAttribute.PARENT); // klucz obcy parent -> category.id
 
-    attrElms_attr = (context: any): EAttributeElements[] => this._getReferences(context, RAttributeElements.ATTR); // referencja attrElms.attr -> id
+    attrElm_attr = (context: any): EAttributeElement[] => this._getReferences(context, RAttributeElement.ATTR); // referencja attrElm.attr -> id
     category_attr = (context: any): ECategory[] => this._getReferences(context, RCategory.ATTR); // referencja category.attr -> id
     categoryAttr_attr = (context: any): ECategoryAttribute[] => this._getReferences(context, RCategoryAttribute.ATTR); // referencja categoryAttr.attr -> id
     catalog_attributes = (context: any): ECatalog[] => this._getReferences(context, RCatalog.ATTRIBUTES); // referencja catalog.attributes -> id
@@ -1040,7 +1002,7 @@ export class EAttribute extends Record {
 
 //--------------------------------- Element atrybutu ----------------------------------------------
 
-export class RAttributeElement extends Repository {
+export class RElement extends Repository {
 
     static ID: Column = new Column((c: Column) => {
         c.key = "id";
@@ -1136,7 +1098,7 @@ export class RAttributeElement extends Repository {
         c.name = "Element zewnętrzny";
         c.type = "int";
         c.hidden = true;
-        c.foreign = () => R_ATTRIBUTE_ELEMENT;
+        c.foreign = () => R_ELEMENT;
     });
 
     static ENCRYPTED: Column = new Column((c: Column) => {
@@ -1155,28 +1117,23 @@ export class RAttributeElement extends Repository {
 
     constructor() {
         super((c: RepoConfig) => {
-            c.key = "attrElm";
+            c.key = "element";
             c.name = "Element atrybutu";
             c.group = "Atrybuty";
-            c.record = EAttributeElement;
+            c.record = EElement;
             c.primaryKeyColumn = "id";
             c.displayNameColumn = "name";
             c.crude = "CRUD";
             c.local = false;
             c.references = {
-                attrElm_foreignElm: {
+                element_foreignElm: {
                     name: "Element atrybutu",
-                    repo: "attrElm",
+                    repo: "element",
                     column: "foreignElm"
                 },
-                attrElms_elm: {
-                    name: "Elementy atrybutu",
-                    repo: "attrElms",
-                    column: "elm"
-                },
-                catalogAttrValues_elm: {
-                    name: "Wartości atrybutu katalogu",
-                    repo: "catalogAttrValues",
+                attrElm_elm: {
+                    name: "Element atrybutu",
+                    repo: "attrElm",
                     column: "elm"
                 }
             };
@@ -1185,35 +1142,34 @@ export class RAttributeElement extends Repository {
 
 }
 
-export class EAttributeElement extends Record {
+export class EElement extends Record {
 
-    ID: Cell = new Cell(this, RAttributeElement.ID); // "ID"
-    UID: Cell = new Cell(this, RAttributeElement.UID); // "UIID"
-    CREATED: Cell = new Cell(this, RAttributeElement.CREATED); // "Utworzono"
-    KEY: Cell = new Cell(this, RAttributeElement.KEY); // "Klucz"
-    NAME: Cell = new Cell(this, RAttributeElement.NAME); // "Nazwa"
-    TYPE: Cell = new Cell(this, RAttributeElement.TYPE); // "Typ"
-    DESC: Cell = new Cell(this, RAttributeElement.DESC); // "Opis"
-    REQUIRED: Cell = new Cell(this, RAttributeElement.REQUIRED); // "Wymagany"
-    DEF_VAL: Cell = new Cell(this, RAttributeElement.DEF_VAL); // "Wartość domyślna"
-    MIN: Cell = new Cell(this, RAttributeElement.MIN); // "Minimum"
-    MAX: Cell = new Cell(this, RAttributeElement.MAX); // "Maksimum"
-    REGEX: Cell = new Cell(this, RAttributeElement.REGEX); // "Wyrażenie sprawdzające"
-    FOREIGN_ELM: Cell = new Cell(this, RAttributeElement.FOREIGN_ELM); // "Element zewnętrzny"
-    ENCRYPTED: Cell = new Cell(this, RAttributeElement.ENCRYPTED); // "Zaszyfrowany"
-    ENUMERATE: Cell = new Cell(this, RAttributeElement.ENUMERATE); // "Enumerata"
+    ID: Cell = new Cell(this, RElement.ID); // "ID"
+    UID: Cell = new Cell(this, RElement.UID); // "UIID"
+    CREATED: Cell = new Cell(this, RElement.CREATED); // "Utworzono"
+    KEY: Cell = new Cell(this, RElement.KEY); // "Klucz"
+    NAME: Cell = new Cell(this, RElement.NAME); // "Nazwa"
+    TYPE: Cell = new Cell(this, RElement.TYPE); // "Typ"
+    DESC: Cell = new Cell(this, RElement.DESC); // "Opis"
+    REQUIRED: Cell = new Cell(this, RElement.REQUIRED); // "Wymagany"
+    DEF_VAL: Cell = new Cell(this, RElement.DEF_VAL); // "Wartość domyślna"
+    MIN: Cell = new Cell(this, RElement.MIN); // "Minimum"
+    MAX: Cell = new Cell(this, RElement.MAX); // "Maksimum"
+    REGEX: Cell = new Cell(this, RElement.REGEX); // "Wyrażenie sprawdzające"
+    FOREIGN_ELM: Cell = new Cell(this, RElement.FOREIGN_ELM); // "Element zewnętrzny"
+    ENCRYPTED: Cell = new Cell(this, RElement.ENCRYPTED); // "Zaszyfrowany"
+    ENUMERATE: Cell = new Cell(this, RElement.ENUMERATE); // "Enumerata"
 
-    foreignElmForeign = (context: any): EAttributeElement => this._getForeign(context, RAttributeElement.FOREIGN_ELM); // klucz obcy foreignElm -> attrElm.id
+    foreignElmForeign = (context: any): EElement => this._getForeign(context, RElement.FOREIGN_ELM); // klucz obcy foreignElm -> element.id
 
-    attrElm_foreignElm = (context: any): EAttributeElement[] => this._getReferences(context, RAttributeElement.FOREIGN_ELM); // referencja attrElm.foreignElm -> id
-    attrElms_elm = (context: any): EAttributeElements[] => this._getReferences(context, RAttributeElements.ELM); // referencja attrElms.elm -> id
-    catalogAttrValues_elm = (context: any): ECatalogAttributeValues[] => this._getReferences(context, RCatalogAttributeValues.ELM); // referencja catalogAttrValues.elm -> id
+    element_foreignElm = (context: any): EElement[] => this._getReferences(context, RElement.FOREIGN_ELM); // referencja element.foreignElm -> id
+    attrElm_elm = (context: any): EAttributeElement[] => this._getReferences(context, RAttributeElement.ELM); // referencja attrElm.elm -> id
 
 }
 
-//--------------------------------- Elementy atrybutu ----------------------------------------------
+//--------------------------------- Element atrybutu ----------------------------------------------
 
-export class RAttributeElements extends Repository {
+export class RAttributeElement extends Repository {
 
     static ID: Column = new Column((c: Column) => {
         c.key = "id";
@@ -1239,7 +1195,7 @@ export class RAttributeElements extends Repository {
         c.name = "Element";
         c.type = "int";
         c.required = true;
-        c.foreign = () => R_ATTRIBUTE_ELEMENT;
+        c.foreign = () => R_ELEMENT;
     });
 
     static DEF_VAL: Column = new Column((c: Column) => {
@@ -1257,28 +1213,38 @@ export class RAttributeElements extends Repository {
 
     constructor() {
         super((c: RepoConfig) => {
-            c.key = "attrElms";
-            c.name = "Elementy atrybutu";
+            c.key = "attrElm";
+            c.name = "Element atrybutu";
             c.group = "Atrybuty";
-            c.record = EAttributeElements;
+            c.record = EAttributeElement;
             c.primaryKeyColumn = "id";
+            c.displayMask = "${attr} - ${elm}";
             c.crude = "CRUD";
             c.local = false;
+            c.references = {
+                catalogAttrValue_attrElm: {
+                    name: "Wartość atrybutu katalogu",
+                    repo: "catalogAttrValue",
+                    column: "attrElm"
+                }
+            };
         });
     }
 
 }
 
-export class EAttributeElements extends Record {
+export class EAttributeElement extends Record {
 
-    ID: Cell = new Cell(this, RAttributeElements.ID); // "ID"
-    ATTR: Cell = new Cell(this, RAttributeElements.ATTR); // "Atrybut"
-    ELM: Cell = new Cell(this, RAttributeElements.ELM); // "Element"
-    DEF_VAL: Cell = new Cell(this, RAttributeElements.DEF_VAL); // "Wartość domyslna"
-    REQUIRED: Cell = new Cell(this, RAttributeElements.REQUIRED); // "Wymagane"
+    ID: Cell = new Cell(this, RAttributeElement.ID); // "ID"
+    ATTR: Cell = new Cell(this, RAttributeElement.ATTR); // "Atrybut"
+    ELM: Cell = new Cell(this, RAttributeElement.ELM); // "Element"
+    DEF_VAL: Cell = new Cell(this, RAttributeElement.DEF_VAL); // "Wartość domyslna"
+    REQUIRED: Cell = new Cell(this, RAttributeElement.REQUIRED); // "Wymagane"
 
-    attrForeign = (context: any): EAttribute => this._getForeign(context, RAttributeElements.ATTR); // klucz obcy attr -> attribute.id
-    elmForeign = (context: any): EAttributeElement => this._getForeign(context, RAttributeElements.ELM); // klucz obcy elm -> attrElm.id
+    attrForeign = (context: any): EAttribute => this._getForeign(context, RAttributeElement.ATTR); // klucz obcy attr -> attribute.id
+    elmForeign = (context: any): EElement => this._getForeign(context, RAttributeElement.ELM); // klucz obcy elm -> element.id
+
+    catalogAttrValue_attrElm = (context: any): ECatalogAttributeValue[] => this._getReferences(context, RCatalogAttributeValue.ATTR_ELM); // referencja catalogAttrValue.attrElm -> id
 
 }
 
@@ -1731,10 +1697,10 @@ export class RCatalogAttribute extends Repository {
             c.crude = "CRUD";
             c.local = false;
             c.references = {
-                catalogAttrValues_attr: {
-                    name: "Wartości atrybutu katalogu",
-                    repo: "catalogAttrValues",
-                    column: "attr"
+                catalogAttrValue_catAttr: {
+                    name: "Wartość atrybutu katalogu",
+                    repo: "catalogAttrValue",
+                    column: "catAttr"
                 }
             };
         });
@@ -1755,13 +1721,13 @@ export class ECatalogAttribute extends Record {
     catForeign = (context: any): ECatalog => this._getForeign(context, RCatalogAttribute.CAT); // klucz obcy cat -> catalog.id
     attrForeign = (context: any): EAttribute => this._getForeign(context, RCatalogAttribute.ATTR); // klucz obcy attr -> attribute.id
 
-    catalogAttrValues_attr = (context: any): ECatalogAttributeValues[] => this._getReferences(context, RCatalogAttributeValues.ATTR); // referencja catalogAttrValues.attr -> id
+    catalogAttrValue_catAttr = (context: any): ECatalogAttributeValue[] => this._getReferences(context, RCatalogAttributeValue.CAT_ATTR); // referencja catalogAttrValue.catAttr -> id
 
 }
 
-//--------------------------------- Wartości atrybutu katalogu ----------------------------------------------
+//--------------------------------- Wartość atrybutu katalogu ----------------------------------------------
 
-export class RCatalogAttributeValues extends Repository {
+export class RCatalogAttributeValue extends Repository {
 
     static ID: Column = new Column((c: Column) => {
         c.key = "id";
@@ -1774,17 +1740,19 @@ export class RCatalogAttributeValues extends Repository {
         c.unique = true;
     });
 
-    static ATTR: Column = new Column((c: Column) => {
-        c.key = "attr";
+    static CAT_ATTR: Column = new Column((c: Column) => {
+        c.key = "catAttr";
         c.name = "Atrybut katalogu";
         c.type = "int";
+        c.required = true;
         c.foreign = () => R_CATALOG_ATTRIBUTE;
     });
 
-    static ELM: Column = new Column((c: Column) => {
-        c.key = "elm";
+    static ATTR_ELM: Column = new Column((c: Column) => {
+        c.key = "attrElm";
         c.name = "Element atrybutu";
         c.type = "int";
+        c.required = true;
         c.foreign = () => R_ATTRIBUTE_ELEMENT;
     });
 
@@ -1797,10 +1765,10 @@ export class RCatalogAttributeValues extends Repository {
 
     constructor() {
         super((c: RepoConfig) => {
-            c.key = "catalogAttrValues";
-            c.name = "Wartości atrybutu katalogu";
+            c.key = "catalogAttrValue";
+            c.name = "Wartość atrybutu katalogu";
             c.group = "Katalogi";
-            c.record = ECatalogAttributeValues;
+            c.record = ECatalogAttributeValue;
             c.primaryKeyColumn = "id";
             c.displayNameColumn = "value";
             c.crude = "CRUD";
@@ -1810,15 +1778,15 @@ export class RCatalogAttributeValues extends Repository {
 
 }
 
-export class ECatalogAttributeValues extends Record {
+export class ECatalogAttributeValue extends Record {
 
-    ID: Cell = new Cell(this, RCatalogAttributeValues.ID); // "ID"
-    ATTR: Cell = new Cell(this, RCatalogAttributeValues.ATTR); // "Atrybut katalogu"
-    ELM: Cell = new Cell(this, RCatalogAttributeValues.ELM); // "Element atrybutu"
-    VALUE: Cell = new Cell(this, RCatalogAttributeValues.VALUE); // "Wartość"
+    ID: Cell = new Cell(this, RCatalogAttributeValue.ID); // "ID"
+    CAT_ATTR: Cell = new Cell(this, RCatalogAttributeValue.CAT_ATTR); // "Atrybut katalogu"
+    ATTR_ELM: Cell = new Cell(this, RCatalogAttributeValue.ATTR_ELM); // "Element atrybutu"
+    VALUE: Cell = new Cell(this, RCatalogAttributeValue.VALUE); // "Wartość"
 
-    attrForeign = (context: any): ECatalogAttribute => this._getForeign(context, RCatalogAttributeValues.ATTR); // klucz obcy attr -> catalogAttr.id
-    elmForeign = (context: any): EAttributeElement => this._getForeign(context, RCatalogAttributeValues.ELM); // klucz obcy elm -> attrElm.id
+    catAttrForeign = (context: any): ECatalogAttribute => this._getForeign(context, RCatalogAttributeValue.CAT_ATTR); // klucz obcy catAttr -> catalogAttr.id
+    attrElmForeign = (context: any): EAttributeElement => this._getForeign(context, RCatalogAttributeValue.ATTR_ELM); // klucz obcy attrElm -> attrElm.id
 
 }
 
@@ -2231,13 +2199,13 @@ export const R_TEST: RTest = Repository.register(new RTest());
 export const R_USERS: RUsers = Repository.register(new RUsers());
 export const R_THREADS: RThreads = Repository.register(new RThreads());
 export const R_ATTRIBUTE: RAttribute = Repository.register(new RAttribute());
+export const R_ELEMENT: RElement = Repository.register(new RElement());
 export const R_ATTRIBUTE_ELEMENT: RAttributeElement = Repository.register(new RAttributeElement());
-export const R_ATTRIBUTE_ELEMENTS: RAttributeElements = Repository.register(new RAttributeElements());
 export const R_CATEGORY: RCategory = Repository.register(new RCategory());
 export const R_CATEGORY_ATTRIBUTE: RCategoryAttribute = Repository.register(new RCategoryAttribute());
 export const R_CATALOG: RCatalog = Repository.register(new RCatalog());
 export const R_CATALOG_ATTRIBUTE: RCatalogAttribute = Repository.register(new RCatalogAttribute());
-export const R_CATALOG_ATTRIBUTE_VALUES: RCatalogAttributeValues = Repository.register(new RCatalogAttributeValues());
+export const R_CATALOG_ATTRIBUTE_VALUE: RCatalogAttributeValue = Repository.register(new RCatalogAttributeValue());
 export const R_RESOURCE: RResource = Repository.register(new RResource());
 export const R_CRYPT_KEY: RCryptKey = Repository.register(new RCryptKey());
 export const R_REPO_SATE: RRepoSate = Repository.register(new RRepoSate());

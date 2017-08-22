@@ -8,9 +8,6 @@ export default class FormComponent extends Component {
 
     field: Field;
 
-    props: {
-        field: Field
-    };
 
     static propTypes = {
         field: PropTypes.instanceOf(Field).isRequired,

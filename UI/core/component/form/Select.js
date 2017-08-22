@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, ReactDOM, PropTypes, Utils, Type, Is} from '../../core';
+import {React, ReactDOM, PropTypes, Utils, Type, Is, Dev} from '../../core';
 import {FormComponent, Icon} from '../../components';
 import {DropdownList} from 'react-widgets';
 
@@ -29,17 +29,17 @@ export default class Select extends FormComponent {
         readOnly: PropTypes.bool
     };
 
-    state: {
-        open: ?boolean // czy rozwinięty
-    };
-
     constructor() {
         super(...arguments);
-        this.state = {open: undefined};
+        this._dropUp = false;
+        this._open = undefined;
         this._multiSelect = !this.field.type.single || this.field.type === Type.ENUMS;
         if (!this.props.units && this._multiSelect)
             this._multiselectProps = {
-                onBlur: () => this.setState({open: false}),
+                onBlur: () => {
+                    this._open = false;
+                    this.forceUpdate(true)
+                },
                 onClick: (e) => this._handleClick(e),
                 valueComponent: (props) => this._valueRenderer(props),
                 itemComponent: (props) => this._itemRenderer(props),
@@ -48,6 +48,11 @@ export default class Select extends FormComponent {
             };
         this._wheelListener = () => this._setDropdown(null, true);
         window.addEventListener('wheel', this._wheelListener, {passive: true});
+        if (this.field && this.field.record)
+            this.field.record.onFieldChange.listen(this, () => {
+                //   debugger;
+                this.forceUpdate();
+            });
     }
 
     componentWillUnmount() {
@@ -123,8 +128,11 @@ export default class Select extends FormComponent {
      * @private
      */
     _handleClick(e: Event) {
-        if (!this._selected)
-            this.setState({open: !this.state.open});
+        if (!this._selected) {
+            this._open = !this._open;
+            this.forceUpdate(true);
+        }
+
         else
             this._selected = false;
     }
@@ -132,13 +140,27 @@ export default class Select extends FormComponent {
     _setDropdown(select, open) {
         if (!this._tag) {
             if (!select) return;
+            this._select = select;
             this._tag = ReactDOM.findDOMNode(select);
         }
         if (!open) return;
         const poff = this._tag.getBoundingClientRect();
+        if (this._select) {
+            this._dropUp = (poff.top > (window.innerHeight / 2));
+            if (this._select.props.dropUp !== this._dropUp)
+                this.forceUpdate(true);
+        }
+
         const child = this._tag.children[2];
         if (!child) return;
-        child.style.top = (poff.top + poff.height) + 'px';
+        if (this._dropUp) {
+            child.style.bottom = (window.innerHeight - poff.top) + 'px';
+            child.style.top = '';
+        }
+        else {
+            child.style.top = (poff.top + poff.height) + 'px';
+            child.style.bottom = '';
+        }
         child.style.left = (poff.left) + 'px';
         child.style.width = (poff.width) + 'px';
     }
@@ -147,20 +169,28 @@ export default class Select extends FormComponent {
     render() {
         if (!this.field) return null;
 
+        let value = this.props.units ? this.field.unit : this.field.value;
+
+        let valueMatched = false;
+
         if (this.props.units) {
             this._enumerate = Utils.forEach(this.props.units, (item) => {
                 return {text: item[1], value: item}
             });
         } else {
-            this._enumerate = Utils.forEach(this.field.enumerate, (value, key) => {
+            this._enumerate = Utils.forEach(this.field.enumerate, (val, key) => {
+                if (value === key) valueMatched = true;
                 return {
-                    text: Utils.toString(value),
-                    value: Utils.toString(key),
+                    text: Utils.toString(val),
+                    value: key,
                     checked: false
                 }
             });
         }
-        const value = this.props.units ? this.field.unit : Is.defined(this.field.value) ? Utils.toString(this.field.value) : this.field.value;
+
+        if (!valueMatched)
+            value = null;
+
         return (
             <div className="c-select" style={{...this.props.style}}>
                 <DropdownList
@@ -172,13 +202,14 @@ export default class Select extends FormComponent {
                     value={value}
                     onChange={() => this.forceUpdate(true)}
                     title={this.field.hint}
-                    open={this.state.open}
+                    open={this._open}
                     filter={(this._enumerate.length < 10 || this._multiSelect || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}
                     readOnly={this.props.readOnly || this.field.readOnly}
                     placeholder={this.field.name}
                     onSelect={(value) => this._handleSelect(value)}
                     duration={100}
-                    onToggle={(open) => {
+                    dropUp={this._dropUp}
+                    onToggle={open => {
                         if (open) this._setDropdown(null, open)
                     }}
                     messages={{
@@ -191,4 +222,6 @@ export default class Select extends FormComponent {
             </div>
         )
     }
+
+
 }

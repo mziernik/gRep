@@ -19,7 +19,7 @@ export default class TablesTab extends Component {
                        rowMapper={(row) => {
                            let res = {};
                            Utils.forEach(row, (cell) => {
-                               res[cell.key] = <FCtrl field={cell}/>
+                               res[cell.key] = <FCtrl field={cell} value preview/>
                            });
                            return res;
                        }}
@@ -71,8 +71,8 @@ const COLUMNS = [
         fc.name = "Nazwa";
         fc.sortable = true;
         fc.filterable = true;
-        fc.compare = (a, b) => CustomFilter.defaultCompareFn('string')(a.value, b.value);
-        fc.filter = (filter, cell) => cell ? cell.value ? cell.value.contains(filter) : cell.contains(filter) : false;
+        fc.compare = (a, b) => CustomFilter.defaultCompareFn('string')(a, b);
+        fc.filter = (filter, cell) => cell ? cell.contains(filter) : false;
     }),
     new Column((fc: Column) => {
         fc.type = Type.INT;
@@ -80,7 +80,7 @@ const COLUMNS = [
         fc.name = "Wartość";
         fc.sortable = true;
         fc.filterable = true;
-        fc.filter = (filter, cell) => cell ? ("" + cell.value).contains(filter) : false;
+        fc.filter = (filter, cell) => cell ? ("" + cell).contains(filter) : false;
         fc.compare = (a, b) => a - b;
     }),
     new Column((fc: Column) => {
@@ -97,7 +97,7 @@ const COLUMNS = [
         fc.name = "Opis";
         fc.sortable = false;
         fc.filterable = false;
-        fc.filter = (filter, cell) => cell ? cell.value.contains(filter) : false;
+        fc.filter = (filter, cell) => cell ? cell.contains(filter) : false;
     }),
     new Column((fc: Column) => {
         fc.type = Type.BOOLEAN;

@@ -101,7 +101,11 @@ export default class Table extends Component {
                 column.filterable = col.filterable;
                 column.show = !col.hidden;
                 column.id = col.key;
-                column.sortMethod = col.compare;
+                column.sortMethod = Is.func(col.compare) ? (a, b) => {
+                    a = Utils.getPropValue('value', a, a);
+                    b = Utils.getPropValue('value', b, b);
+                    return col.compare(a, b);
+                } : null;
                 column.filterMethod = (filter: {}, row) => this._filterColumn(filter, row[filter.pivotId || filter.id], col.filter, col.compare);
                 if (col.sortOrder)
                     this._sorted = [{id: column.id, desc: false}];
@@ -369,10 +373,10 @@ export default class Table extends Component {
      */
     _filterColumn(filter: {}, cell, filterFn: ?() => boolean = null, sortFn: ?() => number = null): boolean {
         if (!cell) return false;
-        const val = Is.defined(cell.value) ? cell.value : cell;
+        const val = Utils.getPropValue('value', cell, cell);
 
         if (!(filter.value instanceof (Object)))
-            return Is.func(filterFn) ? filterFn(filter.value, cell) : Utils.toString(val).contains(filter.value);
+            return Is.func(filterFn) ? filterFn(filter.value, val) : ("" + Utils.toString(val)).contains(filter.value);
 
         const f: CustomFilter = filter.value;
         return f.filter(val, false);
@@ -404,7 +408,7 @@ export default class Table extends Component {
     filterDialog(colId: ?string) {
         //Todo okno z filtrami
         const mw = ModalWindow.create((mw: ModalWindow) => {
-            const cols = Utils.forEach(this.props.columns, (column, idx) => {
+            const cols = Utils.forEach(this.props.columns || this.props.repository.columns, (column, idx) => {
                 if (column instanceof (Column)) return column;
                 return {key: idx, name: column};
             });
@@ -596,7 +600,7 @@ export default class Table extends Component {
 
         return <ReactTable
             ref={elem => {
-                this._htmlTableElement  = ReactDOM.findDOMNode(elem);
+                this._htmlTableElement = ReactDOM.findDOMNode(elem);
                 this._computeWidths(elem);
                 this._updateSelected(elem);
             }}

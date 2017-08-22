@@ -1,4 +1,3 @@
-
 /* global HTMLTableElement */
 
 function DsTableCell(row, column) {
@@ -18,7 +17,7 @@ function DsTableCell(row, column) {
 
     if (this.column === dsTable.primaryKeyColumn)
         this.row.primaryCell = this;
-    //FixMe
+
 
 //    Element.prototype.insertChildAtIndex = function (child, index) {
 //        if (!index)
@@ -42,7 +41,6 @@ function DsTableCell(row, column) {
     };
 
 
-
     this.redraw = () => {
         if (this.column.disabled)
             return;
@@ -50,10 +48,8 @@ function DsTableCell(row, column) {
         var value = this.value;
 
 
-
 //        if (value === undefined)
 //            throw new Error("Undefined cell data");
-
 
 
         if (this.tdTag)
@@ -77,10 +73,9 @@ function DsTableCell(row, column) {
         }
 
         let thWidth;
-        //FixMe: Nie działa
+
         // if (this.column.tags[0])
         //       thWidth = this.column.tags[0].style.width;
-
 
 
         if (thWidth)
@@ -96,9 +91,9 @@ function DsTableCell(row, column) {
         switch ((typeof value)) {
             case "boolean":
                 this.tdTag
-                        .css({textAlign: 'center'})
-                        .tag('span')
-                        .cls(value ? "fa fa-check" : "fa fa-times");
+                    .css({textAlign: 'center'})
+                    .tag('span')
+                    .cls(value ? "fa fa-check" : "fa fa-times");
                 return;
 
 

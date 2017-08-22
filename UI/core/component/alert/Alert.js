@@ -3,8 +3,6 @@ import './sweetalert2.css';
 import {Is, EError, Utils} from "../../core";
 
 export default class Alert {
-    //ToDo: Przerobić okno alertów (wiele instancji, zawijanie wierszy, zmiana kolejności)
-
     // var iconTypes = prefix(['success', 'warning', 'info', 'question', 'error']);
 
     static error(sender: any, message: string | Error) {

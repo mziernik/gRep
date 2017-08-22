@@ -8,6 +8,141 @@ import {Icon} from "../components.js";
 
 let dataGenerated = false;
 
+//----------------------------------------------------------------------------------------------------------------------
+
+export class RType extends Repository {
+
+    static ID: Column = new Column((c: Column) => {
+        c.key = "key";
+        c.name = "ID";
+        c.type = "char";
+        c.required = true;
+        c.unique = true;
+        c.readOnly = true;
+    });
+
+    static NAME: Column = new Column((c: Column) => {
+        c.key = "name";
+        c.name = "Nazwa";
+        c.type = "string";
+        c.required = true;
+        c.unique = true;
+    });
+
+    static ALLOWED_KINDS: Column = new Column((c: Column) => {
+        c.key = "allowedKinds";
+        c.name = "Dozwolone rodzaje";
+        c.type = "key[]";
+        c.required = true;
+        c.foreign = () => RKIND;
+    });
+
+    static ALLOWED_STATUSES: Column = new Column((c: Column) => {
+        c.key = "allowedStatuses";
+        c.name = "Dozwolone statusy";
+        c.type = "key[]";
+        c.required = true;
+        c.foreign = () => RSTATUS;
+    });
+
+    constructor() {
+        super((c: RepoConfig) => {
+            c.key = "demo-user-type";
+            c.name = "Typ";
+            c.record = EType;
+            c.primaryKeyColumn = RType.ID;
+            c.displayNameColumn = RType.NAME;
+            c.group = "Demo";
+        })
+    }
+}
+
+export class EType extends Record {
+    ID: Cell = new Cell(this, RType.ID);
+    NAME: Cell = new Cell(this, RType.NAME);
+    ALLOWED_KINDS: Cell = new Cell(this, RType.ALLOWED_KINDS);
+    ALLOWED_STATUSES: Cell = new Cell(this, RType.ALLOWED_STATUSES);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+export class RKind extends Repository {
+
+    static ID: Column = new Column((c: Column) => {
+        c.key = "key";
+        c.name = "ID";
+        c.type = "key";
+        c.required = true;
+        c.unique = true;
+        c.readOnly = true;
+    });
+
+    static NAME: Column = new Column((c: Column) => {
+        c.key = "name";
+        c.name = "Nazwa";
+        c.type = "string";
+        c.required = true;
+        c.unique = true;
+    });
+
+    constructor() {
+        super((c: RepoConfig) => {
+            c.key = "demo-user-kind";
+            c.name = "Rodzaj";
+            c.record = EKind;
+            c.primaryKeyColumn = RKind.ID;
+            c.displayNameColumn = RKind.NAME;
+            c.group = "Demo";
+        })
+    }
+}
+
+export class EKind extends Record {
+    ID: Cell = new Cell(this, RKind.ID);
+    NAME: Cell = new Cell(this, RKind.NAME);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+export class RStatus extends Repository {
+
+    static ID: Column = new Column((c: Column) => {
+        c.key = "key";
+        c.name = "ID";
+        c.type = "char";
+        c.required = true;
+        c.unique = true;
+        c.readOnly = true;
+    });
+
+    static NAME: Column = new Column((c: Column) => {
+        c.key = "name";
+        c.name = "Nazwa";
+        c.type = "string";
+        c.required = true;
+        c.unique = true;
+    });
+
+    constructor() {
+        super((c: RepoConfig) => {
+            c.key = "demo-user-status";
+            c.name = "Status";
+            c.record = EStatus;
+            c.primaryKeyColumn = RStatus.ID;
+            c.displayNameColumn = RStatus.NAME;
+            c.group = "Demo";
+        })
+    }
+}
+
+export class EStatus extends Record {
+    ID: Cell = new Cell(this, RStatus.ID);
+    NAME: Cell = new Cell(this, RStatus.NAME);
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 export class ROccupations extends Repository {
 
     static ID: Column = new Column((c: Column) => {
@@ -27,7 +162,6 @@ export class ROccupations extends Repository {
         c.unique = true;
     });
 
-
     constructor() {
         super((c: RepoConfig) => {
             c.key = "demo-occup";
@@ -36,10 +170,7 @@ export class ROccupations extends Repository {
             c.record = ROccupation;
             c.primaryKeyColumn = ROccupations.ID;
             c.displayNameColumn = ROccupations.NAME;
-            c.crude = "CRUD";
             c.group = "Demo";
-            //          c.local = false;
-//            c.icon = "fa fa-users";
         })
     }
 }
@@ -111,7 +242,6 @@ export class RAddresses extends Repository {
         c.required = true;
     });
 
-
     constructor() {
         super((c: RepoConfig) => {
             c.key = "demo-addr";
@@ -119,10 +249,7 @@ export class RAddresses extends Repository {
             c.description = "Adresy użytkowników / pracowników";
             c.record = RAddress;
             c.primaryKeyColumn = RAddresses.ID;
-            c.crude = "CRUD";
             c.group = "Demo";
-            //          c.local = false;
-//            c.icon = "fa fa-users";
         })
     }
 
@@ -215,7 +342,6 @@ export class RUsers extends Repository {
         c.foreign = () => ROCCUPATIONS;
     });
 
-
     static SEX: Column = new Column((c: Column) => {
         c.key = "sex";
         c.name = "Płeć";
@@ -259,6 +385,43 @@ export class RUsers extends Repository {
         c.type = "email";
     });
 
+    static TYPE: Column = new Column((c: Column) => {
+        c.key = "type";
+        c.name = "Typ";
+        c.type = "char";
+        c.foreign = () => RTYPE;
+        c.defaultValue = "E";
+    });
+
+    static KIND: Column = new Column((c: Column) => {
+        c.key = "kind";
+        c.name = "Rodzaje";
+        c.type = "key[]";
+        c.foreign = () => RKIND;
+        /*     c.foreign = {
+                 repository: () => RKIND,
+                 constraints: {
+                     allowedType: {
+                         column: ["type"],
+                         value: [1, 2]
+                     }
+                 },
+             };*/
+        //  c.defaultValue = "EO";
+    });
+
+    static STATUS: Column = new Column((c: Column) => {
+        c.key = "status";
+        c.name = "Status";
+        c.type = "key[]";
+        // c.foreign = () => RSTATUS;
+        c.foreign = () => RSTATUS;
+
+        c.foreign = {
+            repository: () => RSTATUS,
+            constraints: "type.allowedStatuses" // status musi wystąpić w kolumnie demo-users-type.allowedStatuses
+        };
+    });
 
     constructor() {
         super((c: RepoConfig) => {
@@ -271,6 +434,7 @@ export class RUsers extends Repository {
             c.crude = "CRU";
             c.group = "Demo";
             c.local = false;
+
             c.references = {
                 address: {
                     name: "Adres",
@@ -383,13 +547,20 @@ export class RUsersRecord extends Record {
     EMAIL: Cell = new Cell(this, RUsers.EMAIL);
     OCCUPATION: Cell = new Cell(this, RUsers.OCCUPATION);
     SPECIALIZATIONS: Cell = new Cell(this, RUsers.SPECIALIZATIONS);
+    TYPE: Cell = new Cell(this, RUsers.TYPE);
+    KIND: Cell = new Cell(this, RUsers.KIND);
+    STATUS: Cell = new Cell(this, RUsers.STATUS);
 }
 
+const RTYPE: RType = Repository.register(new RType());
+const RKIND: RKind = Repository.register(new RKind());
+const RSTATUS: RStatus = Repository.register(new RStatus());
 const ROCCUPATIONS: ROccupations = Repository.register(new ROccupations());
 const RUSERS: RUsers = Repository.register(new RUsers());
 const RADDRESSES: RAddresses = Repository.register(new RAddresses());
 
-Utils.forEach([ROCCUPATIONS, RUSERS, RADDRESSES], (repo: Repository) => {
+Utils.forEach([RTYPE, RKIND, RSTATUS,
+    ROCCUPATIONS, RUSERS, RADDRESSES], (repo: Repository) => {
     repo.storage = null;
     repo.isReady = true;
     Ready.confirm(Repository, repo);
@@ -403,6 +574,30 @@ window.addEventListener("load", () => {
         rec.ID.value = idx;
         rec.NAME.value = name;
         recs.push(rec);
+    });
+
+    Repository.update("DEMO", {
+        "demo-user-type": [
+            {key: 'U', name: 'Użytkownik', allowedKinds: ['UR', 'UA'], allowedStatuses: ['A', 'B']},
+            {key: 'E', name: 'Pracownik', allowedKinds: ['EL', 'EO'], allowedStatuses: ['Z', 'X', 'C']},
+            {key: 'S', name: 'Usługa', allowedKinds: ['SS', 'SR', 'SL'], allowedStatuses: ['A', 'B']}
+        ],
+        "demo-user-kind": [
+            {key: 'UR', name: 'Użytkownik zarejestrowany'},
+            {key: 'UA', name: 'Użytkownik anonimowy'},
+            {key: 'EL', name: 'Pracownik fizyczny'},
+            {key: 'EO', name: 'Pracownik umysłowy'},
+            {key: 'SS', name: 'SOAP'},
+            {key: 'SR', name: 'REST'},
+            {key: 'SL', name: 'LDAP'}
+        ],
+        "demo-user-status": [
+            {key: 'A', name: 'Online'},
+            {key: 'B', name: 'Offline'},
+            {key: 'Z', name: 'Pracujący'},
+            {key: 'X', name: 'Urlop'},
+            {key: 'C', name: 'Zwolniony'}
+        ],
     });
 
     Repository.update("DEMO", recs);

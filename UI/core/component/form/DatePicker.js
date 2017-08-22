@@ -21,6 +21,7 @@ export default class DatePicker extends FormComponent {
         this._wheelListener = () => this._setDropdown(null, true);
         window.addEventListener('wheel', this._wheelListener, {passive: true});
         this._currentDate = this.field.value || new Date();
+        this._dropUp = false;
     }
 
     componentWillUnmount() {
@@ -55,14 +56,27 @@ export default class DatePicker extends FormComponent {
     _setDropdown(dtp, open) {
         if (!this._tag) {
             if (!dtp) return;
+            this._dtp = dtp;
             this._tag = ReactDOM.findDOMNode(dtp);
         }
         if (!open) return;
         const poff = this._tag.getBoundingClientRect();
+        if (this._dtp) {
+            this._dropUp = (poff.top > (window.innerHeight / 2));
+            if (this._dtp.props.dropUp !== this._dropUp)
+                this.forceUpdate(true);
+        }
         const child = this._tag.children[2];
         const child2 = this._tag.children[3];
         if (!child && !child2) return;
-        child2.style.top = child.style.top = (poff.top + poff.height) + 'px';
+        if (this._dropUp) {
+            child2.style.bottom = child.style.bottom = (window.innerHeight - poff.top) + 'px';
+            child2.style.top = child.style.top = '';
+        } else {
+            child2.style.top = child.style.top = (poff.top + poff.height) + 'px';
+            child2.style.bottom = child.style.bottom = '';
+        }
+
         child2.style.left = child.style.left = (poff.left) + 'px';
         child2.style.width = child.style.width = (poff.width) + 'px';
     }
@@ -92,6 +106,7 @@ export default class DatePicker extends FormComponent {
                 dayComponent={(props) => this._dayRendererFunc(props)}
                 placeholder={this.field.name}
                 disabled={this.field.readOnly}
+                dropUp={this._dropUp}
                 messages={{
                     calendarButton: 'Wybierz datę',
                     timeButton: 'Wybierz godzinę',

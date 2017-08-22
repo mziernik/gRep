@@ -1,6 +1,3 @@
-//FixMe importy
-
-
 import Permission from "../application/Permission";
 import Action from "./Action";
 import LocalRepoStorage from "./storage/LocalRepoStorage";

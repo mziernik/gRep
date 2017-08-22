@@ -9,7 +9,8 @@ import {
     Type,
     Column,
     ContextObject,
-    Endpoint
+    Endpoint,
+    DEV_MODE
 } from "../core";
 
 
@@ -36,12 +37,16 @@ export default class Record {
     endpoint: Endpoint; // endpoint edycyjny rekordu
     /** Wymuś lokalną edycję zmian (bez wysyłania do serwera) */
     localCommit: boolean = false;
+    _pk: any;
+    _row: [] = null;
 
     constructor(repo: Repository, context: any) {
         this.repo = Check.instanceOf(repo, [Repository]);
         if (!context) return;
         this.repo.refs.push(this);
         ContextObject.add(context, this, () => this.repo.refs.remove(this));
+
+        if (DEV_MODE) this._instanceId = Utils.randomId(3);
 
         this.onChange.listen(this, data => {
             if (data.action !== CRUDE.UPDATE) return;
@@ -53,14 +58,11 @@ export default class Record {
 
     }
 
-    _pk: any;
-
     /** Zwraca wartość klucza głównego */
     get pk(): any {
         return this._pk || (this._pk = this.primaryKey.value);
     }
 
-    _row: [] = null;
 
     set row(row: []) {
         this._row = new Array(this.repo.columns.length);
@@ -70,6 +72,16 @@ export default class Record {
             field.changed = false;
             this._row[i] = row[i];
         }
+
+        if (DEV_MODE)
+            this["#" + this.fullId] = this._instanceId;
+    }
+
+    get asObject(): Object {
+        if (!this._row) return {};
+        const result = {};
+        Utils.forEach(this.fields, (f: Field) => result[f.key] = f.value);
+        return result;
     }
 
     get lastUpdate(): ?number { //timestamp ostatniej aktualizacji wiersza
@@ -135,7 +147,11 @@ export default class Record {
         return dto;
     }
 
-    get (col: Column): Field {
+    get(col: Column | string): Field {
+
+        if (Is.string(col))
+            col = this.repo.getColumn(col, true);
+
         const field: Field = this.fields.get(col);
         if (!field)
             throw new Error("Repozytorium " + this.repo.key + " nie posiada kolumny " + col.key);
@@ -145,16 +161,19 @@ export default class Record {
     getValue(col: Column): any {
         if (!this._row)
             throw new RecordError(this, "Rekord nie ma przypisanych danych");
-
-        const idx: number = this.repo.columns.indexOf(col);
-        if (idx < 0)
+        if (!this.fields.has(col))
             throw new Error("Repozytorium " + this.repo.key + " nie posiada kolumny " + col.key);
-        return this._row[idx];
+        return this.fields.get(col).value;
     }
 
     /** Walidacja danych - do przeciążenia */
     validate() {
+        Utils.forEach(this.fields, (f: Field) => {
+            if (!f.validate(true))
+                throw new RecordError(this, Utils.escape(f.name) + ": " + f.error);
+        });
 
+        Utils.forEach(this.changedReferences, (rec: Record) => rec.validate());
     }
 
     _getForeign(context: any, column: Column | Field): Record | Record[] {
@@ -167,7 +186,8 @@ export default class Record {
         if (!column.foreign)
             throw new RecordError(this, "Kolumna " + column.key + " nie posiada klucza obcego");
 
-        const frepo: Repository = column.foreign();
+        debugger;
+        const frepo: Repository = column.foreign.repo;
 
         if (fk instanceof Array)
             return Utils.forEach(fk, v => frepo.get(context, v));
@@ -196,7 +216,7 @@ export default class Record {
 class RecordError extends Error {
 
     constructor(record: Record, message: string) {
-        super(record.fullId + ": " + Utils.toString(message))
+        super("Rekord " + record.fullId + ": " + Utils.toString(message))
     }
 }
 

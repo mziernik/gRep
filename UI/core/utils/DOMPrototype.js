@@ -6,8 +6,6 @@ import UrlBuilder from "./UrlBuilder";
 
 declare function $id(objectOrId: string | Node): any;
 
-//ToDo: Dodać weryfikację istnienia prototypów
-
 //  document.getElementById
 window.$id = function (objectOrId: string | Node): ?Node {
     return typeof objectOrId === "string" ? document.getElementById(objectOrId) : objectOrId;

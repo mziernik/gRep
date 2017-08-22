@@ -72,6 +72,7 @@ export default class RepoTable extends Table {
                     row[f.key] = <FCtrl
                         key={++idx}
                         field={f}
+                        value
                         inline
                     />);
 
