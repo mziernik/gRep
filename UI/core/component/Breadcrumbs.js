@@ -11,11 +11,9 @@ import {Component, Icon, Link} from "../components";
 export default class Breadcrumb extends Component {
 
     static propTypes = {
-        home: PropTypes.bool.isRequired
+        home: PropTypes.bool
     };
-    static defaultProps = {
-        home: true
-    };
+
     page: Endpoint;
 
     constructor() {
@@ -52,7 +50,7 @@ export default class Breadcrumb extends Component {
                                 key={++idx}
                                 style={{
                                     fontSize: "0.8em",
-                                    display: "table-cell",
+                                 //   display: "table-cell",
                                     padding: "0 .5em",
                                     verticalAlign: "middle"
                                 }}/>);

@@ -159,8 +159,8 @@ export default class Record {
     }
 
     getValue(col: Column): any {
-        if (!this._row)
-            throw new RecordError(this, "Rekord nie ma przypisanych danych");
+        if (this.action !== CRUDE.CREATE && !this._row)
+            throw new RecordError(this, "Brak przypisanych danych");
         if (!this.fields.has(col))
             throw new Error("Repozytorium " + this.repo.key + " nie posiada kolumny " + col.key);
         return this.fields.get(col).value;

@@ -17,6 +17,8 @@ import PRepoDetails from "./repository/PRepoDetails";
 import PIcons from "./PIcons";
 import * as Utils from "../../utils/Utils";
 import PWebApi from "./PWebApi";
+import {DEBUG_MODE} from "../../Dev";
+
 
 export default class DevRouter extends Endpoint {
 
@@ -41,6 +43,9 @@ export default class DevRouter extends Endpoint {
 
     constructor(baseUrl: string) {
         super("dev", "#dev", baseUrl, null);
+
+        if (!DEBUG_MODE)
+            this.hidden();
 
         this.REPOS = this.child("repos", "Repozytoria", baseUrl + "/repositories", PRepositories);
         this.REPO = this.REPOS.child("repo", "Repozytorium", this.REPOS._path + "/:repo", PRepository).hidden(true);
@@ -90,6 +95,5 @@ export default class DevRouter extends Endpoint {
     }
 
 }
-
 
 //----------------------------------------------- DEWELOPERSKIE --------------------------------------------------------

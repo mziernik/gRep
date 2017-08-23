@@ -4,6 +4,7 @@
 import EError from "./EError";
 import "./DOMPrototype";
 import * as Utils from "./Utils";
+import {DEBUG_MODE} from "../Dev";
 
 const js_errors: JsError[] = [];
 let tContent; // tag zawierający treść błędów
@@ -19,6 +20,10 @@ function sendLog(err: EError) {
 
 
 export function onError(msg: any, file: ?any, line: ?number, column: ?number, ex: ?Error) {
+
+    if (!DEBUG_MODE)
+        return;
+
     const err: EError = new EError(msg || ex);
     let sendLog: boolean = true;
     let jserr: ?JsError = null;

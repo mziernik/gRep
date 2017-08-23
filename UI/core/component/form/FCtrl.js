@@ -17,6 +17,7 @@ import {
 } from '../../components.js';
 import RepoCtrl from "../repository/RepoCtrl";
 import RecordCtrl from "../repository/RecordCtrl";
+import {Record} from "../../core";
 
 /**
  * Komponent ułatwiający obsługę obiektu Field. Umożliwia edycję i podgląd wartości, błędów i innych flag
@@ -242,13 +243,26 @@ export default class FCtrl extends Component {
                 break;
             case "name":
                 const label = Utils.toString(Is.defined(this.props.label) ? this.props.label : this.field.name);
-                if (this.field.config.foreign) {
+                if (!this.props.preview && this.field.config.foreign) {
                     const repo: Repository = this.field.config.foreign.repo;
                     if (!this.field.record || repo !== this.field.record.repo)
                         return <span
                             key="name"
                             className="c-fctrl-name c-fctrl-name-link"
-                            onClick={(e) => new RecordCtrl(repo.getOrCreate(this, this.field.type.isList ? null : this.field.value)).modalEdit()}
+                            onClick={(e) => {
+
+                                const val = this.field.type.isList ? this.field.value[0] : this.field.value;
+                                let rec: Record = repo.get(this, val, false);
+                                if (!rec) {
+                                    let firstKey = null;
+                                    Utils.forEach(repo.rows, (v, k, stop) => {
+                                        firstKey = k;
+                                        stop();
+                                    });
+                                    rec = repo.getOrCreate(this, firstKey);
+                                }
+                                new RecordCtrl(rec).modalEdit()
+                            }}
                         >{label}</span>;
                 }
 
@@ -308,7 +322,7 @@ export default class FCtrl extends Component {
             return <span title={title}>{this.field.displayValue}</span>;
         }
 
-        if (this.field.type instanceof Type.ListDataType || this.field.type instanceof Type.MapDataType)
+        if ((field.type instanceof Type.ListDataType && !field.config.unique) || field.type instanceof Type.MapDataType)
             return <List field={this.field} preview={this.props.preview}/>;
 
         if (this.field.type instanceof Type.MultipleDataType)

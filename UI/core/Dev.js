@@ -1,13 +1,22 @@
 // @flow
 import * as Utils from "./utils/Utils";
 import * as ErroHandler from "./utils/ErrorHandler";
-
-'use strict';
+import {LOCAL} from "./Store";
 
 export const PROCESS_ENV = process && process.env ? process && process.env : {};
-export const DEV_MODE = PROCESS_ENV.NODE_ENV === 'development';
+export const DEV_MODE = PROCESS_ENV.NODE_ENV === 'development' || PROCESS_ENV.NODE_ENV === 'dev';
 export const PROD_MODE = PROCESS_ENV.NODE_ENV === 'production';
+export const DEMO_MODE = PROCESS_ENV.NODE_ENV === 'demo';
 export const TEST_MODE = PROCESS_ENV.NODE_ENV === 'test';
+
+export const DEBUG_MODE = !!LOCAL.get("$DebugMode$");
+
+window.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.ctrlKey && e.altKey && e.shiftKey && e.key === "D") {
+        if (DEBUG_MODE) LOCAL.remove("$DebugMode$"); else LOCAL.set("$DebugMode$", true);
+        window.location.reload();
+    }
+});
 
 export default class Dev {
 
@@ -544,7 +553,8 @@ export default class Dev {
     }
 
     static log(context: ?any | any[], value: ?mixed, ...args: any) {
-        window.console.debug(format(context, value), ...args);
+        if (!DEBUG_MODE)
+            window.console.debug(format(context, value), ...args);
     }
 
     static warning(context: ?any | any[], value: ?mixed, ...args: any) {

@@ -49,9 +49,9 @@ export default class Select extends FormComponent {
         this._wheelListener = () => this._setDropdown(null, true);
         window.addEventListener('wheel', this._wheelListener, {passive: true});
         if (this.field && this.field.record)
-            this.field.record.onFieldChange.listen(this, () => {
-                //   debugger;
-                this.forceUpdate();
+            this.field.record.onFieldChange.listen(this, (data) => {
+                if (data.field.key !== this.field.key)
+                    this.forceUpdate(true)
             });
     }
 
@@ -123,12 +123,24 @@ export default class Select extends FormComponent {
         return item.text.contains(search);
     }
 
+    /** Sprawdza czy kliknięcie zostało wykonane na filtrze
+     * @param elem element do sprawdzenia czy jest polem filtru
+     * @returns {boolean}
+     * @private
+     */
+    _isSearchClicked(elem): boolean {
+        if (!elem) return false;
+        if (elem.className.contains('rw-filter-input')) return true;
+        return this._isSearchClicked(elem.parentElement);
+    }
+
     /** Obsługa zdarzenia kliknięcia
      * @param e - obiekt zdarzenia
      * @private
      */
     _handleClick(e: Event) {
         if (!this._selected) {
+            if (this._isSearchClicked(e.target)) return;
             this._open = !this._open;
             this.forceUpdate(true);
         }
@@ -171,15 +183,12 @@ export default class Select extends FormComponent {
 
         let value = this.props.units ? this.field.unit : this.field.value;
 
-        let valueMatched = false;
-
         if (this.props.units) {
             this._enumerate = Utils.forEach(this.props.units, (item) => {
                 return {text: item[1], value: item}
             });
         } else {
             this._enumerate = Utils.forEach(this.field.enumerate, (val, key) => {
-                if (value === key) valueMatched = true;
                 return {
                     text: Utils.toString(val),
                     value: key,
@@ -187,9 +196,6 @@ export default class Select extends FormComponent {
                 }
             });
         }
-
-        if (!valueMatched)
-            value = null;
 
         return (
             <div className="c-select" style={{...this.props.style}}>
@@ -200,10 +206,12 @@ export default class Select extends FormComponent {
                     valueField='value'
                     data={this._enumerate}
                     value={value}
-                    onChange={() => this.forceUpdate(true)}
+                    onChange={() => {
+                        if (!this._multiSelect) this.forceUpdate(true);
+                    }}
                     title={this.field.hint}
                     open={this._open}
-                    filter={(this._enumerate.length < 10 || this._multiSelect || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}
+                    filter={(this._enumerate.length < 10 || this.props.units) ? null : (item, search) => this._handleSearch(item, search)}
                     readOnly={this.props.readOnly || this.field.readOnly}
                     placeholder={this.field.name}
                     onSelect={(value) => this._handleSelect(value)}

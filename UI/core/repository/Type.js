@@ -50,20 +50,18 @@ export class DataType {
     }
 
     /** Formatuje dane enumeraty z mapy, obiektu lub tablicy do postaci funkcji zwrotnej */
-    static getMap(source: any): () => Map {
+    static getMap(source: any): Map {
         if (!source) return null;
 
-        return () => {
-            if (Is.func(source))
-                source = source();
+        if (Is.func(source))
+            source = source();
 
-            if (source instanceof Map)
-                return source;
+        if (source instanceof Map)
+            return source;
 
-            const map = new Map();
-            Utils.forEach(source, (v, k) => map.set(k, v));
-            return map;
-        };
+        const map = new Map();
+        Utils.forEach(source, (v, k) => map.set(k, v));
+        return map;
     }
 
     /** Zwraca wartość wyświetlaną */
@@ -71,7 +69,7 @@ export class DataType {
 
         enumerate = enumerate || this.enumerate;
 
-        if (enumerate) enumerate = DataType.getMap(enumerate)();
+        if (enumerate) enumerate = DataType.getMap(enumerate);
 
         if (this.formatter)
             return this.formatter(value, enumerate);

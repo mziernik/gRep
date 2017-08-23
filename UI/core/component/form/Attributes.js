@@ -181,7 +181,6 @@ export class Attr extends Component {
                         value
                         preview={!this.edit}
                         boolMode="radio"
-                        markChangesFunc={state => updateChangeMarker(state)}
                     />
 
                     <span style={{display: "table-cell", whiteSpace: "nowrap"}}>

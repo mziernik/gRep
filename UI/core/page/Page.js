@@ -200,7 +200,8 @@ export class PageButtons extends Dynamic {
 
     constructor() {
         super(null, () => <div
-            style={{float: "right", ...this.style}}>{Utils.forEach(this.list, (btn: Btn) => {
+            className="c-title-bar-buttons"
+            style={{...this.style}}>{Utils.forEach(this.list, (btn: Btn) => {
             if (!btn._key)
                 btn._key = Utils.randomId();
             return btn.$
@@ -234,7 +235,7 @@ export class PageTitle extends Dynamic<string> {
             v => <h5>{Utils.toString(v)}</h5>);
     }
 
-    set (title: string) {
+    set(title: string) {
         super.set(title);
         document.title = title;
     }
@@ -250,10 +251,12 @@ export class PageTitleBar extends Dynamic {
 
     constructor(page: Page) {
         super(null, () => !this.visible ? null : <div className="c-title-bar">
-            {page.icon.$}
-            {page.title.$}
-            <span style={{flex: "auto"}}/>
-            {page.buttons.$}
+            <div>
+                {page.icon.$}
+                {page.title.$}
+                <span style={{flex: "auto"}}/>
+                {page.buttons.$}
+            </div>
             <hr style={{marginTop: "0"}}/>
         </div>);
     }

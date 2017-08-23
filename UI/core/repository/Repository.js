@@ -265,7 +265,7 @@ export default class Repository {
                 if (!Repository.ignoreErrors)
                     throw e;
                 console.warn(e);
-                AppStatus.error(Repository, e);
+            //    AppStatus.error(Repository, e);
             }
         });
 
@@ -640,52 +640,6 @@ export default class Repository {
  * onwersja następuje po zdefiniowaniu kolumny wskazującej na rodzica.
  */
 
-export class ColumnReference {
-    local: Column;
-    foreign: Column;
-    constraint: Constraint;
-
-    constructor(constraint: Constraint, arg: string) {
-        this.constraint = constraint;
-        const items: string[] = Check.isString(arg).split(".");
-
-        const repo: Repository = constraint.repo;
-
-        this.local = repo.getColumn(items[0], true, true);
-
-        if (items.length === 2) {
-            let key = items[1];
-            if (!this.local.foreign)
-                throw new RepoError(repo, "Kolumna " + key + " nie posiada klucza obcego");
-            this.foreign = this.local.foreign.repo.getColumn(key, true, true);
-        }
-
-    }
-
-}
-
-export class Constraint {
-    repo: Repository;
-    target: ColumnReference; // kolumna docelowa, której dotyczy ograniczenie
-    condition: string; //contains
-    column: ColumnReference;
-    values: any[];
-
-    constructor(repo: Repository, left: string, condition: string, right: string | any[]) {
-        this.repo = Check.instanceOf(repo, [Repository]);
-        this.condition = Check.oneOf(condition, ["in", "equals"])
-        if (Is.array(right))
-            this.values = right;
-
-        Ready.waitFor(this, repo, () => {
-            this.target = new ColumnReference(this, left);
-            if (Is.string(right))
-                this.column = new ColumnReference(this, right);
-        });
-
-    }
-}
-
 export class RepoConfig {
     static defaultCrudeRights = "CRUD"; //"CRUDE"
 
@@ -718,7 +672,6 @@ export class RepoConfig {
     _columns: Column[] = [];
     /** Repozytorium utworzone dynamicznie (rezultat metody [list] z webapi)*/
     dynamic: boolean = false;
-    constraints: ?Constraint[] = null;
 
     _repo: Repository;
 
@@ -794,11 +747,6 @@ export class RepoConfig {
     update() {
         const repo: Repository = this._repo;
 
-        const constraints: [] = this.constraints;
-        this.constraints = [];
-
-        Utils.forEach(constraints, obj => this.constraints.push(new Constraint(repo, ...obj)));
-
         repo.actions = Is.def(this.actions, acts => Utils.forEach(acts, (obj, key) => {
             const act = new RepoAction();
             act.key = key;
@@ -820,7 +768,6 @@ export class RepoConfig {
 
         if (!this.primaryKeyColumn)
             throw new Error("Brak definicji klucza głównego repozytorium " + Utils.escape(this.key));
-
 
         if (!repo.columns.contains(this.primaryKeyColumn))
             throw new Error("Kolumna " + Utils.escape(this.primaryKeyColumn) + " nie należy do repozytorium " + Utils.escape(this.key));

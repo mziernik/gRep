@@ -140,6 +140,9 @@ export default class RecordCtrl {
     }
 
     renderNavBar() {
+
+        if (this.record.action === CRUDE.CREATE) return null;
+
         const pk = this.record.pk;
 
         let prevPk = null;
@@ -161,36 +164,36 @@ export default class RecordCtrl {
 
         });
 
-        if (!nextPk) return null;
+        if (!nextPk && !prevPk) return null;
 
 
-        const prev: Record = this.record.repo.get(null, prevPk, true);
-        const next: Record = this.record.repo.get(null, nextPk, true);
+        const prev: Record = this.record.repo.get(null, prevPk, false);
+        const next: Record = this.record.repo.get(null, nextPk, false);
 
-        return <div style={{
-            display: "flex",
-            marginBottom: "20px"
-        }}>
-            <div style={{flex: "auto"}}
-                 onClick={e => {
+        return <div className="record-navigator">
+            {!prev ? null :
+                <div>
+                    <div onClick={e => {
+                        new RecordCtrl(prev).modalEdit();
+                        this._modal.close(e);
+                    }}>
+                        <span className={Icon.CHEVRON_LEFT}/>
+                        <span>{prev.displayValue}</span>
+                    </div>
+                </div>
+            }
 
-                     new RecordCtrl(prev).modalEdit();
-                     this._modal.close(e);
-                 }}
-            >
-                <span className={Icon.CHEVRON_LEFT}/>
-                <span>{prev.displayValue}</span>
-            </div>
-
-            <div style={{flex: "auto", textAlign: "right"}}
-                 onClick={e => {
-                     new RecordCtrl(next).modalEdit();
-                     this._modal.close(e);
-                 }}
-            >
-                <span>{next.displayValue}</span>
-                <span className={Icon.CHEVRON_RIGHT}/>
-            </div>
+            {!next ? null :
+                <div style={{textAlign: "right"}}>
+                    <div onClick={e => {
+                        new RecordCtrl(next).modalEdit();
+                        this._modal.close(e);
+                    }}>
+                        <span>{next.displayValue}</span>
+                        <span className={Icon.CHEVRON_RIGHT}/>
+                    </div>
+                </div>
+            }
         </div>
     }
 

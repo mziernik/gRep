@@ -11,6 +11,10 @@ import "./DOMPrototype";
 import "./Prototype";
 import * as Utils from "./Utils";
 
+export function boolean(object: ?any, then: ?(object: string) => void, otherwise: ?(object: any) => void): boolean {
+    return result(typeof object === "boolean", object, then, otherwise);
+}
+
 export function array(object: ?any, then: ?(object: []) => void, otherwise: ?(object: []) => void): boolean {
     return result(object instanceof Array, object, then, otherwise);
 }

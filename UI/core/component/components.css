@@ -45,9 +45,10 @@
 
 /*===================================================== TitleBar =====================================================*/
 
-.c-title-bar {
+.c-title-bar > div {
     padding: 8px;
-    display: block;
+    display: flex;
+    width: 100%;
 }
 
 .c-title-bar-icon {
@@ -61,10 +62,17 @@
     color: #39b;
     font-weight: bold;
     line-height: 1.5em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.c-title-bar-buttons {
+    white-space: nowrap;
 }
 
 .c-title-bar .c-tool-bar {
-    float: right;
+
 }
 
 /*==================================================== Attributes ====================================================*/

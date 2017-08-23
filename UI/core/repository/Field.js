@@ -1,10 +1,11 @@
 // @flow
 'use strict';
 
-import {Check, Is, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store, DEV_MODE} from "../core";
+import {Check, Is, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store, DEV_MODE, CRUDE} from "../core";
 import {DataType, TEXT_CASING} from "./Type";
 import Column, {Foreign, ForeignConstraint} from "./Column";
 import {Constraint, RepoCursor} from "./Repository";
+import {array} from "../utils/Is";
 
 export default class Field {
 
@@ -163,66 +164,73 @@ export default class Field {
     }
 
     get enumerate(): Map {
+        const getEnum = () => {
 
+            if (!this.config.foreign && !this.config.enumerate) return null;
 
-        if (!this.config.foreign && !this.config.enumerate) return null;
+            if (!this.config.foreign)
+                return DataType.getMap(this.config.enumerate);
 
-        if (!this.config.foreign)
-            return DataType.getMap(this.config.enumerate);
+            const foreign: Foreign = this.config.foreign;
+            const map: Map = foreign.repo.displayMap;
+            const repo: Repository = this.record.repo;
 
-        const foreign: Foreign = this.config.foreign;
-        const map: Map = foreign.repo.displayMap;
-        const repo: Repository = this.record.repo;
-        /*
-                const constraints: [] = repo.config.constraints;
+            if (!foreign.constraints.length)
+                return map; // brak ograniczeń, zwracam całą mapę
 
-                if (!constraints || !constraints.length)
-                    return map; // brak ograniczeń, zwracam całą mapę
+            const result: Map = new Map();
 
-                const result: Map = new Map();
+            const column: Column = this.parent ? this.parent.config : this.config;
 
-                const column: Column = this.parent ? this.parent.config : this.config;
+            Utils.forEach(foreign.constraints, (fc: ForeignConstraint) => {
+                // repozytorium wskazuje na klucz obcy
+                const sameRepoAsForeign = fc.currentLocal.repository === foreign.repo;
 
-                Utils.forEach(constraints, (cst: Constraint) => {
+                let currentValue;
 
+                if (sameRepoAsForeign) {
+                    currentValue = this.record.getValue(fc.allowedLocal);
+                    const fRecord: Record = fc.allowedForeign.repository.get(this, currentValue, true);
+                    const allowed = Utils.asArray(fRecord.getValue(fc.allowedForeign));
 
-                    if (cst.target.local !== column) return;
+                    Utils.forEach(map, (v, k) => {
+                        if (allowed.contains(k))
+                            result.set(k, v);
+                    });
 
-                    debugger;
+                    return;
+                }
 
-                    let currentValues: [];
+                currentValue = this.record.getValue(fc.currentLocal);
 
-                    const localValue = this.record.getValue(cst.target.local);
-                    if (!cst.target.foreign)
-                        currentValues = Utils.asArray(localValue);
-                    else {
+                if (fc.allowedForeign) {
 
-                        const fRecord: Record = cst.target.foreign.repository.get(this, localValue, true);
-
-                        currentValues = Utils.asArray(fRecord.getValue(cst.target.foreign));
-
-                    }
-
-                });
-        */
-
-        if (!foreign.constraints.length)
-            return map; // brak ograniczeń, zwracam całą mapę
-
-        const result: Map = new Map();
-
-        Utils.forEach(foreign.constraints, (fc: ForeignConstraint) => {
-
-            const currentValue = this.record.getValue(fc.localColumn);
-            const fRecord: Record = fc.foreignColumn.repository.get(this, currentValue, true);
-            const allowed = Utils.asArray(fRecord.getValue(fc.foreignColumn));
-
-            Utils.forEach(map, (v, k) => {
-                if (allowed.contains(k))
-                    result.set(k, v);
+                    fc.allowedForeign.repository.cursor().forEach((cursor: RepoCursor) => {
+                        let allowed = Utils.asArray(cursor.get(fc.allowedForeign));
+                        if (!allowed.contains(currentValue)) return;
+                        const pk = cursor.primaryKey;
+                        Is.def(map.get(pk), v => result.set(pk, v));
+                    });
+                }
             });
 
-        });
+            return result;
+        };
+
+        const result = getEnum();
+
+        //sprawdzenie czy value ma dozwolone wartości
+        if (result && !this.isEmpty) {
+            if (this._value instanceof (Array)) {
+                let val: Array = Utils.forEach(this._value, (val) => {
+                    if (result.has(val)) return val;
+                });
+                if (!val.equals(this._value))
+                    this.value = val;
+            } else if (!result.has(this._value))
+                if (this._value !== null)
+                    this._value = null;
+        }
 
         return result;
     }
@@ -231,8 +239,14 @@ export default class Field {
         return this.config.units;
     }
 
+    get action(): CRUDE {
+        return this.record ? this.record.action : null;
+    }
+
     get readOnly(): boolean {
-        return this.config.readOnly;
+        if (!Is.defined(this.config.readOnly) || Is.boolean(this.config.readOnly) || !this.record || !this.record.action)
+            return this.config.readOnly && this.action !== CRUDE.CREATE;
+        return this.record.action.isSet(this.config.readOnly);
     }
 
     get escapedValue(): string {
@@ -273,7 +287,7 @@ export default class Field {
 
         // wartość przed formatowaniem jest identyczna jak po formatowaniu
         if (val === this._value)
-            return Field.formatValue(this.config.type.formatDisplayValue(val, this.config.enumerate ? this.config.enumerate() : null));
+            return Field.formatValue(this.config.type.formatDisplayValue(val, this.enumerate));
 
         let res = Field.formatValue(val);
         if (this.unit) res += " " + this.unit[0];

@@ -112,6 +112,12 @@ export default class Login extends Component {
 
     process(e: Event) {
         Login.error = "";
+
+        // rozwiązanie problemu zapamiętywania hasła
+        document.getElementById("edtPassword").value = "";
+        e.preventDefault();
+        e.cancelBubble = true;
+
         this.forceUpdate();
 
         const done = () => {
@@ -209,6 +215,8 @@ export default class Login extends Component {
                         />
 
                         <IconEdit
+                            autoCompleteOff
+                            id="edtPassword"
                             type="password"
                             icon="lock"
                             placeholder="Hasło"

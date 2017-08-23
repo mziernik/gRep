@@ -13,6 +13,33 @@ export class Crude {
     }
 
 
+    isSet(state: any) {
+
+        if (typeof(state) === "boolean")
+            return state;
+
+        switch (("" + state).trim().toLowerCase()) {
+            case true:
+                return true;
+            case false:
+                return false;
+
+            case "new":
+            case "create":
+            case "c":
+                return this === CREATE;
+
+            case "edit":
+            case "update":
+            case "u":
+                return this === UPDATE;
+
+            case "all":
+            case "any":
+                return true;
+        }
+        return false;
+    }
 }
 
 export const CREATE: Crude = new Crude("C", "create", "Tworzenie");
@@ -22,6 +49,7 @@ export const DELETE: Crude = new Crude("D", "delete", "Usunięcie");
 export const EXECUTE: Crude = new Crude("E", "execute", "Wykonanie");
 
 export const ALL: Crude[] = [CREATE, READ, UPDATE, DELETE, EXECUTE];
+
 
 export function parse(crude: string): Crude[] {
     crude = Utils.toString(crude).toUpperCase();

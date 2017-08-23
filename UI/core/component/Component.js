@@ -216,18 +216,15 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         // komponent nie zamontowany
         if (!this._reactInternalInstance) return;
 
-        const doUpdate = () => Dev.duration(this, "ForceUpdate", () => super.forceUpdate());
-
         this._forceUpdateTrigger.cancel();
 
         const run = () => {
             // zabezpieczenie przed błędem "Cannot update during an existing state transition..."
             if (ReactUtils.getCurrentlyRenderedComponent())
-                setTimeout(() => doUpdate());
+                setTimeout(() => run());
             else
-                doUpdate();
+                Dev.duration(this, "ForceUpdate", () => super.forceUpdate());
         };
-
 
         if (delayed)
             this._forceUpdateTrigger.call(run, 10);

@@ -180,7 +180,7 @@ export default class Table extends Component {
             if (this._updateWidths)
                 if (elem) this._widths[column.id].push(elem)
         }}
-                    title={column.description}>
+                    title={column.description} style={{textOverflow: 'ellipsis', overflow: 'hidden'}}>
             {column.name}
             {filtered ? <span className={Icon.FILTER} style={{margin: '0 10px'}}
                               title="Usuń filtr"
@@ -260,6 +260,7 @@ export default class Table extends Component {
         const tableWidth = (tag.offsetWidth - 20);
         let sum = 0;
         let cols = 0;
+        if (!this._widths['__number']) this._widths['__number'] = 40;
         Utils.forEach(this._widths, (value, key) => {
             if (key === '__number')
                 this._widths[key] = 40;

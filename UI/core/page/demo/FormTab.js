@@ -213,7 +213,19 @@ const DATA = {
                 '2': 'wartość 2',
                 '3': 'wartość 3',
                 '4': 'wartość 4',
-                '5': 'wartość 5'
+                '5': 'wartość 5',
+                '6': 'wartość 6',
+                '7': 'wartość 7',
+                '8': 'wartość 8',
+                '9': 'wartość 9',
+                '10': 'wartość 10',
+                '11': 'wartość 11',
+                '12': 'wartość 12',
+                '13': 'wartość 13',
+                '14': 'wartość 14',
+                '15': 'wartość 15',
+                '16': 'wartość 16',
+                '17': 'wartość 17',
             }
         };
         c.name = 'Lista multi wyboru';

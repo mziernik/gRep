@@ -9,7 +9,7 @@ export default class AttributesRecord extends Component {
 
     static propTypes = {
         ...Component.propTypes,
-        recordCtrl: PropTypes.instanceOf(RecordCtrl),
+        recordCtrl: PropTypes.any, //RecordCtrl
         fit: PropTypes.bool,
         edit: PropTypes.bool,
         showAdvanced: PropTypes.bool,

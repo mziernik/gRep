@@ -9,8 +9,11 @@ export default class IconEdit extends Component {
         value: PropTypes.string,
         placeholder: PropTypes.string.isRequired,
         onChange: PropTypes.func.isRequired,
-        onEnter: PropTypes.func
+        onEnter: PropTypes.func,
+        autoCompleteOff: PropTypes.bool,
+        id: PropTypes.string
     };
+
 
     render() {
 
@@ -28,10 +31,12 @@ export default class IconEdit extends Component {
             />
 
             <input className="c-icon-edit-input"
+                   id={this.props.id}
                    type={this.props.type}
                    placeholder={this.props.placeholder}
                    onChange={this.props.onChange}
                    defaultValue={this.props.value}
+                   autoComplete={this.props.autoCompleteOff ? "off" : undefined}
                    onKeyDown={(e) => {
                        if (e.keyCode === 13 && typeof this.props.onEnter === "function")
                            this.props.onEnter(e);

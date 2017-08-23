@@ -181,7 +181,7 @@ export class TabSet extends Component {
                         })}
                     </div>
                     <span style={{
-                        borderBottom: '1px solid black',
+                        borderBottom: '1px solid #999',
                         position: 'relative',
                         flex: 1,
                         alignSelf: 'flex-end'
