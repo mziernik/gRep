@@ -13,17 +13,21 @@ export default class RepoPage extends Page {
     constructor(repository: Repository | string, props: Object, context: Object, updater: Object) {
         super(props, context, updater);
         this.repo = repository;
+
+        const callOnReady = (list: Repository[]) => this.whenComponentIsReady.listen(this, () => this.onReady(this.repo, list));
+
         const list: Repository[] = this.requireRepo(repository, (repos: Repository[]) => {
             if (!this.repo || !(this.repo instanceof Repository))
                 this.repo = repos[0];
-            this.onReady(this.repo, repos);
+            callOnReady(repos);
+            // this.onReady(this.repo, repos);
             this.forceUpdate(true);
         });
         if (list && (!this.repo || !(this.repo instanceof Repository)))
             this.repo = list[0];
 
         if (list)
-            this.onReady(this.repo, list);
+            callOnReady(list);
     }
 
     /** Repozytorium jest gotowe (zainicjowane), można na nim operować*/

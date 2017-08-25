@@ -1,4 +1,4 @@
-package model.repository;
+package model.repository.attribute;
 
 import com.model.repository.Column;
 import com.model.repository.ForeignColumn;
@@ -7,6 +7,7 @@ import com.resources.FontAwesome;
 import com.utils.date.TDate;
 import com.utils.reflections.datatype.DataType;
 import java.util.UUID;
+import model.repository.category.RCategory;
 
 public class RAttribute extends Repository<Integer> {
 

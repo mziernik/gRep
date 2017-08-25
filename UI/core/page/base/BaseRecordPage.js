@@ -5,6 +5,7 @@ import {React, Check, Record, Repository, CRUDE} from "../../core.js";
 import Page from "../Page";
 import RecordCtrl from "../../component/repository/RecordCtrl";
 import RepoPage from "./RepoPage";
+import {TabSet} from "../../component/TabSet";
 
 /** Klasa bazowa dla formatek edycji rekordu, parametrem jest zawsze id */
 export default class BaseRecordPage extends RepoPage {
@@ -12,6 +13,7 @@ export default class BaseRecordPage extends RepoPage {
     isNew: boolean;
     record: Record;
     controller: RecordCtrl;
+    tabSet: TabSet;
 
     //   afterSaveNavigate: string;
 
@@ -19,6 +21,7 @@ export default class BaseRecordPage extends RepoPage {
         super(repo, props, context, state);
         Check.isDefined(this.props.id);
     }
+
 
     onReady(repo: Repository, list: Repository[]) {
         this.isNew = this.props.id === "~new";
@@ -31,7 +34,8 @@ export default class BaseRecordPage extends RepoPage {
         this.controller.showAdvanced = false;
 
         this.buttons.list.push(this.controller.btnBack);
-        this.buttons.list.push(this.controller.btnDelete);
+        if (!this.isNew)
+            this.buttons.list.push(this.controller.btnDelete);
         this.buttons.list.push(this.controller.btnSave);
         this.controller.btnDelete._visible = !this.isNew;
     }

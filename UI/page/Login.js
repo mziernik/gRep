@@ -11,8 +11,8 @@ import AppNode from "../core/application/Node";
 import IconEdit from "../core/component/IconEdit";
 import Button from "../core/component/Button";
 import Var from "../core/Var";
-import * as API from "../model/API";
 import {DEV_MODE, PROCESS_ENV} from "../core/Dev";
+import API from "../core/application/API";
 
 
 function setError(e) {
@@ -57,7 +57,7 @@ export default class Login extends Component {
         if (username.value && password.value) {
 
             Login.spinner = new Spinner(false);
-            API.api.login(username.value || "", password.value || "", (data) => {
+            API.authorizeUser(username.value || "", password.value || "", (data) => {
                 Login.spinner.hide();
                 // User.current.fill(data);
                 setTimeout(() => Login.onAuthorized(data));

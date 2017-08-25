@@ -37,7 +37,7 @@ export {Ready};
 
 export {default as Exception} from "./utils/Exception";
 
-export {default as Dev, DEV_MODE, TEST_MODE, PROD_MODE} from "./Dev";
+export {default as Dev, DEV_MODE, TEST_MODE, PROD_MODE, DEBUG_MODE} from "./Dev";
 
 
 export {default as Trigger} from "./utils/Trigger";
@@ -91,6 +91,8 @@ import * as Store from "./Store";
 
 export {Store};
 
+
+export {default as API} from "./application/API";
 
 // te moduły muszą być na końcu listy importów bo są powiązane z komponentami
 export {default as Application} from "./application/Application";

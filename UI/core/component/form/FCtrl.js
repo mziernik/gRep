@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-import {React, PropTypes, Field, Check, Utils, Is, Dev, Type, Repository} from '../../core.js';
+import {React, PropTypes, Field, Check, Utils, Is, Dev, Type, Repository, API} from '../../core.js';
 import {
     Component,
     Icon,
@@ -18,6 +18,8 @@ import {
 import RepoCtrl from "../repository/RepoCtrl";
 import RecordCtrl from "../repository/RecordCtrl";
 import {Record} from "../../core";
+import Link from "../Link";
+import {Panel} from "../../components";
 
 /**
  * Komponent ułatwiający obsługę obiektu Field. Umożliwia edycję i podgląd wartości, błędów i innych flag
@@ -28,6 +30,7 @@ const mode = [
     "row", // wiersz tabeli <tr> required, name, value, error, description </tr>
     "block" // dwie linie 1: required, name; 2: description, value, error
 ];
+
 export default class FCtrl extends Component {
 
     static propTypes = {
@@ -41,6 +44,8 @@ export default class FCtrl extends Component {
         preview: PropTypes.bool,
         /** Podgląd uproszczony (np na potrzeby tabel) */
         inline: PropTypes.bool,
+
+
         /** Nazwa pola (etykieta) */
         name: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
         /** Wskaźnik błędu lub ostrzeżenia */
@@ -49,6 +54,7 @@ export default class FCtrl extends Component {
         required: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
         /** Ikona podglądu opisu*/
         description: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
+
 
         /** Sposób wyświetlania wartości boolean */
         boolMode: PropTypes.oneOf(["checkbox", "toggle", "radio"]),
@@ -251,7 +257,7 @@ export default class FCtrl extends Component {
                             className="c-fctrl-name c-fctrl-name-link"
                             onClick={(e) => {
 
-                                const val = this.field.type.isList ? this.field.value[0] : this.field.value;
+                                const val = this.field.type.isList && this.field.value ? this.field.value[0] : this.field.value;
                                 let rec: Record = repo.get(this, val, false);
                                 if (!rec) {
                                     let firstKey = null;
@@ -387,6 +393,10 @@ export default class FCtrl extends Component {
             case "timestamp":
                 return <DatePicker field={this.field} preview={this.props.preview}
                                    dtpProps={{format: 'DD-MM-YYYY HH:mm'}}/>;
+            case "file":
+                return this.renderFile();
+            case "image":
+                return this.renderImage();
 
             default:
                 switch (this.field.type.simpleType) {
@@ -401,6 +411,37 @@ export default class FCtrl extends Component {
                         return this.renderInput({type: "text"});
                 }
         }
+    }
+
+
+    renderFile() {
+        const val = this.field.value || {};
+        return <Link onClick={e => API.downloadFile(this.field)}
+        >BIN {this.field.type.name}: {val.key}, {val.name}, {Utils.formatFileSize(val.size)}</Link>;
+    }
+
+
+    renderImage() {
+
+        if (!this.field.value) return null;
+
+        const hash = this.field.fullId + Utils.escape(this.field.value);
+        const href = cachedImgHrefs.get(hash);
+        return <Panel resizable scrollable={false}>
+            <img
+                style={{width: "100%", height: "100%"}}
+                src={href}
+                ref={(tag: HTMLImageElement) => {
+                    if (!tag) return;
+
+                    if (!href)
+                        API.downloadFile(this.field, (data) => {
+                            cachedImgHrefs.set(hash, data.hrefFrmt);
+                            tag.src = data.hrefFrmt;
+                        });
+                }}/>
+
+        </Panel>
     }
 
     /** sortuje propsy. Pola z true są umieszczane na końcu
@@ -502,3 +543,5 @@ export default class FCtrl extends Component {
                       inputProps={props}/>
     }
 }
+
+const cachedImgHrefs = new Map();

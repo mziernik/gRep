@@ -46,7 +46,7 @@ export default class Panel extends Component {
 
     static defaultProps = {
         resizable: false,
-        scrollable: false,
+        scrollable: null,
         foldable: false,
         folded: false,
         split: false,
@@ -104,6 +104,8 @@ export default class Panel extends Component {
 
     //
     render() {
+        const scrollable = Is.defined(this.props.scrollable) ? this.props.scrollable : this.props.resizable;
+
         const resizer = this.props.resizable || this.props.scrollable || this.props.foldable;
         let size = this.props.fit || resizer ? '100%' : null;
         let panel = null;
@@ -136,8 +138,8 @@ export default class Panel extends Component {
                     flex: this.props.foldable ? '1' : null,
                     ...style
                 }}>
-                {this.props.scrollable || this.props.resizable ? <Scrollbar/> : null}
-                {this.props.scrollable || this.props.resizable ? <Scrollbar horizontal/> : null}
+                {scrollable? <Scrollbar/> : null}
+                {scrollable? <Scrollbar horizontal/> : null}
                 {super.renderChildren()}
             </div>;
         }

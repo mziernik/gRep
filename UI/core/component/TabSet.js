@@ -7,16 +7,20 @@ export class TabSet extends Component {
 
     static propTypes = {
         vertical: PropTypes.bool,
-        selectedIndex: PropTypes.number
+        selectedIndex: PropTypes.number,
+        controllerVisible: PropTypes.boolean
     };
     props: {
         vertical: boolean,
         selectedIndex: number
     };
+
     state: {
         selected: Number, // index otwartej zakładki
         arrows: boolean, // czy widoczne są strzałki od przewijania
     };
+
+    _ctrlTag: HTMLDivElement;
 
     resizeTrigger: Trigger = new Trigger();
 
@@ -108,6 +112,7 @@ export class TabSet extends Component {
         if (!tab) return;
         const target = tab;
         const parent = tab.offsetParent;
+        if (!parent) return;
         if (target.offsetLeft < (parent.scrollLeft))
             parent.scrollLeft = target.offsetLeft - 10;
         else if ((target.offsetLeft + target.offsetWidth) > (parent.offsetWidth + parent.scrollLeft))
@@ -140,6 +145,11 @@ export class TabSet extends Component {
         }
     }
 
+    controllerVisible(state: boolean) {
+        if (!this._ctrlTag) return;
+        this._ctrlTag.setAttribute("data-hidden", !state);
+    }
+
     render() {
 
 
@@ -149,7 +159,11 @@ export class TabSet extends Component {
             <div className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}
                  style={{display: 'flex', flexDirection: 'column', flex: "1", overflow: "hidden"}}
             >
-                <div ref={() => this._showArrows()}
+                <div ref={e => {
+                    this._ctrlTag = e;
+                    this._showArrows();
+                }}
+                     data-hidden={!Utils.coalesce(this.props.controllerVisible, true)}
                      className={"tabsCtrl " + (this.props.vertical ? "tabsVertical" : "")}
                      style={{flex: '0 0 auto'}}
                 >

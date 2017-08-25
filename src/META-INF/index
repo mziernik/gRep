@@ -1,5 +1,5 @@
 ﻿{
-    "controller": ["api.WApi"],
+    "controller": ["api.WApi", "main.Report"],
     "view": [],
     "websocket": ["api.WApi"],
     "webservice": [],

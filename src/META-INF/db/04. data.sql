@@ -57,7 +57,7 @@ CREATE TABLE data.catalog
 
 --------------------------------- ATRYBUTY -------------------------------------
 
-CREATE TABLE data.attribute_element
+CREATE TABLE data.element
 (
     id              SERIAL PRIMARY KEY,
     uid             UUID NOT NULL DEFAULT uuid_generate_v4(),
@@ -71,7 +71,7 @@ CREATE TABLE data.attribute_element
     max             INTEGER,
     regex           VARCHAR,    -- 
     description     VARCHAR,
-    foreign_elm     INTEGER REFERENCES data.attribute_element (id),
+    foreign_elm     INTEGER REFERENCES data.element (id),
     encrypted       BOOLEAN NOT NULL DEFAULT false,
     enumerate       HSTORE
 );
@@ -90,11 +90,11 @@ CREATE TABLE data.attribute
 );
 
 /** Tabela łącząca */
-CREATE TABLE data.attribute_elements
+CREATE TABLE data.attribute_element
 (
     id              SERIAL PRIMARY KEY,
     attr            INTEGER NOT NULL REFERENCES data.attribute (id),
-    elm             INTEGER NOT NULL REFERENCES data.attribute_element (id),
+    elm             INTEGER NOT NULL REFERENCES data.element (id),
     def_val         VARCHAR,
     required        BOOLEAN
 );
@@ -169,11 +169,11 @@ CREATE TABLE data.catalog_attribute
     notes           VARCHAR
 );
 
-CREATE TABLE data.catalog_attribute_values
+CREATE TABLE data.catalog_attribute_value
 (
      id              SERIAL PRIMARY KEY,
-     attr            INT NOT NULL REFERENCES data.catalog_attribute (id),
-     elm             INT NOT NULL REFERENCES data.attribute_elements (id),
+     cat_attr        INT NOT NULL REFERENCES data.catalog_attribute (id),
+     attr_elm        INT NOT NULL REFERENCES data.attribute_element (id),
      value           VARCHAR,
      crypt_ky        INTEGER REFERENCES data.crypt_key (id)
 )

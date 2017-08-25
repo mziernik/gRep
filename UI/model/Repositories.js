@@ -1,7 +1,5 @@
 import {Cell, Column, RepoConfig, Repository, Record} from "../core/core";
 
-
-
 //--------------------------------- Status ----------------------------------------------
 
 export class RStatus extends Repository {
@@ -376,6 +374,18 @@ export class RTest extends Repository {
         c.unique = true;
     });
 
+    static FILE: Column = new Column((c: Column) => {
+        c.key = "file";
+        c.name = "Plik";
+        c.type = "file";
+    });
+
+    static IMAGE: Column = new Column((c: Column) => {
+        c.key = "image";
+        c.name = "Obrazek";
+        c.type = "image";
+    });
+
     static ON_DEMAND: Column = new Column((c: Column) => {
         c.key = "onDemand";
         c.name = "Na żądanie";
@@ -589,6 +599,8 @@ export class RTest extends Repository {
 export class ETest extends Record {
 
     ID: Cell = new Cell(this, RTest.ID); // "ID"
+    FILE: Cell = new Cell(this, RTest.FILE); // "Plik"
+    IMAGE: Cell = new Cell(this, RTest.IMAGE); // "Obrazek"
     ON_DEMAND: Cell = new Cell(this, RTest.ON_DEMAND); // "Na żądanie"
     ONE_OF: Cell = new Cell(this, RTest.ONE_OF); // "Jeden format"
     SOME_OF: Cell = new Cell(this, RTest.SOME_OF); // "Kilka formatów"
@@ -701,10 +713,34 @@ export class RUsers extends Repository {
             c.icon = "fa fa-users";
             c.actions = {
                 add: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-user-plus"},
-                rem: {record: true, name: "Usuń", confirm: "Czy na pewno usunąć?", type: "danger", icon: "fa fa-user-times"},
-                editRandom: {record: false, name: "Modyfikuj losowy", confirm: null, type: "primary", icon: "fa fa-user-secret"},
-                addRandom: {record: false, name: "Dodaj losowy", confirm: null, type: "primary", icon: "fa fa-user-plus"},
-                removeRandom: {record: false, name: "Usuń losowy", confirm: null, type: "danger", icon: "fa fa-user-times"}
+                rem: {
+                    record: true,
+                    name: "Usuń",
+                    confirm: "Czy na pewno usunąć?",
+                    type: "danger",
+                    icon: "fa fa-user-times"
+                },
+                editRandom: {
+                    record: false,
+                    name: "Modyfikuj losowy",
+                    confirm: null,
+                    type: "primary",
+                    icon: "fa fa-user-secret"
+                },
+                addRandom: {
+                    record: false,
+                    name: "Dodaj losowy",
+                    confirm: null,
+                    type: "primary",
+                    icon: "fa fa-user-plus"
+                },
+                removeRandom: {
+                    record: false,
+                    name: "Usuń losowy",
+                    confirm: null,
+                    type: "danger",
+                    icon: "fa fa-user-times"
+                }
             };
         });
     }
@@ -829,7 +865,13 @@ export class RThreads extends Repository {
             c.crude = "R";
             c.local = true;
             c.actions = {
-                term: {record: true, name: "Zatrzymaj", confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?", type: "warning", icon: "fa fa-times"}
+                term: {
+                    record: true,
+                    name: "Zatrzymaj",
+                    confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?",
+                    type: "warning",
+                    icon: "fa fa-times"
+                }
             };
         });
     }

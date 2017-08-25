@@ -14,21 +14,21 @@ import com.config.engine.interfaces.Cfg;
 import static com.lang.LConfig.*;
 import com.model.RRepoHistory;
 import com.model.dao.DatabaseDAO;
-import com.model.RTest;
+import com.model.test.RTest;
 import com.model.repository.Repository;
 import com.service.RUsers;
 import com.service.status.RThreads;
 import com.utils.Unquoted;
 import main.GRep;
 
-import model.repository.RAttribute;
-import model.repository.RAttributeElement;
-import model.repository.RAttributeElements;
-import model.repository.RCatalog;
-import model.repository.RCatalogAttribute;
-import model.repository.RCatalogAttributeValues;
-import model.repository.RCategory;
-import model.repository.RCategoryAttribute;
+import model.repository.attribute.RAttribute;
+import model.repository.attribute.RElement;
+import model.repository.attribute.RAttributeElement;
+import model.repository.catalog.RCatalog;
+import model.repository.catalog.RCatalogAttribute;
+import model.repository.catalog.RCatalogAttributeValue;
+import model.repository.category.RCategory;
+import model.repository.category.RCategoryAttribute;
 import model.repository.RCryptKey;
 import model.repository.RResource;
 
@@ -40,16 +40,16 @@ public class Db extends PostgreSQL {
     public final static RUsers USERS = Repository.register(new RUsers());
     public final static RThreads THREADS = Repository.register(new RThreads());
     public final static RAttribute ATTRIBUTE = Repository.register(new RAttribute());
-    public final static RAttributeElement ATTRIBUTE_ELEMENT = Repository.register(new RAttributeElement());
-    public final static RAttributeElements ATTRIBUTE_ELEMENTS = Repository.register(new RAttributeElements());
+    public final static RElement ATTRIBUTE_ELEMENT = Repository.register(new RElement());
+    public final static RAttributeElement ATTRIBUTE_ELEMENTS = Repository.register(new RAttributeElement());
 
     public final static RCategory CATEGORY = Repository.register(new RCategory());
     public final static RCategoryAttribute CATEGORY_ATTRIBUTE = Repository.register(new RCategoryAttribute());
 
     public final static RCatalog CATALOG = Repository.register(new RCatalog());
     public final static RCatalogAttribute CATALOG_ATTRIBUTE = Repository.register(new RCatalogAttribute());
-    public final static RCatalogAttributeValues CATALOG_ATTRIBUTE_VALUES = Repository.register(new RCatalogAttributeValues());
-    
+    public final static RCatalogAttributeValue CATALOG_ATTRIBUTE_VALUES = Repository.register(new RCatalogAttributeValue());
+
     public final static RResource RESOURCE = Repository.register(new RResource());
     public final static RCryptKey CRYPT_KEY = Repository.register(new RCryptKey());
 
@@ -156,7 +156,7 @@ public class Db extends PostgreSQL {
 
     @ContextInitialized(async = true, ignoreErrors = true)
     private static void synchronize() throws Exception {
-        Repository.loadAll(new DatabaseDAO());
+        Repository.loadAll(DatabaseDAO.create());
 
         /*
         DbRecordTransaction trans = new DbRecordTransaction();

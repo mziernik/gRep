@@ -4,10 +4,9 @@ import * as Router from "../page/Router";
 import Endpoint from "../core/application/Endpoint";
 import {RCatalog} from "./Repositories";
 import PCatalogs from "../page/PCatalogs";
-import {R_CATALOG_ATTRIBUTE} from "./Repositories";
-import {RCatalogAttribute} from "./Repositories";
-import {ECatalogAttribute} from "./Repositories";
-import {R_ATTRIBUTE_ELEMENT} from "./Repositories";
+import WebApi from "../core/webapi/WebApi";
+import GrepApi from "./GrepApi";
+import API from "../core/application/API";
 
 let catalogTree: RepoTree;
 
@@ -28,4 +27,4 @@ export function init() {
     });
 
 }
-;
+

@@ -18,6 +18,7 @@ import PIcons from "./PIcons";
 import * as Utils from "../../utils/Utils";
 import PWebApi from "./PWebApi";
 import {DEBUG_MODE} from "../../Dev";
+import PConfig from "../../config/PConfig";
 
 
 export default class DevRouter extends Endpoint {
@@ -40,6 +41,7 @@ export default class DevRouter extends Endpoint {
     REPO: Endpoint;
     REPO_DETAILS: Endpoint;
     RECORD: Endpoint;
+    CONFIG: Endpoint;
 
     constructor(baseUrl: string) {
         super("dev", "#dev", baseUrl, null);
@@ -63,6 +65,8 @@ export default class DevRouter extends Endpoint {
         this.MODULES = this.child("modules", "Moduły", baseUrl + "/modules", PModules);
         this.ICONS = this.child("icons", "Ikony", `${baseUrl}/icons`, PIcons);
         this.WEBAPI = this.child("webapi", "WebApi", `${baseUrl}/webapi`, PWebApi);
+
+        this.CONFIG = this.child("config", "Konfiguracja", baseUrl + "/config", PConfig);
 
         this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/edit/:id", PRecord)
             .defaultParams({

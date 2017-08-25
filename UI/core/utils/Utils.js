@@ -358,7 +358,7 @@ export function formatUnits(value: number, units: {}): string {
             continue;
         }
         if (u === 0)
-            return "0";
+            u = 1;
 
         let val = value / u;
 

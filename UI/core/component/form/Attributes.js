@@ -38,6 +38,7 @@ export class Attributes extends Component {
         style: PropTypes.object,
         selectable: PropTypes.bool,
         onAttrClick: PropTypes.func,
+        fit: PropTypes.bool
     };
 
     selected: Attr;
@@ -47,7 +48,12 @@ export class Attributes extends Component {
 
 
         let counter = 0;
-        return <table className="c-attributes" style={this.props.style}>
+        return <table
+            className="c-attributes"
+            style={{
+                width: this.props.fit ? "100%" : undefined,
+                ...this.props.style
+            }}>
 
             <tbody>
             {this.children.props({

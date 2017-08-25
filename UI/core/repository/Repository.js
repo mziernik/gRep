@@ -21,6 +21,7 @@ import RepositoryStorage from "./storage/RepositoryStorage";
 import Alert from "../component/alert/Alert";
 import {RecordDataGenerator} from "./Record";
 import AppStatus from "../application/Status";
+import WebApiRepoStorage from "./storage/WebApiRepoStorage";
 
 
 //ToDo: Opcja inline - edycja rekordów podobnie jak w uprawnieniach
@@ -31,7 +32,7 @@ export default class Repository {
     static ignoreErrors: boolean = true;
 
     static onUpdate: Dispatcher = new Dispatcher();
-    static defaultStorage: ?RepositoryStorage;
+    static defaultStorage: RepositoryStorage = new WebApiRepoStorage();
     /** Lista wszystkich zarejestrowanych repozytoriów */
     static all = {};
     onChange: Dispatcher = new Dispatcher(); //CRUDE, Record, Map
@@ -265,7 +266,7 @@ export default class Repository {
                 if (!Repository.ignoreErrors)
                     throw e;
                 console.warn(e);
-            //    AppStatus.error(Repository, e);
+                //    AppStatus.error(Repository, e);
             }
         });
 
@@ -693,6 +694,17 @@ export class RepoConfig {
 
             return result;
         };
+
+                let display = data.displayNameColumn;
+        if (Is.string(display)) {
+            for (let i = 0; i < display.length; i++)
+                if (!".-0123456789_abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".contains(display[i])) {
+                    debugger;
+                    data.displayNameColumn = null;
+                    data.displayMask = display;
+                    break;
+                }
+        }
 
         this.primaryKeyColumn = getColumn(data.primaryKeyColumn);
         this.displayNameColumn = getColumn(data.displayNameColumn);

@@ -11,6 +11,10 @@
     display: flex;
 }
 
+.tabsCtrl[data-hidden=true] > * {
+    display: none;
+}
+
 .tabsVertical {
     display: flex;
     flex-direction: column;

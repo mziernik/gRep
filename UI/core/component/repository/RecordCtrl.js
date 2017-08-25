@@ -1,5 +1,5 @@
 import {
-    React, PropTypes, Type, Utils, Field, Cell, Repository, CRUDE, Record, EError, Dev, Is, Column
+    React, PropTypes, Type, Utils, Field, Cell, Repository, CRUDE, Record, EError, Dev, Is, Column, DEBUG_MODE
 } from "../../core";
 import {Button, Page, Icon, Spinner, Alert, Link, ModalWindow, MW_BUTTONS, Panel} from "../../components";
 import AppStatus from "../../application/Status";
@@ -9,6 +9,8 @@ import DTO from "./DTO";
 import AttributesRecord from "./AttributesRecord";
 import {PageButtons} from "../../page/Page";
 import {Btn} from "../Button";
+import Dispatcher from "../../utils/Dispatcher";
+
 
 export default class RecordCtrl {
 
@@ -21,13 +23,15 @@ export default class RecordCtrl {
     local: boolean = false;
     title: string;
     _modal: ModalWindow;
-    _onSuccess: () => void;
+    _onSuccess: (e) => void;
     showSuccessHint: boolean = true;
 
     _btnSave: Btn;
     _btnCancel: Btn;
     _btnDelete: Btn;
     _btnNew: Btn;
+
+    onCommit: Dispatcher = new Dispatcher(this);
 
 
     get btnNew(): Btn {
@@ -118,17 +122,19 @@ export default class RecordCtrl {
 
         const ts = new Date().getTime();
 
-
         try {
             Repository.commit(this, [this.record])
-                .then((e, f, g) => {
+                .then((e) => {
                     this.onReponse(e, spinner);
                     if (this.showSuccessHint)
-                        AppStatus.success(this, "Zaktualizowano dane", "Czas: " + (new Date().getTime() - ts) + " ms");
+                        AppStatus.success(this, "Zaktualizowano dane", DEBUG_MODE ? "Czas: " + (new Date().getTime() - ts) + " ms" : null);
                     if (onSuccess)
                         onSuccess();
+
+                    this.onCommit.dispatch({result: e});
+
                     if (this._onSuccess)
-                        this._onSuccess();
+                        this._onSuccess(e);
                     if (this._modal)
                         this._modal.close();
                 })

@@ -2,7 +2,6 @@
 'use strict';
 
 import "./core/utils/ErrorHandler";
-import "./model/API";
 import "./core/core";
 import Header from "./page/main/Header";
 import NavBar from "./page/main/NavBar";
@@ -10,16 +9,23 @@ import PageContainer from "./core/page/PageContainer";
 import StatusBar from "./page/main/StatusBar";
 import "./page/Router";
 import Login from "./page/Login";
-import'./page/main/Layout.css';
+import './page/main/Layout.css';
 
-import {React, Application, Utils, Repository, Store} from "./core/core";
+import {React, Application, API} from "./core/core";
 import {PERMISSIONS} from "./core/repository/PermissionRepo";
 import "./model/Repositories";
 import StatusHint from "./core/component/application/StatusHint";
 import RepositoryStorage from "./core/repository/storage/RepositoryStorage";
 import * as Model from "./model/Model";
-// nie renderuj tytułów stron
-//PageTitle.renderer = () => null;
+import WebApi from "./core/webapi/WebApi";
+import GrepApi from "./model/GrepApi";
+
+//----------------------------------------------------------------------------------------------------------------------
+
+const api: GrepApi = new GrepApi(new WebApi("http://localhost:80/api"));
+api.api.httpUrl = "http://localhost:80";
+
+API.set(api, api.repository);
 
 window.addEventListener("load", () => {
 

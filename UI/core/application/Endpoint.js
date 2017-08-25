@@ -18,7 +18,7 @@ import Icon from "../component/glyph/Icon";
 
 export const ENDPOINT_TARGET_TAB = "tab";
 export const ENDPOINT_TARGET_POPUP = "popup";
-
+export const ENDPOINT_TARGET_EXTERNAL = "external";
 
 export default class Endpoint {
 
@@ -40,6 +40,9 @@ export default class Endpoint {
     /** @type {boolean} Strona nie wyświetli się na liście stron  (np strona błędu) */
     _hidden: boolean = false;
 
+    /** Link zewnętrzny, wyświetlony będzie w nowej karcie*/
+    _external: boolean = false;
+
     _defaultParams: Object = {};
 
     /** Właściwości danej strony przekazywane do obiektu */
@@ -56,7 +59,7 @@ export default class Endpoint {
     constructor(key: string, name: string, path: ?string, component: ?ReactComponent) {
         this.key = Check.id(key, ".");
         this._name = Check.nonEmptyString(name);
-        if (path && !path.startsWith("/") && path !== "*")
+        if (path && !path.startsWith("/") && path !== "*" && !path.contains("://"))
             throw new Error(`Ścieżka (${Utils.escape(key)}) musi zaczynać się od "/", aktualnie ${Utils.escape(path)}`);
         this._path = path;
         this._component = component;
@@ -93,16 +96,19 @@ export default class Endpoint {
 
         if (target instanceof SyntheticMouseEvent) {
             const event: SyntheticMouseEvent = target;
-
             event.preventDefault();
             target = event.ctrlKey ? "tab" : event.shiftKey ? "popup" : null;
         }
 
-
         if (!target) target = null;
         else target = target.toLowerCase().trim();
 
-        Check.oneOf(target, [null, ENDPOINT_TARGET_TAB, ENDPOINT_TARGET_POPUP]);
+        Check.oneOf(target, [null, ENDPOINT_TARGET_TAB, ENDPOINT_TARGET_POPUP, ENDPOINT_TARGET_EXTERNAL]);
+
+        if (target === ENDPOINT_TARGET_EXTERNAL) {
+            window.open(link);
+            return;
+        }
 
         // nie można użyć importu
         const Application = require("./Application.js").default;
@@ -124,11 +130,11 @@ export default class Endpoint {
 
     navigate(params: ?Object = null, target: string | MouseEvent = null) {
         if (this.canNavigate)
-            Endpoint.navigate(this.getLink(params), target, this.key, this._name);
+            Endpoint.navigate(this.getLink(params), this._external ? ENDPOINT_TARGET_EXTERNAL : target, this.key, this._name);
     }
 
     get canNavigate() {
-        return this._path && this._component;
+        return this._path && (this._component || this._external);
     }
 
     child(key: string, name: string, path: string, component: React.Component): Endpoint {
@@ -182,6 +188,10 @@ export default class Endpoint {
         return this;
     }
 
+    external(value: boolean): Endpoint {
+        this._external = value === undefined ? true : value;
+        return this;
+    }
 
     hidden(value: boolean): Endpoint {
         this._hidden = value === undefined ? true : value;

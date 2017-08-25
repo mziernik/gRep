@@ -2,10 +2,7 @@
 'use strict';
 import {React, Field, Type, FieldConfig, Utils} from '../../core';
 import {Component, Page, Icon, FCtrl}    from        '../../components';
-import {Tab, TabSet} from '../../component/TabSet';
-import ReactTable from 'react-table';
-import JsonViewer from "../../component/JsonViewer";
-import WebApiRepositoryStorage from "../../repository/storage/WebApiRepoStorage";
+
 
 
 export default class DragAndDropTab extends Component {

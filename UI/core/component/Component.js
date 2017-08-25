@@ -45,6 +45,8 @@ export default class Component<DefaultProps: any, Props: any, State: any>
     name: ?string = null;
     beforeRender: Dispatcher = new Dispatcher(this);
 
+    whenComponentIsReady: Dispatcher = new Dispatcher(this);
+
     constructor(props: Object, context: Object, updater: Object) {
         super(...arguments);
 
@@ -245,7 +247,8 @@ export default class Component<DefaultProps: any, Props: any, State: any>
     }
 
     componentWillMount() {
-
+        this.whenComponentIsReady._onListen = (context: any, func: (data: Object) => ?any) => func({component: this});
+        this.whenComponentIsReady.dispatch(this, {component: this});
     }
 
 

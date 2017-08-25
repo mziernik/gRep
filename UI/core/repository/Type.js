@@ -311,6 +311,15 @@ export const EMAIL: DataType = new DataType((dt: DataType) => {
     };
 });
 
+export const FILE: DataType = new DataType((dt: DataType) => {
+    dt.name = "file";
+    dt.simpleType = "string";
+    dt.description = "Plik";
+    dt.parser = val => {
+        return val;
+    };
+});
+
 export const IMAGE: DataType = new DataType((dt: DataType) => {
     dt.name = "image";
     dt.simpleType = "string";

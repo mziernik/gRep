@@ -1,6 +1,11 @@
 
-INSERT INTO data.attribute_element (type, key, name, MIN, MAX, description, enumerate) VALUES
-    ('string', 'text',   'Tekst', 1, 100, NULL, NULL), --1
+
+INSERT INTO repo_state ("key", name, broadcast, on_demand, crude, revision) VALUES
+    ('threads', 'Wątki', false, false, '{R}', 0),
+    ('status', 'Status', false, false, '{R}', 0);
+
+INSERT INTO data.element (type, key, name, MIN, MAX, description, enumerate) VALUES
+    ('string', 'text',   'Wartość', 1, 100, NULL, NULL), --1
     ('int', 'size',   'Rozmiar', 0, 100000000, 'Rozmiar danych w bajtach', NULL), --2
     ('string', 'protocol', 'Protokół', 1, 100, 'Protkół', --3
         '"HTTP"=>"HTTP", "HTTPS"=>"HTTPS", "TCP"=>"TCP", "UDP"=>"UDP", "SSH"=>"SSH", 
@@ -18,7 +23,8 @@ INSERT INTO data.attribute_element (type, key, name, MIN, MAX, description, enum
         '"none"=>"Brak", "static"=>"Statyczny", "dhcp"=>"DHCP"'),
     ('string', 'login',  'Login', 1, 100, 'Login', NULL), --13
     ('password', 'pass',   'Hasło', 1, 100, 'Hasło', NULL), --14
-    ('string', 'key',    'Klucz', 1, 100, 'Klucz, numer seryjny', NULL) --15
+    ('string', 'key',    'Klucz', 1, 100, 'Klucz, numer seryjny', NULL), --15
+    ('string', 'name',   'Nazwa', 1, 100, NULL, NULL) --16
 ;
 
 INSERT INTO data.attribute (key, name, display_mask, icon) VALUES
@@ -33,26 +39,26 @@ INSERT INTO data.attribute (key, name, display_mask, icon) VALUES
     ('wiFi',      'WiFi',       '%1:*****', 'film')            --9
 ;
 
-INSERT INTO data.attribute_elements (attr, elm, def_val, required) VALUES
-    (1, 1, null, true), -- nazwa
-    (2, 1, null, true), -- model
-    (3, 1, null, true), --vendor
-    (4, 8, null, true), -- ip-ip
-    (4, 5, null, false), -- ip-domena
-    (5, 13, null, true), -- konto-login
-    (5, 14, null, false), -- konto-hasło
-    (6, 4, null, true), --url-url
-    (7, 11, '"lan"', true), --intf-type
-    (7, 12, '"static"', false), -- intf-type 
-    (7, 9, null, false),    -- intf-mac
-    (7, 8, null, true),     -- intf-ip
-    (7, 5, null, false),    -- intf-domena
-    (8, 6, null, true),     --ssh-ip
-    (8, 7, '22', true),     --ssh-port
-    (8, 13, null, true),    --ssh-login
-    (8, 14, null, true),    --ssh-pass
-    (9, 1, null, true),     --wifi-nazwa
-    (9, 14, null, true)    --wifi-pass
+INSERT INTO data.attribute_element (attr, elm, def_val, required) VALUES
+    (1, 1, null, true), -- 1 nazwa-text
+    (2, 1, null, true), -- 2 model-text
+    (3, 1, null, true), -- 3 vendor-text
+    (4, 8, null, true), -- 4 ip-ip
+    (4, 5, null, false), -- 5 ip-domena
+    (5, 13, null, true), -- 6 konto-login
+    (5, 14, null, false), -- 7 konto-hasło
+    (6, 4, null, true), -- 8 url-url
+    (7, 11, '"lan"', true), -- 9 intf-type
+    (7, 12, '"static"', false), -- 10 addr-type 
+    (7, 9, null, false),    -- 11 intf-mac
+    (7, 8, null, true),     -- 12 intf-ip
+    (7, 5, null, false),    -- 13 intf-domena
+    (8, 6, null, true),     -- 14 ssh-ip
+    (8, 7, '22', true),     -- 15 ssh-port
+    (8, 13, null, true),    -- 16 ssh-login
+    (8, 14, null, true),    -- 17 ssh-pass
+    (9, 16, null, true),     -- 18 wifi-nazwa
+    (9, 14, null, true)     -- 19 wifi-pass
 ;
 INSERT INTO data.category (key, name, description, categories) VALUES
     ('dir',         'Folder',       'Folder',       '{}'),
@@ -95,7 +101,7 @@ INSERT INTO data.catalog (category, parent, name) VALUES
 ;
 
 INSERT INTO data.category_attribute (category, attribute, required, multiple, "unique") VALUES
-    (4, 3, false, false, false),     -- 'Producent',
+    (4, 3, false, false, false),    -- 'Producent',
     (4, 2, false, false, false),    --'Model',     
     (4, 4, false, false, false),    -- 'IP',        
     (4, 5, false, false, false),    -- 'Konto',     
@@ -104,26 +110,31 @@ INSERT INTO data.category_attribute (category, attribute, required, multiple, "u
 ;
 
 INSERT INTO data.catalog_attribute(catalog, attribute) VALUES 
-    (14, 3),    --1
-    (14, 2),     --2
-    (14, 4),    --3
-    (14, 4),  --4
-    (14, 5),     --5
-    (14, 6),      --6
-    (14, 7),       --7
-    (14, 9)    --8
+    (14, 3),    --1 vendor
+    (14, 2),    --2 model
+    (14, 7),    --3 intf
+    (14, 7),    --4 intf
+    (14, 5),    --5 account
+    (14, 6),    --6 url
+    (14, 7),    --7 intf
+    (14, 9)     --8 wiFi
 ; 
 
+-- catalog_attribute, attribute_element
 
-INSERT INTO data.catalog_attribute_values(attr, elm, value) VALUES 
-    (1, 1, 'Asus'),          
-    (2, 1, 'RT-AC1200G+'),    
-    (3, 11, 'lan'),            
-    (3, 8, '192.168.1.1'),   
-    (4, 11, 'wan'),            
-    (4, 8, '192.168.0.254'),  
-    (5, 13, 'admin'),     
-    (5, 14, 'hasło')
+INSERT INTO data.catalog_attribute_value(cat_attr, attr_elm, value) VALUES 
+    (1, 3, 'Asus'),             --vendor-text
+    (2, 2, 'RT-AC1200G+'),      -- model
+    (3, 9, 'lan'),             -- ip intf-type 
+    (3, 10, 'dhcp'),             -- ip addr-type 
+    (3, 12, '192.168.1.1'),      -- ip intf-ip
+    (4, 9, 'wlan'),             -- ip intf-type 
+    (4, 10, 'static'),             -- ip addr-type 
+    (4, 12, '192.168.0.254'),    -- ip intf-ip
+    (5, 6, 'admin'),           -- account
+    (5, 7, 'hasło'),           -- account
+    (6, 8, 'router.asus.com'),  -- url
+    (8, 18, 'ZM-WiFi')          -- wiFi
 ; 
 
 

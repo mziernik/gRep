@@ -1,5 +1,6 @@
 package model.repository;
 
+import model.repository.catalog.RCatalog;
 import com.model.repository.Column;
 import com.model.repository.ForeignColumn;
 import com.model.repository.Repository;

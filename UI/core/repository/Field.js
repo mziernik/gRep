@@ -140,7 +140,7 @@ export default class Field {
     get fullId() {
         if (this._getFullId)
             return this._getFullId();
-        return this.key;
+        return (this.record ? this.record.fullId + "." : "") + this.key;
     }
 
     get key(): string {

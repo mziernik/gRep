@@ -69,6 +69,7 @@
 
 .c-title-bar-buttons {
     white-space: nowrap;
+    text-align: right;
 }
 
 .c-title-bar .c-tool-bar {

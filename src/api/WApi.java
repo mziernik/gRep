@@ -11,7 +11,6 @@ import com.webapi.core.WebApiController;
 import com.webapi.core.WebApiEndpoint;
 import com.webapi.core.WebApiRequest;
 import java.io.IOException;
-import java.util.Map.Entry;
 
 @Endpoint(url = {"api", "api/*"})
 @WebSocketEndpoint(url = "api")

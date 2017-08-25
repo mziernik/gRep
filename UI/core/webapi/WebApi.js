@@ -36,6 +36,8 @@ export default class WebApi {
 
     constructor(url: string, transportClass) {
         this.url = url;
+        this.httpUrl = url;
+        this.wsUrl = url;
         WebApi.instance = this;
 
         let retryCount = 0;
