@@ -141,6 +141,6 @@ export function instanceOf<T:any>(object: T, instances: any[], error: ?Error = n
 
 
 function _details(value: any) {
-    return ", aktualnie: " + Utils.className(value)
-        + (value !== null && value !== undefined ? " (" + Utils.escape(value) + ")" : "");
+    return ", aktualnie: " + value === null ? "null" : value === undefined ? "undefined"
+        : Utils.className(value) + " (" + Utils.escape(value) + ")";
 }

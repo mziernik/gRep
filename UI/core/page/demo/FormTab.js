@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, Field, Type, Column, Utils} from '../../core';
+import {React, PropTypes, Field, Type, Column, Utils} from '../../core';
 import {Component, Page, Icon, FCtrl} from '../../components';
 import JsonViewer from "../../component/JsonViewer";
 import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
@@ -11,8 +11,6 @@ export default class FormTab extends Component {
 
     constructor() {
         super(...arguments);
-        Utils.forEach(DATA, (field: Field) =>
-            field.onChange.listen(this, e => (this.viewer && this.viewer.update(getDTO()))));
         this.state = {contextMenu: {opened: false, x: 0, y: 0}};
     };
 
@@ -28,40 +26,13 @@ export default class FormTab extends Component {
                         <th>Wartość</th>
                         <th>Podgląd</th>
                         <th>Tekst</th>
+                        <th>DTO</th>
                     </tr>
-
                     </thead>
                     <tbody>
-
-                    {Object.keys(DATA).map((prop, index) => {
-                        let field = DATA[prop];
-                        return <tr key={index}>
-                            <td style={{width: '20px'}}>
-                                <FCtrl field={field} name required description constWidth/>
-                            </td>
-
-                            <td style={{paddingLeft: "20px"}}>
-                                <FCtrl field={field} mode="block" fit value error boolMode="radio" selectMode="radio"/>
-                            </td>
-
-                            <td style={{padding: "4px"}}><FCtrl field={field} boolMode="radio" preview value/></td>
-
-                            <td style={{
-                                maxWidth: "200px",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis"
-                            }}>
-                                <FCtrl field={field} preview inline value/>
-                            </td>
-                        </tr>
-                    })}
+                    {Object.keys(DATA).map((prop, index) => <Row field={DATA[prop]}/>)}
                     </tbody>
                 </table>
-
-                <div style={{display: "auto", padding: "8px"}}>
-                    <div>DTO:</div>
-                    <JsonViewer object={getDTO()} instance={e => this.viewer = e}/>
-                </div>
 
             </div>
             <input type="submit"/>
@@ -104,8 +75,44 @@ export default class FormTab extends Component {
 
 }
 
-const DATA = {
+class Row extends Component {
 
+    constructor() {
+        super(...arguments);
+        (this.props.field: Field).onChange.listen(this, () => this.forceUpdate());
+    }
+
+    static propTypes = {
+        field: PropTypes.any
+    };
+
+    render() {
+        const field: Field = this.props.field;
+        return <tr key={field.key}>
+            <td style={{width: '20px'}}>
+                <FCtrl field={field} name required description constWidth/>
+            </td>
+
+            <td style={{paddingLeft: "20px"}}>
+                <FCtrl field={field} mode="block" fit value error boolMode="radio" selectMode="radio"/>
+            </td>
+
+            <td style={{padding: "4px"}}><FCtrl field={field} boolMode="radio" preview value/></td>
+
+            <td style={{
+                maxWidth: "200px",
+                overflow: "hidden",
+                textOverflow: "ellipsis"
+            }}>
+                <FCtrl field={field} preview inline value/>
+            </td>
+            <td>{Utils.escape(field.serializedValue)}</td>
+        </tr>
+    }
+
+}
+
+const DATA = {
     login: new Field((c: Column) => {
         c.type = Type.STRING;
         c.key = "login";
@@ -245,7 +252,8 @@ const DATA = {
         c.key = "date";
         c.name = 'Data';
         c.required = true;
-        c.defaultValue = new Date();
+        c.defaultValue = new Date(2015, 4, 15);
+        c.defaultValue = 16570;
     }),
 
 
@@ -253,14 +261,16 @@ const DATA = {
         c.type = Type.TIME;
         c.key = "time";
         c.name = 'Czas';
-        c.defaultValue = new Date();
+        c.defaultValue = new Date(0, 0, 0, 10, 20, 30, 40);
+        //  c.defaultValue = 37230040;
     }),
 
     timstamp: new Field((c: Column) => {
         c.type = Type.TIMESTAMP;
         c.key = "timestamp";
         c.name = 'Data i czas';
-        c.defaultValue = new Date();
+        c.defaultValue = "2015-05-15 10:20:30.040";
+        c.description = "Znacznik czasu: 2015-05-15 10:20:30.040";
     }),
 
     description: new Field((c: Column) => {
@@ -315,10 +325,5 @@ const DATA = {
     })
 };
 
-function getDTO(): any {
-    const dto = {};
-    Utils.forEach(DATA, (field: Field) => dto[field.key] = field.value);
-    return dto;
-}
 
 

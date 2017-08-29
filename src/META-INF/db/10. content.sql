@@ -33,7 +33,7 @@ INSERT INTO data.attribute (key, name, display_mask, icon) VALUES
     ('vendor',  'Producent',    null, null),   --3
     ('ip',      'Adres IP',     '%1 (%2)', null),    --4
     ('account', 'Konto',        '%1:*****', null), --5
-    ('url',     'URL',          null, 'linkedin_square'),          --6
+    ('url',     'URL',          null, 'linkedin-square'),          --6
     ('intf',    'Interfejs sieciowy', '%1, %2, %3, %4, %5', null), --7
     ('sshAccount','Konto SSH',  '%3:%4@%1:%2', 'user'), --8
     ('wiFi',      'WiFi',       '%1:*****', 'film')            --9

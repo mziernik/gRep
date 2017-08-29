@@ -2,6 +2,7 @@
 import * as Utils from "./utils/Utils";
 import * as ErroHandler from "./utils/ErrorHandler";
 import {LOCAL} from "./Store";
+import EError from "./utils/EError";
 
 export const PROCESS_ENV = process && process.env ? process && process.env : {};
 export const DEV_MODE = PROCESS_ENV.NODE_ENV === 'development' || PROCESS_ENV.NODE_ENV === 'dev';
@@ -563,7 +564,7 @@ export default class Dev {
 
     static error(context: ?any | any[], value: ?mixed, ...args: any) {
         window.console.error(value instanceof Error ? value : format(context, value), ...args);
-        if (DEV_MODE)
+        if (!DEBUG_MODE || !(value instanceof EError) || (!(value: EError).handled))
             ErroHandler.onError(Utils.getContextName(context) + ": " + value);
     }
 

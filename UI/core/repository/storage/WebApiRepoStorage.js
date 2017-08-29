@@ -3,6 +3,7 @@ import WebApiResponse from "../../webapi/Response";
 import RepositoryStorage from "./RepositoryStorage";
 import WebApiRequest from "../../webapi/Request";
 import WebApi from "../../webapi/WebApi";
+import {BinaryData, UploadData} from "../Type";
 
 export default class WebApiRepoStorage extends RepositoryStorage {
 
@@ -55,10 +56,36 @@ export default class WebApiRepoStorage extends RepositoryStorage {
             return new Promise((resolve, reject) => resolve());
 
         Dev.log(context, "Save", dto);
-        return (API.repoEdit({data: dto}, response => {
-            if (response)
-                Repository.update(this, response);
-        }): WebApiRequest).promise;
+
+        const uploads = [];
+
+        Utils.forEach(records, (rec: Record) =>
+            Utils.forEach(rec.fields, (field: Field) => {
+                if (field.type.isBinary) {
+                    const data: UploadData = field.value;
+                    if (!data || !(data instanceof UploadData) || data.uploaded)
+                        return;
+                    uploads.push(API.doUploadFile(field, data));
+                }
+            })
+        );
+
+        const result = () => {
+            return (API.repoEdit({data: dto}, response => {
+                if (response)
+                    Repository.update(this, response);
+            }): WebApiRequest).promise
+        };
+
+
+        if (!uploads.length) return result();
+
+        return new Promise((resolve, reject) => {
+            Promise.all(uploads)
+                .then(() => resolve(result()))
+                .catch(e => reject(e));
+        });
+
     }
 
     action(repo: Repository, action: string, pk: any, params: Object): Promise {

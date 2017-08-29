@@ -1,5 +1,7 @@
 import {Cell, Column, RepoConfig, Repository, Record} from "../core/core";
 
+
+
 //--------------------------------- Status ----------------------------------------------
 
 export class RStatus extends Repository {
@@ -239,6 +241,152 @@ export class EConfig extends Record {
 
 }
 
+//--------------------------------- Status repozytorium ----------------------------------------------
+
+export class RRepoState extends Repository {
+
+    static KEY: Column = new Column((c: Column) => {
+        c.key = "key";
+        c.name = "Klucz";
+        c.type = "key";
+        c.readOnly = true;
+        c.required = true;
+        c.unique = true;
+    });
+
+    static NAME: Column = new Column((c: Column) => {
+        c.key = "name";
+        c.name = "Nazwa";
+        c.type = "string";
+        c.required = true;
+    });
+
+    static GROUP: Column = new Column((c: Column) => {
+        c.key = "group";
+        c.name = "Grupa";
+        c.type = "string";
+    });
+
+    static DESC: Column = new Column((c: Column) => {
+        c.key = "desc";
+        c.name = "Opis";
+        c.type = "memo";
+    });
+
+    static BROADCAST: Column = new Column((c: Column) => {
+        c.key = "broadcast";
+        c.name = "Broadcast";
+        c.type = "boolean";
+        c.defaultValue = true;
+        c.required = true;
+    });
+
+    static ON_DEMAND: Column = new Column((c: Column) => {
+        c.key = "onDemand";
+        c.name = "Na żądanie";
+        c.type = "boolean";
+        c.required = true;
+    });
+
+    static ICON: Column = new Column((c: Column) => {
+        c.key = "icon";
+        c.name = "Ikona";
+        c.type = "enum";
+    });
+
+    static CRUDE: Column = new Column((c: Column) => {
+        c.key = "crude";
+        c.name = "CRUDE";
+        c.type = "enums";
+        c.required = true;
+        c.enumerate = {
+            C: "Tworzenie",
+            R: "Odczyt",
+            U: "Modyfikacja",
+            D: "Usunięcie",
+            E: "Wykonanie"
+        };
+    });
+
+    static LAST_MODIFIED: Column = new Column((c: Column) => {
+        c.key = "lastModified";
+        c.name = "Ostatnio zmodyfikowany";
+        c.type = "timestamp";
+        c.readOnly = true;
+    });
+
+    static LAST_MODIFIED_BY: Column = new Column((c: Column) => {
+        c.key = "lastModifiedBy";
+        c.name = "Ostatnio zmodyfikowany przez";
+        c.type = "string";
+        c.readOnly = true;
+    });
+
+    static LAST_MOD_BY_ID: Column = new Column((c: Column) => {
+        c.key = "lastModById";
+        c.name = "Ostatnio zmodyfikowany przez";
+        c.type = "int";
+        c.readOnly = true;
+        c.foreign = () => R_USERS;
+    });
+
+    static REVISION: Column = new Column((c: Column) => {
+        c.key = "revision";
+        c.name = "Wersja";
+        c.type = "int";
+        c.readOnly = true;
+        c.required = true;
+    });
+
+    static INFO: Column = new Column((c: Column) => {
+        c.key = "info";
+        c.name = "Zaawansowane informacje";
+        c.type = "(string, string)[]";
+    });
+
+    static LIMIT: Column = new Column((c: Column) => {
+        c.key = "limit";
+        c.name = "Limit danych";
+        c.type = "int";
+    });
+
+
+    constructor() {
+        super((c: RepoConfig) => {
+            c.key = "repoState";
+            c.name = "Status repozytorium";
+            c.group = "System";
+            c.record = ERepoState;
+            c.primaryKeyColumn = "key";
+            c.displayNameColumn = "name";
+            c.crude = "CRUD";
+            c.local = false;
+        });
+    }
+
+}
+
+export class ERepoState extends Record {
+
+    KEY: Cell = new Cell(this, RRepoState.KEY); // "Klucz"
+    NAME: Cell = new Cell(this, RRepoState.NAME); // "Nazwa"
+    GROUP: Cell = new Cell(this, RRepoState.GROUP); // "Grupa"
+    DESC: Cell = new Cell(this, RRepoState.DESC); // "Opis"
+    BROADCAST: Cell = new Cell(this, RRepoState.BROADCAST); // "Broadcast"
+    ON_DEMAND: Cell = new Cell(this, RRepoState.ON_DEMAND); // "Na żądanie"
+    ICON: Cell = new Cell(this, RRepoState.ICON); // "Ikona"
+    CRUDE: Cell = new Cell(this, RRepoState.CRUDE); // "CRUDE"
+    LAST_MODIFIED: Cell = new Cell(this, RRepoState.LAST_MODIFIED); // "Ostatnio zmodyfikowany"
+    LAST_MODIFIED_BY: Cell = new Cell(this, RRepoState.LAST_MODIFIED_BY); // "Ostatnio zmodyfikowany przez"
+    LAST_MOD_BY_ID: Cell = new Cell(this, RRepoState.LAST_MOD_BY_ID); // "Ostatnio zmodyfikowany przez"
+    REVISION: Cell = new Cell(this, RRepoState.REVISION); // "Wersja"
+    INFO: Cell = new Cell(this, RRepoState.INFO); // "Zaawansowane informacje"
+    LIMIT: Cell = new Cell(this, RRepoState.LIMIT); // "Limit danych"
+
+    lastModByIdForeign = (context: any): EUsers => this._getForeign(context, RRepoState.LAST_MOD_BY_ID); // klucz obcy lastModById -> users.id
+
+}
+
 //--------------------------------- Historia zmian ----------------------------------------------
 
 export class RRepoHistory extends Repository {
@@ -368,7 +516,6 @@ export class RTest extends Repository {
         c.key = "id";
         c.name = "ID";
         c.type = "int";
-        c.autoGenerated = true;
         c.readOnly = true;
         c.required = true;
         c.unique = true;
@@ -541,7 +688,7 @@ export class RTest extends Repository {
         c.key = "key";
         c.name = "Klucz";
         c.type = "key";
-        c.required = true;
+    //    c.required = true;
         c.unique = true;
     });
 
@@ -549,7 +696,7 @@ export class RTest extends Repository {
         c.key = "name";
         c.name = "Nazwa";
         c.type = "string";
-        c.required = true;
+     //   c.required = true;
     });
 
     static REQUIRED: Column = new Column((c: Column) => {
@@ -562,7 +709,6 @@ export class RTest extends Repository {
         c.key = "icon";
         c.name = "Ikona";
         c.type = "enum";
-        c.defaultValue = "ADJUST";
         c.required = false;
     });
 
@@ -583,10 +729,10 @@ export class RTest extends Repository {
             c.displayNameColumn = "name";
             c.crude = "CRUD";
             c.actions = {
-                addR: {record: false, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-plus"},
-                remR: {record: false, name: "Usuń", confirm: null, type: "warning", icon: "fa fa-trash"},
-                raddR: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-plus"},
-                rremR: {record: true, name: "Usuń", confirm: null, type: "primary", icon: "fa fa-trash"}
+                addR: {record: false, name: "Dodaj", confirm: null, type: "primary", icon: "plus"},
+                remR: {record: false, name: "Usuń", confirm: null, type: "warning", icon: "trash"},
+                raddR: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "plus"},
+                rremR: {record: true, name: "Usuń", confirm: null, type: "primary", icon: "trash"}
             };
         });
     }
@@ -710,37 +856,13 @@ export class RUsers extends Repository {
             c.displayNameColumn = "login";
             c.crude = "CRU";
             c.local = false;
-            c.icon = "fa fa-users";
+            c.icon = "users";
             c.actions = {
-                add: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "fa fa-user-plus"},
-                rem: {
-                    record: true,
-                    name: "Usuń",
-                    confirm: "Czy na pewno usunąć?",
-                    type: "danger",
-                    icon: "fa fa-user-times"
-                },
-                editRandom: {
-                    record: false,
-                    name: "Modyfikuj losowy",
-                    confirm: null,
-                    type: "primary",
-                    icon: "fa fa-user-secret"
-                },
-                addRandom: {
-                    record: false,
-                    name: "Dodaj losowy",
-                    confirm: null,
-                    type: "primary",
-                    icon: "fa fa-user-plus"
-                },
-                removeRandom: {
-                    record: false,
-                    name: "Usuń losowy",
-                    confirm: null,
-                    type: "danger",
-                    icon: "fa fa-user-times"
-                }
+                add: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "user-plus"},
+                rem: {record: true, name: "Usuń", confirm: "Czy na pewno usunąć?", type: "danger", icon: "user-times"},
+                editRandom: {record: false, name: "Modyfikuj losowy", confirm: null, type: "primary", icon: "user-secret"},
+                addRandom: {record: false, name: "Dodaj losowy", confirm: null, type: "primary", icon: "user-plus"},
+                removeRandom: {record: false, name: "Usuń losowy", confirm: null, type: "danger", icon: "user-times"}
             };
         });
     }
@@ -865,13 +987,7 @@ export class RThreads extends Repository {
             c.crude = "R";
             c.local = true;
             c.actions = {
-                term: {
-                    record: true,
-                    name: "Zatrzymaj",
-                    confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?",
-                    type: "warning",
-                    icon: "fa fa-times"
-                }
+                term: {record: true, name: "Zatrzymaj", confirm: "Czy na pewno zatrzymać wątek ${id} \"${name}\"?", type: "warning", icon: "times"}
             };
         });
     }
@@ -2088,154 +2204,9 @@ export class ECryptKey extends Record {
 
 }
 
-//--------------------------------- Status repozytorium ----------------------------------------------
-
-export class RRepoSate extends Repository {
-
-    static KEY: Column = new Column((c: Column) => {
-        c.key = "key";
-        c.name = "Klucz";
-        c.type = "key";
-        c.readOnly = true;
-        c.required = true;
-        c.unique = true;
-    });
-
-    static NAME: Column = new Column((c: Column) => {
-        c.key = "name";
-        c.name = "Nazwa";
-        c.type = "string";
-        c.required = true;
-    });
-
-    static GROUP: Column = new Column((c: Column) => {
-        c.key = "group";
-        c.name = "Grupa";
-        c.type = "string";
-    });
-
-    static DESC: Column = new Column((c: Column) => {
-        c.key = "desc";
-        c.name = "Opis";
-        c.type = "memo";
-    });
-
-    static BROADCAST: Column = new Column((c: Column) => {
-        c.key = "broadcast";
-        c.name = "Broadcast";
-        c.type = "boolean";
-        c.defaultValue = true;
-        c.required = true;
-    });
-
-    static ON_DEMAND: Column = new Column((c: Column) => {
-        c.key = "onDemand";
-        c.name = "Na żądanie";
-        c.type = "boolean";
-        c.required = true;
-    });
-
-    static ICON: Column = new Column((c: Column) => {
-        c.key = "icon";
-        c.name = "Ikona";
-        c.type = "enum";
-    });
-
-    static CRUDE: Column = new Column((c: Column) => {
-        c.key = "crude";
-        c.name = "CRUDE";
-        c.type = "enums";
-        c.required = true;
-        c.enumerate = {
-            C: "Tworzenie",
-            R: "Odczyt",
-            U: "Modyfikacja",
-            D: "Usunięcie",
-            E: "Wykonanie"
-        };
-    });
-
-    static LAST_MODIFIED: Column = new Column((c: Column) => {
-        c.key = "lastModified";
-        c.name = "Ostatnio zmodyfikowany";
-        c.type = "timestamp";
-        c.readOnly = true;
-    });
-
-    static LAST_MODIFIED_BY: Column = new Column((c: Column) => {
-        c.key = "lastModifiedBy";
-        c.name = "Ostatnio zmodyfikowany przez";
-        c.type = "string";
-        c.readOnly = true;
-    });
-
-    static LAST_MOD_BY_ID: Column = new Column((c: Column) => {
-        c.key = "lastModById";
-        c.name = "Ostatnio zmodyfikowany przez";
-        c.type = "int";
-        c.readOnly = true;
-        c.foreign = () => R_USERS;
-    });
-
-    static REVISION: Column = new Column((c: Column) => {
-        c.key = "revision";
-        c.name = "Wersja";
-        c.type = "int";
-        c.readOnly = true;
-        c.required = true;
-    });
-
-    static INFO: Column = new Column((c: Column) => {
-        c.key = "info";
-        c.name = "Zaawansowane informacje";
-        c.type = "(string, string)[]";
-    });
-
-    static LIMIT: Column = new Column((c: Column) => {
-        c.key = "limit";
-        c.name = "Limit danych";
-        c.type = "int";
-    });
-
-
-    constructor() {
-        super((c: RepoConfig) => {
-            c.key = "repoState";
-            c.name = "Status repozytorium";
-            c.group = "System";
-            c.record = ERepoSate;
-            c.primaryKeyColumn = "key";
-            c.displayNameColumn = "name";
-            c.crude = "CRUD";
-            c.local = false;
-        });
-    }
-
-}
-
-export class ERepoSate extends Record {
-
-    KEY: Cell = new Cell(this, RRepoSate.KEY); // "Klucz"
-    NAME: Cell = new Cell(this, RRepoSate.NAME); // "Nazwa"
-    GROUP: Cell = new Cell(this, RRepoSate.GROUP); // "Grupa"
-    DESC: Cell = new Cell(this, RRepoSate.DESC); // "Opis"
-    BROADCAST: Cell = new Cell(this, RRepoSate.BROADCAST); // "Broadcast"
-    ON_DEMAND: Cell = new Cell(this, RRepoSate.ON_DEMAND); // "Na żądanie"
-    ICON: Cell = new Cell(this, RRepoSate.ICON); // "Ikona"
-    CRUDE: Cell = new Cell(this, RRepoSate.CRUDE); // "CRUDE"
-    LAST_MODIFIED: Cell = new Cell(this, RRepoSate.LAST_MODIFIED); // "Ostatnio zmodyfikowany"
-    LAST_MODIFIED_BY: Cell = new Cell(this, RRepoSate.LAST_MODIFIED_BY); // "Ostatnio zmodyfikowany przez"
-    LAST_MOD_BY_ID: Cell = new Cell(this, RRepoSate.LAST_MOD_BY_ID); // "Ostatnio zmodyfikowany przez"
-    REVISION: Cell = new Cell(this, RRepoSate.REVISION); // "Wersja"
-    INFO: Cell = new Cell(this, RRepoSate.INFO); // "Zaawansowane informacje"
-    LIMIT: Cell = new Cell(this, RRepoSate.LIMIT); // "Limit danych"
-
-    lastModByIdForeign = (context: any): EUsers => this._getForeign(context, RRepoSate.LAST_MOD_BY_ID); // klucz obcy lastModById -> users.id
-
-}
-
 export const R_STATUS: RStatus = Repository.register(new RStatus());
 export const R_CONFIG: RConfig = Repository.register(new RConfig());
+export const R_REPO_STATE: RRepoState = Repository.register(new RRepoState());
 export const R_REPO_HISTORY: RRepoHistory = Repository.register(new RRepoHistory());
 export const R_TEST: RTest = Repository.register(new RTest());
 export const R_USERS: RUsers = Repository.register(new RUsers());
@@ -2250,4 +2221,3 @@ export const R_CATALOG_ATTRIBUTE: RCatalogAttribute = Repository.register(new RC
 export const R_CATALOG_ATTRIBUTE_VALUE: RCatalogAttributeValue = Repository.register(new RCatalogAttributeValue());
 export const R_RESOURCE: RResource = Repository.register(new RResource());
 export const R_CRYPT_KEY: RCryptKey = Repository.register(new RCryptKey());
-export const R_REPO_SATE: RRepoSate = Repository.register(new RRepoSate());

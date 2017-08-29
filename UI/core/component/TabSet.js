@@ -185,7 +185,7 @@ export class TabSet extends Component {
                                             className="tab tab_selected">
                                     {chld.props.label}
                                 </div>;
-                            return (<div tabIndex="0"
+                            return (<div tabIndex={0}
                                          title={chld.props.title}
                                          key={index}
                                          className={"tab " + (chld.props.disabled ? "tab_disabled" : "")}

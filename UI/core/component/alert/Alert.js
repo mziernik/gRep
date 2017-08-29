@@ -1,6 +1,6 @@
 import swal from './sweetalert2.js';
 import './sweetalert2.css';
-import {Is, EError, Utils} from "../../core";
+import {Is, EError, Utils, Dev} from "../../core";
 
 export default class Alert {
     // var iconTypes = prefix(['success', 'warning', 'info', 'question', 'error']);
@@ -10,6 +10,9 @@ export default class Alert {
             message = sender;
 
         const err: EError = new EError(message);
+
+        err.handled = true;
+        Dev.error(sender, err);
 
         swal({
             title: "Błąd",

@@ -16,6 +16,7 @@ api/WApi.class
 api/WData.class
 main/ActWww.class
 main/GRep.class
+main/Report.class
 main/handlers/Auth.class
 main/handlers/Config.class
 main/handlers/DbHnd.class

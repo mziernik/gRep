@@ -423,7 +423,7 @@ export default class Repository {
                         const value = field.value;
                         if (value === null && record.action === CRUDE.CREATE)
                             return;
-                        r[field.key] = field.type.serialize(value);
+                        r[field.key] = field.serializedValue;
                         if (field !== record.primaryKey)
                             add = true;
                     }

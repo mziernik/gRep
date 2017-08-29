@@ -40,25 +40,35 @@
 .tab {
     white-space: nowrap;
     padding: 5px 20px 5px 20px;
-    cursor: default;
-    border: 1px solid #999;
-    border-bottom-color: #999;
+    color: #555;
+    border: 1px solid #aaa;
+    border-bottom: 1px solid #999;
+    background-color: rgba(0, 0, 0, 0.07);
+    cursor: pointer;
 }
 
 .tab:hover {
     background-color: rgba(0, 0, 0, 0.23);
 }
 
+.tab:focus {
+    outline: none;
+}
+
 .tab_selected {
+    background-color: inherit;
     border: 1px solid #999;
     border-bottom: none;
-    text-shadow: #a5a5a5 1px 1px 1px;
+    color: #000;
+
+    /*text-shadow: #a5a5a5 1px 1px 1px;*/
 }
 
 .tab_disabled {
     color: #bbbbbb;
     background-color: rgba(0, 0, 0, 0.6);
     border: 1px solid #999;
+    cursor: not-allowed;
 }
 
 .tabContent {

@@ -7,6 +7,10 @@ import momentLocalizer from 'react-widgets/lib/localizers/moment';
 import Moment from "moment";
 import "react-widgets/dist/css/react-widgets.css";
 
+//FixMe: Wojtek: Pierwsze rozwinięcie listy godzin i kliknięcie na pozycję powoduje wybranie wartości 00:00
+//FixMe: Wojtek: Nie da się wpisać czasu !!!
+//ToDo: Wojtek: DatePicker powinien obsługiwać klawisze góra/dół
+
 export default class DatePicker extends FormComponent {
 
     static propTypes = {
@@ -88,14 +92,7 @@ export default class DatePicker extends FormComponent {
             if (this.field.isEmpty)
                 return null;
 
-            switch (this.field.type.name) {
-                case "date":
-                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleDateString()}</span>;
-                case "time":
-                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleTimeString()}</span>;
-                case "timestamp":
-                    return <span title={this.field.name}>{(this.field.value: Date).toLocaleString()}</span>;
-            }
+            return <span title={this.field.name}>{this.field.displayValue}</span>;
         }
 
         return (

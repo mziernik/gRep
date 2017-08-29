@@ -41,6 +41,11 @@ export default class Field {
     /** Pole nadrzędne - wykorzystywane w listach */
     parent: ?Field = null;
 
+    /** Dowolne atrybuty */
+    attributes: Object = {
+
+    };
+
     constructor(cfg: Column | (cfg: Column) => void) {
 
         if (cfg instanceof Column)
@@ -299,6 +304,10 @@ export default class Field {
      */
     get simpleValue(): string | number | boolean {
         return Field.formatValue(this.value);
+    }
+
+    get serializedValue(): any {
+        return this.type.serialize(this.value);
     }
 
     static create(type: DataType, key: string, name: string, defaultValue: any = null) {

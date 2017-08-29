@@ -14,6 +14,8 @@ export default class EError {
     file: ?string = null;
     line: ?number = null;
     column: ?number = null;
+    /** Wyjątek został obsłużony (np wyświetlony alert) */
+    handled: ?boolean = null;
 
     constructor(source: any) {
         if (!source)

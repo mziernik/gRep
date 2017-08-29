@@ -3,10 +3,11 @@
  */
 
 import WebApi from "../webapi/WebApi";
-import {EError, Repository, Check, Field, Record, Is} from "../core";
+import {EError, Repository, Check, Field, Record, Is, CRUDE} from "../core";
 import WebApiResponse from "../webapi/Response";
 import Alert from "../component/alert/Alert";
 import WebApiRequest from "../webapi/Request";
+import {BinaryData, UploadData} from "../repository/Type";
 
 type OnSuccess = (data: ?any, response: WebApiResponse) => void;
 type OnError = (error: Object, response: WebApiResponse) => void;
@@ -22,45 +23,92 @@ export default class API {
         return api;
     }
 
-    static downloadFile(field: Field, onSuccess: OnSuccess, onError: OnError): WebApiRequest {
-        if (!methods || !field) return;
-        const obj = field.value || {};
+    static doUploadFile(field: Field, data: UploadData, onSuccess: OnSuccess, onError: OnError) {
+
+        data.uploaded = false;
+        field.error = null;
+
+        return fetch(data.href, {
+            method: 'POST',
+            headers: {
+                "Content-Type": data.file.type,
+                "X-Requested-With": "XMLHttpRequest",
+                "X-Request-Id": data.id
+            },
+            body: data.file
+        }).then(response => {
+                debugger;
+                data.uploaded = true;
+            }
+        ).catch(error => {
+                debugger;
+                field.error = error;
+                console.log(error);
+            }
+        )
+    }
+
+    static uploadFile(field: Field, input: HTMLInputElement, onSuccess: OnSuccess, onError: OnError): WebApiRequest {
+        if (!methods || !field || !input || !input.files[0]) return;
+        const bdata: BinaryData = field.value;
         const rec: Record = Check.instanceOf(field.record, [Record], new Error("Pole nie posiada przypisanego rekordu"));
-        return methods.downloadFile({
+
+        const file: File = input.files[0];
+
+        return methods.uploadFile({
             repo: rec.repo.key,
-            pk: rec.pk,
+            pk: rec.action !== CRUDE.CREATE ? rec.pk : null,
             column: field.key,
-            fileKey: obj.key
-        }, (data, resp) => {
+            name: file.name,
+            size: file.size
+        }, (obj, resp) => {
 
-            let href: string = data.href;
-
-            if (!href.contains("://"))
-                href = wApi.httpUrl + href;
+            const upload: UploadData = field.value = new UploadData(file, obj);
 
             if (onSuccess) {
-                data.hrefFrmt = href;
-                onSuccess(data, resp);
+                onSuccess(upload, resp);
                 return;
             }
 
+            if (upload.now)
+                API.doUploadFile(field, upload, onSuccess, onError);
 
-            if (data.preview === true || obj.preview) {
+        }, onError);
+    }
+
+    static downloadFile(field: Field, onSuccess: OnSuccess, onError: OnError): WebApiRequest {
+        if (!methods || !field) return;
+
+        const bdata: BinaryData = field.value;
+
+
+        const rec: Record = Check.instanceOf(field.record, [Record], new Error("Pole nie posiada przypisanego rekordu"));
+        return methods.downloadFile({
+            repo: rec.repo.key,
+            pk: rec.action !== CRUDE.CREATE ? rec.pk : null,
+            column: field.key,
+            id: bdata ? bdata.id : null
+        }, (obj, resp) => {
+
+            const data: BinaryData = new BinaryData(obj);
+
+            if (onSuccess) {
+                onSuccess(bdata, resp);
+                return;
+            }
+
+            if (data.preview || (bdata && bdata.preview)) {
                 const win: Window = window.open(href);
                 win.focus();
                 return;
             }
 
             const link = document.createElement("a");
-            link.download = data.name || obj.name || field.name;
+            link.download = data.name || (bdata && bdata.name) || field.name;
             link.href = href;
             link.click();
         }, onError);
 
-
-    }
-
-    static uploadFile(field: Field) {
 
     }
 

@@ -347,6 +347,8 @@ export function randomId(length: number = 10) {
 /** formatuje zapis liczbowy uwzględniając jednostkę. Jednostki muszą być zadeklarowane w kolejności malejącej!!! */
 export function formatUnits(value: number, units: {}): string {
 
+    if (value === null || value === undefined) return value;
+
     let prevU;
     let prevN;
 

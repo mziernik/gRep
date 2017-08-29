@@ -14,17 +14,16 @@ export default class Multiple extends FormComponent {
 
         const mtypes: [] = (this.field.type: Type.MultipleDataType).types;
 
-        const array = this.field.value || [];
-        while (array.length < mtypes.length)
-            array.push(null);
+        const value = Utils.asArray(this.field.value);
+        while (value.length < mtypes.length)
+            value.push(null);
 
-        const value: [] = Check.isArray(this.field.value);
 
         return <div className="c-multiple-fields" style={{
             display: "flex"
         }}>
 
-            { Utils.forEach(mtypes, (type: Type.DataType, index: number) => {
+            {Utils.forEach(mtypes, (type: Type.DataType, index: number) => {
 
                 const f: Field = new Field((c: Column) => {
                     //    c.enumerate = field.config.enumerate;
@@ -47,7 +46,7 @@ export default class Multiple extends FormComponent {
                     value
                     style={{flex: "auto"}}
                 />
-            }) }
+            })}
         </div>
     }
 }

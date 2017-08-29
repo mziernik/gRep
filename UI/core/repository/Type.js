@@ -4,10 +4,13 @@ import Record from "./Record";
 import * as Utils from "../utils/Utils";
 import * as Is from "../utils/Is";
 import Icon from "../component/glyph/Icon";
+import {object} from "../utils/Is";
+import API from "../application/API";
 
 export type SimpleType = "any" | "boolean" | "number" | "string" | "object" | "array";
 
 const all = {};
+
 
 export class DataType {
 
@@ -23,6 +26,7 @@ export class DataType {
     enumStyles: ?Object = null;
 
     enumerate: ?[] = null; // np.: [['tekst',{wartość}],['tekst2',{wartość2}],...]
+    isBinary: boolean = false;
 
     units: ?[] = null; // [klucz, nazwa, mnożnik]
 
@@ -313,20 +317,21 @@ export const EMAIL: DataType = new DataType((dt: DataType) => {
 
 export const FILE: DataType = new DataType((dt: DataType) => {
     dt.name = "file";
-    dt.simpleType = "string";
+    dt.simpleType = "object";
     dt.description = "Plik";
-    dt.parser = val => {
-        return val;
-    };
+    dt.isBinary = true;
+    dt.parser = val => val instanceof BinaryData ? val : new BinaryData(val);
+    dt.formatter = (val: BinaryData) => val ? val.name : null;
+    dt.serializer = (val: BinaryData) => val ? val.id : null;
 });
 
 export const IMAGE: DataType = new DataType((dt: DataType) => {
     dt.name = "image";
-    dt.simpleType = "string";
+    dt.simpleType = "object";
     dt.description = "Obrazek";
-    dt.parser = val => {
-        return val;
-    };
+    dt.isBinary = true;
+    dt.parser = FILE.parser;
+    dt.formatter = FILE.formatter;
 });
 
 export const PHONE: DataType = new DataType((dt: DataType) => {
@@ -434,24 +439,53 @@ export const DATE: DataType = new DataType((dt: DataType) => {
     dt.name = "date";
     dt.simpleType = "number";
     dt.parser = val => {
+        if (typeof val === "number")
+            return new Date(val * (1000 * 60 * 60 * 24));
+
         const date = new Date(val);
         if (isNaN(date))
-            throw new Error('Nieprawidłowa wartość daty');
+            throw new Error('Nieprawidłowa wartość daty (' + Utils.escape(val) + ")");
         return date;
     };
-    dt.formatter = (val: Date) => val.toLocaleString();
-    dt.serializer = (val: Date) => val.getTime();
+    dt.formatter = val => !Is.defined(val) ? val
+        : _fix2(val.getDate()) + "-" + _fix2(val.getMonth() + 1) + "-" + val.getFullYear();
+    /** Liczba dni które upłynęły od 01/01/1970*/
+    dt.serializer = (val: Date) => Math.round(val.getTime() / (1000 * 60 * 60 * 24));
 });
+
+function _fix2(number: number) {
+    return (number < 10 ? "0" : "") + number;
+}
 
 export const TIME: DataType = new DataType((dt: DataType) => {
     dt.name = "time";
     dt.simpleType = "number";
+    dt.formatter = val => !Is.defined(val) ? val
+        : _fix2(val.getHours()) + ":" + _fix2(val.getMinutes())
+        + (val.getSeconds() > 0 ? ":" + _fix2(val.getSeconds()) : "");
+
     dt.parser = val => {
+        if (typeof val === "number") {
+            const ms = val % 1000;
+            val = (val - ms) / 1000;
+            const s = val % 60;
+            val = (val - s) / 60;
+            const m = val % 60;
+            val = (val - m) / 60;
+            const h = val % 24;
+            val = (val - h) / 24;
+            return new Date(0, 0, 0, h, m, s, ms);
+        }
+
         const date = new Date(val);
         if (isNaN(date))
-            throw new Error('Nieprawidłowa wartość czasu');
+            throw new Error('Nieprawidłowa wartość czasu (' + Utils.escape(val) + ")");
         return date;
-    }
+    };
+    dt.serializer = (val: Date) => val.getMilliseconds()
+        + val.getSeconds() * 1000
+        + val.getMinutes() * 1000 * 60
+        + val.getHours() * 1000 * 60 * 60;
 });
 
 export const TIMESTAMP: DataType = new DataType((dt: DataType) => {
@@ -460,10 +494,13 @@ export const TIMESTAMP: DataType = new DataType((dt: DataType) => {
     dt.parser = val => {
         const date = new Date(val);
         if (isNaN(date))
-            throw new Error('Nieprawidłowa wartość czasu');
+            throw new Error('Nieprawidłowa wartość znacznika czasu (' + Utils.escape(val) + ")");
         return date;
     };
-    dt.formatter = (val: Date) => val.toLocaleString();
+    dt.formatter = (val: Date) => !Is.defined(val) ? val
+        : _fix2(val.getFullYear()) + "-" + _fix2(val.getMonth() + 1) + "-" + val.getDate() + " "
+        + _fix2(val.getHours()) + ":" + _fix2(val.getMinutes()) + ":" + _fix2(val.getSeconds());
+
     dt.serializer = (val: Date) => val.getTime();
 });
 
@@ -534,3 +571,45 @@ export const TEXT_CASING = {
     LOWERCASE: 'lowercase',
     CAPITALIZE: 'capitalize'
 };
+
+export class BinaryData {
+
+    id: string;
+    name: string;
+    size: number;
+    preview: boolean;
+    href: ?string;
+
+    constructor(data: Object) {
+        this.id = Check.nonEmptyString(data.id);
+        this.name = Check.nonEmptyString(data.name);
+        this.size = data.size;
+        this.preview = data.preview;
+
+        if (data.href) {
+            debugger;
+            this.href = data.href;
+            if (!this.href.contains("://"))
+                this.href = API.instance().api.httpUrl + href;
+        }
+    }
+}
+
+export class UploadData extends BinaryData {
+
+    file: File;
+    now: boolean; // czy uploadowanie ma być rozpoczęte od razu
+    multiPart: boolean; // tryb multipart
+    headers: object; // opcjonalne nagłówki HTTP
+    uploaded: boolean;
+
+    constructor(file: File, data: Object) {
+        data.name = data.name || file.name;
+        data.size = data.size || file.size;
+        super(data);
+        this.file = file;
+        this.now = data.now;
+        this.multiPart = data.multiPart;
+        this.headers = data.headers;
+    }
+}

@@ -20,6 +20,8 @@ import RecordCtrl from "../repository/RecordCtrl";
 import {Record} from "../../core";
 import Link from "../Link";
 import {Panel} from "../../components";
+import {BinaryData} from "../../repository/Type";
+import ImageViewer from "./ImageViewer";
 
 /**
  * Komponent ułatwiający obsługę obiektu Field. Umożliwia edycję i podgląd wartości, błędów i innych flag
@@ -415,20 +417,28 @@ export default class FCtrl extends Component {
 
 
     renderFile() {
-        const val = this.field.value || {};
-        return <Link onClick={e => API.downloadFile(this.field)}
-        >BIN {this.field.type.name}: {val.key}, {val.name}, {Utils.formatFileSize(val.size)}</Link>;
+        const val: BinaryData = this.field.value;
+        return <div>
+            {val ? <Link onClick={e => API.downloadFile(this.field)}>{val.name}</Link> : null}
+            <input
+                type="file"
+                name={this.field.key}
+                onChange={e => API.uploadFile(this.field, e.currentTarget)}
+            />
+        </div>
     }
 
 
     renderImage() {
 
         if (!this.field.value) return null;
+        const val: BinaryData = this.field.value;
 
-        const hash = this.field.fullId + Utils.escape(this.field.value);
-        const href = cachedImgHrefs.get(hash);
+        const hash = this.field.fullId + Utils.escape(val);
+        const href = cachedImgHrefs.get(hash) || val.href;
         return <Panel resizable scrollable={false}>
             <img
+                onclick={e => new ImageViewer(this.field).show()}
                 style={{width: "100%", height: "100%"}}
                 src={href}
                 ref={(tag: HTMLImageElement) => {
@@ -436,6 +446,7 @@ export default class FCtrl extends Component {
 
                     if (!href)
                         API.downloadFile(this.field, (data) => {
+                            val.href = data.hrefFrmt;
                             cachedImgHrefs.set(hash, data.hrefFrmt);
                             tag.src = data.hrefFrmt;
                         });
