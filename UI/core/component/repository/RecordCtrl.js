@@ -1,5 +1,5 @@
 import {
-    React, PropTypes, Type, Utils, Field, Cell, Repository, CRUDE, Record, EError, Dev, Is, Column, DEBUG_MODE
+    React, PropTypes, Type, Utils, Field, Cell, Repository, CRUDE, Record, EError, Dev, Is, Column, DEBUG_MODE, Endpoint
 } from "../../core";
 import {Button, Page, Icon, Spinner, Alert, Link, ModalWindow, MW_BUTTONS, Panel} from "../../components";
 import AppStatus from "../../application/Status";
@@ -204,6 +204,14 @@ export default class RecordCtrl {
     }
 
     render(): AttributesRecord {
+
+        const endpoint: Endpoint = Endpoint.getByRecord(this.record.repo.config.record)[0];
+
+        if (endpoint && endpoint._component) {
+            return React.createElement(endpoint._component, {
+                id: this.record.action === CRUDE.CREATE ? "~new" : this.record.pk
+            }, null);
+        }
 
         return <div>
             {this.renderNavBar()}

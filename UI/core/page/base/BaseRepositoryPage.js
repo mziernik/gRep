@@ -18,6 +18,7 @@ export default class BaseRepositoryPage extends RepoPage {
     modalEdit: boolean;
     defaultTarget: string = null; //tab, popup
     reports: EReportInfo[] = [];
+    rowFilter: (rec: Record) => boolean = null;
 
     constructor(repository: Repository, recordEndpoint: Endpoint, props: Object, context: Object, updater: Object) {
         super(repository, props, context, updater);
@@ -70,6 +71,7 @@ export default class BaseRepositoryPage extends RepoPage {
         return <RepoTable
             modalEdit={this.modalEdit}
             repository={this.repo}
+            rowFilter={this.rowFilter}
             onClick={(...args) => this.navigate(...args)}
         />
     }

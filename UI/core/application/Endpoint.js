@@ -128,6 +128,14 @@ export default class Endpoint {
     };
 
 
+    static getByRepository(repositoryClass: any): Endpoint[] {
+        return Utils.forEach(Endpoint.ALL, (e: Endpoint) => e.repositories.has(repositoryClass) ? e : undefined);
+    }
+
+    static getByRecord(recordClass: any): Endpoint[] {
+        return Utils.forEach(Endpoint.ALL, (e: Endpoint) => e.records.has(recordClass) ? e : undefined);
+    }
+
     navigate(params: ?Object = null, target: string | MouseEvent = null) {
         if (this.canNavigate)
             Endpoint.navigate(this.getLink(params), this._external ? ENDPOINT_TARGET_EXTERNAL : target, this.key, this._name);

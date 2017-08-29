@@ -26,6 +26,20 @@ function setError(e) {
 
 const username: Var<string> = new Var().localStorage("login");
 const password: Var<string> = new Var().sessionStorage("pass");
+const authTS: Var<number> = new Var().sessionStorage("authTS");
+
+const SESSION_EXPIRE = 5000;
+
+//ToDo: Wygasanie sesji
+
+if (SESSION_EXPIRE && authTS.value && password.value) {
+    debugger;
+    const diff: number = new Date().getTime() - authTS.value;
+
+    if (diff > SESSION_EXPIRE)
+        password.value = null;
+}
+
 
 export default class Login extends Component {
 
@@ -38,6 +52,7 @@ export default class Login extends Component {
 
     static logout() {
         password.value = undefined;
+        authTS.value = null;
         window.location.reload();
         // Application.nodes.clone().forEach(node => node.remove());
         // Login.display(Login.onAuthorized);
@@ -59,6 +74,7 @@ export default class Login extends Component {
             Login.spinner = new Spinner(false);
             API.authorizeUser(username.value || "", password.value || "", (data) => {
                 Login.spinner.hide();
+                authTS.value = new Date().getTime();
                 // User.current.fill(data);
                 setTimeout(() => Login.onAuthorized(data));
             }, e => {
@@ -125,8 +141,9 @@ export default class Login extends Component {
         };
 
         Login.spinner = new Spinner(false);
-        API.api.login(username.value || "", password.value || "", (data) => {
+        API.authorizeUser(username.value, password.value, (data) => {
             done();
+            authTS.value = new Date().getTime();
             //User.current.fill(data);
             this.onAuthorized(e);
         }, e => {
@@ -162,7 +179,7 @@ export default class Login extends Component {
             height: "100%",
             width: "100%",
             position: "absolute",
-            transition: "all .6s ease",
+            transition: "all 2s ease",
             display: "flex",
             flexDirection: "column"
         }}>

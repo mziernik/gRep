@@ -42,9 +42,7 @@ export default class Field {
     parent: ?Field = null;
 
     /** Dowolne atrybuty */
-    attributes: Object = {
-
-    };
+    attributes: Object = {};
 
     constructor(cfg: Column | (cfg: Column) => void) {
 
@@ -81,6 +79,13 @@ export default class Field {
 
     get error(): ?string {
         return this._error;
+    }
+
+    clone(): Field {
+        const field: Field = new Field(this.config);
+        field.record = this.record;
+        field.value = this.value;
+        return field;
     }
 
     set error(err: ?string) {

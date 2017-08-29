@@ -14,7 +14,7 @@ export class EventType {
 
     static all: EventType[] = [];
 
-    /** @type {EventHandler[]} */
+    /** @type {Dispatcher} */
     dispatcher: Dispatcher = new Dispatcher(this);
 
     /** @type {string} Nazwa (opisowa) zdarzenia */
@@ -85,7 +85,7 @@ export default class AppEvent {
     type: EventType;
     data: Object;
     sent = false;
-    /** @type {EventHandler[]} handlery, które obsłużyły zdarzenie */
+    /** @type {Observer[]} handlery, które obsłużyły zdarzenie */
     handlers: Observer[] = [];
 
     /** @type {function} Zdarzenie generowane w momencie przetworzenia zdarzenia przez wszystkie handlery */

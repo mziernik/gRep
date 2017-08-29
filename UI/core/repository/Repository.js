@@ -107,11 +107,6 @@ export default class Repository {
         return this.config.crude.contains('D');
     }
 
-    /** Zwróć endpoint edycji repozytorium */
-    get endpoint(): Endpoint {
-        return Utils.find(Endpoint.ALL, (e: Endpoint) => e.repositories.has(this.constructor));
-    }
-
     get references(): ?RepoReference[] {
         if (!this.config.references)
             return null;
@@ -613,7 +608,7 @@ export default class Repository {
             return Utils.processVariables(this.config.displayMask, name => record.get(name).displayValue);
 
         let col: Column = this.config.displayNameColumn || this.config.primaryKeyColumn;
-        if (col && col.foreign) {
+        if (record.action !== CRUDE.CREATE && col && col.foreign) {
             const r: Repository = col.foreign.repo;
             return r.getDisplayValue(r.get(null, record.get(col).value));
         }
@@ -695,11 +690,10 @@ export class RepoConfig {
             return result;
         };
 
-                let display = data.displayNameColumn;
+        let display = data.displayNameColumn;
         if (Is.string(display)) {
             for (let i = 0; i < display.length; i++)
                 if (!".-0123456789_abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".contains(display[i])) {
-                    debugger;
                     data.displayNameColumn = null;
                     data.displayMask = display;
                     break;

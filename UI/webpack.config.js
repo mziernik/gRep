@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const StringReplacePlugin = require("string-replace-webpack-plugin");
+const WebpackAutoInject = require('webpack-auto-inject-version');
 //const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 
@@ -168,6 +169,8 @@ const config = {
 
 
 config.plugins.push(new OpenBrowserPlugin({url: 'http://' + config.devServer.host + ":" + config.devServer.port}));
+environment.BUILD_VERSION = require("./package.json").version;
+environment.BUILD_DATE = new Date().getTime();
 
 const _env = {};
 for (let name in environment)
@@ -182,6 +185,18 @@ if (ENV === 'production' || ENV === 'test') {
         config.devtool = false;
 
     config.plugins.push(
+        new WebpackAutoInject({
+            PACKAGE_JSON_PATH: './package.json',
+            components: {
+                AutoIncreaseVersion: true,
+                InjectAsComment: false
+            },
+            componentsOptions: {
+                AutoIncreaseVersion: {
+                    runInWatchMode: false
+                },
+            }
+        }),
         new webpack.optimize.LimitChunkCountPlugin({maxChunks: 15}),
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.optimize.MinChunkSizePlugin({minChunkSize: 10000}), // Minimum number of characters

@@ -3,7 +3,7 @@
  */
 
 import WebApi from "../webapi/WebApi";
-import {EError, Repository, Check, Field, Record, Is, CRUDE} from "../core";
+import {EError, Repository, Check, Field, Record, Is, CRUDE, Dev} from "../core";
 import WebApiResponse from "../webapi/Response";
 import Alert from "../component/alert/Alert";
 import WebApiRequest from "../webapi/Request";
@@ -23,6 +23,10 @@ export default class API {
         return api;
     }
 
+    static get wepApi(): WebApi {
+        return wApi;
+    }
+
     static doUploadFile(field: Field, data: UploadData, onSuccess: OnSuccess, onError: OnError) {
 
         data.uploaded = false;
@@ -37,13 +41,15 @@ export default class API {
             },
             body: data.file
         }).then(response => {
-                debugger;
                 data.uploaded = true;
+                if (onSuccess)
+                    onSuccess(data);
             }
         ).catch(error => {
-                debugger;
                 field.error = error;
-                console.log(error);
+                Dev.error(this, error);
+                if (onError)
+                    onError(error);
             }
         )
     }
@@ -65,13 +71,13 @@ export default class API {
 
             const upload: UploadData = field.value = new UploadData(file, obj);
 
-            if (onSuccess) {
-                onSuccess(upload, resp);
+            if (upload.now) {
+                API.doUploadFile(field, upload, onSuccess, onError);
                 return;
             }
 
-            if (upload.now)
-                API.doUploadFile(field, upload, onSuccess, onError);
+            if (onSuccess)
+                onSuccess(upload, resp);
 
         }, onError);
     }
@@ -93,19 +99,18 @@ export default class API {
             const data: BinaryData = new BinaryData(obj);
 
             if (onSuccess) {
-                onSuccess(bdata, resp);
+                onSuccess(data, resp);
                 return;
             }
 
             if (data.preview || (bdata && bdata.preview)) {
-                const win: Window = window.open(href);
-                win.focus();
+                window.open(data.href).focus();
                 return;
             }
 
             const link = document.createElement("a");
             link.download = data.name || (bdata && bdata.name) || field.name;
-            link.href = href;
+            link.href = data.href;
             link.click();
         }, onError);
 

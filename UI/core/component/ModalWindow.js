@@ -8,6 +8,9 @@ import {PageButtons} from "../page/Page";
 import {Btn} from "./Button";
 import {isFunction} from "../utils/Check";
 
+
+//FixMe: Wojtek Limity pozycji (aby nie wychodziło poza ekran)
+
 export class ModalWindow {
     /** zawartość okna
      * @type {null}
@@ -117,6 +120,17 @@ export class ModalWindow {
         this._node = Application.render(this.render(), this._instance, tab);
         this.result = false;
         return this._node;
+    }
+
+    /**
+     * Dodanie przycisku
+     * @param callback
+     */
+    button(callback: (btn: Button) => void): Btn {
+        if (!(this.buttons instanceof PageButtons))
+            this.buttons = new PageButtons();
+
+        return (this.buttons: PageButtons).add(callback);
     }
 
     /** zamknięcie okna z statusem true

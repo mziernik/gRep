@@ -4,9 +4,6 @@ import * as Router from "../page/Router";
 import Endpoint from "../core/application/Endpoint";
 import {RCatalog} from "./Repositories";
 import PCatalogs from "../page/PCatalogs";
-import WebApi from "../core/webapi/WebApi";
-import GrepApi from "./GrepApi";
-import API from "../core/application/API";
 
 let catalogTree: RepoTree;
 

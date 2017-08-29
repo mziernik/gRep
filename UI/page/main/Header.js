@@ -7,7 +7,8 @@ import Breadcrumb from "../../core/component/Breadcrumbs";
 import WebApiStatus from "../../core/component/application/WebApiStatus";
 import {MenuItem, PopupMenu} from "../../core/component/PopupMenu";
 import Login from "../Login";
-import {Endpoint} from "../../core/core";
+import {Endpoint, Dev} from "../../core/core";
+import {DEBUG_MODE, PROCESS_ENV} from "../../core/Dev";
 
 
 let context;
@@ -24,6 +25,11 @@ export default class Header extends Component {
             <div>
                 <img src="/res/logo.png" onClick={e => Endpoint.navigate("/", e)}/>
                 <Breadcrumb/>
+                {DEBUG_MODE ?
+                    <div className="hdr-version-info">
+                        <div>wersja {PROCESS_ENV.BUILD_VERSION},</div>
+                        <div>{new Date(PROCESS_ENV.BUILD_DATE).toLocaleString().replace(",", "")}</div>
+                    </div> : null}
                 <WebApiStatus/>
                 <a className="fa fa-user" onClick={(e) => {
                     PopupMenu.openMenu(e, MENU_ITEMS);

@@ -396,9 +396,8 @@ export default class FCtrl extends Component {
                 return <DatePicker field={this.field} preview={this.props.preview}
                                    dtpProps={{format: 'DD-MM-YYYY HH:mm'}}/>;
             case "file":
-                return this.renderFile();
             case "image":
-                return this.renderImage();
+                return this.renderFile();
 
             default:
                 switch (this.field.type.simpleType) {
@@ -417,43 +416,28 @@ export default class FCtrl extends Component {
 
 
     renderFile() {
+
+        const img = this.field.type === Type.IMAGE;
+
         const val: BinaryData = this.field.value;
-        return <div>
-            {val ? <Link onClick={e => API.downloadFile(this.field)}>{val.name}</Link> : null}
+        return <div style={{display: "flex"}}>
+
             <input
+                style={{flex: "auto"}}
                 type="file"
+                accept={img ? "image/*" : null}
                 name={this.field.key}
                 onChange={e => API.uploadFile(this.field, e.currentTarget)}
             />
+
+            {val ? <Link style={{flex: "auto"}} onClick={e => {
+                if (img) new ImageViewer(this.field).show();
+                else API.downloadFile(this.field);
+            }}>{val.name}</Link> : null}
+
         </div>
     }
 
-
-    renderImage() {
-
-        if (!this.field.value) return null;
-        const val: BinaryData = this.field.value;
-
-        const hash = this.field.fullId + Utils.escape(val);
-        const href = cachedImgHrefs.get(hash) || val.href;
-        return <Panel resizable scrollable={false}>
-            <img
-                onclick={e => new ImageViewer(this.field).show()}
-                style={{width: "100%", height: "100%"}}
-                src={href}
-                ref={(tag: HTMLImageElement) => {
-                    if (!tag) return;
-
-                    if (!href)
-                        API.downloadFile(this.field, (data) => {
-                            val.href = data.hrefFrmt;
-                            cachedImgHrefs.set(hash, data.hrefFrmt);
-                            tag.src = data.hrefFrmt;
-                        });
-                }}/>
-
-        </Panel>
-    }
 
     /** sortuje propsy. Pola z true są umieszczane na końcu
      * @returns {*[]} kontrolki

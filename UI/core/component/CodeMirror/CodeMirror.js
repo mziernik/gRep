@@ -212,12 +212,12 @@ export default class CodeMirror extends Component {
     field: Field;
 
     props: {
-        field: Field,
+        field: ?Field,
         mode: Mode,
-        theme: Theme,
-        editorRef: (cm: CM) => void,
-        onChange: (cm: CM, change: []) => void,
-        style: Object,
+        theme: ?Theme,
+        editorRef: ?(cm: CM) => void,
+        onChange: ?(cm: CM, change: []) => void,
+        style: ?Object,
     };
 
     static propTypes = {
@@ -225,7 +225,8 @@ export default class CodeMirror extends Component {
         mode: PropTypes.string.isRequired,
         theme: PropTypes.string,
         onChange: PropTypes.func,
-        style: PropTypes.object
+        style: PropTypes.object,
+        editorRef: PropTypes.func
     };
 
     static defaultProps = {

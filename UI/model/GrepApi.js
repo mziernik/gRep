@@ -37,7 +37,7 @@ export default class GrepApi {
             this.api.call("repository/export", 'bVJXCg', null, onSuccess, onError)
         ,
         /** Zwraca dane z wielu tabel */
-        get: (params: {repositories: ?jcollection}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+        get: (params: {repositories: ?[]}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
             this.api.call("repository/get", 'gybJTQ', params, onSuccess, onError)
         ,
         /** Lista wszystkich rekordów w cache */
@@ -88,7 +88,7 @@ export default class GrepApi {
                 this.api.call("service/repository/export", 'bVJXCg', null, onSuccess, onError)
             ,
             /** Zwraca dane z wielu tabel */
-            get: (params: {repositories: ?jcollection}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            get: (params: {repositories: ?[]}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/repository/get", 'gybJTQ', params, onSuccess, onError)
             ,
             /** Lista wszystkich rekordów w cache */

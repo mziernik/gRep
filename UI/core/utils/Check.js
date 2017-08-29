@@ -24,6 +24,7 @@ export function isDefined(value: ?any, error: ?Error = null): any {
  * @param error
  */
 export function oneOf<T:any>(value: T, allowed: any[], error: ?Error = null): T {
+    allowed = Utils.asArray(allowed);
     for (let i = 0; i < allowed.length; i++)
         if (allowed[i] === value)
             return value;
@@ -141,6 +142,6 @@ export function instanceOf<T:any>(object: T, instances: any[], error: ?Error = n
 
 
 function _details(value: any) {
-    return ", aktualnie: " + value === null ? "null" : value === undefined ? "undefined"
-        : Utils.className(value) + " (" + Utils.escape(value) + ")";
+    return ", aktualnie: " + (value === null ? "null" : value === undefined ? "undefined"
+        : Utils.className(value) + " (" + Utils.escape(value) + ")");
 }

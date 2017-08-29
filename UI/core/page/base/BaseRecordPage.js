@@ -2,7 +2,6 @@
 'use strict';
 
 import {React, Check, Record, Repository, CRUDE} from "../../core.js";
-import Page from "../Page";
 import RecordCtrl from "../../component/repository/RecordCtrl";
 import RepoPage from "./RepoPage";
 import {TabSet} from "../../component/TabSet";

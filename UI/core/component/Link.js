@@ -50,11 +50,11 @@ export default class Link extends Component {
 
         if (Is.func(this.props.downloadData))
             return <a
+                style={style}
                 href="javascript:void(0)"
                 download={this.props.downloadName}
             ><span
                 title={title}
-                style={style}
                 className={className}
                 onClick={(e: Event) => {
                     e.preventDefault();
@@ -92,10 +92,10 @@ export default class Link extends Component {
         let link = this.props.link;
 
 
-        return <a href={disabled ? null : link ? link : "javascript:void(0)"}>
+        return <a style={style} href={disabled ? null : link ? link : "javascript:void(0)"}>
             <span
                 title={title}
-                style={style}
+
                 disabled={disabled}
                 className={className}
                 onClick={(e: MouseEvent) => {

@@ -332,6 +332,7 @@ export const IMAGE: DataType = new DataType((dt: DataType) => {
     dt.isBinary = true;
     dt.parser = FILE.parser;
     dt.formatter = FILE.formatter;
+    dt.serializer = FILE.serializer;
 });
 
 export const PHONE: DataType = new DataType((dt: DataType) => {
@@ -586,12 +587,9 @@ export class BinaryData {
         this.size = data.size;
         this.preview = data.preview;
 
-        if (data.href) {
-            debugger;
-            this.href = data.href;
-            if (!this.href.contains("://"))
-                this.href = API.instance().api.httpUrl + href;
-        }
+        this.href = data.href;
+        if (this.href && !this.href.contains("://"))
+            this.href = API.wepApi.httpUrl + this.href;
     }
 }
 
