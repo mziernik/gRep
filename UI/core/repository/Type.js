@@ -1,11 +1,7 @@
 import * as Check from "../utils/Check";
-import Repository from "./Repository";
-import Record from "./Record";
 import * as Utils from "../utils/Utils";
 import * as Is from "../utils/Is";
 import Icon from "../component/glyph/Icon";
-import {object} from "../utils/Is";
-import API from "../application/API";
 
 export type SimpleType = "any" | "boolean" | "number" | "string" | "object" | "array";
 
@@ -249,6 +245,12 @@ export const STRING: DataType = new DataType((dt: DataType) => {
     dt.parser = val => "" + val;
 });
 
+export const URL: DataType = new DataType((dt: DataType) => {
+    dt.name = "url";
+    dt.simpleType = "string";
+    dt.parser = val => "" + val;
+});
+
 export const CHAR: DataType = new DataType((dt: DataType) => {
     dt.name = "char";
     dt.simpleType = "string";
@@ -262,9 +264,11 @@ export const UUID: DataType = new DataType((dt: DataType) => {
     dt.parser = val => {
         if (!Is.defined(val))
             return;
-        if (!Is.string(val) || !val.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
+        const v = Utils.toString(val).trim().toLowerCase();
+        if (!v.length) return null;
+        if (!v.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
             throw new Error(Utils.escape(val) + " nie jest prawidłowym identyfikatorem UUID");
-        return val;
+        return v;
     }
 });
 
@@ -588,8 +592,10 @@ export class BinaryData {
         this.preview = data.preview;
 
         this.href = data.href;
-        if (this.href && !this.href.contains("://"))
-            this.href = API.wepApi.httpUrl + this.href;
+        if (this.href && !this.href.contains("://")) {
+            debugger;
+            this.href = require("../application/API").API.wepApi.httpUrl + this.href;
+        }
     }
 }
 

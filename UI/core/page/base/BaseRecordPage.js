@@ -5,6 +5,7 @@ import {React, Check, Record, Repository, CRUDE} from "../../core.js";
 import RecordCtrl from "../../component/repository/RecordCtrl";
 import RepoPage from "./RepoPage";
 import {TabSet} from "../../component/TabSet";
+import Config from "../../config/CoreConfig";
 
 /** Klasa bazowa dla formatek edycji rekordu, parametrem jest zawsze id */
 export default class BaseRecordPage extends RepoPage {
@@ -13,6 +14,8 @@ export default class BaseRecordPage extends RepoPage {
     record: Record;
     controller: RecordCtrl;
     tabSet: TabSet;
+    // czy po utworzeniu nowego rekordu wykonać funkcję history.back();
+    historyBackOnCreate: boolean = Config.repo.historyBackOnCreate.value;
 
     //   afterSaveNavigate: string;
 
@@ -37,5 +40,10 @@ export default class BaseRecordPage extends RepoPage {
             this.buttons.list.push(this.controller.btnDelete);
         this.buttons.list.push(this.controller.btnSave);
         this.controller.btnDelete._visible = !this.isNew;
+
+        this.controller.onCommit.listen(this, () => {
+            if (this.isNew && this.historyBackOnCreate)
+                window.history.back();
+        });
     }
 }

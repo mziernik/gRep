@@ -173,82 +173,87 @@ export default class Repository {
 
         // weryfikacja, utworzenie rekordów
         Utils.forEach(dto, (value, key) => {
-            if (value instanceof Record) {
-                const rec: Record = value;
-                if (rec.repo.error) {
-                    rec.repo.confirmReadyState();
+            try {
+                if (value instanceof Record) {
+                    const rec: Record = value;
+                    if (rec.repo.error) {
+                        rec.repo.confirmReadyState();
+                        return;
+                    }
+                    records.push(rec);
                     return;
                 }
-                records.push(rec);
-                return;
-            }
-            const repo: Repository = Repository.get(key, true);
+                const repo: Repository = Repository.get(key, true);
 
-            if (repo.error) {
-                repo.confirmReadyState();
-                return;
-            }
-            repositories.push(repo);
+                if (repo.error) {
+                    repo.confirmReadyState();
+                    return;
+                }
+                repositories.push(repo);
 
-            if (Is.array(value.rows))
-                repoStats.set(repo, {
-                    crude: value.crude,
-                    lastUpdated: value.lastUpdated,
-                    lastUpdatedBy: value.lastUpdatedBy,
-                    updates: value.updates,
-                });
-
-
-            if (Is.array(value.columns) && Is.array(value.rows)) {
-
-                let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
-
-                Utils.forEach(value.rows, (row: []) => {
-                    const rec: Record = repo.createRecord(context, CRUDE.CREATE);
-                    repo.refs.remove(rec); // nie traktuj jako referencję
-                    records.push(rec);
-                    for (let i = 0; i < columns.length; i++) {
-                        const field: Field = rec.get(columns[i]);
-                        field.value = row[i];
-                    }
-                });
-
-                return;
-            }
-
-            const processObject = (value) =>
-                Utils.forEach(value, obj => {
-
-                    const pk = obj[repo.primaryKeyColumn.key];
-                    Check.isDefined(pk, "Pusta wartość klucza głównego repozytorium " + repo.key);
-
-                    const rec: Record = repo.createRecord(context, repo.has(pk) ? CRUDE.UPDATE : CRUDE.CREATE);
-                    repo.refs.remove(rec); // nie traktuj jako referencję
-                    const map: Map = new Map();
-                    Utils.forEach(obj, (v, k) => {
-                        const col: Column = repo.getColumn(k);
-                        rec.get(col).value = v;
-                        map.set(col, v);
+                if (Is.array(value.rows))
+                    repoStats.set(repo, {
+                        crude: value.crude,
+                        lastUpdated: value.lastUpdated,
+                        lastUpdatedBy: value.lastUpdatedBy,
+                        updates: value.updates,
                     });
 
-                    if (map.size === 1)
-                        map.forEach((v, col: Column) => {
-                            if (col === rec.primaryKey.config)
-                                rec.action = CRUDE.DELETE;
+
+                if (Is.array(value.columns) && Is.array(value.rows)) {
+
+                    let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
+
+                    Utils.forEach(value.rows, (row: []) => {
+                        const rec: Record = repo.createRecord(context, CRUDE.CREATE);
+                        repo.refs.remove(rec); // nie traktuj jako referencję
+                        records.push(rec);
+                        for (let i = 0; i < columns.length; i++) {
+                            const field: Field = rec.get(columns[i]);
+                            field.value = row[i];
+                        }
+                    });
+
+                    return;
+                }
+
+                const processObject = (value) =>
+                    Utils.forEach(value, obj => {
+
+                        const pk = obj[repo.primaryKeyColumn.key];
+                        Check.isDefined(pk, "Pusta wartość klucza głównego repozytorium " + repo.key);
+
+                        const rec: Record = repo.createRecord(context, repo.has(pk) ? CRUDE.UPDATE : CRUDE.CREATE);
+                        repo.refs.remove(rec); // nie traktuj jako referencję
+                        const map: Map = new Map();
+                        Utils.forEach(obj, (v, k) => {
+                            const col: Column = repo.getColumn(k);
+                            rec.get(col).value = v;
+                            map.set(col, v);
                         });
 
-                    records.push(rec);
-                });
+                        if (map.size === 1)
+                            map.forEach((v, col: Column) => {
+                                if (col === rec.primaryKey.config)
+                                    rec.action = CRUDE.DELETE;
+                            });
+
+                        records.push(rec);
+                    });
 
 
-            if (Is.array(value.rows)) {
-                processObject(value.rows);
-                return;
+                if (Is.array(value.rows)) {
+                    processObject(value.rows);
+                    return;
+                }
+
+                processObject(value);
+
+            } catch (e) {
+                if (!Repository.ignoreErrors)
+                    throw e;
+                if (DEV_MODE) console.warn(e); else Dev.error(this, e);
             }
-
-            processObject(value);
-
-
         });
 
         if (!records.length)
@@ -260,11 +265,9 @@ export default class Repository {
             } catch (e) {
                 if (!Repository.ignoreErrors)
                     throw e;
-                console.warn(e);
-                //    AppStatus.error(Repository, e);
+                if (DEV_MODE) console.warn(e); else Dev.error(this, e);
             }
         });
-
 
         // zastosowanie zmian (na tym etapie dane są zwalidowane)
         const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repo);
@@ -407,6 +410,8 @@ export default class Repository {
                 const r = {};
                 let add: boolean = false;
                 r["#action"] = record.action ? record.action.name : null;
+                r["#uid"] = record.UID;
+
                 if (record.action !== CRUDE.UPDATE) hasChanges = true;
 
                 record.fields.forEach((field: Field) => {

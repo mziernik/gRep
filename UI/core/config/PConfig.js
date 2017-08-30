@@ -2,7 +2,7 @@ import {React, EventType} from '../core';
 import RepoPage from "../page/base/RepoPage";
 import {RCONFIG} from "./ConfigRepo";
 import RepoTable from "../component/repository/RepoTable";
-import ConfigField from "./Config";
+import ConfigField from "./ConfigField";
 
 export default class PConfig extends RepoPage {
 
@@ -18,4 +18,4 @@ export default class PConfig extends RepoPage {
     }
 }
 
-new ConfigField("string", "test1", "test 1111", "sdgfdgsfdsoifdu fg98e98reu9f8ph9u");
+ConfigField.create("string", "test1", "test 1111", "sdgfdgsfdsoifdu fg98e98reu9f8ph9u");

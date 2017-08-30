@@ -1,5 +1,6 @@
-import {React} from "../../core";
+import {React, Utils} from "../../core";
 import {Page, Component, Table, Panel} from "../../components";
+import * as Bootstrap from "../../Bootstrap";
 
 
 export default class PModules extends Page {
@@ -12,10 +13,12 @@ export default class PModules extends Page {
 
         const rows = [];
 
-        window._modules.forEach(arr => {
+        let prevTs = 0;
+        Utils.forEach(Bootstrap.MODULES, data => {
 
-            const mod = arr[0];
-            const fileName = arr[1];
+            const ts = data.created.getTime();
+            const mod = data.module;
+            let time = prevTs ? (ts - prevTs) + "ms" : null;
 
             for (let name in mod.exports) {
                 const val = mod.exports[name];
@@ -30,9 +33,13 @@ export default class PModules extends Page {
                 rows.push({
                     id: mod.id,
                     name: name,
-                    file: fileName
+                    file: data.name,
+                    time: time
                 });
             }
+
+
+            prevTs = ts;
         });
 
         return <Table
@@ -40,6 +47,7 @@ export default class PModules extends Page {
                 id: "ID",
                 file: "Plik",
                 name: "Nazwa",
+                time: "Czas ładowania"
             }}
             rows={rows}
         />

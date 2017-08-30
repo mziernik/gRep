@@ -1,37 +1,36 @@
 import {TransportType, WebSocketTransport, ServerSentEventsTransport, LongPollingTransport} from "./Transports";
 import {HttpClient} from "./HttpClient";
 import 'babel-polyfill';
-
 var ConnectionState;
 
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) {
-            try {
-                step(generator.next(value));
-            } catch (e) {
-                reject(e);
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) {
+                try {
+                    step(generator.next(value));
+                } catch (e) {
+                    reject(e);
+                }
             }
-        }
 
-        function rejected(value) {
-            try {
-                step(generator["throw"](value));
-            } catch (e) {
-                reject(e);
+            function rejected(value) {
+                try {
+                    step(generator["throw"](value));
+                } catch (e) {
+                    reject(e);
+                }
             }
-        }
 
-        function step(result) {
-            result.done ? resolve(result.value) : new P(function (resolve) {
-                resolve(result.value);
-            }).then(fulfilled, rejected);
-        }
+            function step(result) {
+                result.done ? resolve(result.value) : new P(function (resolve) {
+                    resolve(result.value);
+                }).then(fulfilled, rejected);
+            }
 
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
 
 (function (ConnectionState) {
     ConnectionState[ConnectionState["Initial"] = 0] = "Initial";
@@ -39,7 +38,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     ConnectionState[ConnectionState["Connected"] = 2] = "Connected";
     ConnectionState[ConnectionState["Disconnected"] = 3] = "Disconnected";
 })(ConnectionState || (ConnectionState = {}));
-
 export class Connection {
     constructor(url, queryString = "", options = {}) {
         this.url = url;
@@ -49,7 +47,7 @@ export class Connection {
     }
 
     start(transport = TransportType.WebSockets) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             if (this.connectionState != ConnectionState.Initial) {
                 return Promise.reject(new Error("Cannot start a connection that is not in the 'Initial' state."));
             }
@@ -60,7 +58,7 @@ export class Connection {
     }
 
     startInternal(transportType) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             try {
                 this.connectionId = yield this.httpClient.get(`${this.url}/negotiate?${this.queryString}`);
                 if (this.connectionState == ConnectionState.Disconnected) {
@@ -121,7 +119,7 @@ export class Connection {
     }
 
     stop() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             let previousState = this.connectionState;
             this.connectionState = ConnectionState.Disconnected;
             try {

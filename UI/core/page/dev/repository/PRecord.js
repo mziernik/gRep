@@ -44,7 +44,7 @@ export default class PRecord extends BaseRecordPage {
 
         this.title.set((this.isNew ? "Nowy rekord" : "Edycja rekordu "
             + Utils.escape(this.record.displayValue) + " (" + this.repo.primaryKeyColumn.key + "="
-            + Utils.escape(this.record.pk) + ")" ) + " repozytorium " + this.repo.name);
+            + Utils.escape(this.record.pk) + ")" ) + " repozytorium " + Utils.escape(this.repo.name));
 
         return <Panel fit>
 

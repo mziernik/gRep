@@ -144,6 +144,13 @@ export default class FCtrl extends Component {
 
         this.field.onChange.listen(this, data => {
             Is.func(this.props.onChange, f => f(this, data));
+
+            switch (this.field.type) {
+                case Type.FILE:
+                case Type.IMAGE:
+                    return this.forceUpdate();
+            }
+
         });
 
         this.tagProps = {
@@ -358,6 +365,7 @@ export default class FCtrl extends Component {
             case "password":
                 return this.renderInput({type: "password"});
             case "string":
+            case "url":
             case "uuid":
                 return this.renderInput({type: "text"});
             case "email":

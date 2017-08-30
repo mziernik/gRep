@@ -4,6 +4,8 @@ import {React, ReactDOM, PropTypes, Utils, Type, Is, Dev} from '../../core';
 import {FormComponent, Icon} from '../../components';
 import {DropdownList} from 'react-widgets';
 
+//ToDo: Ustawić identyczny kolor nieaktywnego select-a jak w innych komponentach
+
 export default class Select extends FormComponent {
 
     /** lista pozycji do wyświetlenia

@@ -1,6 +1,6 @@
 // @flow
 'use strict';
-
+import "./core/Bootstrap";
 import "./core/utils/ErrorHandler";
 import "./core/core";
 import Header from "./page/main/Header";
@@ -28,7 +28,9 @@ api.api.httpUrl = "http://localhost:80";
 API.set(api, api.repository);
 
 window.addEventListener("load", () => {
-
+        Config.api.url.value = process.env.WEB_API_URL || window.location.origin + "/hubs/MainHub";
+        API.set(new CKPApi(new WebApi(null, SignalRTransport)));
+        Model.init();
 
         PERMISSIONS.refresh();
 

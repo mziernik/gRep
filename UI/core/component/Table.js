@@ -207,8 +207,7 @@ export default class Table extends Component {
         const val = number ? (row.viewIndex + start) + "." : row.original ?
             (row.original[accessor] !== null && row.original[accessor] !== undefined) ?
                 row.original[accessor] : row.value : row;
-        if (!val) return null;
-
+        if (!Is.defined(val)) return null;
 
         if (!this._updateWidths && number)
             return <div
@@ -217,7 +216,9 @@ export default class Table extends Component {
                        checked={!!this._isSelected(row.index)}
                        onClick={(e) => e.stopPropagation()}
                        onChange={(e) => this._select(row.index, row.row, e.currentTarget.checked)}/> : val}</div>;
-        if (!this._updateWidths) return val;
+
+                if (!this._updateWidths)
+            return ReactUtils.isReactElement(val) ? val : Utils.toString(val);
 
         return <span ref={elem => {
             if (this._updateWidths)

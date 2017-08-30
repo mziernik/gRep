@@ -39,6 +39,7 @@ export default class Record {
     localCommit: boolean = false;
     _pk: any;
     _row: [] = null;
+    UID: string = Utils.randomId(10);
 
     constructor(repo: Repository, context: any) {
         this.repo = Check.instanceOf(repo, [Repository]);
@@ -46,7 +47,7 @@ export default class Record {
         this.repo.refs.push(this);
         ContextObject.add(context, this, () => this.repo.refs.remove(this));
 
-        if (DEV_MODE) this._instanceId = Utils.randomId(3);
+        if (DEV_MODE) this._instanceId = this.UID;
 
         this.onChange.listen(this, data => {
             if (data.action !== CRUDE.UPDATE) return;
@@ -62,7 +63,6 @@ export default class Record {
     get pk(): any {
         return this._pk || (this._pk = this.primaryKey.value);
     }
-
 
     set row(row: []) {
         this._row = new Array(this.repo.columns.length);

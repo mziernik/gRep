@@ -13,6 +13,14 @@
     cursor: default;
 }
 
+.x-tree-search {
+    padding: 8px;
+}
+
+.x-tree-search input {
+    width: 100%;
+}
+
 .x-tree-icon {
     width: 25px;
     text-align: center;
@@ -124,4 +132,22 @@
     display: inline-block;
 }
 
+.x-tree-main[data-menu=true] .x-tree-search {
+    padding: 4px 12px;
+}
 
+.x-tree-main[data-menu=true] .x-tree-search input {
+    background-color: inherit;
+    color: inherit;
+    border: none;
+    border-bottom: 1px solid #888;
+    line-height: 1em;
+    font-weight: normal;
+    padding: 4px;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.x-tree-main[data-menu=true] .x-tree-search input:focus {
+    outline: none;
+}

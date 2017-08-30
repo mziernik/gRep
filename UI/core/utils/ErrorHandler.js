@@ -75,6 +75,7 @@ export function onError(msg: any, file: ?any, line: ?number, column: ?number, ex
 
         tag = tag.tag("div").css({
             margin: "6px",
+            maxWidth: "75%",
             opacity: "0.9",
             border: "2px solid #DD3C10",
             boxShadow: "2px 2px 3px #666666",
@@ -84,7 +85,7 @@ export function onError(msg: any, file: ?any, line: ?number, column: ?number, ex
             fontSize: "10pt",
             fontWeight: "bold",
             borderRadius: "0 0 8px 8px",
-            display: "inline-block"
+            display: "inline-flex"
         });
 
         tContent = tag.tag("div")
@@ -100,9 +101,9 @@ export function onError(msg: any, file: ?any, line: ?number, column: ?number, ex
                 display: "inline-block",
                 float: "right",
                 cursor: "pointer",
-                color: "#d66",
-                fontSize: "12pt",
-                paddingRight: "4px"
+                color: "#c55",
+                fontSize: "14pt",
+                paddingRight: "6px"
             })
             .on("mouseover", () => {
                 close.style.color = "blue";

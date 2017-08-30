@@ -109,9 +109,11 @@ export default class CTreeNode extends React.Component {
         const item: TreeNode = this.props.item;
         const tree: Tree = item.tree;
 
-        const visible = item.found !== null ? item.found : item.expanded && item.children && item.children.length;
+        if (item.found !== null && !item.found) return null;
 
-        let ul = visible ?
+        const childrenVisible = item.found !== null ? item.found : item.expanded && item.children && item.children.length;
+
+        let ul = childrenVisible ?
             <ul ref={ul => this._ulReady(ul)}>
                 {item.children.map(item => <CTreeNode key={item.id} item={item}/>)}
             </ul>
@@ -127,14 +129,14 @@ export default class CTreeNode extends React.Component {
                  ref={tag => this.item.tHeader = tag}
                  onClick={e => this._expand(null, e)}>
 
-                {tree.rightIndicator ? null : <span className={"x-tree-expand-indicator " + indicator }/>}
+                {tree.rightIndicator ? null : <span className={"x-tree-expand-indicator " + indicator}/>}
                 {item.checkbox ? (<input className={"x-tree-checkbox"} type="checkbox"/>) : null}
                 {item.icon ? <span className={"x-tree-icon " + item.icon}/> : null}
 
                 <span className="x-tree-header-label">
                 <span>{Utils.toString(item.name)}</span>
             </span>
-                {tree.rightIndicator ? <span className={"x-tree-expand-indicator " + indicator }/> : null}
+                {tree.rightIndicator ? <span className={"x-tree-expand-indicator " + indicator}/> : null}
             </div>;
 
         return (

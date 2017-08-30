@@ -18,7 +18,7 @@ export default class Tree extends TreeElement {
     _expanded: VarArray = new VarArray();
     rightIndicator: boolean = false;
     menuMode: boolean = false;
-    search: boolean = false; // szukajka
+    searchable: boolean = false; // szukajka
 
     constructor(id: string) {
         super();

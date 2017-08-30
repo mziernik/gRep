@@ -37,7 +37,7 @@ export default class CTree extends React.Component {
 
         return (
             <div className="x-tree-main" data-menu={this.tree.menuMode}>
-                {this.tree.search ? <div>
+                {this.tree.search ? <div className="x-tree-search">
                     <input type="search" placeholder="Szukaj" onChange={search}/>
                 </div> : null}
                 <ul className="x-tree">

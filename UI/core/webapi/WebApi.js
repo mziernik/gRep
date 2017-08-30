@@ -11,6 +11,7 @@ import Dispatcher from "../utils/Dispatcher";
 import {AppStatus} from "../core";
 import * as If from "../utils/Is";
 import AppEvent from "../application/Event";
+import Config from "../config/CoreConfig";
 
 export type OnSuccess = (data: ?any, response: WebApiResponse) => void;
 export type OnError = (error: Object, response: WebApiResponse) => void;
@@ -35,6 +36,8 @@ export default class WebApi {
     onClose: Dispatcher = new Dispatcher();
 
     constructor(url: string, transportClass) {
+        if (!url) url = Config.api.url.value;
+
         this.url = url;
         this.httpUrl = url;
         this.wsUrl = url;
@@ -87,7 +90,8 @@ export default class WebApi {
             transport.connected = false;
             State.current = State.CLOSED;
             const canRetry = e && e.code === 1006;
-            AppStatus.error(this, "WebApi: " + reason, canRetry ? "Próba " + (retryCount + 1) + " / " + this.maxRetries : null);
+            if (reason)
+                AppStatus.error(this, "WebApi: " + reason, canRetry ? "Próba " + (retryCount + 1) + " / " + this.maxRetries : null);
             if (canRetry && retry())
                 return;
             const err = new EError(reason);
