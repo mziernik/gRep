@@ -19,7 +19,8 @@ export default class TreeNode extends TreeElement {
     checkbox: boolean = false;
     tree: Tree;
     visible = true;
-    found: ?boolean = null; // boolean, ukryte na skutek filtrowania
+    _hidden: ?boolean = null; // boolean, ukryte na skutek filtrowania
+    _found: boolean = false; // znaleziono frazę
     checked: ?boolean = false;
     selected: boolean = false;
     //--------------------------------------
@@ -61,7 +62,7 @@ export default class TreeNode extends TreeElement {
     select(): void {
         if (!this.tree.selectMultiple) {
             this.tree.selected.forEach(node => {
-                node.tHeader.removeAttribute("selected");
+                node.tHeader && node.tHeader.removeAttribute("selected");
                 node.selected = false;
             });
             this.tree.selected.length = 0;

@@ -554,7 +554,7 @@ export default class Dev {
     }
 
     static log(context: ?any | any[], value: ?mixed, ...args: any) {
-        if (!DEBUG_MODE)
+        if (DEBUG_MODE)
             window.console.debug(format(context, value), ...args);
     }
 

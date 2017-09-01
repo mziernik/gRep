@@ -146,7 +146,7 @@ export class Splitter extends Component {
         else
             childes = this.split();
         let style = this.props.style || {width: '100%', height: '100%'};
-        return <div style={{
+        return <div className="c-splitter" style={{
             ...style
         }}>{childes}</div>;
     }

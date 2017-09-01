@@ -32,26 +32,36 @@ export default class API {
         data.uploaded = false;
         field.error = null;
 
-        return fetch(data.href, {
-            method: 'POST',
-            headers: {
-                "Content-Type": data.file.type,
-                "X-Requested-With": "XMLHttpRequest",
-                "X-Request-Id": data.id
-            },
-            body: data.file
-        }).then(response => {
-                data.uploaded = true;
-                if (onSuccess)
-                    onSuccess(data);
-            }
-        ).catch(error => {
-                field.error = error;
-                Dev.error(this, error);
-                if (onError)
-                    onError(error);
-            }
-        )
+        return new Promise((resolve: () => void, reject: () => void) => {
+
+            fetch(data.href, {
+                method: 'POST',
+                //      mode: "no-cors",
+                headers: {
+                    "Content-Type": data.file.type,
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-Request-Id": data.id
+                },
+                body: data.file
+            }).then((response: Response) => {
+                    if (!response.ok)
+                        throw new Error(response.statusText || "Błąd wysyłania pliku");
+
+                    data.uploaded = true;
+                    resolve(response);
+                    if (onSuccess)
+                        onSuccess(data);
+                }
+            ).catch(error => {
+                    field.error = error;
+                    Dev.error(this, error);
+                    reject(error);
+                    if (onError)
+                        onError(error);
+                }
+            )
+
+        });
     }
 
     static uploadFile(field: Field, input: HTMLInputElement, onSuccess: OnSuccess, onError: OnError): WebApiRequest {

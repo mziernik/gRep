@@ -1,19 +1,15 @@
 // @flow
-'use strict';
-
-import {Check, Is, React, Type, Record, Repository, Trigger, Utils, Dispatcher, Store, DEV_MODE, CRUDE} from "../core";
+import {Check, Is, Utils} from "../$utils";
+import {React, Type, Record, Repository, Trigger, Dispatcher, Store, DEV_MODE, CRUDE} from "../core";
 import {DataType, TEXT_CASING} from "./Type";
 import Column, {Foreign, ForeignConstraint} from "./Column";
-import {Constraint, RepoCursor} from "./Repository";
-import {array} from "../utils/Is";
+import {RepoCursor} from "./Repository";
 
 export default class Field {
 
     _locked: boolean = false; // blokada możliwości zmiany edycji (tryb REMOTE i SYNCHRONIZED)
     _store: ?FieldStore = null;
     record: Record = null;
-    /** Lista kontrolerów (FCtrl) powiązanych z polem, kontrolery usuwają się z listy automatycznie w momencie zniszczenia komponentu*/
-    _fctrls: [] = [];
     config: Column;
     lastUpdate: ?number = null; // timestamp
     /** Walidator wartości

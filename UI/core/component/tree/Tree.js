@@ -2,17 +2,17 @@
 'use strict';
 
 import React from 'react';
-import TreeItem from  './TreeNode';
+import TreeNode from './TreeNode';
 import DragAndDropContext from "../DragAndDrop/DragAndDropContext";
 import TreeElement from "./TreeElement";
 import {VarArray} from "../../Var";
 
 
 export default class Tree extends TreeElement {
-    children: Array<TreeItem> = [];
+    children: Array<TreeNode> = [];
     multiple: boolean = false; // zaznacz wiele
     checkboxes: boolean = false;
-    selected: Array<TreeItem> = []; // zaznaczone gałęzie
+    selected: Array<TreeNode> = []; // zaznaczone gałęzie
     selectMultiple: boolean = false;
     dnd: TreeDragAndDropContext = new TreeDragAndDropContext();
     _expanded: VarArray = new VarArray();
@@ -33,14 +33,17 @@ export default class Tree extends TreeElement {
         value = value.toLowerCase().trim();
         const empty = value === "";
 
-        this.visit((item: TreeItem) => {
+        this.visit((item: TreeNode) => {
             ++total;
-            item.found = empty ? null : false;
+            item._found = false;
+
+            item._hidden = empty ? null : false;
             if (!empty && item.name.toLowerCase().indexOf(value) >= 0) {
                 ++found;
+                item._found = true;
                 let it = item;
                 while (it) {
-                    it.found = true;
+                    it._hidden = true;
                     it = it.parent;
                 }
             }
@@ -48,7 +51,7 @@ export default class Tree extends TreeElement {
         // alert("Znaleziono " + found + " z " + total);
     }
 
-    visit(callback: (item: TreeItem) => ?boolean) {
+    visit(callback: (item: TreeNode) => ?boolean) {
         const visit = (item) => {
             if (!item || !item.children)
                 return false;
@@ -67,12 +70,12 @@ export default class Tree extends TreeElement {
         let total = 0;
 
 
-        function generate(count: number, parent: Tree | TreeItem, level: number) {
+        function generate(count: number, parent: Tree | TreeNode, level: number) {
 
             for (let i = 1; i < count; i++) {
 
                 ++total;
-                const ti = new TreeItem(parent,
+                const ti = new TreeNode(parent,
                     // $FlowFixMe
                     parent && parent.id ? parent.id + "_" + i : "id_" + i,
                     // $FlowFixMe

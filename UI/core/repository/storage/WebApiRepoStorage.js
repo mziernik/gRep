@@ -8,7 +8,7 @@ import {BinaryData, UploadData} from "../Type";
 export default class WebApiRepoStorage extends RepositoryStorage {
 
     load(repos: Repository[]): Promise {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve: () => void, reject: () => void) => {
 
             if (!API.instance) {
                 reject();

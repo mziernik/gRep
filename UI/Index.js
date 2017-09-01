@@ -19,17 +19,32 @@ import RepositoryStorage from "./core/repository/storage/RepositoryStorage";
 import * as Model from "./model/Model";
 import WebApi from "./core/webapi/WebApi";
 import GrepApi from "./model/GrepApi";
+import CoreConfig from "./core/config/CoreConfig";
 
 //----------------------------------------------------------------------------------------------------------------------
+// debugger;
+//
+// var target = {};
+// var handler = {
+//     get: function (receiver, name) {
+//         debugger;
+//         // This example includes a template string.
+//         return `Hello, ${name}!`;
+//     }
+// };
+//
+// var p = new Proxy(target, handler);
+// console.log(p.world);
 
-const api: GrepApi = new GrepApi(new WebApi("http://localhost:80/api"));
-api.api.httpUrl = "http://localhost:80";
 
-API.set(api, api.repository);
 
 window.addEventListener("load", () => {
-        Config.api.url.value = process.env.WEB_API_URL || window.location.origin + "/hubs/MainHub";
-        API.set(new CKPApi(new WebApi(null, SignalRTransport)));
+
+        CoreConfig.api.wsUrl.value = "http://localhost:80/api";
+
+        const api: GrepApi = new GrepApi(new WebApi(null));
+        API.set(api, api.repository);
+
         Model.init();
 
         PERMISSIONS.refresh();

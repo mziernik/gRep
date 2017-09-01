@@ -109,9 +109,9 @@ export default class CTreeNode extends React.Component {
         const item: TreeNode = this.props.item;
         const tree: Tree = item.tree;
 
-        if (item.found !== null && !item.found) return null;
+        if (item._hidden !== null && !item._hidden) return null;
 
-        const childrenVisible = item.found !== null ? item.found : item.expanded && item.children && item.children.length;
+        const childrenVisible = item._hidden !== null ? item._hidden : item.expanded && item.children && item.children.length;
 
         let ul = childrenVisible ?
             <ul ref={ul => this._ulReady(ul)}>
@@ -125,6 +125,7 @@ export default class CTreeNode extends React.Component {
 
         const header =
             <div className="x-tree-header"
+                 data-found={item._found ? true : null}
                  style={{paddingLeft: ((item.level + 1) * 20) + "px"}}
                  ref={tag => this.item.tHeader = tag}
                  onClick={e => this._expand(null, e)}>
@@ -141,9 +142,9 @@ export default class CTreeNode extends React.Component {
 
         return (
             <li data-expanded={item.expanded} className="x-tree-node">
-                <DragAndDrop dnd={this.dnd} item={item} itemIndex={item.index}>
+                {/*<DragAndDrop dnd={this.dnd} item={item} itemIndex={item.index}>*/}
                     {Is.func(item.render) ? item.render(header) : header}
-                </DragAndDrop>
+                {/*</DragAndDrop>*/}
                 <CSSTransitionGroup
                     transitionName="x-tree-slide"
                     transitionEnterTimeout={200}

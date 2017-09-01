@@ -93,14 +93,12 @@ const config = {
                 loader: StringReplacePlugin.replace({
                     replacements: [
                         {
+                            pattern: /^/,
+                            replacement: _moduleMarker
+                        },
+                        {
                             pattern: /$/,
-                            replacement: function (match, p1, offset, string) {
-                                debugger;
-                                var fileName = null;
-                                if (this && this.resourcePath)
-                                    fileName = this.resourcePath.substring(__dirname.length + 1).split("\\").join("/");
-                                return "\n\n(window._modules = (window._modules || [])).push([module, " + JSON.stringify(fileName) + "]);"
-                            }
+                            replacement: _moduleMarker
                         }
                     ]
                 })
@@ -217,6 +215,14 @@ if (ENV === 'production' || ENV === 'test') {
 
 
 module.exports = config;
+
+function _moduleMarker(match, pos, offset) {
+    // nie można dodawać nowych linii bo są problemy z debugowaniem
+    var fileName = null;
+    if (this && this.resourcePath)
+        fileName = this.resourcePath.substring(__dirname.length + 1).split("\\").join("/");
+    return "  (window._registerModule && window._registerModule(" + JSON.stringify(fileName) + ", module, " + pos + "));  ";
+}
 
 function _filter(loader, file) {
     if (!file || file.indexOf(__dirname) !== 0) {

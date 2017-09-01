@@ -1,8 +1,43 @@
+- utworzyć klasę JoinedRepo
+- zamienić pola klasy Component na symbole (np node, name)
+- poprawić spinnera
+- Automatyczne wygasanie sesji (wylogowanie użytkownika)
+- Nawigacja do repozytorium/rekordu zadeklarowanego w endpoincie
+- Upload plików
+- Raporty
+
+
+- tryb readOnly dla FCtrl = boolean
+
+- rozdzielić importy Utils dodatkowo na Repository
+
+
+- powiązanie karty TabSeta-a ze ścieżką, zmiana przez hisoty.push()
+
 - Wydzielenie oddzielnego projektu dla części bazowej
-- PopupMenu
-- ToolBar
-- Zakładki
-- Splitter
-- ToolTip
++/- Alert, Prompt, Input
+
++ Endpoint.navigate + shift -> Strona w ModalWindow powinna być opakowana w kontener, przyciski w stopce okna, tytuł przeniesiony do belki
+
++ Karty (zakładki)
+- pseudo selektory w stylach
++/- Select (ComboBox) + wyszukiwanie + grupowanie
++ Panele (zwijanie, zmiana rozmiaru)
++ Tabele
++ Button + Popup
++ PopupMenu
++ ToolBar
++ Splitter
++ ToolTip
++ Okno modalne
+- Wysyłanie plików
+- RichEdit (edycja dokumentów)
++ Breadcrumbs
+- Kalendarz syncfusion
+- Kanban syncfusion
+- Wyszukiwarka treści
+-  Wykresy (np. z dashboard-u)
 + Klasa (enumerata) dla FontAwesome
 + Definicje styli (skórek) na poziomie komponentu (kolor czcionki, kolor tła)
+
+

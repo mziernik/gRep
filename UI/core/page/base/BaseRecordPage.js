@@ -15,7 +15,7 @@ export default class BaseRecordPage extends RepoPage {
     controller: RecordCtrl;
     tabSet: TabSet;
     // czy po utworzeniu nowego rekordu wykonać funkcję history.back();
-    historyBackOnCreate: boolean = Config.repo.historyBackOnCreate.value;
+    historyBackOnCreate: boolean = Config.ui.historyBackOnCreate.value;
 
     //   afterSaveNavigate: string;
 

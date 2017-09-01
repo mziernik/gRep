@@ -1,9 +1,12 @@
 // @flow
 'use strict';
 
-import {Check, Is, React, Type, DEV_MODE, Record, Repository, Trigger, Utils, Dispatcher, Store} from "../core";
+import {DEV_MODE} from "../core";
+import {Check, Is, Utils} from "../$utils";
 import {DataType} from "./Type";
-import {RepoError} from "./Repository";
+import * as Type from "./Type";
+
+//import {RepoError} from "./Repository";
 
 export class ForeignConstraint {
     currentLocal: Column;
@@ -68,7 +71,11 @@ export default class Column {
         if (DEV_MODE)
             this["#instance"] = null;
 
-        Object.preventExtensions(this);
+
+        const overloaded = this.constructor !== Column.prototype.constructor;
+        if (!overloaded)
+            Object.preventExtensions(this);
+
         Check.isFunction(config);
         config(this);
 
@@ -97,7 +104,7 @@ export default class Column {
             this.trimmed = true;
 
         Is.string(this.type, t => this.type = Type.get(t));
-        Check.instanceOf(this.type, [Type.DataType]);
+        Check.instanceOf(this.type, [DataType]);
 
         Check.nonEmptyString(this.key);
         Check.nonEmptyString(this.name);
@@ -151,6 +158,8 @@ export default class Column {
 
 function processForeign(col: Column, value: any): Foreign {
 
+    const Repository = require("./Repository").default;
+
     if (!Is.defined(value) || value instanceof Foreign)
         return value;
 
@@ -175,6 +184,8 @@ function processForeign(col: Column, value: any): Foreign {
         : f.repo.primaryKeyColumn;
 
     function getColumn(value: string) {
+        const RepoError = require("./Repository").RepoError;
+
         const items: string[] = Check.isString(value).split(".");
         const repo: Repository = items[0] === "this" ? col.repository : Repository.get(items[0]);
         let local = items[1] ? repo.getColumn(items[1], true, true) : repo.primaryKeyColumn;

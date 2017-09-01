@@ -3,6 +3,7 @@ import * as Utils from "../utils/Utils";
 import * as Is from "../utils/Is";
 import Icon from "../component/glyph/Icon";
 
+
 export type SimpleType = "any" | "boolean" | "number" | "string" | "object" | "array";
 
 const all = {};
@@ -326,7 +327,11 @@ export const FILE: DataType = new DataType((dt: DataType) => {
     dt.isBinary = true;
     dt.parser = val => val instanceof BinaryData ? val : new BinaryData(val);
     dt.formatter = (val: BinaryData) => val ? val.name : null;
-    dt.serializer = (val: BinaryData) => val ? val.id : null;
+    dt.serializer = (val: BinaryData) => val ? {
+        id: val.id,
+        name: val.name,
+        size: val.size
+    } : null;
 });
 
 export const IMAGE: DataType = new DataType((dt: DataType) => {
@@ -593,8 +598,7 @@ export class BinaryData {
 
         this.href = data.href;
         if (this.href && !this.href.contains("://")) {
-            debugger;
-            this.href = require("../application/API").API.wepApi.httpUrl + this.href;
+            this.href = require("../config/CoreConfig").api.httpUrl.value + "/" + this.href;
         }
     }
 }

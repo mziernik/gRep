@@ -6,7 +6,7 @@
  */
 
 import "./DOMPrototype";
-import {Utils, Check, Trigger} from "../core.js";
+import {Utils, Check, Trigger} from "../$utils.js";
 import * as ContextObject from "../application/ContextObject";
 import Dev from "../Dev";
 

@@ -116,7 +116,7 @@ export default class Panel extends Component {
                 style={{
                     width: size,
                     height: size,
-                    outline: '1px solid #444'
+                    // outline: '1px solid #444'
                 }}>
                 {super.renderChildren()}
             </Splitter>;

@@ -8,7 +8,6 @@ import "./utils/DOMPrototype";
 import * as Check from "./utils/Check";
 
 export {Check};
-
 import * as Utils from "./utils/Utils";
 
 export {Utils};
@@ -75,12 +74,12 @@ export {default as AppStatus} from "./application/Status";
 export {default as Endpoint} from "./application/Endpoint";
 
 // --------------------- moduły ------------------------------
-
+export {default as Column} from "./repository/Column";
 export {default as Repository} from "./repository/Repository";
 export {default as Record} from "./repository/Record";
 export {default as Field} from "./repository/Field";
 export {default as Cell} from "./repository/Cell";
-export {default as Column} from "./repository/Column";
+
 export {RepoConfig} from "./repository/Repository";
 
 import * as ContextObject from "./application/ContextObject";

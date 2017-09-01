@@ -1,41 +1,33 @@
-import {DataType} from "../repository/Type";
-import {Utils, Field, CRUDE, Column, Repository} from "../core";
+import {Column, Record} from "../core";
+import ConfigNode from "./ConfigNode";
+import {Utils, Check} from "../$utils";
+import Field from "../repository/Field";
 import * as Bootstrap from "../Bootstrap";
+
 
 export const FIELDS: ConfigField[] = [];
 
+export class ConfigFieldData extends Column {
+
+    local: boolean = true;
+    user: boolean = false;
+    group: ?string = null;
+
+}
 
 export default class ConfigField {
 
     field: Field;
-    record: EConfig;
 
-    static create(type: DataType, key: string, name: string, value: any): ConfigField {
-        return new ConfigField((c: Column) => {
-            c.type = type;
-            c.key = key;
-            c.name = name;
-            c.defaultValue = value;
-        });
-    }
+    node: ConfigNode;
 
-    constructor(config: (c: Column) => void) {
-
-        Bootstrap.onCoreReady(mod => {
-            this.field = new Field(config);
-            FIELDS.push(this.field);
-
-            const RCONFIG = require("./ConfigRepo").RCONFIG;
-
-            this.record = RCONFIG.createRecord("CONFIG", CRUDE.CREATE);
-            this.record.KEY.value = this.field.key;
-            this.record.TYPE.value = this.field.type.name;
-            this.record.NAME.value = this.field.name;
-            this.record.DEFAULT_VALUE.value = this.field.config.defaultValue;
-            this.record.REQUIRED.value = true;
-            this.record.LOCAL.value = true;
-            Repository.update("CONFIG", [this.record]);
-        });
+    constructor(node: ConfigNode, config: (c: Column) => void) {
+        this.node = Check.instanceOf(node, [ConfigNode]);
+        node.fields.push(this);
+        this.field = new Field(new ConfigFieldData(config));
+        this.field.config.key = (node ? node.fullId + "." : "") + this.field.key;
+        FIELDS.push(this.field);
+        Bootstrap.onLoad(() => require("./ConfigRepositories").R_CONFIG_FIELD.create(this));
     }
 
     get value(): any {

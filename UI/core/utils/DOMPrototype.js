@@ -301,8 +301,8 @@ Element.prototype.css = Element.prototype.css || function (data: Object): Elemen
         if (typeof val === "function")
             continue;
 
-        if (this.style[name] === undefined)
-            throw "Nieznany selektor \"" + name + "\"";
+     //   if (this.style[name] === undefined)
+     //       throw "Nieznany selektor \"" + name + "\"";
 
         this.style[name] = val;
     }

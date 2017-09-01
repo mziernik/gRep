@@ -80,6 +80,11 @@
     text-align: center;
     display: inline-block;
     color: #666;
+    line-height: 1.5em;
+}
+
+.x-tree-main {
+    line-height: 1.7em;
 }
 
 .x-tree-main[data-menu=true] {
@@ -150,4 +155,8 @@
 
 .x-tree-main[data-menu=true] .x-tree-search input:focus {
     outline: none;
+}
+
+.x-tree-main[data-menu=true] .x-tree-header[data-found] > .x-tree-header-label {
+    color: yellow;;
 }

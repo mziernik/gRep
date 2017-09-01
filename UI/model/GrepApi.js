@@ -14,8 +14,6 @@ export default class GrepApi {
 
     constructor(api: WebApi) {
         this.api = api;
-        api.httpUrl = api.httpUrl || "http://localhost/api";
-        api.wsUrl = api.wsUrl || "ws://localhost/api";
         api.hash = 'bxh31Q';
 
     }

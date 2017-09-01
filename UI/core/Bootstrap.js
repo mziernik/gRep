@@ -1,6 +1,7 @@
 export const MODULES: Map<string, () => void> = new Map();
 const NAMES: string[] = [];
 const LISTENERS: [] = [];
+const ON_LOAD: [] = [];
 
 let loaded = false;
 
@@ -10,11 +11,13 @@ class Module {
     created: Date = new Date();
 }
 
-window._registerModule = function (name: string, module) {
+window._registerModule = function (name: string, module: any, pos: number) {
 
     const mod: Module = new Module();
     mod.name = name;
     mod.module = module;
+
+    //console.log(name);
 
     MODULES.set(name, mod);
     NAMES.push(name);
@@ -38,10 +41,10 @@ window._registerModule = function (name: string, module) {
 
 };
 
-
-export function onCoreReady(callback: () => void): boolean {
-    return onReady("core/core.js", callback);
+export function onLoad(callback: () => void) {
+    if (loaded) callback(); else ON_LOAD.push(callback);
 }
+
 
 export function onReady(fileName: string, callback: () => void): boolean {
     const result = NAMES.find(name => name === fileName);
@@ -61,6 +64,9 @@ export function onReady(fileName: string, callback: () => void): boolean {
 
 window.addEventListener("load", () => {
     loaded = true;
+
+    ON_LOAD.forEach(f => f());
+
     if (!LISTENERS.length) return;
     debugger;
 

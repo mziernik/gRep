@@ -25,9 +25,7 @@ export default class WebApi {
         "User-Agent": window.navigator.userAgent,
         "Accept-Language": window.navigator.language
     };
-    url: string;
-    httpUrl: string;
-    wsUrl: string;
+
     hash: string;
     maxRetries: number = 10;
     processed: Map<string, WebApiRequest> = new Map();
@@ -36,11 +34,7 @@ export default class WebApi {
     onClose: Dispatcher = new Dispatcher();
 
     constructor(url: string, transportClass) {
-        if (!url) url = Config.api.url.value;
 
-        this.url = url;
-        this.httpUrl = url;
-        this.wsUrl = url;
         WebApi.instance = this;
 
         let retryCount = 0;
@@ -54,16 +48,14 @@ export default class WebApi {
             setTimeout(() => {
                 if (transport.connected)
                     return;
-                transport.connect(url);
+                transport.connect(this.url);
             }, delay);
             return true;
         };
 
 
         this.transport = new (transportClass || WebSocketTransport)(this);
-
         const transport = this.transport;
-
         let wasConnected = false;
 
         transport.onOpen = e => {
@@ -99,6 +91,10 @@ export default class WebApi {
             this.processed.clear();
         };
 
+    }
+
+    get url(): string {
+        return Config.api.wsUrl.value;
     }
 
     onMessage(data: WebApiMessage) {
