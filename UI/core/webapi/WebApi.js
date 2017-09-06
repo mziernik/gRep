@@ -76,7 +76,21 @@ export default class WebApi {
             console.error(e);
         };
 
-        transport.onMessage = data => new WebApiResponse(this, data);
+        transport.onMessage = (data: Object, req: WebApiRequest) => {
+            if (!transport.connected) return;
+
+            if (req) data.id = req.id;
+
+            if (!data || !data.id || !data.type) {
+                const r = data;
+                data = {};
+                data.id = req.id;
+                data.type = "response";
+                data.data = r;
+            }
+
+            new WebApiResponse(this, data);
+        };
 
         transport.onClose = (reason, e) => {
             transport.connected = false;

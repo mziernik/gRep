@@ -1,5 +1,6 @@
 export {default as Alert} from "./component/alert/Alert";
 export {default as Spinner} from "./component/Spinner";
+//export {default as Busy} from "./component/Busy";
 export {default as Icon} from "./component/glyph/Icon"
 
 

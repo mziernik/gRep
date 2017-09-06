@@ -161,7 +161,6 @@ export default class Button extends Component {
                 if (typeof this.props.link === "string")
                     Endpoint.navigate(this.props.link, e);
             }}
-
         >
             {
                 this.props.icon ?

@@ -93,7 +93,7 @@ export default class RecordCtrl {
     constructor(record: Record) {
         this.record = record;
         this.crude = record.action;
-        this.title = record.repo.name;
+        this.title = (record.repo.config.group ? record.repo.config.group + " :: " : "" ) + record.repo.name;
     }
 
 
@@ -118,7 +118,7 @@ export default class RecordCtrl {
         if (!this.validate()) return false;
 
         this.buttons.forEach(btn => btn.disabled = true);
-        const spinner = this.spinner ? new Spinner() : null;
+        const spinner = this.spinner ? Spinner.modal() : null;
 
         const ts = new Date().getTime();
 
@@ -203,12 +203,14 @@ export default class RecordCtrl {
         </div>
     }
 
-    render(): AttributesRecord {
+    render(mw: ModalWindow): AttributesRecord {
 
         const endpoint: Endpoint = Endpoint.getByRecord(this.record.repo.config.record)[0];
 
         if (endpoint && endpoint._component) {
             return React.createElement(endpoint._component, {
+                modal: mw,
+                recCtrl: this,
                 id: this.record.action === CRUDE.CREATE ? "~new" : this.record.pk
             }, null);
         }
@@ -263,8 +265,9 @@ export default class RecordCtrl {
         ModalWindow.create((mw: ModalWindow) => {
             this._modal = mw;
             mw.content = <Panel fit style={{padding: "30px"}}>
-                {this.render()}
+                {this.render(mw)}
             </Panel>;
+
             mw.title.set(this.title || (this.record.action === CRUDE.CREATE
                 ? "Tworzenie rekordu " + Utils.escape(this.record.repo.name)
                 : "Edycja rekordu " + Utils.escape(this.record.displayValue)));

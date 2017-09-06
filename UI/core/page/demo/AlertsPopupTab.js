@@ -27,7 +27,7 @@ export default class AlertsTab extends Component {
 
             <button
                 onClick={() => {
-                    const spinner = new Spinner();
+                    const spinner = Spinner.modal();
                     setTimeout(() => spinner.hide(), 3000);
                 }
                 }
@@ -36,7 +36,7 @@ export default class AlertsTab extends Component {
 
             <button
                 onClick={() => {
-                    const spinner = new Spinner();
+                    const spinner = Spinner.modal();
                     //  setTimeout(() => spinner.hide(), 1);
                 }
                 }

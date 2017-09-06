@@ -59,6 +59,16 @@ export default class TreeNode extends TreeElement {
             this.expanded = this.tree._expanded.contains(id);
     }
 
+    get path(): TreeNode[] {
+        const path = [];
+        let node: TreeNode = this;
+        while (node) {
+            path.unshift(node);
+            node = node.parent;
+        }
+        return path;
+    }
+
     select(): void {
         if (!this.tree.selectMultiple) {
             this.tree.selected.forEach(node => {

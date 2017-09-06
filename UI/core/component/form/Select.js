@@ -1,6 +1,6 @@
 //@Flow
 'use strict';
-import {React, ReactDOM, PropTypes, Utils, Type, Is, Dev} from '../../core';
+import {React, ReactDOM, PropTypes, Utils, Type, Is, Dev, Field} from '../../core';
 import {FormComponent, Icon} from '../../components';
 import {DropdownList} from 'react-widgets';
 
@@ -26,6 +26,7 @@ export default class Select extends FormComponent {
     _multiSelect: boolean = false;
 
     static propTypes = {
+        field: PropTypes.instanceOf(Field).isRequired,
         /** ista jednostek */
         units: PropTypes.array,
         readOnly: PropTypes.bool

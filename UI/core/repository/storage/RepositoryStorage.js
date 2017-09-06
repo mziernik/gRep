@@ -1,7 +1,10 @@
 import {Utils, Record, Field, Repository, CRUDE, Dev, AppStatus} from "../../core";
 import Alert from "../../component/alert/Alert";
 
+
 export default class RepositoryStorage {
+
+
 
     /** Wczytaj zawartość repozytoriów */
     load(repos: Repository[]): Promise {

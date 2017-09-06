@@ -7,6 +7,8 @@ import {BinaryData, UploadData} from "../Type";
 
 export default class WebApiRepoStorage extends RepositoryStorage {
 
+    static INSTANCE: WebApiRepoStorage = new WebApiRepoStorage();
+
     load(repos: Repository[]): Promise {
         return new Promise((resolve: () => void, reject: () => void) => {
 
@@ -20,6 +22,20 @@ export default class WebApiRepoStorage extends RepositoryStorage {
             const add = (repo: Repository) => !repo.config.onDemand && list.push(repo.key);
 
             Utils.forEach(repos, repo => add(repo));
+
+
+            Ready.confirm(WebApiRepoStorage, WebApiRepoStorage);
+
+            API.repoGet({repositories: list}, ok => {
+                resolve(ok);
+            }, (err) => {
+                if (this.api && !this.api.transport.connected)
+                    return;
+                AppStatus.error(this, err);
+                reject(err);
+            });
+
+            return;
 
             API.repoList(data => {
                 const dynamic: Repository[] = Repository.processMetaData(data);

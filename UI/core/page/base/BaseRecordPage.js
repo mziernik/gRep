@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {React, Check, Record, Repository, CRUDE} from "../../core.js";
+import {React, PropTypes, Check, Record, Repository, CRUDE} from "../../core.js";
 import RecordCtrl from "../../component/repository/RecordCtrl";
 import RepoPage from "./RepoPage";
 import {TabSet} from "../../component/TabSet";
@@ -9,6 +9,11 @@ import Config from "../../config/CoreConfig";
 
 /** Klasa bazowa dla formatek edycji rekordu, parametrem jest zawsze id */
 export default class BaseRecordPage extends RepoPage {
+
+    static propTypes = {
+        id: PropTypes.string,
+        recCtrl: PropTypes.any
+    };
 
     isNew: boolean;
     record: Record;
@@ -21,19 +26,32 @@ export default class BaseRecordPage extends RepoPage {
 
     constructor(repo: Repository | string, props: any, context: any, state: any) {
         super(repo, props, context, state);
+
+        if (this.props.recCtrl) {
+            this.controller=Check.instanceOf(this.props.recCtrl,[RecordCtrl]);
+            this.record = this.controller.record;//Check.instanceOf(this.props.record, [Record]);
+            this.repo = this.record.repo;
+            this.isNew = this.record.action === CRUDE.CREATE;
+            return;
+        }
+
         Check.isDefined(this.props.id);
     }
 
 
     onReady(repo: Repository, list: Repository[]) {
-        this.isNew = this.props.id === "~new";
-        this.repo = repo instanceof Repository ? repo : Repository.get(repo, true);
-        this.record = this.isNew ? this.repo.createRecord(this, this.isNew
-            ? CRUDE.CREATE : CRUDE.UPDATE)
-            : this.repo.get(this, this.props.id, true);
-        this.controller = new RecordCtrl(this.record);
-        this.controller.local = false;
-        this.controller.showAdvanced = false;
+
+        if (!this.record) {
+            this.isNew = this.props.id === "~new";
+            this.repo = repo instanceof Repository ? repo : Repository.get(repo, true);
+            this.record = this.isNew ? this.repo.createRecord(this, this.isNew
+                ? CRUDE.CREATE : CRUDE.UPDATE)
+                : this.repo.get(this, this.props.id, true);
+
+            this.controller = new RecordCtrl(this.record);
+            this.controller.local = false;
+            this.controller.showAdvanced = false;
+        }
 
         this.buttons.list.push(this.controller.btnBack);
         if (!this.isNew)

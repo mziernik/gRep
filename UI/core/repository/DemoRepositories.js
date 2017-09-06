@@ -457,6 +457,18 @@ export class RUsers extends Repository {
                     record: true,
                     name: "Usuń",
                     confirm: "Czy na pewno usunąć?",
+                    constraints: {
+                        "this.enabled": true,
+                        "this.type": [1, 3, 4]
+                    },
+                    params: {
+                        name: {
+                            type: "string",
+                            name: "Imię",
+                            required: true,
+                            defaultValue: "Jasiu"
+                        }
+                    },
                     type: "danger",
                     icon: "fa fa-user-times"
                 },

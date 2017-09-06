@@ -122,7 +122,7 @@ export default class PRepository extends RepoPage {
 
         mw.buttons = MW_BUTTONS.OK_CANCEL;
         mw.onConfirm = () => {
-            const spinner: Spinner = new Spinner();
+            const spinner: Spinner = Spinner.modal();
 
             try {
                 gen.random = rnd.value;

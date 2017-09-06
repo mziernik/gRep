@@ -3,7 +3,9 @@
 import {Utils, Field, Record, Store, Repository} from "../../core";
 import RepositoryStorage from "./RepositoryStorage";
 
-export default class LocalRepoStorage extends RepositoryStorage {
+export default class LoopbackRepoStorage extends RepositoryStorage {
+
+    static INSTANCE: LoopbackRepoStorage = new LoopbackRepoStorage();
 
     store: Store = Store.local;
 
@@ -15,6 +17,7 @@ export default class LocalRepoStorage extends RepositoryStorage {
     /** Wczytaj zawartość repozytoriów */
 
     load(repos: Repository[]): Promise {
+        debugger;
         return new Promise((resolve, reject) => {
             const dto = {};
             resolve(dto);
@@ -62,6 +65,7 @@ export default class LocalRepoStorage extends RepositoryStorage {
 
     save(context: any, records: Record[]): Promise {
 
+        debugger;
         return new Promise((resolve, reject) => {
             const repos = new Set();
             Utils.forEach(repos, (rec: Record) => repos.add(rec.repo));

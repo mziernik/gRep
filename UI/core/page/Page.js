@@ -21,8 +21,13 @@ import WebApiRepoStorage from "../repository/storage/WebApiRepoStorage";
 import {ModalWindow} from "../component/ModalWindow";
 import {Btn} from "../component/Button";
 import {Dynamic} from "../component/Component";
+import Busy from "../component/Busy";
 
 export default class Page extends Component {
+
+    static propTypes = {
+        modal: PropTypes.any // ModalWindow
+    };
 
     /** @private */
     __render: () => any;
@@ -66,7 +71,7 @@ export default class Page extends Component {
                     }
 
                 if (this._waitingForRepo)
-                    return <div>Oczekiwanie na gotowość repozytorium</div>;
+                    return <Busy fit label="Proszę czekać..."/>;
 
                 const result = this.__render();
                 //       if (Is.array(result))
@@ -83,7 +88,7 @@ export default class Page extends Component {
     }
 
     get modal(): ModalWindow {
-        return this.node.tab ? this.node.tab.modalWindow : null;
+        return this.props.modal || (this.node.tab ? this.node.tab.modalWindow : null);
     }
 
     static renderError(context: any, e: string | Error | EError) {

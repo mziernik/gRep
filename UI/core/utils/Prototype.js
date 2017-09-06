@@ -289,4 +289,15 @@ Array.prototype.equals = Array.prototype.equals || function (array: []): boolean
 };
 
 
+/**
+ * doaje (lub odejmuje) godziny
+ * @type {Function}
+ */
+// $FlowFixMe
+Date.prototype.addHours = Date.prototype.addHours || function (count: number): Date {
+    debugger;
+    this.setHours(this.getHours() + count);
+    return this;
+};
+
 

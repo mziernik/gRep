@@ -47,7 +47,7 @@ export default class WebApiTransport {
     connected: boolean = false;
     /** Kolejka żądań oczekujących na  wysłanie */
     queue: WebApiRequest[] = [];
-    onMessage: (message: any) => void;
+    onMessage: (message: Object, req: WebApiRequest) => void;
     onClose: (reason: string) => void;
     onError: (message: string) => void;
     onOpen: () => void;
@@ -126,13 +126,7 @@ export class SignalRTransport extends WebApiTransport {
     send(req: WebApiRequest) {
         const args: [] = Utils.forEach(req.params, v => v);
         this.conn.invoke(req.method, ...args)
-            .then(data => {
-                if (!this.connected) return;
-                data = data || {};
-                data.id = req.id;
-                data.type = "response";
-                new WebApiResponse(req.webApi, data);
-            })
+            .then(data => this.onMessage(data, req))
             .catch(e => {
                 Dev.error(this, e);
                 WebApiResponse.error(req, e);

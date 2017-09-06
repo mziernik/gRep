@@ -43,6 +43,8 @@ export default class Column {
     required: ?boolean = null;
     disabled: ?boolean = null;
     unique: ?boolean = null;
+    /** Czy wartość kolumny  - */
+    writable: ?boolean = null;
     min: ?number = null;
     max: ?number = null;
     regex: ?string = null;
@@ -210,6 +212,11 @@ function processForeign(col: Column, value: any): Foreign {
             fc.currentLocal = a[0];
             fc.currentForeign = a[1];
         });
+
+        if (Is.array(obj[1])) {
+            fc.allowedValues = obj[1];
+            return;
+        }
 
         Is.array(getColumn(obj[1]), a => {
             fc.allowedLocal = a[0];

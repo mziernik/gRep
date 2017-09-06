@@ -22,8 +22,8 @@ export default class BaseRepositoryPage extends RepoPage {
 
     constructor(repository: Repository, recordEndpoint: Endpoint, props: Object, context: Object, updater: Object) {
         super(repository, props, context, updater);
-        this.recordEndpoint = recordEndpoint;
-
+        this.recordEndpoint = props.recordEndpoint || recordEndpoint;
+        this.rowFilter = props.rowFilter;
         this.buttons.add((btn: Btn) => {
             btn.type = "primary";
             btn.text = "Dodaj";
@@ -68,6 +68,7 @@ export default class BaseRepositoryPage extends RepoPage {
     }
 
     render() {
+        this.title.set()
         return <RepoTable
             modalEdit={this.modalEdit}
             repository={this.repo}

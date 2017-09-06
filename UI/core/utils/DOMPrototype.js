@@ -3,6 +3,7 @@
 
 
 import UrlBuilder from "./UrlBuilder";
+import Dev from "../Dev";
 
 declare function $id(objectOrId: string | Node): any;
 
@@ -301,8 +302,26 @@ Element.prototype.css = Element.prototype.css || function (data: Object): Elemen
         if (typeof val === "function")
             continue;
 
-     //   if (this.style[name] === undefined)
-     //       throw "Nieznany selektor \"" + name + "\"";
+        if (this.style[name] === undefined) {
+
+            debugger;
+
+            let s = name[0].toUpperCase() + name.substring(1);
+
+            if (this.style["webkit" + s] !== undefined) {
+                // autokorekata
+                this.style["webkit" + s] = val;
+                continue;
+            }
+
+            if (this.style["Moz" + s] !== undefined) {
+                // autokorekata
+                this.style["Moz" + s] = val;
+                continue;
+            }
+
+            Dev.warning(null, "Nieznany selektor \"" + name + "\"");
+        }
 
         this.style[name] = val;
     }

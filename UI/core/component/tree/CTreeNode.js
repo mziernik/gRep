@@ -128,7 +128,9 @@ export default class CTreeNode extends React.Component {
                  data-found={item._found ? true : null}
                  style={{paddingLeft: ((item.level + 1) * 20) + "px"}}
                  ref={tag => this.item.tHeader = tag}
-                 onClick={e => this._expand(null, e)}>
+                 onClick={e => this._expand(null, e)}
+                 title={Utils.forEach(item.path, (node: TreeNode) => node.name).join(" » ")}
+            >
 
                 {tree.rightIndicator ? null : <span className={"x-tree-expand-indicator " + indicator}/>}
                 {item.checkbox ? (<input className={"x-tree-checkbox"} type="checkbox"/>) : null}
@@ -141,9 +143,9 @@ export default class CTreeNode extends React.Component {
             </div>;
 
         return (
-            <li data-expanded={item.expanded} className="x-tree-node">
+            <li data-expanded={item.expanded} data-level={item.level} className="x-tree-node">
                 {/*<DragAndDrop dnd={this.dnd} item={item} itemIndex={item.index}>*/}
-                    {Is.func(item.render) ? item.render(header) : header}
+                {Is.func(item.render) ? item.render(header) : header}
                 {/*</DragAndDrop>*/}
                 <CSSTransitionGroup
                     transitionName="x-tree-slide"

@@ -7,39 +7,71 @@
 
 import {React, PropTypes} from "../core";
 import "./spinner.css";
+import {object} from "../utils/Is";
 
 let layer = null;
 const list: Spinner[] = [];
 let showTimeout;
 let style: HTMLStyleElement;
 
+
+export class SpinnerConfig {
+    dark: boolean = true;
+    modal: boolean = false; // warstwa wyszarzająca
+    parent: HTMLElement = document.body;
+    style: Object;
+    text: string;
+}
+
 export default class Spinner {
 
-    dark: boolean = true;
+    config: SpinnerConfig = new SpinnerConfig();
 
-    constructor(dark: boolean = true) {
-        this.dark = dark;
-        if (!layer) {
+    static modal(text: string): Spinner {
+        return new Spinner((sc: SpinnerConfig) => {
+            sc.modal = true;
+            sc.text = text;
+        });
+    }
+
+    constructor(config: (cfg: SpinnerConfig) => void) {
+
+        if (config)
+            config(this.config);
+
+        if (this.config.modal && !layer) {
             layer = document.createElement("div");
             layer.setAttribute("class", "spinner-layer");
-
-            const spinner = document.createElement("div");
-            layer.appendChild(spinner);
-
-            spinner.setAttribute("class", "spinner");
-            spinner.setAttribute("dark", this.dark);
-
-            for (let i = 0; i < 12; i++)
-                spinner.appendChild(document.createElement("div"));
-
-            showTimeout = setTimeout(function () {
-                layer.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
-                spinner.style.opacity = "1";
-            }, 100);
+            document.body.appendChild(layer);
         }
 
-        if (list.length === 0)
-            document.body.appendChild(layer);
+        const preSpinner = document.createElement("div");
+        preSpinner.setAttribute("class", "pre-spinner");
+        if (this.config.modal) layer.appendChild(preSpinner); else this.config.parent.appendChild(preSpinner);
+
+        const spinner = document.createElement("div");
+        preSpinner.appendChild(spinner);
+        spinner.setAttribute("class", "spinner");
+        spinner.setAttribute("dark", this.config.dark);
+        spinner.css(this.config.style);
+        for (let i = 0; i < 12; i++)
+            spinner.appendChild(document.createElement("div"));
+
+        showTimeout = setTimeout(() => {
+            if (this.config.modal) layer.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
+            preSpinner.style.opacity = "1";
+        }, 100);
+
+
+        if (this.config.text) {
+            const txt = document.createElement("div");
+            txt.setAttribute("class", "spinner-text");
+            preSpinner.appendChild(txt);
+            txt.innerText = this.config.text;
+
+
+        }
+
 
         list.push(this);
     };

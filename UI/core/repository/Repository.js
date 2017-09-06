@@ -20,7 +20,6 @@ import Dispatcher from "../utils/Dispatcher";
 import RepositoryStorage from "./storage/RepositoryStorage";
 import Alert from "../component/alert/Alert";
 import {RecordDataGenerator} from "./Record";
-import AppStatus from "../application/Status";
 import WebApiRepoStorage from "./storage/WebApiRepoStorage";
 
 
@@ -32,7 +31,7 @@ export default class Repository {
     static ignoreErrors: boolean = true;
 
     static onUpdate: Dispatcher = new Dispatcher();
-    static defaultStorage: RepositoryStorage = new WebApiRepoStorage();
+    static defaultStorage: RepositoryStorage = WebApiRepoStorage.INSTANCE;
     /** Lista wszystkich zarejestrowanych repozytoriów */
     static all = {};
     onChange: Dispatcher = new Dispatcher(); //CRUDE, Record, Map
@@ -63,6 +62,8 @@ export default class Repository {
     updates: Number = 0;
     /** Mapa <Klucz główny, nazwa wyświetlana> */
     displayMap: Map<any, string> = new Map();
+    /** Wersja repozytorium, wymagane podczas zapisu/odczytu danych magazynu*/
+    version: number = 1;
 
     constructor(config: (cfg: RepoConfig) => void) {
         Check.isFunction(config);
@@ -386,7 +387,7 @@ export default class Repository {
         });
 
 
-        const storageMap: Map = Utils.agregate(records, (rec: Record) => (!rec.localCommit && rec.repo.storage) || "LOCAL");
+        const storageMap: Map = Utils.agregate(records, (rec: Record) => (!rec.localCommit && rec.storage) || "LOCAL");
 
         const result: Promise[] = [];
 
@@ -630,6 +631,13 @@ export default class Repository {
         return new RepoCursor(this);
     }
 
+    /**
+     * Iteracja po wierszach repozytorium (nie rekordach) przy pomocy kursora
+     */
+    forEach(consumer: (cursor: RepoCursor, stop: () => void) => void) {
+        this.cursor().forEach(consumer);
+    }
+
     tree(parentColumn: ?Column = null): RepoTree {
         return RepoTree.create(this, parentColumn || this.config.parentColumn);
     }
@@ -806,7 +814,8 @@ export class RepoAction {
     type: string;
     icon: string;
     confirm: string;
-    params: Object;
+    params: Object; //ToDo obsługa
+    constraints: Object; //ToDo obsługa
     children: RepoAction[] = [];
 
     constructor(repo: Repository, key: string, name: string, action: () => void, confirm: string) {
@@ -925,6 +934,10 @@ export class RepoCursor {
 
     reset() {
         this._index = -1
+    }
+
+    get row(): any[] {
+        return Utils.clone(this._rows[this._index]);
     }
 
     get primaryKey(): any {

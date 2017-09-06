@@ -1,6 +1,8 @@
 import {Record, Repository, Cell, Column, RepoConfig, Type, CRUDE, Field} from "../core.js";
 import ConfigField from "./ConfigField";
 import ConfigNode from "./ConfigNode";
+import RepositoryStorage from "../repository/storage/RepositoryStorage";
+import BrowserRepoStorage from "../repository/storage/BrowserRepoStorage";
 
 // ---------------------------------------------- gałąź drzewa ---------------------------------------------------------
 
@@ -46,7 +48,8 @@ export class RConfigNode extends Repository {
             c.displayNameColumn = RConfigNode.NAME;
             c.crude = "R";
             c.group = "Konfiguracja";
-        })
+        });
+        this.storage = BrowserRepoStorage.INSTANCE;
     }
 
     create(cn: ConfigNode): EConfigField {
@@ -66,15 +69,6 @@ export class EConfigNode extends Record {
     PARENT: Cell = new Cell(this, RConfigNode.PARENT);
     NAME: Cell = new Cell(this, RConfigNode.NAME);
     ADVANCED: Cell = new Cell(this, RConfigNode.ADVANCED);
-
-}
-
-export class EConfigGroup extends Record {
-
-    KEY: Cell = new Cell(this, RConfigGroup.KEY);
-    PARENT: Cell = new Cell(this, RConfigGroup.PARENT);
-    NAME: Cell = new Cell(this, RConfigGroup.NAME);
-    ADVANCED: Cell = new Cell(this, RConfigGroup.ADVANCED);
 
 }
 
@@ -168,7 +162,9 @@ export class RConfigField extends Repository {
             c.displayNameColumn = RConfigField.NAME;
             c.crude = "R";
             c.group = "Konfiguracja";
-        })
+        });
+
+        this.storage = BrowserRepoStorage.INSTANCE;
     }
 
     create(cf: ConfigField): EConfigField {
@@ -205,8 +201,5 @@ export class EConfigField extends Record {
 
 export const R_CONFIG_NODE: RConfigNode = Repository.register(new RConfigNode());
 export const R_CONFIG_FIELD: RConfigField = Repository.register(new RConfigField());
-
-R_CONFIG_FIELD.storage = null;
 R_CONFIG_FIELD.confirmReadyState();
-R_CONFIG_NODE.storage = null;
 R_CONFIG_NODE.confirmReadyState();

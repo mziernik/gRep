@@ -13,7 +13,7 @@ export const TEST_MODE = PROCESS_ENV.NODE_ENV === 'test';
 export const DEBUG_MODE = !!LOCAL.get("$DebugMode$");
 
 window.addEventListener("keydown", (e: KeyboardEvent) => {
-    if (e.ctrlKey && e.altKey && e.shiftKey && e.key === "D") {
+    if (e.ctrlKey && e.altKey && e.shiftKey && (e.key === "D" || e.key === "d")) {
         if (DEBUG_MODE) LOCAL.remove("$DebugMode$"); else LOCAL.set("$DebugMode$", true);
         window.location.reload();
     }

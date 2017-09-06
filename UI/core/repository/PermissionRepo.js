@@ -1,7 +1,7 @@
 import Permission from "../application/Permission";
 import Action from "./Action";
-import LocalRepoStorage from "./storage/LocalRepoStorage";
 import {Cell, Type, Dev, Record, Repository, RepoConfig, Column, Utils} from "../core";
+import BrowserRepoStorage from "./storage/BrowserRepoStorage";
 
 export default class PermissionsRepo extends Repository {
 
@@ -63,7 +63,7 @@ export default class PermissionsRepo extends Repository {
             rc.primaryKeyColumn = PermissionsRepo.ID;
             rc.record = PermissionRecord;
         });
-        this.storage = new LocalRepoStorage();
+        this.storage = BrowserRepoStorage.INSTANCE;
     }
 
     refresh() {

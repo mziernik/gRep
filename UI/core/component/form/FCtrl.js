@@ -376,7 +376,7 @@ export default class FCtrl extends Component {
             case "length":
                 return this.renderInput({type: "number", min: 0});
             case "double":
-                return this.renderInput({type: "number", step: 0.001});
+                return this.renderInput({type: "number", step: 0.01});
             case "int":
                 return this.renderInput({type: "number"});
             case "boolean":

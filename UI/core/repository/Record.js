@@ -17,6 +17,7 @@ import {
 "use strict";
 import {RepoCursor, RepoReference} from "./Repository";
 import {ListDataType} from "./Type";
+import RepositoryStorage from "./storage/RepositoryStorage";
 
 export default class Record {
 
@@ -40,9 +41,11 @@ export default class Record {
     _pk: any;
     _row: [] = null;
     UID: string = Utils.randomId(10);
+    storage: RepositoryStorage;
 
     constructor(repo: Repository, context: any) {
         this.repo = Check.instanceOf(repo, [Repository]);
+        this.storage = repo.storage;
         if (!context) return;
         this.repo.refs.push(this);
         ContextObject.add(context, this, () => this.repo.refs.remove(this));

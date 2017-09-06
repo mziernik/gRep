@@ -178,6 +178,9 @@ export default class Field {
                 return DataType.getMap(this.config.enumerate);
 
             const foreign: Foreign = this.config.foreign;
+
+            if (!foreign.repo) debugger;
+
             const map: Map = foreign.repo.displayMap;
             const repo: Repository = this.record.repo;
 
@@ -195,9 +198,13 @@ export default class Field {
                 let currentValue;
 
                 if (sameRepoAsForeign) {
-                    currentValue = this.record.getValue(fc.allowedLocal);
-                    const fRecord: Record = fc.allowedForeign.repository.get(this, currentValue, true);
-                    const allowed = Utils.asArray(fRecord.getValue(fc.allowedForeign));
+
+                    let allowed = fc.allowedValues;
+                    if (!allowed) {
+                        currentValue = this.record.getValue(fc.allowedLocal);
+                        const fRecord: Record = fc.allowedForeign.repository.get(this, currentValue, true);
+                        allowed = Utils.asArray(fRecord.getValue(fc.allowedForeign));
+                    }
 
                     Utils.forEach(map, (v, k) => {
                         if (allowed.contains(k))
