@@ -6,22 +6,6 @@ import {Check, Is, Utils} from "../$utils";
 import {DataType} from "./Type";
 import * as Type from "./Type";
 
-//import {RepoError} from "./Repository";
-
-export class ForeignConstraint {
-    currentLocal: Column;
-    currentForeign: ?Column;
-    allowedLocal: ?Column;
-    allowedForeign: ?Column;
-    allowedValues: ?any[];
-}
-
-export class Foreign {
-    repo: Repository; // zewnętrzne repozytorium
-    column: Column;
-    constraints: ForeignConstraint[] = [];
-}
-
 
 //ToDo: Miłosz: readOnly + !autoUpdate = konflikt
 export default class Column {
@@ -68,11 +52,9 @@ export default class Column {
 
     constructor(config: (c: Column) => void) {
 
-        Utils.lazyProvider(this, "foreign", value => processForeign(this, value));
 
         if (DEV_MODE)
             this["#instance"] = null;
-
 
         const overloaded = this.constructor !== Column.prototype.constructor;
         if (!overloaded)
@@ -146,8 +128,15 @@ export default class Column {
         if (this.type.units && !this.units)
             this.units = () => this.type.units;
 
+        const Foreign = require("./Foreign").default;
+
         Is.defined(this.enumerate, e => Check.isFunction(e));
         Is.defined(this.units, e => Check.isFunction(e));
+
+        const ff = this.foreign;
+
+        if (this.foreign && !(this.foreign instanceof Foreign))
+            Utils.lazyProvider(this, "foreign", () => new Foreign(this, ff));
 
     }
 
@@ -156,74 +145,4 @@ export default class Column {
     }
 
 
-}
-
-function processForeign(col: Column, value: any): Foreign {
-
-    const Repository = require("./Repository").default;
-
-    if (!Is.defined(value) || value instanceof Foreign)
-        return value;
-
-
-    const f: Foreign = new Foreign();
-
-    if (Is.func(value)) {
-        f.repo = Check.instanceOf(value(), [Repository]);
-        f.column = f.repo.primaryKeyColumn;
-        return f;
-    }
-
-    if (Is.string(value)) {
-        const items = (value: string).split(".");
-        f.repo = Repository.get(items[0], true);
-        f.column = items[1] ? f.repo.getColumn(items[1]) : f.repo.primaryKeyColumn;
-        return f;
-    }
-
-    f.repo = Repository.get(value.repository, true);
-    f.column = value.column ? Is.string(value.column, c => f.repo.getColumn(c, true), c => Check.instanceOf(c, [Column]))
-        : f.repo.primaryKeyColumn;
-
-    function getColumn(value: string) {
-        const RepoError = require("./Repository").RepoError;
-
-        const items: string[] = Check.isString(value).split(".");
-        const repo: Repository = items[0] === "this" ? col.repository : Repository.get(items[0]);
-        let local = items[1] ? repo.getColumn(items[1], true, true) : repo.primaryKeyColumn;
-        let foreign = null;
-        if (items[2]) {
-            foreign = local === col ? f : local.foreign;
-            if (!foreign)
-                throw new RepoError(col.repository, "Kolumna " + items[2] + " nie posiada klucza obcego");
-            foreign = foreign.repo.getColumn(items[2], true, true);
-        }
-        return [local, foreign];
-    }
-
-    Utils.forEach(value.constraints, obj => {
-
-        const fc: ForeignConstraint = new ForeignConstraint();
-        f.constraints.push(fc);
-
-        Check.isArray(obj);
-
-        Is.array(getColumn(obj[0]), a => {
-            fc.currentLocal = a[0];
-            fc.currentForeign = a[1];
-        });
-
-        if (Is.array(obj[1])) {
-            fc.allowedValues = obj[1];
-            return;
-        }
-
-        Is.array(getColumn(obj[1]), a => {
-            fc.allowedLocal = a[0];
-            fc.allowedForeign = a[1];
-        });
-    });
-
-
-    return f;
 }

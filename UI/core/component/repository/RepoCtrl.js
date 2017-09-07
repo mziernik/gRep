@@ -61,31 +61,5 @@ export default class RepoCtrl {
         Endpoint.devRouter.REPO.navigate({repo: this.repo.key}, "tab");
     }
 
-    renderActionButtons(buttons: PageButtons) {
-        Utils.forEach(this.repo.config.actions, (act: RepoAction) => {
-                if (act.rec) return;
-                buttons.add((btn: Btn) => {
-                    btn.key = act.key;
-                    btn.icon = act.icon;
-                    btn.text = act.name;
-                    btn.confirm = act.confirm;
-                    btn.onClick = e => {
-                        if (act.children && act.children.length) {
-                            PopupMenu.openMenu(e, Utils.forEach(act.children, (a: RepoAction) =>
-                                MenuItem.createItem((item: MenuItem) => {
-                                    item.name = a.name;
-                                    item.icon = a.icon;
-                                    item.onClick = (e, props) => a.execute()
-                                })));
-                            if (act.action)
-                                act.action();
-                            return;
-                        }
-                        act.execute();
-                    }
-                });
-            }
-        );
-    }
 
 }

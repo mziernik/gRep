@@ -21,6 +21,7 @@ import RepositoryStorage from "./storage/RepositoryStorage";
 import Alert from "../component/alert/Alert";
 import {RecordDataGenerator} from "./Record";
 import WebApiRepoStorage from "./storage/WebApiRepoStorage";
+import API from "../application/API";
 
 
 //ToDo: Opcja inline - edycja rekordów podobnie jak w uprawnieniach
@@ -478,7 +479,7 @@ export default class Repository {
     getColumnIndex(column: Column) {
         const idx = this.columns.indexOf(column);
         if (idx < 0)
-            throw new Error(`Repozytorium ${this.key} nie posiada kolumny ${column.key}`);
+            throw new RepoError(this, "Repozytorium nie posiada kolumny " + Utils.escape(column.key));
         return idx;
     }
 
@@ -527,12 +528,21 @@ export default class Repository {
         const row: [] = this.rows.get(pk);
         if (!row) {
             if (mustExists)
-                throw new Error("Nie znaleziono rekordu " + this.key + "[" + this.primaryKeyColumn.key + "=" + Utils.escape(pk) + "]");
+                throw new RepoError(this, "Nie znaleziono rekordu " + Utils.escape(pk));
             return null;
         }
         const rec: Record = this.createRecord(context, row ? CRUDE.UPDATE : CRUDE.CREATE);
         rec.row = row;
         return rec;
+    }
+
+    getValue(pk: any, column: Column): any {
+        const idx = this.getColumnIndex(column);
+        if (Is.defined(pk))
+            pk = this.config.primaryKeyColumn.parse(pk);
+        const row: [] = this.rows.get(pk);
+        if (!row) throw new RepoError(this, "Nie znaleziono rekordu " + Utils.escape(pk));
+        return row[idx];
     }
 
     getOrCreate(context: any, pk: any): Record {
@@ -768,12 +778,15 @@ export class RepoConfig {
 
         repo.actions = Is.def(this.actions, acts => Utils.forEach(acts, (obj, key) => {
             const act = new RepoAction();
+            act.repo = repo;
             act.key = key;
-            act.rec = !!obj.record;
+            act.record = obj.record;
             act.name = obj.name;
             act.type = obj.type;
             act.icon = obj.icon;
             act.confirm = obj.confirm;
+            act.params = obj.params;
+            act.constraints = obj.constraints;
             return act;
         }), []);
 
@@ -806,7 +819,7 @@ export class RepoConfig {
 export class RepoAction {
     repo: Repository;
 
-    rec: boolean;
+    record: boolean;
     key: string;
     name: string;
     action: ?() => void;
@@ -826,19 +839,17 @@ export class RepoAction {
         this.confirm = confirm;
     }
 
-    execute() {
+    execute(record: Record, params: {}) {
 
-        const run = () => {
-            if (this.action)
-                this.action();
-            else
-                this.repo.storage.action(this.repo, this.key, null, {})
-        };
-
-        if (this.confirm)
-            Alert.confirm(this.confirm, () => run())
+        if (this.action)
+            this.action();
         else
-            run();
+            API.repoAction({
+                action: this.key,
+                repo: this.repo.key,
+                pk: record ? record.pk : null,
+                params: params
+            });
     }
 
 }

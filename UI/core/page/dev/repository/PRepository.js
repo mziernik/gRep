@@ -35,7 +35,8 @@ export default class PRepository extends RepoPage {
 
     onReady(repo: Repository, list: Repository[]) {
 
-        new RepoCtrl(repo).renderActionButtons(this.buttons);
+        super.onReady(repo, list);
+        this.renderActionButtons(null);
 
         this.buttons.add((btn: Btn) => {
             btn.key = "btnGenerator";

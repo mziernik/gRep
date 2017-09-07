@@ -23,24 +23,9 @@ export default class WebApiRepoStorage extends RepositoryStorage {
 
             Utils.forEach(repos, repo => add(repo));
 
-
-            Ready.confirm(WebApiRepoStorage, WebApiRepoStorage);
-
-            API.repoGet({repositories: list}, ok => {
-                resolve(ok);
-            }, (err) => {
-                if (this.api && !this.api.transport.connected)
-                    return;
-                AppStatus.error(this, err);
-                reject(err);
-            });
-
-            return;
-
             API.repoList(data => {
-                const dynamic: Repository[] = Repository.processMetaData(data);
 
-                Utils.forEach(dynamic, (repo: Repository) => {
+                Utils.forEach(Repository.processMetaData(data), (repo: Repository) => {
                     if (!(repo.config.dynamic)) return;
                     add(repo);
                     Repository.register(repo)

@@ -102,6 +102,16 @@ Array.prototype.clone = Array.prototype.clone || function (): [] {
 };
 
 /**
+ * Zwróć nową instancję tablicy zawierającą tylko unikalne elementy
+ * @return {Array}
+ */
+// $FlowFixMe
+Array.prototype.unique = Array.prototype.unique || function (): [] {
+    return Array.from(new Set(this));
+};
+
+
+/**
  * Wyczyść tablicę
  *  @return {Array}
  */
@@ -135,7 +145,7 @@ Array.prototype.contains = Array.prototype.contains || function (element: any): 
  */
 // $FlowFixMe
 Array.prototype.containsAny = Array.prototype.containsAny || function (elements: any[]): boolean {
-    return asArray(elements).find(elm => this.indexOf(elm) >= 0);
+    return asArray(elements).find(elm => this.indexOf(elm) >= 0) !== undefined;
 
 };
 

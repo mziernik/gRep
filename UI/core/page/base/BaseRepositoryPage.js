@@ -68,7 +68,7 @@ export default class BaseRepositoryPage extends RepoPage {
     }
 
     render() {
-        this.title.set()
+        this.title.set(this.repo.name);
         return <RepoTable
             modalEdit={this.modalEdit}
             repository={this.repo}

@@ -406,11 +406,11 @@ export class RUsers extends Repository {
         c.name = "Rodzaje";
         c.type = "key[]";
         c.unique = true;
-        // c.foreign = () => RKIND;
         c.foreign = {
             repository: () => RKIND,
-            constraints: [
-                ["this.type", "this.kind.allowedType"] // type.key musi wystąpić w kolumnie demo-users-kind.allowedType
+            constraints: [ // this wskazuje na bieżącą kolumnę
+                ["type", "this.allowedType"]
+                //   ["this.type", "this.kind.allowedType"] // type.key musi wystąpić w kolumnie demo-users-kind.allowedType
             ]
         };
         //  c.defaultValue = "EO";
@@ -421,17 +421,48 @@ export class RUsers extends Repository {
         c.name = "Status";
         c.type = "key[]";
         c.unique = true;
-        // c.foreign = () => RSTATUS;
-        c.foreign = () => RSTATUS;
         c.foreign = {
             repository: () => RSTATUS,
-            constraints: [
-                ["demo-user-status", "this.type.allowedStatuses"] //opcja "demo-user-status.key"
+            constraints: [ // this wskazuje na bieżącą kolumnę
+                ["this", "type.allowedStatuses"],
+                //    ["demo-user-status", "this.type.allowedStatuses"] //opcja "demo-user-status.key"
                 // dowolna wartość key z repozytorium demo-user-status musi wystąpić w komórce type.allowedStatuses
             ]
         };
     });
 
+    /*
+        static SERVICE_KIND: Column = new Column((c: Column) => {
+            c.key = "skind";
+            c.name = "# Rodzaj usługi";
+            c.type = "key";
+            // c.foreign = () => RKIND;
+            c.foreign = {
+                repository: () => RKIND,
+                constraints: [
+                    ["type", "kind.allowedType"],
+                //    ["this.type", "this.kind.allowedType"] // type.key musi wystąpić w kolumnie demo-users-kind.allowedType
+                ]
+            };
+            //  c.defaultValue = "EO";
+        });
+
+        static ONLINE_STATUS: Column = new Column((c: Column) => {
+            c.key = "ostatus";
+            c.name = "# Online status";
+            c.type = "key";
+            // c.foreign = () => RSTATUS;
+            c.foreign = () => RSTATUS;
+            c.foreign = {
+                repository: () => RSTATUS,
+                constraints: [
+                    ["this.ostatus", "this.type.allowedStatuses"] //opcja "demo-user-status.key"
+                    // dowolna wartość key z repozytorium demo-user-status musi wystąpić w komórce type.allowedStatuses
+                ]
+            };
+        });
+
+    */
     constructor() {
         super((c: RepoConfig) => {
             c.key = "demo-users";

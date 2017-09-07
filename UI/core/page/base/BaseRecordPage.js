@@ -28,7 +28,7 @@ export default class BaseRecordPage extends RepoPage {
         super(repo, props, context, state);
 
         if (this.props.recCtrl) {
-            this.controller=Check.instanceOf(this.props.recCtrl,[RecordCtrl]);
+            this.controller = Check.instanceOf(this.props.recCtrl, [RecordCtrl]);
             this.record = this.controller.record;//Check.instanceOf(this.props.record, [Record]);
             this.repo = this.record.repo;
             this.isNew = this.record.action === CRUDE.CREATE;
@@ -41,6 +41,9 @@ export default class BaseRecordPage extends RepoPage {
 
     onReady(repo: Repository, list: Repository[]) {
 
+        super.onReady(repo, list);
+
+
         if (!this.record) {
             this.isNew = this.props.id === "~new";
             this.repo = repo instanceof Repository ? repo : Repository.get(repo, true);
@@ -52,6 +55,8 @@ export default class BaseRecordPage extends RepoPage {
             this.controller.local = false;
             this.controller.showAdvanced = false;
         }
+
+        this.renderActionButtons(this.record);
 
         this.buttons.list.push(this.controller.btnBack);
         if (!this.isNew)

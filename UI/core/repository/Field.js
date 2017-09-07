@@ -171,63 +171,8 @@ export default class Field {
 
     get enumerate(): Map {
         const getEnum = () => {
-
             if (!this.config.foreign && !this.config.enumerate) return null;
-
-            if (!this.config.foreign)
-                return DataType.getMap(this.config.enumerate);
-
-            const foreign: Foreign = this.config.foreign;
-
-            if (!foreign.repo) debugger;
-
-            const map: Map = foreign.repo.displayMap;
-            const repo: Repository = this.record.repo;
-
-            if (!foreign.constraints.length)
-                return map; // brak ograniczeń, zwracam całą mapę
-
-            const result: Map = new Map();
-
-            const column: Column = this.parent ? this.parent.config : this.config;
-
-            Utils.forEach(foreign.constraints, (fc: ForeignConstraint) => {
-                // repozytorium wskazuje na klucz obcy
-                const sameRepoAsForeign = fc.currentLocal.repository === foreign.repo;
-
-                let currentValue;
-
-                if (sameRepoAsForeign) {
-
-                    let allowed = fc.allowedValues;
-                    if (!allowed) {
-                        currentValue = this.record.getValue(fc.allowedLocal);
-                        const fRecord: Record = fc.allowedForeign.repository.get(this, currentValue, true);
-                        allowed = Utils.asArray(fRecord.getValue(fc.allowedForeign));
-                    }
-
-                    Utils.forEach(map, (v, k) => {
-                        if (allowed.contains(k))
-                            result.set(k, v);
-                    });
-
-                    return;
-                }
-
-                currentValue = this.record.getValue(fc.currentLocal);
-
-                if (fc.allowedForeign) {
-
-                    fc.allowedForeign.repository.cursor().forEach((cursor: RepoCursor) => {
-                        let allowed = Utils.asArray(cursor.get(fc.allowedForeign));
-                        if (!allowed.contains(currentValue)) return;
-                        const pk = cursor.primaryKey;
-                        Is.def(map.get(pk), v => result.set(pk, v));
-                    });
-                }
-            });
-
-            return result;
+            return this.config.foreign ? this.config.foreign.getEnumerate(this) : DataType.getMap(this.config.enumerate);
         };
 
         const result = getEnum();

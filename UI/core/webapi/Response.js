@@ -60,6 +60,9 @@ export default class WebApiResponse {
 
         Dev.log(this, `${req.id},\t "${req.method}", czas: ${this.processTime}ms, serwer: ${data.duration}ms`, data);
 
+
+     //   console.log("RESPONSE " + req.method + "\n" + JSON.stringify(data, null, 4));
+
         /*
          if (req.spinner && req.spinner.hide)
          req.spinner.hide();

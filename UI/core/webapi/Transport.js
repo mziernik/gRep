@@ -143,7 +143,14 @@ export class SignalRTransport extends WebApiTransport {
         this.conn = HubConnection.create(url);
         this.conn.start()
             .then((xxx) => {
-                this.onOpen();
+                const confirm = () => {
+                    if (this.conn.connection.connectionState === 1) {
+                        setTimeout(() => confirm, 10);
+                        return;
+                    }
+                    this.onOpen();
+                };
+                confirm();
             })
             .catch((e: Object) => {
                 if (!e) {

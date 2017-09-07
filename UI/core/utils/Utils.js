@@ -36,7 +36,11 @@ export function asArray(elm: any): [] {
         return Array.from(elm);
 
     return [elm];
+}
 
+/** Zwraca [arg] jeśli jest tablicą, w przeciwnym razie opakowuje go w tablicę*/
+export function asUniqueArray(elm: any): [] {
+    return asArray(elm).unique();
 }
 
 export function toString(argument: any): ?string {
