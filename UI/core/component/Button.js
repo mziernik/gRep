@@ -32,6 +32,7 @@ export class Btn extends Dynamic {
     link: Endpoint;
     icon: Icon;
     focus: boolean; //ustawia focus na guziku. Nie działa gdy element jest niewidoczny
+    ignore: boolean; //nie rysuje guzika
 
     constructor(config: Btn | (button: Btn) => void) {
         super(null, () => this.render());
@@ -48,6 +49,7 @@ export class Btn extends Dynamic {
     }
 
     render() {
+        if (this.ignore) return null;
 
         let type = this.type;
         if (!type && this.crude)

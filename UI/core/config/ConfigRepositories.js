@@ -3,6 +3,7 @@ import ConfigField from "./ConfigField";
 import ConfigNode from "./ConfigNode";
 import RepositoryStorage from "../repository/storage/RepositoryStorage";
 import BrowserRepoStorage from "../repository/storage/BrowserRepoStorage";
+import {Utils} from "../$utils";
 
 // ---------------------------------------------- gałąź drzewa ---------------------------------------------------------
 
@@ -89,6 +90,7 @@ export class RConfigField extends Repository {
         c.type = Type.KEY;
         c.readOnly = true;
         c.hidden = true;
+        c.writable = false;
         c.foreign = () => R_CONFIG_NODE;
     });
 
@@ -96,6 +98,7 @@ export class RConfigField extends Repository {
         c.key = "name";
         c.name = "Nazwa";
         c.type = Type.STRING;
+        c.writable = false;
         c.readOnly = true;
     });
 
@@ -104,6 +107,7 @@ export class RConfigField extends Repository {
         c.name = "Typ";
         c.type = Type.DATA_TYPE;
         c.readOnly = true;
+        c.writable = false;
         c.hidden = true;
     });
 
@@ -112,6 +116,7 @@ export class RConfigField extends Repository {
         c.name = "Wymagane";
         c.type = Type.BOOLEAN;
         c.readOnly = true;
+        c.writable = false;
         c.hidden = true;
     });
 
@@ -125,14 +130,23 @@ export class RConfigField extends Repository {
         c.key = "defVAL";
         c.name = "Wartość domyślna";
         c.type = Type.JSON;
+        c.writable = false;
         c.readOnly = true;
         c.hidden = true;
+    });
+
+    static CUSTOM_VALUE: Column = new Column((c: Column) => {
+        c.key = "custom";
+        c.name = "Wartość użytkownika";
+        c.type = Type.BOOLEAN;
+        c.value = false;
     });
 
     static DESC: Column = new Column((c: Column) => {
         c.key = "desc";
         c.name = "Opis";
         c.type = Type.MEMO;
+        c.writable = false;
         c.hidden = true;
     });
 
@@ -142,12 +156,14 @@ export class RConfigField extends Repository {
         c.type = Type.BOOLEAN;
         c.readOnly = true;
         c.hidden = true;
+        c.writable = false;
         c.description = "Czy wartość zostanie zapisana tylko lokalnie";
     });
 
     static ADVANCED: Column = new Column((c: Column) => {
         c.key = "advanced";
         c.name = "Zaawansowane";
+        c.writable = false;
         c.type = Type.BOOLEAN;
     });
 
@@ -173,11 +189,21 @@ export class RConfigField extends Repository {
         rec.KEY.value = field.key;
         rec.TYPE.value = field.type.name;
         rec.NAME.value = field.name;
-        rec.DEFAULT_VALUE.value = field.config.defaultValue;
+        rec.DEFAULT_VALUE.value = field.config.value;
         rec.REQUIRED.value = true;
         rec.LOCAL.value = true;
         // ToDo: Inicjalizacja zbiorcza wszystkich rekordów
         Repository.update("CONFIG", [rec]);
+
+        this.onChange.listen(this, obj => {
+            const rec: EConfigField = obj.record;
+            const cf: ConfigField = ConfigField.ALL.get(rec.pk);
+            if (!cf)
+                throw new Error("Nie znaleziono pola konfiguracji " + Utils.escape(rec.pk));
+            if (rec.CUSTOM_VALUE.value)
+                cf.customValue = rec.VALUE.value;
+        });
+
         return rec;
     }
 }
@@ -191,6 +217,7 @@ export class EConfigField extends Record {
     REQUIRED: Cell = new Cell(this, RConfigField.REQUIRED);
     VALUE: Cell = new Cell(this, RConfigField.VALUE);
     DEFAULT_VALUE: Cell = new Cell(this, RConfigField.DEFAULT_VALUE);
+    CUSTOM_VALUE: Cell = new Cell(this, RConfigField.CUSTOM_VALUE);
     DESC: Cell = new Cell(this, RConfigField.DESC);
     LOCAL: Cell = new Cell(this, RConfigField.LOCAL);
     ADVANCED: Cell = new Cell(this, RConfigField.ADVANCED);

@@ -57,7 +57,7 @@ function generateData(columns: [], n: number): [] {
                 fc.type = column.type;
                 fc.key = column.key;
                 fc.name = column.name;
-                fc.defaultValue = generateValue(fc.type.simpleType);
+                fc.value = generateValue(fc.type.simpleType);
             })
         }))
     }

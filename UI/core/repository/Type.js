@@ -78,6 +78,18 @@ export class DataType {
         return Utils.toString(Utils.coalesce(enumerate ? enumerate.get(value) : null, value));
     }
 
+    equals(v1: any, v2: any) {
+        if (v1 === v2)
+            return true;
+
+        if (v1 === null || v1 === undefined || v2 === null || v2 === undefined) return false;
+
+        const x1 = this.serialize(v1);
+        const x2 = this.serialize(v2);
+
+        return x1 === x2;
+    }
+
     clone(): DataType {
         const result = new this.constructor(this.name, this.simpleType, this.parser);
         Utils.clone(this, result);
@@ -449,6 +461,10 @@ export const DATE: DataType = new DataType((dt: DataType) => {
     dt.name = "date";
     dt.simpleType = "number";
     dt.parser = val => {
+
+        if (val <= 0)
+            return new Date();
+
         if (typeof val === "number")
             return new Date(val * (1000 * 60 * 60 * 24));
 
@@ -475,6 +491,10 @@ export const TIME: DataType = new DataType((dt: DataType) => {
         + (val.getSeconds() > 0 ? ":" + _fix2(val.getSeconds()) : "");
 
     dt.parser = val => {
+
+        if (val <= 0)
+            return new Date();
+
         if (typeof val === "number") {
             const ms = val % 1000;
             val = (val - ms) / 1000;
@@ -502,6 +522,8 @@ export const TIMESTAMP: DataType = new DataType((dt: DataType) => {
     dt.name = "timestamp";
     dt.simpleType = "number";
     dt.parser = val => {
+        if (val <= 0)
+            return new Date();
         const date = new Date(val);
         if (isNaN(date))
             throw new Error('Nieprawidłowa wartość znacznika czasu (' + Utils.escape(val) + ")");

@@ -5,8 +5,6 @@ import ConfigField from "./ConfigField";
 import {Utils, Check} from "../$utils";
 
 
-export const FIELDS: ConfigNode[] = [];
-
 
 export default class ConfigNode {
 
@@ -50,7 +48,7 @@ export default class ConfigNode {
             c.type = type;
             c.key = key;
             c.name = name;
-            c.defaultValue = value;
+            c.value = value;
         });
     }
 

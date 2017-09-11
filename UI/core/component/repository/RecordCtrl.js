@@ -42,7 +42,9 @@ export default class RecordCtrl {
             btn.icon = Icon.PLUS;
             btn.text = "Nowy";
             btn.onClick = e => {
-                new RecordCtrl(this.record.repo.createRecord(this, CRUDE.CREATE)).modalEdit();
+                const ctrl = new RecordCtrl(this.record.repo.createRecord(this, CRUDE.CREATE));
+                ctrl.onCommit.listen(this, data => this.onCommit.dispatch(this, data));
+                ctrl.modalEdit();
                 if (this._modal)
                     this._modal.close(e);
             };
@@ -131,7 +133,10 @@ export default class RecordCtrl {
                     if (onSuccess)
                         onSuccess();
 
-                    this.onCommit.dispatch({result: e});
+                    this.onCommit.dispatch(this, {
+                        record: this.record,
+                        result: e
+                    });
 
                     if (this._onSuccess)
                         this._onSuccess(e);
@@ -184,7 +189,7 @@ export default class RecordCtrl {
                         this._modal.close(e);
                     }}>
                         <span className={Icon.CHEVRON_LEFT}/>
-                        <span>{prev.displayValue}</span>
+                        <span className="record-navigator-label">{prev.displayValue}</span>
                     </div>
                 </div>
             }
@@ -195,7 +200,7 @@ export default class RecordCtrl {
                         new RecordCtrl(next).modalEdit();
                         this._modal.close(e);
                     }}>
-                        <span>{next.displayValue}</span>
+                        <span className="record-navigator-label">{next.displayValue}</span>
                         <span className={Icon.CHEVRON_RIGHT}/>
                     </div>
                 </div>
@@ -216,7 +221,6 @@ export default class RecordCtrl {
         }
 
         return <div>
-            {this.renderNavBar()}
             <AttributesRecord
                 recordCtrl={this}
                 fit={true}
@@ -224,6 +228,7 @@ export default class RecordCtrl {
                 showAdvanced={this.showAdvanced}
                 local={this.local}
             />
+            {this.renderNavBar()}
         </div>
 
     }

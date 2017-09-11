@@ -3,16 +3,18 @@ import RepoPage from "../page/base/RepoPage";
 import {EConfigField, R_CONFIG_FIELD} from "./ConfigRepositories";
 import Tree from "../component/tree/Tree";
 import ConfigNode from "./ConfigNode";
-import {Utils} from "../$utils";
+import {Dispatcher, Utils} from "../$utils";
 import TreeNode from "../component/tree/TreeNode";
 import TreeElement from "../component/tree/TreeElement";
 import CTree from "../component/tree/CTree";
-import {Component, Panel} from "../components";
+import {Component, Panel, Icon} from "../components";
 import ConfigField from "./ConfigField";
 import {Attr, Attributes} from "../component/form/Attributes";
 import Resizer from "../component/Resizer";
 import {Btn} from "../component/Button";
 import Repository from "../repository/Repository";
+import Link from "../component/Link";
+import AppStatus from "../application/Status";
 
 export default class PConfig extends RepoPage {
 
@@ -33,23 +35,40 @@ export default class PConfig extends RepoPage {
     save() {
         if (!this.changed.size) return;
 
+        const apply: Dispatcher = new Dispatcher(this);
+
         const records = Utils.forEach(this.changed, (field: Field) => {
             const rec: EConfigField = R_CONFIG_FIELD.get(this, field.key, true);
+            const cf: ConfigField = field.attributes.configField;
+            const changed: boolean = field.value !== cf._defaultValue;
+            rec.CUSTOM_VALUE.value = changed;
             rec.VALUE.value = field.value;
+
+            apply.listen(this, x => {
+                cf._isCustomValue = changed;
+                cf.setValue(changed, field.value);
+            });
+
             return rec;
         });
 
-        Repository.commit(this, records);
+        this.btnSave && (this.btnSave.disabled = true);
+        Repository.commit(this, records).then(e => {
+            AppStatus.success(this, "Zaktualizowano konfigurację");
+            apply.dispatch(this);
+            this.cnode && this.cnode.forceUpdate(true);
+        });
     }
 
     render() {
         this.changed.clear();
-        this.btnSave = this.buttons.add((btn: Btn) => {
-            btn.type = "success";
-            btn.text = "Zapisz";
-            btn.onClick = e => this.save();
-            btn.disabled = true;
-        });
+        if (!this.btnSave)
+            this.btnSave = this.buttons.add((btn: Btn) => {
+                btn.type = "success";
+                btn.text = "Zapisz";
+                btn.onClick = e => this.save();
+                btn.disabled = true;
+            });
 
         const visit = (cnode: ConfigNode, tnode: TreeElement) => {
             const tn: TreeNode = tnode.node(cnode.key, cnode.name);
@@ -110,8 +129,25 @@ class CConfigNode extends Component {
             }}>
                 {Utils.forEach(this.cnode && this.cnode.fields, (cf: ConfigField) => {
                     const field: Field = cf.field.clone();
+                    field.attributes.configField = cf;
+                    field.value = cf.value;
                     field.onChange.listen(this, () => page.onFieldChange(field));
-                    return <Attr key={field.key} field={field}/>
+                    let attr = null;
+                    return <Attr
+                        ref={e => attr = e}
+                        style={{color: cf.isCustomValue ? "blue" : null}}
+                        key={field.key}
+                        field={field}
+                        renderAfter={cf.isCustomValue ?
+                            <Link
+                                icon={Icon.UNDO}
+                                title="Przywróć wartość domyślną"
+                                onClick={e => {
+                                    field.value = cf._defaultValue;
+                                    attr && attr.forceUpdate();
+                                }
+                                }/> : null}
+                    />
                 })}
             </Attributes>
 

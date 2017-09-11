@@ -7,7 +7,6 @@ import momentLocalizer from 'react-widgets/lib/localizers/moment';
 import Moment from "moment";
 import "react-widgets/dist/css/react-widgets.css";
 
-//FixMe: Wojtek: Pierwsze rozwinięcie listy godzin i kliknięcie na pozycję powoduje wybranie wartości 00:00
 //FixMe: Wojtek: Nie da się wpisać czasu !!!
 //ToDo: Wojtek: DatePicker powinien obsługiwać klawisze góra/dół
 
@@ -82,7 +81,7 @@ export default class DatePicker extends FormComponent {
         }
 
         child2.style.left = child.style.left = (poff.left) + 'px';
-        child2.style.width = child.style.width = (poff.width) + 'px';
+        child.style.width = (poff.width) + 'px';
     }
 
     render() {
@@ -110,9 +109,12 @@ export default class DatePicker extends FormComponent {
                     moveBack: 'Poprzedni miesiąc',
                     moveForward: 'Następny miesiąc'
                 }}
+                min={new Date(0,0,0)}
                 defaultValue={this.field.value}
                 duration={100}
-                onChange={(d, s) => this._handleChange(false, null, d)}
+                onChange={(d, s) => {
+                    this._handleChange(false, null, d)
+                }}
                 onCurrentDateChange={d => this._currentDate = d}
                 onToggle={(open) => this._setDropdown(null, open)}/>
         );

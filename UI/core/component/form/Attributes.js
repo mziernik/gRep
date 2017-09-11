@@ -105,6 +105,10 @@ export class Attr extends Component {
         mode: PropTypes.oneOf(["preview", "edit", "mixed"]),
         onClick: PropTypes.func,
         record: PropTypes.instanceOf(Record), // wartość pomocnicza, np w obsłudze metody onAttrClick
+        disableLink: PropTypes.bool, // wyłącza link na etykiecie
+        style: PropTypes.object,
+        renderBefore: PropTypes.object,
+        renderAfter: PropTypes.object,
     };
 
     /** Wartość jest aktualnie edytowana */
@@ -155,7 +159,7 @@ export class Attr extends Component {
                 c.key = Utils.randomId();
                 c.type = this.props.type;
                 c.name = this.props.name;
-                c.defaultValue = this.props.value;
+                c.value = this.props.value;
             });
 
         return <tr
@@ -164,10 +168,12 @@ export class Attr extends Component {
                 updateErrorMarker();
                 this._updateChangeMarker(null)
             })}
+            style={{...this.props.style}}
             className="c-attributes-row"
             onClick={e => Is.func(this.props.onClick, f => f(e, this))}
         >
 
+            {this.props.renderBefore ? <td>{this.props.renderBefore}</td> : null}
             <td className="c-attributes-name">{field ?
                 <FCtrl
                     field={field}
@@ -177,6 +183,7 @@ export class Attr extends Component {
                     required={3}
                     error={4}
                     preview={!this.edit}
+                    disableLink={this.props.disableLink}
                 /> : this.children.render(this.props.name)}</td>
             <td className="c-attributes-value">
                 {field ? <div style={{display: "flex"}}>
@@ -219,6 +226,7 @@ export class Attr extends Component {
                 </div> : super.renderChildren(this.props.value)
                 }
             </td>
+            {this.props.renderAfter ? <td>{this.props.renderAfter}</td> : null}
         </tr>;
     }
 }

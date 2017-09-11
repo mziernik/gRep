@@ -146,8 +146,8 @@ export class TabSet extends Component {
     }
 
     controllerVisible(state: boolean) {
-        if (!this._ctrlTag) return;
-        this._ctrlTag.setAttribute("data-hidden", !state);
+        if (!this._ctrlTag || !this._ctrlTag.parentNode) return;
+        this._ctrlTag.parentNode.setAttribute("data-hidden", !state);
     }
 
     render() {
@@ -158,12 +158,12 @@ export class TabSet extends Component {
         return (
             <div className={"tabSet " + (this.props.vertical ? "tabSetVertical" : "")}
                  style={{display: 'flex', flexDirection: 'column', flex: "1", overflow: "hidden"}}
+                 data-hidden={!Utils.coalesce(this.props.controllerVisible, true)}
             >
                 <div ref={e => {
                     this._ctrlTag = e;
                     this._showArrows();
                 }}
-                     data-hidden={!Utils.coalesce(this.props.controllerVisible, true)}
                      className={"tabsCtrl " + (this.props.vertical ? "tabsVertical" : "")}
                      style={{flex: '0 0 auto'}}
                 >

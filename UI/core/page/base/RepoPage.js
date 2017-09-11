@@ -1,6 +1,6 @@
 // @flow
 
-import {React, Repository, Endpoint, Is, Record} from "../../core.js";
+import {React, Repository, Endpoint, Is, Record, CRUDE} from "../../core.js";
 import {Page, Panel, Icon, Button} from "../../components.js";
 import RepoTable from "../../component/repository/RepoTable";
 import {object} from "../../utils/Is";
@@ -8,9 +8,12 @@ import {Btn} from "../../component/Button";
 import RepoCtrl from "../../component/repository/RepoCtrl";
 import {Utils} from "../../$utils";
 import {MenuItem, PopupMenu} from "../../component/PopupMenu";
-import {RepoAction} from "../../repository/Repository";
+import RepoAction from "../../repository/RepoAction";
 import Alert from "../../component/alert/Alert";
 import ParamsWindow from "./ParamsWindow";
+import Spinner from "../../component/Spinner";
+import StatusHint from "../../component/application/StatusHint";
+import AppStatus from "../../application/Status";
 
 
 export default class RepoPage extends Page {
@@ -44,27 +47,45 @@ export default class RepoPage extends Page {
 
     renderActionButtons(record: Record): Btn[] {
 
-        const exec = (act: RepoAction, confirmed: boolean) => {
+        let wnd: ParamsWindow;
+
+        const exec = (act: RepoAction, confirmed: boolean, params: Object) => {
 
             if (act.confirm && !confirmed) {
-                Alert.confirm(this, act.confirm, () => exec(act, true));
+                Alert.confirm(this, act.confirm, () => exec(act, true, null));
                 return;
             }
 
-
-            if (Object.keys(act.params).length) {
-                new ParamsWindow(act.params, params => act.execute(record, params)).open();
+            if (act.params && !params && Object.keys(act.params).length) {
+                wnd = new ParamsWindow(act.params, params => exec(act, true, params));
+                wnd.title = act.paramsTitle;
+                wnd.confirmButtonLabel = act.paramsButtonLabel;
+                wnd.open();
                 return;
             }
 
+            const spinner: Spinner = Spinner.modal("Wykonuję akcję " + Utils.escape(act.name));
 
-            act.execute(record);
+            act.execute(record, params)
+                .then(() => {
+                    wnd && wnd.close();
+                    spinner.hide();
+                    AppStatus.success(this, "Wykonano akcję " + Utils.escape(act.name));
+                })
+                .catch(e => {
+                    spinner.hide();
+                    Alert.error(this, e);
+                });
         };
 
         return Utils.forEach(this.repo.actions, (act: RepoAction) => {
-
-
                 if (act.record !== !!record) return;
+
+                if (act.record && act.edit === true && record.action !== CRUDE.UPDATE)
+                    return;
+
+                if (act.record && act.edit === false && record.action !== CRUDE.CREATE)
+                    return;
 
                 return this.buttons.add((btn: Btn) => {
                     btn.key = act.key;

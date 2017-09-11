@@ -135,7 +135,7 @@ const DATA = {
         c.type = Type.STRING;
         c.key = "forename";
         c.name = 'Imię';
-        c.defaultValue = "Jan";
+        c.value= "Jan";
         c.required = true;
         c.textCasing = "capitalize";
     }),
@@ -206,7 +206,7 @@ const DATA = {
         };
         c.name = 'Lista wyboru';
         c.required = true;
-        c.defaultValue = "2";
+        c.value= "2";
     }),
 
 
@@ -237,7 +237,7 @@ const DATA = {
         };
         c.name = 'Lista multi wyboru';
         c.required = true;
-        c.defaultValue = ["2", "0"];
+        c.value= ["2", "0"];
     }),
 
     size: new Field((c: Column) => {
@@ -252,8 +252,8 @@ const DATA = {
         c.key = "date";
         c.name = 'Data';
         c.required = true;
-        c.defaultValue = new Date(2015, 4, 15);
-        c.defaultValue = 16570;
+        c.value= new Date(2015, 4, 15);
+        c.value= 16570;
     }),
 
 
@@ -261,15 +261,15 @@ const DATA = {
         c.type = Type.TIME;
         c.key = "time";
         c.name = 'Czas';
-        c.defaultValue = new Date(0, 0, 0, 10, 20, 30, 40);
-        //  c.defaultValue = 37230040;
+        c.value= new Date(0, 0, 0, 10, 20, 30, 40);
+        //  c.value= 37230040;
     }),
 
     timstamp: new Field((c: Column) => {
         c.type = Type.TIMESTAMP;
         c.key = "timestamp";
         c.name = 'Data i czas';
-        c.defaultValue = "2015-05-15 10:20:30.040";
+        c.value= "2015-05-15 10:20:30.040";
         c.description = "Znacznik czasu: 2015-05-15 10:20:30.040";
     }),
 
@@ -279,7 +279,7 @@ const DATA = {
         c.name = 'Opis';
         c.required = true;
         c.max = 250;
-        c.defaultValue = "Rum, beer, quest and mead\nThese are the thinks that a pirate needs\nRise the flag and let's set sail\nUnder the sign of storm of ale";
+        c.value= "Rum, beer, quest and mead\nThese are the thinks that a pirate needs\nRise the flag and let's set sail\nUnder the sign of storm of ale";
     }),
 
 
@@ -312,7 +312,7 @@ const DATA = {
             ["yd", "jard", 914.4],
             ["m", "metr", 1000],
         ];
-        c.defaultValue = 1700;
+        c.value= 1700;
         c.defaultUnit = ["cm", "centymetr", 10];
     }),
 
@@ -320,7 +320,7 @@ const DATA = {
         c.type = Type.DURATION;
         c.key = "delay";
         c.name = 'Opóźnienie';
-        c.defaultValue = 10000;
+        c.value= 10000;
         c.defaultUnit = ['s', 's', 1000];
     })
 };

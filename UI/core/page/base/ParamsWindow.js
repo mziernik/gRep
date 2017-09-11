@@ -9,7 +9,10 @@ export default class ParamsWindow {
 
     params: Field[];
     title: string;
+    confirmButtonLabel: string;
     onSuccess: (params: {}) => void;
+    closeModal: boolean = false;
+    _modal: ModalWindow;
 
     constructor(params: {}, onSuccess: (params: {}) => void) {
         this.onSuccess = onSuccess;
@@ -55,18 +58,21 @@ export default class ParamsWindow {
 
             btns.add((btn: Btn) => {
                 btn.type = "primary";
-                btn.text = "OK";
+                btn.text = this.confirmButtonLabel || "OK";
                 btn.modalClose = false;
                 btn.onClick = e => {
                     if (!this.validate()) return;
                     const result = {};
                     Utils.forEach(this.params, (field: Field) => result[field.key] = field.serializedValue);
                     this.onSuccess(result);
-                    mw.close(e);
                 };
             });
 
         }).open();
+    }
+
+    close() {
+        this._modal && this._modal.close();
     }
 
 

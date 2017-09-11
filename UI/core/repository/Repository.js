@@ -22,6 +22,8 @@ import Alert from "../component/alert/Alert";
 import {RecordDataGenerator} from "./Record";
 import WebApiRepoStorage from "./storage/WebApiRepoStorage";
 import API from "../application/API";
+import RepoConfig from "./RepoConfig";
+import RepoCursor from "./RepoCursor";
 
 
 //ToDo: Opcja inline - edycja rekordów podobnie jak w uprawnieniach
@@ -155,7 +157,8 @@ export default class Repository {
                     repo.config.load(data);
                     repo.config.update();
                 } catch (e) {
-                    Dev.error(Repository, e);
+                    repo.error = e;
+                    Dev.error(null, e);
                     repo.error = e;
                 }
             }
@@ -410,13 +413,16 @@ export default class Repository {
             const obj = dto[repo.key] = [];
             records.forEach((record: Record) => {
                 const r = {};
-                let add: boolean = false;
+                let add: boolean = record.action === CRUDE.DELETE;
                 r["#action"] = record.action ? record.action.name : null;
                 r["#uid"] = record.UID;
 
                 if (record.action !== CRUDE.UPDATE) hasChanges = true;
 
                 record.fields.forEach((field: Field) => {
+
+                    if (!field.config.writable)
+                        return;
 
                     if (record.action === CRUDE.DELETE && field !== record.primaryKey)
                         return;
@@ -444,6 +450,7 @@ export default class Repository {
                 }
             });
         });
+
         return hasChanges ? dto : null;
     }
 
@@ -494,7 +501,7 @@ export default class Repository {
 
         if (key instanceof Column) {
             if (checkOwnership && !this.columns.contains(key))
-                throw new Error("Kolumna " + key.key + " nie należy do repozytorium " + this.key);
+                throw new RepoError(this, "Kolumna " + key.key + " nie należy do repozytorium");
             return key;
         }
 
@@ -503,7 +510,7 @@ export default class Repository {
         if (elements.length === 2) {
             const repo = Repository.get(elements[0], true);
             if (checkOwnership && repo !== this)
-                throw new Error("Kolumna " + key + " nie należy do repozytorium " + this.key);
+                throw new RepoError("Kolumna " + key + " nie należy do repozytorium");
             return repo.getColumn(elements[1], mustExists, false);
         }
 
@@ -513,7 +520,7 @@ export default class Repository {
 
         const result = this.columns.find(c => c.key === key);
         if (!result && mustExists)
-            throw new Error("Kolumna " + this.key + "." + key + " nie istnieje");
+            throw new RepoError(this, "Kolumna " + Utils.escape(key) + " nie istnieje");
         return result;
     }
 
@@ -644,8 +651,8 @@ export default class Repository {
     /**
      * Iteracja po wierszach repozytorium (nie rekordach) przy pomocy kursora
      */
-    forEach(consumer: (cursor: RepoCursor, stop: () => void) => void) {
-        this.cursor().forEach(consumer);
+    forEach(consumer: (cursor: RepoCursor, stop: () => void) => void): any[] {
+        return this.cursor().forEach(consumer);
     }
 
     tree(parentColumn: ?Column = null): RepoTree {
@@ -659,317 +666,6 @@ export default class Repository {
  * onwersja następuje po zdefiniowaniu kolumny wskazującej na rodzica.
  */
 
-export class RepoConfig {
-    static defaultCrudeRights = "CRUD"; //"CRUDE"
-
-    record: Object = null;
-    key: ?string = null;
-    name: ?string = null;
-    group: ?string = null;
-    primaryKeyColumn: Column = null;
-    displayNameColumn: ?Column = null;
-    displayMask: ?string = null;
-    actions: ?Object | RepoAction[] = null;
-    onDemand: boolean = false;
-    broadcast: boolean = false;
-    references: ?Object = null;
-
-    /** Kolumna definiująca rodzica - dla struktury drzewiastej */
-    parentColumn: ?Column = null;
-    /** Kolumna definiująca wartość kolejności wyświetlania wierszy - dla repozytoriów w których można sortować wiersze*/
-    orderColumn: ?Column = null;
-    description: ?string = null;
-
-    info: ?Object = null;
-
-    limit: ?number = null;
-    offset: ?number = null;
-
-    crude: string = RepoConfig.defaultCrudeRights;
-    local: ?boolean = null;
-    icon: ?string = null;
-    _columns: Column[] = [];
-    /** Repozytorium utworzone dynamicznie (rezultat metody [list] z webapi)*/
-    dynamic: boolean = false;
-
-    _repo: Repository;
-
-    constructor(repo: Repository) {
-        this._repo = repo;
-        Object.preventExtensions(this);
-    }
-
-
-    _processColumns(data: Object) {
-        const getColumn = (col) => {
-            if (col instanceof Column)
-                col = (col: Column).key;
-
-            const result = this._columns.find(c => c.key === col);
-
-            if (col && !result)
-                throw new RepoError(this._repo, "Nie znaleziono kolumny " + Utils.toString(col));
-
-            return result;
-        };
-
-        let display = data.displayNameColumn;
-        if (Is.string(display)) {
-            for (let i = 0; i < display.length; i++)
-                if (!".-0123456789_abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".contains(display[i])) {
-                    data.displayNameColumn = null;
-                    data.displayMask = display;
-                    break;
-                }
-        }
-
-        this.primaryKeyColumn = getColumn(data.primaryKeyColumn);
-        this.displayNameColumn = getColumn(data.displayNameColumn);
-        this.orderColumn = getColumn(data.orderColumn);
-        this.parentColumn = getColumn(data.parentColumn);
-        this.displayMask = data.displayMask;
-    }
-
-    /**
-     * Wczytanie konfiguracji repozytorium z zewnątrz (rezultat metody list z webapi)
-     * @param data
-     */
-    load(data: Object) {
-
-
-        const colsArr: string[] = [];
-
-        // dodanie kolumn / aktualizacja istniejących
-        Utils.forEach(data.columns, cdata => {
-                colsArr.push(cdata.key);
-                Is.defined(this._columns.find(c => c.key === cdata.key),
-                    (c: Column) => c._load(cdata),
-                    () => this._columns.push(new Column((c: Column) => c._load(cdata)))
-                )
-            }
-        );
-
-        this._processColumns(data);
-
-        // usuwanie nadmiarowych kolumn
-        Utils.forEachSafe(this._columns, (c: Column) => Is.condition(!colsArr.contains(c.key), () => this._columns.remove(c)));
-
-
-        this.name = data.name;
-        this.group = data.group;
-        this.description = data.description;
-        this.info = data.info || {};
-        this.actions = data.actions;
-        this.limit = data.limit;
-        this.icon = data.icon;
-        this.broadcast = data.broadcast;
-        this.onDemand = data.onDemand;
-
-        this.crude = data.crude;
-        this.local = data.local;
-        this.references = data.references;
-    }
-
-    /**
-     * Weryfikacja i stosowanie ustawień (przepisywanie z konfiguracji do repozytorium)
-     */
-    update() {
-        const repo: Repository = this._repo;
-
-        repo.actions = Is.def(this.actions, acts => Utils.forEach(acts, (obj, key) => {
-            const act = new RepoAction();
-            act.repo = repo;
-            act.key = key;
-            act.record = obj.record;
-            act.name = obj.name;
-            act.type = obj.type;
-            act.icon = obj.icon;
-            act.confirm = obj.confirm;
-            act.params = obj.params;
-            act.constraints = obj.constraints;
-            return act;
-        }), []);
-
-        this._columns.forEach(col => {
-            if (!repo.columns.contains(col))
-                repo.columns.push(col);
-        });
-
-        // usuwanie nadmiarowych kolumn
-        Utils.forEachSafe(repo.columns, (c: Column) => Is.condition(!this._columns.contains(c), () => repo.columns.remove(c)));
-
-        if (!this.primaryKeyColumn)
-            throw new Error("Brak definicji klucza głównego repozytorium " + Utils.escape(this.key));
-
-        if (!repo.columns.contains(this.primaryKeyColumn))
-            throw new Error("Kolumna " + Utils.escape(this.primaryKeyColumn) + " nie należy do repozytorium " + Utils.escape(this.key));
-
-        repo.permission = Permission.all["repo-" + this.key];
-        if (!repo.permission)
-            repo.permission = new Permission(repo, "repo-" + this.key, `Repozytorium "${this.name}"`, Repository.defaultCrudeRights);
-
-        repo.permission.crude = this.crude;
-
-        AppEvent.REPO_CONFIG_UPDATE.send(this, {repo: repo, config: this})
-    }
-
-}
-
-
-export class RepoAction {
-    repo: Repository;
-
-    record: boolean;
-    key: string;
-    name: string;
-    action: ?() => void;
-    hint: string;
-    type: string;
-    icon: string;
-    confirm: string;
-    params: Object; //ToDo obsługa
-    constraints: Object; //ToDo obsługa
-    children: RepoAction[] = [];
-
-    constructor(repo: Repository, key: string, name: string, action: () => void, confirm: string) {
-        this.repo = repo;
-        this.key = key;
-        this.name = name;
-        this.action = action;
-        this.confirm = confirm;
-    }
-
-    execute(record: Record, params: {}) {
-
-        if (this.action)
-            this.action();
-        else
-            API.repoAction({
-                action: this.key,
-                repo: this.repo.key,
-                pk: record ? record.pk : null,
-                params: params
-            });
-    }
-
-}
-
-
-export class RepoTree {
-
-    repo: Repository;
-    root: RepoTree;
-    parent: RepoTree;
-    children: RepoTree[] = [];
-    row: [];
-    primaryKey: any;
-    parentKey: any;
-
-    constructor(repo: Repository) {
-        this.repo = repo;
-    }
-
-    static create(repo: Repository, parentColumn: Column): RepoTree {
-
-        const map: Map = new Map();
-
-        const idx = repo.getColumnIndex(parentColumn);
-        const pkIdx: number = repo.columns.indexOf(repo.primaryKeyColumn);
-
-        const root = new RepoTree(repo);
-        root.root = root;
-
-        repo.rows.forEach((row: []) => {
-            const r: RepoTree = new RepoTree(repo);
-            r.primaryKey = row[pkIdx];
-            r.parentKey = row[idx];
-            r.row = row;
-            map.set(r.primaryKey, r);
-        });
-
-
-        map.forEach((rt: RepoTree) => {
-            if (rt.parentKey === null || rt.parentKey === undefined) {
-                root.add(rt);
-                return;
-            }
-
-            const parent: RepoTree = map.get(rt.parentKey);
-            if (!parent) throw new Error("Nie znaleziono rodzica dla " + rt.parentKey);
-
-            parent.add(rt);
-        });
-
-        return root;
-    }
-
-    add(child: RepoTree) {
-        if (child.parent)
-            child.parent.children.remove(child);
-        child.parent = this;
-        this.children.push(child);
-    }
-
-    get(column: Column): any {
-        return this.row[this.repo.getColumnIndex(column)];
-    }
-}
-
-export class RepoCursor {
-    repo: Repository;
-    _index: number = -1;
-    _rows: [] = [];
-
-    constructor(repo: Repository) {
-        this.repo = repo;
-        repo.rows.forEach(row => this._rows.push(row));
-    }
-
-    forEach(consumer: (cursor: RepoCursor, stop: () => void) => void) {
-        this.reset();
-        let stopped: false;
-        const stop = () => stopped = true;
-        while (!stopped && this.next())
-            consumer(this, stop);
-    }
-
-    next(): boolean {
-        ++this._index;
-        return this._index < this._rows.length;
-    }
-
-    back(): boolean {
-        --this._index;
-        return this._index >= 0;
-    }
-
-    reset() {
-        this._index = -1
-    }
-
-    get row(): any[] {
-        return Utils.clone(this._rows[this._index]);
-    }
-
-    get primaryKey(): any {
-        return this.get(this.repo.primaryKeyColumn);
-    }
-
-    getRecord(context: any) {
-        const rec: Record = this.repo.createRecord(context, CRUDE.UPDATE);
-        rec.row = this._rows[this._index];
-        return rec;
-    }
-
-    get(column: Column): any {
-        const idx = this.repo.getColumnIndex(column);
-
-        if (this._index < 0 || this._index >= this._rows.length)
-            throw new Error("Kursor poza zakresem");
-
-        return this._rows[this._index][idx];
-    }
-}
 
 class DynamicRepo extends Repository {
 
@@ -987,7 +683,7 @@ class DynamicRepo extends Repository {
 export class RepoError extends Error {
 
     constructor(repo: Repository, message: string) {
-        super("Repozytorium " + repo.key + ": " + Utils.toString(message))
+        super((repo ? "[" + repo.key + "] " : "") + Utils.toString(message))
     }
 }
 

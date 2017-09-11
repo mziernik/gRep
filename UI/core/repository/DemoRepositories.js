@@ -331,7 +331,7 @@ export class RUsers extends Repository {
         c.key = "active";
         c.name = "Aktywny";
         c.type = "boolean";
-        c.defaultValue = true;
+        c.value = true;
     });
 
     static OCCUPATION: Column = new Column((c: Column) => {
@@ -398,7 +398,7 @@ export class RUsers extends Repository {
         c.name = "Typ";
         c.type = "char";
         c.foreign = () => RTYPE;
-        c.defaultValue = "E";
+        c.value = "E";
     });
 
     static KIND: Column = new Column((c: Column) => {

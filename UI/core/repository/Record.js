@@ -219,7 +219,7 @@ export default class Record {
 class RecordError extends Error {
 
     constructor(record: Record, message: string) {
-        super("Rekord " + record.fullId + ": " + Utils.toString(message))
+        super((record ? "[" + record.fullId + "] " : "") + Utils.toString(message))
     }
 }
 

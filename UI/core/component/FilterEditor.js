@@ -34,21 +34,21 @@ export default class FilterEditor extends Component {
                 cfg.enumerate = {};
                 Utils.forEach(this._columns, (col) => cfg.enumerate[col.key] = col.name);
                 cfg.readOnly = this._columns.length === 1;
-                cfg.defaultValue = based ? based.accessor : last ? last.accessor.value : this._columns[0].key;
+                cfg.value = based ? based.accessor : last ? last.accessor.value : this._columns[0].key;
             }),
             condition: new Field((cfg: Column) => {
                 cfg.type = Type.ENUM;
                 cfg.key = 'filter_condition_' + this._key;
                 cfg.name = 'Warunek';
                 cfg.enumerate = () => this._getConditionsEnum(res);
-                cfg.defaultValue = based ? based.condition : last ? last.condition.value : CustomFilter.CONDITIONS.EQUAL;
+                cfg.value = based ? based.condition : last ? last.condition.value : CustomFilter.CONDITIONS.EQUAL;
             }),
             value: new Field((cfg: Column) => {
                 const i = based ? this._columns.find((col) => col.key === based.accessor) : this._columns[0];
                 cfg.type = last ? last.value.type : (i.type || Type.STRING);
                 cfg.key = 'filter_value_' + this._key;
                 cfg.name = 'Wartość';
-                cfg.defaultValue = based ? based.value : last ? last.value.value : null;
+                cfg.value = based ? based.value : last ? last.value.value : null;
             }),
             _key: this._key++
         };

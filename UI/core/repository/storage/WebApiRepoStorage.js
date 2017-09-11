@@ -51,6 +51,7 @@ export default class WebApiRepoStorage extends RepositoryStorage {
 
 
     save(context: any, records: Record[]): Promise {
+
         const dto: Object = Repository.buildDTO(records, false);
 
         if (!dto)

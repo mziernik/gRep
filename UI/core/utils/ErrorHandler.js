@@ -76,10 +76,10 @@ export function onError(msg: any, file: ?any, line: ?number, column: ?number, ex
         tag = tag.tag("div").css({
             margin: "6px",
             maxWidth: "75%",
-            opacity: "0.9",
             border: "2px solid #DD3C10",
-            boxShadow: "2px 2px 3px #666666",
-            backgroundColor: "#FFEBE8",
+            opacity: "0.9",
+            boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(255, 235, 232, 0.9)",
             fontFamily: "Verdana",
             color: "black",
             fontSize: "10pt",

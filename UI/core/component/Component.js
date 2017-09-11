@@ -12,6 +12,15 @@ import Dispatcher from "../utils/Dispatcher";
  */
 
 
+const DESTROYED = Symbol("destroyed");
+const RENDER = Symbol("render");
+const ON_DESTROY = Symbol("On component destroy");
+const FORCE_UPDATE_TRIGGER = Symbol("Force update trigger");
+
+export const NAME = Symbol("name");
+export const NODE = Symbol("node");
+
+
 let renderCount = 0; // ilość aktualnie renderowanych komponentów
 
 let zIndex = 10;
@@ -24,25 +33,27 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         router: PropTypes.object.isRequired,
         node: PropTypes.any.isRequired, //AppNode
     };
+
     static propTypes = {
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
         style: PropTypes.object,
         className: PropTypes.object,
     };
+
     static defaultProps = {
         ignore: false
     };
-    /** @private */
-    __render: () => any;
-    /** @type {AppNode}*/
-    node: AppNode;
+
     /** Element drzewa dom, na którym bazuje komponent */
     element: HTMLElement;
     children: Children;
-    _forceUpdateTrigger: Trigger = new Trigger();
-    _onDestroy: [] = [];
-    /** @type {string} Nazwa gałęzi - do celów deweloperskiech  */
-    name: ?string = null;
+
+    [FORCE_UPDATE_TRIGGER]: Trigger = new Trigger();
+    [ON_DESTROY] = [];
+    [DESTROYED] = false;
+    [NODE] = null;
+    [NAME] = null;
+
     beforeRender: Dispatcher = new Dispatcher(this);
 
     whenComponentIsReady: Dispatcher = new Dispatcher(this);
@@ -61,21 +72,19 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         if (!updater || !updater.isMounted || !updater.enqueueCallback)
             throw new Error("Nieprawidłowe wywołanie konstruktora klasy " + this.constructor.name);
 
-        this.node = this.context.node;
+        this[NODE] = this.context.node;
         this.children = new Children(this);
 
         this.roles = this.props.roles;
-        if (!this.node && this instanceof AppNode)
+        if (!this[NODE] && this instanceof AppNode)
         // $FlowFixMeoCol
-            this.node = (this: AppNode);
-        if (!this.node)
+            this[NODE] = (this: AppNode);
+        if (!this[NODE])
             throw new Error("Brak zdefiniowanego modułu");
 
-        this.name = Utils.className(this);
-
-        this.node.components.push(this);
-
-        this.__render = this.render;
+        this[NAME] = Utils.className(this);
+        this[NODE].components.push(this);
+        this[RENDER] = this.render;
 
         this.render = () => {
             if (this.props.ignore)
@@ -83,12 +92,12 @@ export default class Component<DefaultProps: any, Props: any, State: any>
             try {
                 ++renderCount;
                 this.beforeRender.dispatch(this, {});
-                this.node.componentsStack.push(this);
-                return Dev.duration(this, "Render", () => this.__render());
+                this[NODE].componentsStack.push(this);
+                return Dev.duration(this, "Render", () => this[RENDER]());
             } catch (e) {
-                if (this.node && this.node.currentPage) {
-                    this.node.currentPage.__error = new EError(e);
-                    this.node.currentPage.forceUpdate();
+                if (this[NODE] && this[NODE].currentPage) {
+                    this[NODE].currentPage.__error = new EError(e);
+                    this[NODE].currentPage.forceUpdate();
                 }
                 window.console.error(e);
                 return null;
@@ -98,8 +107,16 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         }
     }
 
+    /**
+     * Globalny indeks warstwy - używany gdy chcemy dodać warstwę na wierzchu
+     * @return {number}
+     */
     static get zIndex() {
         return ++zIndex;
+    }
+
+    get destroyed() {
+        return this[DESTROYED];
     }
 
     setTimeout(func: () => void, delay: number, ...args: any) {
@@ -122,39 +139,9 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         });
     }
 
-
-    // /**
-    //  * Utwórz komponent reacta (wykorzystywany w metodzie render)
-    //  * @param type
-    //  * @param props
-    //  * @return {*}
-    //  */
-    // create(type: string, props: ? Object) {
-    //
-    //     props = props || {};
-    //
-    //     if (this.props && this.props.style) {
-    //         // dodaj do styli zadeklarowanych w atrybutach te, które są we właściwościach
-    //         props.style = props.style || {};
-    //         for (let name in this.props.style)
-    //             props.style[name] = this.props.style[name];
-    //     }
-    //
-    //     const ref = props.ref;
-    //
-    //     props.ref = (elm) => {
-    //         this.element = elm;
-    //         if (ref)
-    //             ref(elm);
-    //     };
-    //
-    //     return React.createElement(type, props, this.props.children);
-    // }
-
     toString() {
-        return this.name;
+        return this[NAME];
     }
-
 
     renderChildren(children: ?any = null, onlyOne: boolean = false) {
 
@@ -184,33 +171,22 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         };
 
         if (children instanceof Array)
-            return Utils.forEach(children, c => process(c))
-
+            return Utils.forEach(children, c => process(c));
 
         return process(children);
     }
 
 
-//
-// componentWillUpdate(nextProps, nextState) {
-//     debugger;
-// }
-//
-// componentWillMount() {
-//
-// }
-
-
     onDestroy(callback: () => void): Component {
-        Is.func(callback, () => this._onDestroy.push(callback));
+        Is.func(callback, () => this[ON_DESTROY].push(callback));
         return this;
     }
 
-
     componentWillUnmount() {
-        this.node.components.remove(this);
+        this[DESTROYED] = true;
+        this[NODE].components.remove(this);
         ContextObject.contextDestroyed(this);
-        this._onDestroy.forEach(func => func());
+        this[ON_DESTROY].forEach(func => func());
     }
 
     forceUpdate(delayed: boolean = true) {
@@ -218,9 +194,11 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         // komponent nie zamontowany
         if (!this._reactInternalInstance) return;
 
-        this._forceUpdateTrigger.cancel();
+        this[FORCE_UPDATE_TRIGGER].cancel();
 
         const run = () => {
+            if (this.destroyed)
+                return;
             // zabezpieczenie przed błędem "Cannot update during an existing state transition..."
             if (ReactUtils.getCurrentlyRenderedComponent())
                 setTimeout(() => run());
@@ -229,7 +207,7 @@ export default class Component<DefaultProps: any, Props: any, State: any>
         };
 
         if (delayed)
-            this._forceUpdateTrigger.call(run, 10);
+            this[FORCE_UPDATE_TRIGGER].call(run, 10);
         else run();
     }
 

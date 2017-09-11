@@ -13,7 +13,11 @@ export default class Cell extends Field {
     constructor(record: ?Record, cfg: Column | (cfg: Column) => void) {
         super(cfg);
         this.record = record;
-        record.fields.set(this.config, this);
+
+        // może się zdarzyć, że kolumna została usunięta - informacja przyszła w metodzie list
+        if (record.repo.columns.contains(cfg))
+            record.fields.set(this.config, this);
+
         this.onChange.listen(this, (data) => record.onFieldChange.dispatch(this, {field: this, source: data}));
     }
 

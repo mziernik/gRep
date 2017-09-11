@@ -1,9 +1,9 @@
-import Repository, {RepoCursor, RepoError} from "./Repository";
+import Repository, {RepoError} from "./Repository";
 import Column from "./Column";
 import Record from "./Record";
 import {Utils, Is, Check} from "../$utils";
-import {array} from "../utils/Is";
 import Field from "./Field";
+import RepoCursor from "./RepoCursor";
 
 
 export class ForeignConstraintItem {
@@ -45,6 +45,8 @@ export class ForeignConstraintItem {
             if (!this.foreign)
                 return v;
 
+            if (v === null)
+                return;
             return this.foreign.repository.getValue(v, this.foreign);
         }
 

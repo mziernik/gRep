@@ -86,7 +86,7 @@ const DATA = {
         fc.name = 'Lista zbiorów owoców';
         fc.description = "Lista zbiorów: Wybór wielu zbiorów elementów bez powtórzeń";
         fc.enumerate = () => FRUITS;
-        fc.defaultValue = [["orange"], ["orange", "apple"]];
+        fc.value = [["orange"], ["orange", "apple"]];
     }),
 
     FRUIT_LIST_List: new Field((fc: Column) => {

@@ -2,8 +2,7 @@
 
 import {Utils, Field, Record, Store, Repository, Column} from "../../core";
 import RepositoryStorage from "./RepositoryStorage";
-import {DELETE} from "../CRUDE";
-import {RepoCursor} from "../Repository";
+import RepoCursor from "../RepoCursor";
 import {UserData} from "../../application/UserData";
 import * as Is from "../../utils/Is";
 
@@ -51,6 +50,7 @@ export default class BrowserRepoStorage extends RepositoryStorage {
             const arr = [];
             for (let i = 0; i < repo.columns.length; i++) {
                 const col: Column = repo.columns[i];
+                if (!col.writable) continue;
                 let val = row[i];
                 if (val === undefined) val = null;
                 arr.push(col.type.serialize(val));
@@ -68,7 +68,7 @@ export default class BrowserRepoStorage extends RepositoryStorage {
                     repo.forEach((cursor: RepoCursor) => items.set(cursor.primaryKey, buildRow(repo, cursor.row)));
                     Utils.forEach(records, (rec: Record) => {
                         if (rec.repo !== repo) return;
-                        items.set(rec.pk, Utils.forEach(rec.fields, (field: Field) => field.serializedValue));
+                        items.set(rec.pk, Utils.forEach(rec.fields, (field: Field) => field.config.writable ? field.serializedValue : undefined));
                     });
 
                     const result = [];
@@ -77,7 +77,7 @@ export default class BrowserRepoStorage extends RepositoryStorage {
                         UserData.current && UserData.current.id ? UserData.current.id : null,
                         repo.version
                     ]);
-                    result.push(Utils.forEach(repo.columns, (col: Column) => col.key));
+                    result.push(Utils.forEach(repo.columns, (col: Column) => col.writable ? col.key : undefined));
                     Utils.forEach(items, arr => result.push(arr));
                     Store.LOCAL.set("$repo[" + repo.key + "]", result);
                 });

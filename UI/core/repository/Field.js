@@ -51,7 +51,8 @@ export default class Field {
 
         cfg = this.config;
 
-        Is.defined(cfg.defaultValue, val => this.value = val);
+
+        Is.defined(cfg.value, val => this.value = val);
         Is.defined(cfg.defaultUnit, unit => this._unit = unit);
 
         if (DEV_MODE)
@@ -190,6 +191,15 @@ export default class Field {
                     this._value = null;
         }
 
+        if (!result || !result.size)
+            return result;
+
+
+        // sortowanie elementów enumeraty na podstawie nazwy wyświetlanej z uwzględnieniem ustawień lokalnych
+        const arr: [] = Utils.forEach(result, (v, k) => [Utils.toString(v).toLowerCase(), v, k]);
+        arr.sort((a, b) => a[0].localeCompare(b[1]));
+        result.clear();
+        Utils.forEach(arr, i => result.set(i[2], i[1]));
         return result;
     }
 
@@ -268,7 +278,7 @@ export default class Field {
             c.type = type;
             c.key = key;
             c.name = name;
-            c.defaultValue = defaultValue;
+            c.value = defaultValue;
         })
     }
 
@@ -305,9 +315,7 @@ export default class Field {
     /** Aktualizacja wartości 'z zewnątrz' (np z api) */
     update(context: any, value: ?any) {
         const prev = this._value;
-
-        if (value === prev) return;
-
+        if (this.type.equals(value, prev)) return;
         this.lastUpdate = new Date().getTime();
         this._value = value;
         this.onUpdate.dispatch(context, {field: this, value: value, prev: prev});
@@ -333,7 +341,7 @@ export default class Field {
             value *= this.unit[2];
 
         if (!done)
-            if (value === this._value)
+            if (this.type.equals(value, prev))
                 return this;
 
         if (value !== null && value !== undefined)

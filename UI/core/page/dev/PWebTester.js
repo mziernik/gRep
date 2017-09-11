@@ -18,7 +18,7 @@ export default class PWebTester extends Page {
         fc.type = Type.STRING;
         fc.key = "js";
         fc.name = " JavaScript";
-        fc.defaultValue = JS;
+        fc.value = JS;
         // fc.store = "WebTester_JS";
     });
 
@@ -26,7 +26,7 @@ export default class PWebTester extends Page {
         fc.type = Type.STRING;
         fc.key = "css";
         fc.name = " CSS";
-        fc.defaultValue = CSS;
+        fc.value = CSS;
         // fc.store = "WebTester_CSS";
     });
 
@@ -34,7 +34,7 @@ export default class PWebTester extends Page {
         fc.type = Type.STRING;
         fc.key = "html";
         fc.name = " HTML";
-        fc.defaultValue = HTML;
+        fc.value = HTML;
         // fc.store = "WebTester_HTML";
     });
 

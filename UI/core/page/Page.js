@@ -20,8 +20,10 @@ import {Component, Spinner, Panel, Icon} from "../components";
 import WebApiRepoStorage from "../repository/storage/WebApiRepoStorage";
 import {ModalWindow} from "../component/ModalWindow";
 import {Btn} from "../component/Button";
-import {Dynamic} from "../component/Component";
+import {NODE, Dynamic} from "../component/Component";
 import Busy from "../component/Busy";
+
+const RENDER = Symbol("Render Page");
 
 export default class Page extends Component {
 
@@ -45,9 +47,9 @@ export default class Page extends Component {
 
     constructor() {
         super(...arguments);
-        this.node.currentPage = this;
+        this[NODE].currentPage = this;
         Utils.makeFinal(this, ["endpoint", "buttons", "title", "icon", "buttons", "titleBar"]);
-        this.node.componentsStack.length = 0;
+        this[NODE].componentsStack.length = 0;
 
         const modal: ModalWindow = this.modal;
 
@@ -59,9 +61,11 @@ export default class Page extends Component {
                 return null;
             };
 
+        this[RENDER] = this.render;
+
         this.render = () => {
             try {
-                this.node.currentPage = this;
+                this[NODE].currentPage = this;
 
                 if (this.__error)
                     try {
@@ -73,7 +77,7 @@ export default class Page extends Component {
                 if (this._waitingForRepo)
                     return <Busy fit label="Proszę czekać..."/>;
 
-                const result = this.__render();
+                const result = this[RENDER]();
                 //       if (Is.array(result))
                 return <Panel fit>
                     {this.titleBar.$}
@@ -88,7 +92,7 @@ export default class Page extends Component {
     }
 
     get modal(): ModalWindow {
-        return this.props.modal || (this.node.tab ? this.node.tab.modalWindow : null);
+        return this.props.modal || (this[NODE].tab ? this[NODE].tab.modalWindow : null);
     }
 
     static renderError(context: any, e: string | Error | EError) {
@@ -105,7 +109,7 @@ export default class Page extends Component {
             <div style={{
                 fontWeight: "bold",
             }}>{Utils.className(context)}</div>
-            <div>{comp && comp.node && comp.node.componentsStack ? comp.node.componentsStack.map((c: Component) => c.name).join(", ") : null}</div>
+            <div>{comp && comp[NODE] && comp[NODE].componentsStack ? comp[NODE].componentsStack.map((c: Component) => c.toString()).join(", ") : null}</div>
             <div style={{
                 fontSize: "20pt",
                 fontWeight: "bold",

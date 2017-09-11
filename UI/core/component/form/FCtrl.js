@@ -80,6 +80,8 @@ export default class FCtrl extends Component {
         fit: PropTypes.bool,
 
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
+
+        disableLink: PropTypes.bool, // wyłącza linki na etykietach
     };
 
     static defaultProps = {
@@ -141,6 +143,11 @@ export default class FCtrl extends Component {
             Is.func(this.props.onChange, f => f(this, data));
             this.forceUpdate(true);
         });
+
+        // po zmianie jakichkolwiek zmianach w repozytorium na które wskazuje klucz obcy przerysuj komponent
+        if (!this.props.preview && this.field.config.foreign)
+            this.field.config.foreign.repo.onChange.listen(this, d => this.forceUpdate(true))
+
 
         this.field.onChange.listen(this, data => {
             Is.func(this.props.onChange, f => f(this, data));
@@ -258,7 +265,7 @@ export default class FCtrl extends Component {
                 break;
             case "name":
                 const label = Utils.toString(Is.defined(this.props.label) ? this.props.label : this.field.name);
-                if (!this.props.preview && this.field.config.foreign) {
+                if (!this.props.disableLink && !this.props.preview && this.field.config.foreign) {
                     const repo: Repository = this.field.config.foreign.repo;
                     if (!this.field.record || repo !== this.field.record.repo)
                         return <span
@@ -276,7 +283,13 @@ export default class FCtrl extends Component {
                                     });
                                     rec = repo.getOrCreate(this, firstKey);
                                 }
-                                new RecordCtrl(rec).modalEdit()
+                                const ctrl = new RecordCtrl(rec);
+                                ctrl.modalEdit();
+                                /*    ctrl.onCommit.listen(this, data => {
+                                        debugger;
+                                        const pk = data.record.pk;
+                                        this.field.value = this.field.type.isList ? [pk] : pk;
+                                    });*/
                             }}
                         >{label}</span>;
                 }

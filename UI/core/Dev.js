@@ -565,7 +565,7 @@ export default class Dev {
     static error(context: ?any | any[], value: ?mixed, ...args: any) {
         window.console.error(value instanceof Error ? value : format(context, value), ...args);
         if (!DEBUG_MODE || !(value instanceof EError) || (!(value: EError).handled))
-            ErroHandler.onError(Utils.getContextName(context) + ": " + value);
+            ErroHandler.onError(format(context, value));
     }
 
     static dir(value: ?mixed, ...args: any) {
