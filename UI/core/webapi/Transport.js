@@ -45,6 +45,7 @@ let currentState: State = State.INIT;
 export default class WebApiTransport {
 
     connected: boolean = false;
+    _state: State = State.INIT;
     /** Kolejka żądań oczekujących na  wysłanie */
     queue: WebApiRequest[] = [];
     onMessage: (message: Object, req: WebApiRequest) => void;
@@ -52,10 +53,25 @@ export default class WebApiTransport {
     onError: (message: string) => void;
     onOpen: () => void;
 
+
     connect(url: string) {
+        if (this._state === State.CONNECTING) return;
         _reconnect = () => this.connect(url);
-        State.current = State.CONNECTING;
+        this.state = State.CONNECTING;
         this.doConnect(url);
+    }
+
+    get state(): State {
+        return this._state;
+    }
+
+    set state(state: State) {
+        this._state = state;
+        State.current = state;
+    }
+
+    get isConnected(): boolean {
+        return this._state === State.CONNECTED;
     }
 
     doConnect(url: string) {
@@ -105,7 +121,7 @@ export class WebSocketTransport extends WebApiTransport {
             let msg = e;
             if (Is.defined(e.statusText))
                 msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
-            this.onClose(e.code ? getReason(e.code, this.connected) : msg, e);
+            this.onClose(e.code ? getReason(e.code, this.isConnected) : msg, e);
         };
 
         this.ws.onerror = (e: Event, f) => {
@@ -160,8 +176,15 @@ export class SignalRTransport extends WebApiTransport {
                 let msg = e;
                 if (Is.defined(e.statusText))
                     msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
-                this.onClose(e && e.code ? getReason(e.code, this.connected) : msg, e);
+                this.onClose(e && e.code ? getReason(e.code, this.isConnected) : msg, e);
             });
+
+
+        this.conn.on("RepositoryUpdate", data => {
+            data.event = true;
+            data.type = "RepositoryUpdate";
+            this.onMessage(data, null);
+        });
 
         this.conn.onClosed = (e) => {
             if (!e) {
@@ -175,7 +198,7 @@ export class SignalRTransport extends WebApiTransport {
             let msg = e;
             if (Is.defined(e.statusText))
                 msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
-            this.onClose(e && e.code ? getReason(e.code, this.connected) : msg, e);
+            this.onClose(e && e.code ? getReason(e.code, this.isConnected) : msg, e);
         };
 
     }

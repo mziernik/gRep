@@ -29,6 +29,7 @@
 .spinner-text {
     margin-top: 20px;
     font-size: 1.2em;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
     /*color: rgba(255, 255, 255, 0.5);*/
 }
 

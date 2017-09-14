@@ -58,7 +58,7 @@ export function toString(argument: any): ?string {
 }
 
 
-export function find(object: ?any, callback: (object: ?any, index: number | string) => ?boolean) {
+export function find(object: ?any, callback: (object: ?any, index: number | string) => ?boolean): any {
     return forEach(object, (obj, idx, stop) => {
         if (callback(obj, idx)) {
             stop();
@@ -129,7 +129,7 @@ export function forEach(object: ?any, callback: (object: ?any, index: number | s
 
 
     for (let name in object) {
-        const res = callback(object[name], name, forEach);
+        const res = callback(object[name], name, () => _break = true);
         if (res !== undefined) result.push(res);
         if (forEach._break) return result;
     }

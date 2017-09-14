@@ -14,13 +14,12 @@ import {
     Alert,
     Spinner
 } from '../../../components';
-import RepoCtrl from "../../../component/repository/RepoCtrl";
-import RecordCtrl from "../../../component/repository/RecordCtrl";
-import DevRouter from "../DevRouter";
 import RepoTable from "../../../component/repository/RepoTable";
 import {RecordDataGenerator} from "../../../repository/Record";
 import WebApiResponse from "../../../webapi/Response";
 import RepoPage from "../../base/RepoPage";
+import RecordCtrl from "../../../component/repository/RecordCtrl";
+import RepoCtrl from "../../../component/repository/RepoCtrl";
 
 
 export default class PRepository extends RepoPage {
@@ -58,10 +57,7 @@ export default class PRepository extends RepoPage {
         this.buttons.add((btn: Btn) => {
             btn.key = "btnAdd";
             btn.type = "primary";
-            btn.link = Endpoint.devRouter.RECORD.getLink({
-                repo: this.repo.key,
-                id: "~new"
-            });
+            btn.onClick = e => RecordCtrl.actionCreate(this.repo, e);
             btn.title = "Dodaj nowy rekord";
             btn.icon = Icon.PLUS;
             btn.text = "Dodaj";
@@ -76,15 +72,13 @@ export default class PRepository extends RepoPage {
         if (this.repo.error)
             return Page.renderError(this, this.repo.error);
 
-        let hasAdv = !!Utils.find(this.repo.columns, (col: Column) => col.disabled);
-
-        //  const rctrl: RepoCtrl = new RepoCtrl(this, this.repo);
+        let hasAdv = false; // !!Utils.find(this.repo.columns, (col: Column) => col.disabled);
 
         return [
-            <div>
+            <div key={Utils.randomId()}>
                 <FCtrl ignore={!hasAdv} field={this.showAdv} value={1} name={2}/>
             </div>,
-            <RepoTable key={Utils.randomId()} repository={this.repo} showAdvanced={this.showAdv.value}/>
+            <RepoTable key={Utils.randomId()} repoCtrl={new RepoCtrl(this.repo)} showAdvanced={this.showAdv.value}/>
         ]
     }
 

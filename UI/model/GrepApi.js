@@ -14,7 +14,9 @@ export default class GrepApi {
 
     constructor(api: WebApi) {
         this.api = api;
-        api.hash = 'bxh31Q';
+        api.httpUrl = api.httpUrl || "http://localhost/api";
+        api.wsUrl = api.wsUrl || "ws://localhost/api";
+        api.hash = 'HaAEBA';
 
     }
     data: Object = {
@@ -25,8 +27,8 @@ export default class GrepApi {
             this.api.call("repository/action", '8aErEw', params, onSuccess, onError)
         ,
         /** Pobierz plik z repozytorium */
-        downloadFile: (params: {repo: string, pk: any, column: string, fileKey: ?string}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("repository/downloadFile", 'reKA4g', params, onSuccess, onError)
+        downloadFile: (params: {repo: string, pk: any, column: string, id: ?string, preview: ?boolean}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            this.api.call("repository/downloadFile", '4z45ZQ', params, onSuccess, onError)
         ,
         edit: (params: {data: Object}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
             this.api.call("repository/edit", 'yVVCCw', params, onSuccess, onError)
@@ -35,16 +37,20 @@ export default class GrepApi {
             this.api.call("repository/export", 'bVJXCg', null, onSuccess, onError)
         ,
         /** Zwraca dane z wielu tabel */
-        get: (params: {repositories: ?[]}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+        get: (params: {repositories: ?jcollection}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
             this.api.call("repository/get", 'gybJTQ', params, onSuccess, onError)
         ,
         /** Lista wszystkich rekordów w cache */
         list: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
             this.api.call("repository/list", 'DVEReg', null, onSuccess, onError)
         ,
+        /** Modyfikacja danych rekordu w momencie tworzenia lub edycji danych */
+        recordCallback: (params: {repo: string, pk: ?any, column: ?string, value: ?string}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            this.api.call("repository/recordCallback", '3yrSwA', params, onSuccess, onError)
+        ,
         /** Inicjalizacja procesu wysyłania pliku */
-        uploadFile: (params: {repo: string, pk: any, column: string, name: string, size: number}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-            this.api.call("repository/uploadFile", 'PaZorg', params, onSuccess, onError)
+        uploadFile: (params: {repo: string, pk: ?any, column: string, name: string, size: number}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            this.api.call("repository/uploadFile", 'aa2Hyg', params, onSuccess, onError)
 
     };
 
@@ -76,8 +82,8 @@ export default class GrepApi {
                 this.api.call("service/repository/action", '8aErEw', params, onSuccess, onError)
             ,
             /** Pobierz plik z repozytorium */
-            downloadFile: (params: {repo: string, pk: any, column: string, fileKey: ?string}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/repository/downloadFile", 'reKA4g', params, onSuccess, onError)
+            downloadFile: (params: {repo: string, pk: any, column: string, id: ?string, preview: ?boolean}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+                this.api.call("service/repository/downloadFile", '4z45ZQ', params, onSuccess, onError)
             ,
             edit: (params: {data: Object}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/repository/edit", 'yVVCCw', params, onSuccess, onError)
@@ -86,16 +92,20 @@ export default class GrepApi {
                 this.api.call("service/repository/export", 'bVJXCg', null, onSuccess, onError)
             ,
             /** Zwraca dane z wielu tabel */
-            get: (params: {repositories: ?[]}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+            get: (params: {repositories: ?jcollection}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/repository/get", 'gybJTQ', params, onSuccess, onError)
             ,
             /** Lista wszystkich rekordów w cache */
             list: (onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
                 this.api.call("service/repository/list", 'DVEReg', null, onSuccess, onError)
             ,
+            /** Modyfikacja danych rekordu w momencie tworzenia lub edycji danych */
+            recordCallback: (params: {repo: string, pk: ?any, column: ?string, value: ?string}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+                this.api.call("service/repository/recordCallback", '3yrSwA', params, onSuccess, onError)
+            ,
             /** Inicjalizacja procesu wysyłania pliku */
-            uploadFile: (params: {repo: string, pk: any, column: string, name: string, size: number}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
-                this.api.call("service/repository/uploadFile", 'PaZorg', params, onSuccess, onError)
+            uploadFile: (params: {repo: string, pk: ?any, column: string, name: string, size: number}, onSuccess: ?OnSuccess = null, onError: ?OnError = null): WebApiRequest =>
+                this.api.call("service/repository/uploadFile", 'aa2Hyg', params, onSuccess, onError)
 
         },
         session: {

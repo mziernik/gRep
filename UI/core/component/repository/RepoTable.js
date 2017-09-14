@@ -1,15 +1,23 @@
 import {React, PropTypes, Field, Utils, Column, Repository, Record, CRUDE, Endpoint, Is} from '../../core.js';
 import {Page, Icon, Link, Table, FCtrl, Panel, Button, ModalWindow} from '../../components.js';
 import {ENDPOINT_TARGET_POPUP} from "../../application/Endpoint";
+import {MenuItem} from "../PopupMenu";
+import RepoActions from "../../page/base/RepoActions";
+import Cell from "../../repository/Cell";
+import * as Check from "../../utils/Check";
+import RepoCtrl from "./RepoCtrl";
+import RecordCtrl from "./RecordCtrl";
 
 //ToDo: Hint dla wiersza - lista field + displayValue
 
 export default class RepoTable extends Table {
 
     repo: Repository;
+    ctrl: RepoCtrl;
 
     static propTypes = {
-        repository: PropTypes.instanceOf(Repository).isRequired,
+        repository: PropTypes.instanceOf(Repository),
+        repoCtrl: PropTypes.instanceOf(RepoCtrl),
         onClick: PropTypes.func, //(rec, e,  row, column, table)
         showAdvanced: PropTypes.bool,
         modalEdit: PropTypes.bool,
@@ -30,9 +38,8 @@ export default class RepoTable extends Table {
 
         let mapping = [];
         const indexes: Map = new Map();
-
-        const repo: Repository = this.repo = this.props.repository;
-
+        this.ctrl = this.props.repoCtrl || new RepoCtrl(this.props.repository);
+        const repo: Repository = this.repo = this.ctrl.repo;
 
         this._onRowClick = (row, column, instance, e) => {
             let rec: Record = mapping[row.index];
@@ -43,10 +50,22 @@ export default class RepoTable extends Table {
                 return;
             }
 
+
+            if (this.props.modalEdit) {
+                new RecordCtrl(rec).modalEdit();
+                return;
+            }
+
             Endpoint.devRouter.RECORD.navigate({
                 repo: repo.key,
                 id: rec.primaryKey.value
-            }, this.props.modalEdit ? ENDPOINT_TARGET_POPUP : e);
+            }, e);
+
+
+            // Endpoint.devRouter.RECORD.navigate({
+            //     repo: repo.key,
+            //     id: rec.primaryKey.value
+            // }, this.props.modalEdit ? ENDPOINT_TARGET_POPUP : e);
 
         };
 
@@ -74,6 +93,7 @@ export default class RepoTable extends Table {
                         field={f}
                         value
                         inline
+                        maxStringValueLength={500}
                     />);
 
                 indexes.set(rec.pk, mapping.length);
@@ -114,9 +134,36 @@ export default class RepoTable extends Table {
         });
 
         this._columns = this._convertColumns(Utils.forEach(repo.columns, (c: Column) => {
-            if (!c.disabled || this.props.showAdvanced) return c;
+            if (!(c.hidden.repo === true) || this.props.showAdvanced)
+                return c;
         }));
 
+    }
+
+    _createContextMenu(row: {}): [] {
+        const repo: Repository = this.repo;
+        const anyField: Field = Utils.find(row, obj => obj instanceof Field);
+        const items: MenuItem[] = [];
+
+        if (repo.canCreate)
+            items.push(MenuItem.create((item: MenuItem) => {
+                item.name = "Dodaj";
+                item.icon = Icon.PLUS;
+                item.onClick = e => RecordCtrl.actionCreate(repo, e);
+            }));
+
+        if (anyField && anyField.record) {
+            const rec: Record = anyField.record;
+            if (rec.canDelete)
+                items.push(MenuItem.create((item: MenuItem) => {
+                    item.name = "Usuń";
+                    item.icon = Icon.TIMES;
+                    item.onClick = e => new RecordCtrl(rec).actionDelete(e);
+                }));
+
+            Utils.forEach(new RepoActions(repo, rec).renderMenuItems(), item => items.push(item));
+        }
+        return items.concat([MenuItem.separator()], super._createContextMenu());
     }
 
     // editRecord(record: Record) {

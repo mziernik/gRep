@@ -15,7 +15,7 @@ import static com.lang.LConfig.*;
 import com.model.RRepoHistory;
 import com.model.RRepoState;
 import com.model.dao.DatabaseDAO;
-import com.model.test.RTest;
+import com.model.demo.RDemo1;
 import com.model.repository.Repository;
 import com.service.RUsers;
 import com.service.status.RThreads;
@@ -38,7 +38,7 @@ public class Db extends PostgreSQL {
     public final static RRepoState REPO_STATE = Repository.register(RRepoState.instance());
     public final static RRepoHistory HISTORY = Repository.register(new RRepoHistory());
 
-    public final static RTest TEST = Repository.register(new RTest());
+    public final static RDemo1 DEMO1 = Repository.register(new RDemo1());
     public final static RUsers USERS = Repository.register(new RUsers());
     public final static RThreads THREADS = Repository.register(new RThreads());
     public final static RAttribute ATTRIBUTE = Repository.register(new RAttribute());

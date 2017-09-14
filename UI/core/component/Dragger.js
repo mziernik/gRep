@@ -23,10 +23,22 @@ export default class Dragger {
      */
     _limits = null;
 
-    /** Domyślny konstruktor
+    /** rozpoczyna przeciąganie elementu. Powinno być wywoływane przez mouseDown
+     * @param e obiekt zdarzenia mousedown
+     * @param target element, który m abyc przeciągany. Jeśli brak, to brany jest e.currentTarget
+     * @param limits czy przeciąganie ma być ograniczone do rozmiaru okna (def false)
+     */
+    static dragStart(e: MouseEvent, target = null, limits: boolean = false) {
+        if (!Dragger.INSTANCE)
+            Dragger.INSTANCE = new Dragger(limits);
+        Dragger.INSTANCE.setLimits(limits);
+        Dragger.INSTANCE.dragStart(e, target);
+    }
+
+    /** Ustawia limity przeciągania
      * @param limits czy pozycja ma być ograniczona do rozmiaru okna (def false)
      */
-    constructor(limits: boolean = false) {
+    setLimits(limits: boolean = false) {
         this._limits = {
             max: {
                 x: limits ? window.innerWidth : Infinity,
@@ -37,17 +49,6 @@ export default class Dragger {
                 y: limits ? 0 : -Infinity
             }
         }
-    }
-
-    /** rozpoczyna przeciąganie elementu. Powinno być wywoływane przez mouseDown
-     * @param e obiekt zdarzenia mousedown
-     * @param target element, który m abyc przeciągany. Jeśli brak, to brany jest e.currentTarget
-     * @param limits czy przeciąganie ma być ograniczone do rozmiaru okna (def false)
-     */
-    static dragStart(e: MouseEvent, target = null, limits: boolean = false) {
-        if (!Dragger.INSTANCE)
-            Dragger.INSTANCE = new Dragger(limits);
-        Dragger.INSTANCE.dragStart(e, target);
     }
 
     /** rozpoczyna przeciąganie elementu. Powinno być wywoływane przez mouseDown
@@ -86,12 +87,12 @@ export default class Dragger {
         let nl = (this._target.offsetLeft + diff.x);
         let nt = (this._target.offsetTop + diff.y);
         //poziom
-        if (nl >= this._limits.min.x && (nl + this._target.offsetWidth) <= this._limits.max.x) {
+        if (e.pageX >= this._limits.min.x && (e.pageX) <= this._limits.max.x) {
             this._target.style.left = nl + 'px';
             this._startPos.x = e.pageX;
         }
         //pion
-        if (nt >= this._limits.min.y && (nt + this._target.offsetHeight) <= this._limits.max.y) {
+        if (e.pageY >= this._limits.min.y && (e.pageY) <= this._limits.max.y) {
             this._target.style.top = nt + 'px';
             this._startPos.y = e.pageY;
         }

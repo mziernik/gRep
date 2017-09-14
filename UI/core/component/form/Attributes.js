@@ -56,33 +56,33 @@ export class Attributes extends Component {
             }}>
 
             <tbody>
-            {this.children.props({
-                preview: this.props.preview,
-                edit: this.props.edit
-            })
-                .instanceOf(Attr)
-                .filter((child: Child) => {
+            {this.children.filter((child: Child) => {
 
+                if (!Is.defined(child.props.preview))
+                    child.props.preview = this.props.preview;
+                if (!Is.defined(child.props.edit))
+                    child.props.edit = this.props.edit;
+                if (!Is.defined(child.props.key))
                     child.props.key = "c" + (++counter);
 
-                    if (child.type !== "Attr")
-                        child.element = <tr>
-                            <td colSpan={2}>{child.element}</td>
-                        </tr>;
-                    else
-                        child.props.onClick = (e: Event, attr: Attr) => {
-                            Is.func(this.props.onAttrClick, f => f(e, attr));
+                if (child.type !== "Attr")
+                    child.element = <tr>
+                        <td colSpan={2}>{child.element}</td>
+                    </tr>;
+                else
+                    child.props.onClick = (e: Event, attr: Attr) => {
+                        Is.func(this.props.onAttrClick, f => f(e, attr));
 
-                            if (this.props.selectable) {
-                                if (this.selected)
-                                    this.selected.tr.removeAttribute("data-selected");
+                        if (this.props.selectable) {
+                            if (this.selected)
+                                this.selected.tr.removeAttribute("data-selected");
 
-                                this.selected = attr;
-                                this.selected.tr.setAttribute("data-selected", "true");
-                            }
-
+                            this.selected = attr;
+                            this.selected.tr.setAttribute("data-selected", "true");
                         }
-                })
+
+                    }
+            })
                 .render()}
             </tbody>
         </table>;

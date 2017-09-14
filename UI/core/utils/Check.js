@@ -113,9 +113,10 @@ export function shape(object: ?Object, fields: Object | Array, error: ?Error = n
  * Funkcja sprawdza czy wartość przekazana w argumencie id jest prawidłowym identyfikatorem
  * @param {string} id
  * @param {string} extraChars
+ * @param error
  * @returns {string} id
  */
-export function id(id: string, extraChars: string = "", error: ?Error = null) {
+export function id(id: string, extraChars: string = "", error: ?Error) {
     id = nonEmptyString(id).trim();
     const allowed = "0123456789_abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         + (typeof extraChars === "string" ? extraChars : "");
@@ -129,6 +130,7 @@ export function id(id: string, extraChars: string = "", error: ?Error = null) {
  * Funkcja sprawdza czy obiekt należy do jednej z instancji przekazanej w argumencie instances
  * @param object - argument może być null-em, funkcja nie zgłosi błędu
  * @param {type|string} instances - tablica lub elementy (funkcję lub nazwy klas)
+ * @param error
  * @returns object
  */
 export function instanceOf<T:any>(object: T, instances: any[], error: ?Error = null): T {

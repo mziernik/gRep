@@ -1,14 +1,14 @@
 import Repository from "./Repository";
 import API from "../application/API";
 import Record from "./Record";
-import {Utils} from "../$utils";
+import {Utils, Is} from "../$utils";
+import RepoFlag from "./RepoFlag";
 
 export default class RepoAction {
 
     repo: Repository;
     record: boolean;
-    /** Akcja wyświetli się tylko podczas edycji rekordu*/
-    edit: boolean;
+
     key: string;
     name: string;
     action: ?() => void;
@@ -21,6 +21,7 @@ export default class RepoAction {
     paramsButtonLabel: string;
     constraints: Object; //ToDo obsługa
     children: RepoAction[] = [];
+    visibility: boolean | string;
 
     constructor(repo: Repository, key: string, name: string, action: () => void, confirm: string) {
         this.repo = repo;
@@ -38,7 +39,7 @@ export default class RepoAction {
         act.name = obj.name;
         act.type = obj.type;
         act.icon = obj.icon;
-        act.edit = obj.edit;
+        act.visibility = obj.visibility;
         act.paramsTitle = obj.paramsTitle;
         act.paramsButtonLabel = obj.paramsButtonLabel;
         act.confirm = obj.confirm;
@@ -46,6 +47,18 @@ export default class RepoAction {
         act.constraints = obj.constraints;
         Utils.forEach(obj.children, (v, k) => act.children.push(RepoAction.create(v, repo, k)));
         return act;
+    }
+
+    isVisible(record: Record) {
+
+        if (!!this.record !== !!record) return false;
+
+        if (!Is.defined(this.visibility))
+            return true;
+
+        if (!record) return true;
+
+        return new RepoFlag(this.visibility).ofCrude(record.action);
     }
 
     execute(record: Record, params: {}): Promise {

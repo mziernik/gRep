@@ -57,6 +57,12 @@ export default class ParamsWindow {
             const btns: PageButtons = mw.buttons = new PageButtons();
 
             btns.add((btn: Btn) => {
+                btn.type = "default";
+                btn.text = "Anuluj";
+                btn.modalClose = true;
+            });
+
+            btns.add((btn: Btn) => {
                 btn.type = "primary";
                 btn.text = this.confirmButtonLabel || "OK";
                 btn.modalClose = false;
@@ -67,6 +73,7 @@ export default class ParamsWindow {
                     this.onSuccess(result);
                 };
             });
+
 
         }).open();
     }

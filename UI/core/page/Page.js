@@ -35,6 +35,7 @@ export default class Page extends Component {
     __render: () => any;
     __error: EError;
     _waitingForRepo: boolean;
+    _awaitings: [] = [];
 
 
     endpoint: ?Endpoint = this.props.route ? this.props.route.endpoint : null;
@@ -74,7 +75,7 @@ export default class Page extends Component {
                         window.console.error(e);
                     }
 
-                if (this._waitingForRepo)
+                if (this._waitingForRepo  || this._awaitings.length)
                     return <Busy fit label="Proszę czekać..."/>;
 
                 const result = this[RENDER]();
@@ -141,7 +142,8 @@ export default class Page extends Component {
             list.forEach((repo: Repository) => {
 
                 repo.onChange.listen(this, data => {
-                    if (this._waitingForRepo) return;
+                    if (this._waitingForRepo || this._awaitings.length) return;
+
                     if (Is.func(onChange)) {
                         onChange(data.action, data.record, data.changed);
                         return;

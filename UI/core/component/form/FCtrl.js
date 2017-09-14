@@ -22,6 +22,8 @@ import Link from "../Link";
 import {Panel} from "../../components";
 import {BinaryData} from "../../repository/Type";
 import ImageViewer from "./ImageViewer";
+import {MenuItem, PopupMenu} from "../PopupMenu";
+import Foreign from "../../repository/Foreign";
 
 /**
  * Komponent ułatwiający obsługę obiektu Field. Umożliwia edycję i podgląd wartości, błędów i innych flag
@@ -82,6 +84,8 @@ export default class FCtrl extends Component {
         ignore: PropTypes.bool, // warunek wykluczający rysowanie
 
         disableLink: PropTypes.bool, // wyłącza linki na etykietach
+
+        maxStringValueLength: PropTypes.number // maksymalna długość wartości tekstowej w tybie podgladu
     };
 
     static defaultProps = {
@@ -144,25 +148,22 @@ export default class FCtrl extends Component {
             this.forceUpdate(true);
         });
 
-        // po zmianie jakichkolwiek zmianach w repozytorium na które wskazuje klucz obcy przerysuj komponent
+        // po zmianie jakichkolwiek danych  w repozytorium na które wskazuje klucz obcy przerysuj komponent
         if (!this.props.preview && this.field.config.foreign)
             this.field.config.foreign.repo.onChange.listen(this, d => this.forceUpdate(true))
 
-
         this.field.onChange.listen(this, data => {
             Is.func(this.props.onChange, f => f(this, data));
-
             switch (this.field.type) {
                 case Type.FILE:
                 case Type.IMAGE:
                     return this.forceUpdate();
             }
-
         });
 
         this.tagProps = {
             style: this.props.style,
-            title: this.props.description ? '' : this.props.title || (this.field && this.field.config.description),
+            title: this.props.description ? '' : this.props.title || (this.field && this.field.description),
             className: "c-fctrl",
             ref: e => this._setHtmlElement(e)
         }
@@ -205,6 +206,7 @@ export default class FCtrl extends Component {
     }
 
     render() {
+        //  if (!this.field.visible) return null;
 
         if (this.props.inline
             || (!this.props.required
@@ -220,7 +222,11 @@ export default class FCtrl extends Component {
                     return <span {...this.tagProps} className={"c-fctrl " + ic}/>;
             }
 
-            return <span {...this.tagProps} >{this.field.displayValue}</span>;
+            let value = this.field.displayValue;
+            if (value && this.props.maxStringValueLength > 0 && value.length > this.props.maxStringValueLength)
+                value = value.substring(0, this.props.maxStringValueLength) + "...";
+
+            return <span {...this.tagProps} >{value}</span>;
         }
 
         switch (this.props.mode) {
@@ -234,6 +240,36 @@ export default class FCtrl extends Component {
         }
     }
 
+    _onContextMenu(e) {
+        const field: Field = this.field;
+        e.preventDefault();
+
+        const foreign: Foreign = field.config.foreign;
+
+        PopupMenu.open(e, [
+
+            foreign && MenuItem.create((c: MenuItem) => {
+                c.name = "Pokaż " + Utils.escape(foreign.repo.name);
+                c.icon = Icon.TH_LIST;
+                c.onClick = e => new RepoCtrl(foreign.repo).modalEdit();
+            }),
+
+            Is.def(field.value) && MenuItem.create((c: MenuItem) => {
+                c.name = "Wyczyść";
+                c.icon = Icon.TIMES;
+                c.hint = "Wyczyść";
+                c.onClick = () => field.update(this, null);
+            }),
+
+            Is.def(field.value) && Is.def(field.config.value) && MenuItem.create((c: MenuItem) => {
+                c.name = "Domyślne";
+                c.icon = Icon.UNDO;
+                c.hint = "Przywróć domyślną wartość";
+                c.onClick = () => field.update(this, field.config.value);
+            }),
+        ]);
+    }
+
     /***************************************************************/
     /************************** RENDERERS **************************/
 
@@ -244,6 +280,7 @@ export default class FCtrl extends Component {
      * @returns {XML} kontrolka
      */
     renderCtrl(type: string) {
+        const field: Field = this.field;
         let icon = null,
             msg = null,
             visible = false;
@@ -251,12 +288,12 @@ export default class FCtrl extends Component {
             case "required":
                 icon = this.defReq;
                 msg = "Pole obowiązkowe";
-                visible = this.field.required && !this.props.preview;
+                visible = field.required && !this.props.preview;
                 break;
             case "description":
                 icon = this.defDesc;
-                msg = this.field.config.description;
-                visible = this.field.config.description;
+                msg = field.description;
+                visible = field.description;
                 break;
             case "error":
                 icon = this.state.error ? this.defError : this.defWarning;
@@ -264,38 +301,31 @@ export default class FCtrl extends Component {
                 visible = (!!(this.state.error || this.state.warning)) && !this.props.preview;
                 break;
             case "name":
-                const label = Utils.toString(Is.defined(this.props.label) ? this.props.label : this.field.name);
-                if (!this.props.disableLink && !this.props.preview && this.field.config.foreign) {
-                    const repo: Repository = this.field.config.foreign.repo;
-                    if (!this.field.record || repo !== this.field.record.repo)
+                const label = Utils.toString(Is.defined(this.props.label) ? this.props.label : field.name);
+
+
+                if (!this.props.disableLink && !this.props.preview && field.config.foreign) {
+                    const repo: Repository = field.config.foreign.repo;
+                    if (!field.record || repo !== field.record.repo)
                         return <span
                             key="name"
                             className="c-fctrl-name c-fctrl-name-link"
+                            onContextMenu={e => this._onContextMenu(e)}
                             onClick={(e) => {
-
-                                const val = this.field.type.isList && this.field.value ? this.field.value[0] : this.field.value;
-                                let rec: Record = repo.get(this, val, false);
-                                if (!rec) {
-                                    let firstKey = null;
-                                    Utils.forEach(repo.rows, (v, k, stop) => {
-                                        firstKey = k;
-                                        stop();
-                                    });
-                                    rec = repo.getOrCreate(this, firstKey);
-                                }
-                                const ctrl = new RecordCtrl(rec);
+                                const val = field.type.isList && field.value ? field.value[0] : field.value;
+                                const ctrl = new RecordCtrl(repo.getOrCreate(this, val));
                                 ctrl.modalEdit();
-                                /*    ctrl.onCommit.listen(this, data => {
-                                        debugger;
-                                        const pk = data.record.pk;
-                                        this.field.value = this.field.type.isList ? [pk] : pk;
-                                    });*/
                             }}
                         >{label}</span>;
                 }
 
-                return <span key="name" className="c-fctrl-name">{label}</span>;
+                return <span
+                    key="name"
+                    className="c-fctrl-name"
+                    onContextMenu={e => this._onContextMenu(e)}
+                >{label}</span>;
         }
+
         if (msg === '') msg = null;
         if (!this.props.constWidth && !visible) return null;
 
@@ -350,7 +380,7 @@ export default class FCtrl extends Component {
             return <span title={title}>{this.field.displayValue}</span>;
         }
 
-        if ((field.type instanceof Type.ListDataType && !field.config.unique) || field.type instanceof Type.MapDataType)
+        if ((field.type instanceof Type.ListDataType && !field.unique) || field.type instanceof Type.MapDataType)
             return <List field={this.field} preview={this.props.preview}/>;
 
         if (this.field.type instanceof Type.MultipleDataType)

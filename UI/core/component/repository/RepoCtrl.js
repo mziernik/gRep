@@ -4,6 +4,7 @@ import {RepoAction} from "../../repository/Repository";
 import {PageButtons} from "../../page/Page";
 import {Btn} from "../Button";
 import RecordCtrl from "./RecordCtrl";
+import * as Check from "../../utils/Check";
 
 
 export default class RepoCtrl {
@@ -13,7 +14,7 @@ export default class RepoCtrl {
     title: string;
 
     constructor(repo: Repository) {
-        this.repo = repo;
+        this.repo = Check.instanceOf(repo, [Repository]);
     }
 
 
@@ -31,7 +32,8 @@ export default class RepoCtrl {
             </Panel>;
             mw.title.set(this.title || this.repo.name);
             mw.mainStyle = {
-                width: "50%"
+                width: "60%",
+                height: "80%"
             };
 
             const btns: PageButtons = mw.buttons = new PageButtons();
@@ -60,6 +62,4 @@ export default class RepoCtrl {
     tabEdit() {
         Endpoint.devRouter.REPO.navigate({repo: this.repo.key}, "tab");
     }
-
-
 }

@@ -41,7 +41,7 @@ export default class AttributesRecord extends Component {
         const ctrl: RecordCtrl = Check.instanceOf(this.props.recordCtrl, [RecordCtrl]);
         const rec: Record = ctrl.record;
 
-        let hasAdv = this.showAdvField && !!Utils.find(rec.fields, (field: Field) => field.config.disabled);
+        let hasAdv = this.showAdvField && !!Utils.find(rec.fields, (field: Field) => !field.visible);
 
         return <Attributes
             key={Utils.randomId()}
@@ -58,7 +58,7 @@ export default class AttributesRecord extends Component {
             </div> : null}
 
             {Utils.forEach(rec.fields, (f: Field) =>
-                (this.showAdvField && this.showAdvField.value) || !f.config.disabled ?
+                (this.showAdvField && this.showAdvField.value) || f.visible ?
                     <Attr key={f.key} edit={this.props.edit} field={f}/> : undefined
             )}
 
@@ -72,7 +72,5 @@ export default class AttributesRecord extends Component {
             }
 
         </Attributes>
-
-
     }
 }

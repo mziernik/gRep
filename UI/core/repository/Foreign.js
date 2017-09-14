@@ -4,6 +4,7 @@ import Record from "./Record";
 import {Utils, Is, Check} from "../$utils";
 import Field from "./Field";
 import RepoCursor from "./RepoCursor";
+import Watcher from "../utils/Watcher";
 
 
 export class ForeignConstraintItem {
@@ -94,59 +95,60 @@ export default class Foreign {
 
     constructor(col: Column, value: string | Object) {
         this.self = col;
+        this.repo = null;
+        this.column = null;
 
-        if (!Is.defined(value) || value instanceof Foreign)
-            return value;
+        new Watcher(this)
+            .watch((fieldName: string, fieldValue: any) => !fieldValue) // obserwuj tylko pola które nie mają wartości
+            .onFirstGet((fieldName: string, fieldValue: any) => {
 
-        if (Is.func(value)) {
-            this.repo = Check.instanceOf(value(), [Repository]);
-            this.column = this.repo.primaryKeyColumn;
-            return this;
-        }
+                if (Is.func(value)) {
+                    this.repo = Check.instanceOf(value(), [Repository]);
+                    this.column = this.repo.primaryKeyColumn;
+                    return this;
+                }
 
-        if (Is.string(value)) {
-            const items = (value: string).split(".");
-            this.repo = Repository.get(items[0], true);
-            this.column = items[1] ? this.repo.getColumn(items[1]) : this.repo.primaryKeyColumn;
-            return this;
-        }
+                if (Is.string(value)) {
+                    const items = (value: string).split(".");
+                    this.repo = Repository.get(items[0], true);
+                    this.column = items[1] ? this.repo.getColumn(items[1]) : this.repo.primaryKeyColumn;
+                    return this;
+                }
 
-        this.repo = Repository.get(value.repository, true);
-        this.column = value.column ? Is.string(value.column, c => this.repo.getColumn(c, true), c => Check.instanceOf(c, [Column]))
-            : this.repo.primaryKeyColumn;
+                this.repo = Repository.get(value.repository, true);
+                this.column = value.column ? Is.string(value.column, c => this.repo.getColumn(c, true), c => Check.instanceOf(c, [Column]))
+                    : this.repo.primaryKeyColumn;
 
-        Utils.forEach(value.constraints, obj => Check.isArray(obj) && this.constraints.push(new ForeignConstraint(this, obj[0], obj[1])));
+                Utils.forEach(value.constraints, obj => Check.isArray(obj) && this.constraints.push(new ForeignConstraint(this, obj[0], obj[1])));
+
+            });
+
 
         return this;
     }
 
     getEnumerate(field: Field): Map {
-
-        if (!this.repo) debugger;
-
-
         if (!this.constraints.length)
             return this.repo.displayMap; // brak ograniczeń, zwracam całą mapę
 
         const result: Map = new Map();
 
-        // const column: Column = this.parent ? this.parent.config : this.config;
-
-        //  const foreign: Foreign = this;
+        let rightCount = 0;
 
         Utils.forEach(this.constraints, (fc: ForeignConstraint) => {
-
-            // debugger;
-
             this.repo.forEach((cursor: RepoCursor) => {
                 const left: [] = Utils.asUniqueArray(fc.left.getValues(field, cursor));
                 const right: [] = Utils.asUniqueArray(fc.right.getValues(field, cursor));
+                rightCount += right.length;
 
                 if (right.containsAny(left))
                     result.set(cursor.primaryKey, this.repo.getDisplayValue(cursor.getRecord(null)));
             });
 
         });
+
+        if (!rightCount)
+            return this.repo.displayMap;
 
         return result;
     }

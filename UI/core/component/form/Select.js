@@ -184,8 +184,6 @@ export default class Select extends FormComponent {
     render() {
         if (!this.field) return null;
 
-        let value = this.props.units ? this.field.unit : this.field.value;
-
         if (this.props.units) {
             this._enumerate = Utils.forEach(this.props.units, (item) => {
                 return {text: item[1], value: item}
@@ -199,6 +197,8 @@ export default class Select extends FormComponent {
                 }
             });
         }
+
+        let value = this.props.units ? this.field.unit : this.field.value;
 
         return (
             <div className="c-select" style={{...this.props.style}}>

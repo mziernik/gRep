@@ -40,6 +40,8 @@ export default class ReferenceRecordCtrl {
         ctrl.showAdvanced = this.parent.showAdvanced;
         ctrl.showSuccessHint = false;
         ctrl.modalEdit(onChange);
+
+
     }
 
 

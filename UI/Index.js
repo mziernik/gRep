@@ -37,10 +37,9 @@ import CoreConfig from "./core/config/CoreConfig";
 // console.log(p.world);
 
 
-
 window.addEventListener("load", () => {
 
-        CoreConfig.api.wsUrl.value = "http://localhost:80/api";
+        CoreConfig.api.wsUrl.defaultValue = "http://localhost:80/api";
 
         const api: GrepApi = new GrepApi(new WebApi(null));
         API.set(api, api.repository);

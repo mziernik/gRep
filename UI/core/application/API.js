@@ -149,6 +149,9 @@ export default class API {
         return api.login(login || "", password || "", onSuccess, onError);
     }
 
+    static recordCallback(data: Object, onSuccess: OnSuccess, onError: OnError): WebApiRequest {
+        return methods ? methods.recordCallback(data, onSuccess, onError) : null;
+    }
 
     static set(_api, repoMethodsObject: Object) {
         api = _api;
@@ -162,9 +165,9 @@ export default class API {
                 Alert.error(this, error.message);
         };
 
-        wApi.onEvent.listen("API", obj => {
-            switch (obj.source) {
-                case "repository":
+        wApi.onResponse.listen("API", obj => {
+            switch (obj.type) {
+                case "RepositoryUpdate":
                     Repository.update(obj.response, obj.data);
                     return;
             }

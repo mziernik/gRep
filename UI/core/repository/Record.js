@@ -40,8 +40,9 @@ export default class Record {
     localCommit: boolean = false;
     _pk: any;
     _row: [] = null;
-    UID: string = Utils.randomId(10);
+    _uid: string = Utils.randomId(10);
     storage: RepositoryStorage;
+    _displayValue: string; // opcjonalna nazwa wyświetlana
 
     constructor(repo: Repository, context: any) {
         this.repo = Check.instanceOf(repo, [Repository]);
@@ -96,7 +97,7 @@ export default class Record {
     }
 
     get displayValue(): string {
-        return this.repo.getDisplayValue(this);
+        return this._displayValue || this.repo.getDisplayValue(this);
     }
 
     /** Zwraca pole klucza głównego */
@@ -104,6 +105,7 @@ export default class Record {
         return Check.isDefined(this.fields.get(this.repo.primaryKeyColumn), new Error("Brak klucza głównego repozytorium "
             + Utils.escape(this.repo.key)));
     }
+
 
     get canRead(): boolean {
         return this.repo.config.crude.contains('R');
@@ -213,6 +215,15 @@ export default class Record {
     _getReferences(context: any, column: Column): Record[] {
         const pk = this.pk;
         return column.repository.find(context, (cursor: RepoCursor) => cursor.get(column) === pk);
+    }
+
+    processCallback(data: Object) {
+        Utils.forEach(data, (obj, key) => {
+
+            const field: Field = this.fields.get(this.repo.getColumn(key, true));
+            if (field) field.redefined.process(obj);
+        })
+
     }
 }
 

@@ -41,6 +41,8 @@ export default class RepoConfig {
 
     _repo: Repository;
 
+    callbacks: ?string = ""; // create, edit, validate
+
     constructor(repo: Repository) {
         this._repo = repo;
         Object.preventExtensions(this);
@@ -111,6 +113,7 @@ export default class RepoConfig {
         this.icon = data.icon;
         this.broadcast = data.broadcast;
         this.onDemand = data.onDemand;
+        this.callbacks = data.callbacks;
 
         this.crude = data.crude;
         this.local = data.local;

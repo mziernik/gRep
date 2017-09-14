@@ -2,6 +2,7 @@
 'use strict';
 import {React, Field, Type, Utils, Column, CustomFilter} from '../../core';
 import {Component, FCtrl, Table} from '../../components';
+import {MenuItem} from "../../component/PopupMenu";
 
 export default class TablesTab extends Component {
 
@@ -16,6 +17,12 @@ export default class TablesTab extends Component {
                        showRowNum
                        selectable
                        rows={generateData(COLUMNS, 50)}
+                       contextMenu={[MenuItem.create((cfg: MenuItem) => {
+                           cfg.onBeforeOpen = (item, props) => {
+                               item.name = "Alert(" + props.row[props.column.id].value + ")";
+                           };
+                           cfg.onClick = (e, props) => alert(props.row[props.column.id].value);
+                       })]}
                        rowMapper={(row) => {
                            let res = {};
                            Utils.forEach(row, (cell) => {

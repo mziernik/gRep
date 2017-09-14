@@ -57,8 +57,6 @@ export default class RadioButton extends FormComponent {
                 }
             })
         }
-        if (this.field)
-            this._selected = this._options.find((option) => option.value === this.field.value);
     }
 
     /** zaznacza podany obiekt i zmienia wartość fielda
@@ -108,6 +106,8 @@ export default class RadioButton extends FormComponent {
     }
 
     render() {
+        if (this.field)
+            this._selected = this._options.find((option) => option.value === this.field.value);
         return <div className="c-radio-button">
             {Utils.forEach(this._options, (option) => this.renderRadioButton(option))}
         </div>;

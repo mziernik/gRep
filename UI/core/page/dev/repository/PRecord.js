@@ -54,7 +54,7 @@ export default class PRecord extends BaseRecordPage {
                     <AttributesRecord
                         recordCtrl={this.controller}
                         fit
-                        edit
+                        edit={this.repo.canUpdate}
                         showAdvanced={null}
                         local={null}
                     />

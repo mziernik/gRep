@@ -115,7 +115,7 @@ export default class CTreeNode extends React.Component {
 
         let ul = childrenVisible ?
             <ul ref={ul => this._ulReady(ul)}>
-                {item.children.map(item => <CTreeNode key={item.id} item={item}/>)}
+                {item.children.map(item => <CTreeNode key={Utils.randomId()} item={item}/>)}
             </ul>
             : null;
 
@@ -143,7 +143,9 @@ export default class CTreeNode extends React.Component {
             </div>;
 
         return (
-            <li data-expanded={item.expanded} data-level={item.level} className="x-tree-node">
+            <li data-expanded={item.expanded}
+                data-level={item.level}
+                className="x-tree-node">
                 {/*<DragAndDrop dnd={this.dnd} item={item} itemIndex={item.index}>*/}
                 {Is.func(item.render) ? item.render(header) : header}
                 {/*</DragAndDrop>*/}

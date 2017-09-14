@@ -5,6 +5,7 @@ import {DEV_MODE} from "../core";
 import {Check, Is, Utils} from "../$utils";
 import {DataType} from "./Type";
 import * as Type from "./Type";
+import RepoFlag from "./RepoFlag";
 
 
 //ToDo: Miłosz: readOnly + !autoUpdate = konflikt
@@ -23,9 +24,9 @@ export default class Column {
     enumIcons: ?Object = null;
     enumStyles: ?Object = null;
     units: ?() => {} = null;
-    readOnly: ?boolean = null;
-    required: ?boolean = null;
-    disabled: ?boolean = null;
+    readOnly: ?RepoFlag = null;
+    required: ?RepoFlag = null;
+    hidden: ?RepoFlag = null;
     unique: ?boolean = null;
     /** Czy wartość kolumny  - */
     writable: ?boolean = true;
@@ -44,7 +45,7 @@ export default class Column {
     sortOrder: ? boolean = null;
     filterable: ? boolean = null;
     searchable: ? boolean = null;
-    hidden: ? boolean = null;
+
     compare: ?(a: ?any, b: ?any) => number = null;
     filter: ?(filter: ?any, cell: ?any) => boolean = null;
     foreign: ?Foreign = null;
@@ -93,6 +94,10 @@ export default class Column {
         Check.nonEmptyString(this.key);
         Check.nonEmptyString(this.name);
 
+        this.hidden = new RepoFlag(this.hidden);
+        this.readOnly = new RepoFlag(this.readOnly);
+
+        this.required = new RepoFlag(this.required);
         this.hint = this.hint || this.name;
         //
         // if (Is.string(this.foreign)) {
@@ -133,11 +138,8 @@ export default class Column {
         Is.defined(this.enumerate, e => Check.isFunction(e));
         Is.defined(this.units, e => Check.isFunction(e));
 
-        const ff = this.foreign;
-
         if (this.foreign && !(this.foreign instanceof Foreign))
-            Utils.lazyProvider(this, "foreign", () => new Foreign(this, ff));
-
+            this.foreign = new Foreign(this, this.foreign);
     }
 
     parse(value: any): any {

@@ -9,9 +9,9 @@ import EError from "../utils/EError";
 import WebApiTransport, {State, WebSocketTransport} from "./Transport";
 import Dispatcher from "../utils/Dispatcher";
 import {AppStatus} from "../core";
-import * as If from "../utils/Is";
 import AppEvent from "../application/Event";
 import Config from "../config/CoreConfig";
+import * as Utils from "../utils/Utils";
 
 export type OnSuccess = (data: ?any, response: WebApiResponse) => void;
 export type OnError = (error: Object, response: WebApiResponse) => void;
@@ -30,7 +30,7 @@ export default class WebApi {
     maxRetries: number = 10;
     processed: Map<string, WebApiRequest> = new Map();
     transport: WebApiTransport;
-    onEvent: Dispatcher = new Dispatcher(); //(source: string, event: string, data: object, context: WebApiResponse)
+    onResponse: Dispatcher = new Dispatcher();
     onClose: Dispatcher = new Dispatcher();
 
     constructor(url: string, transportClass) {
@@ -46,7 +46,7 @@ export default class WebApi {
 
             const delay = Math.pow(50 * retryCount, 1.7);
             setTimeout(() => {
-                if (transport.connected)
+                if (transport.isConnected)
                     return;
                 transport.connect(this.url);
             }, delay);
@@ -67,7 +67,7 @@ export default class WebApi {
 
             wasConnected = true;
             retryCount = 0;
-            State.current = State.CONNECTED;
+            transport.state = State.CONNECTED;
             transport.connected = true;
             transport.queue.forEach(request => this.send(request));
         };
@@ -77,24 +77,30 @@ export default class WebApi {
         };
 
         transport.onMessage = (data: Object, req: WebApiRequest) => {
-            if (!transport.connected) return;
+            if (!transport.isConnected) return;
+
+            if (!data)
+                data = {};
 
             if (req) data.id = req.id;
+            data.event = Utils.coalesce(data.event, false);
 
-            if (!data || !data.id || !data.type) {
+            if (!data || (data.data === undefined && !data.error && !data.messages)) {
                 const r = data;
                 data = {};
-                data.id = req.id;
-                data.type = "response";
+                data.id = req && req.id;
+                data.method = req && req.method;
                 data.data = r;
             }
+
+            if (req && !data.method) data.method = req.method;
 
             new WebApiResponse(this, data);
         };
 
         transport.onClose = (reason, e) => {
             transport.connected = false;
-            State.current = State.CLOSED;
+            transport.state = State.CLOSED;
             const canRetry = e && e.code === 1006;
             if (reason)
                 AppStatus.error(this, "WebApi: " + reason, canRetry ? "Próba " + (retryCount + 1) + " / " + this.maxRetries : null);
@@ -145,10 +151,11 @@ export default class WebApi {
 
         const transport = this.transport;
 
-        if (!transport.connected)
+
+        if (!transport.isConnected)
             transport.connect(this.url)
 
-        if (!transport.connected) {
+        if (!transport.isConnected) {
             transport.queue.push(request);
             return;
         }

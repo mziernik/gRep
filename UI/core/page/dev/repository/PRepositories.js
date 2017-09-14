@@ -9,12 +9,15 @@ export default class PRepositories extends Page {
     }
 
     render() {
+        let cnt = 0;
         return <Table
             columns={{
-                actions: "Akcje",
+                cnt: "#",
                 id: "ID",
-                name: "Nazwa",
                 group: "Grupa",
+                name: "Nazwa",
+                cols: "Kolumny",
+                actions: "Akcje",
                 recs: "Rekordów",
                 updates: "Ilość aktualizacji",
                 last: "Ostatnia aktualizacja",
@@ -24,23 +27,15 @@ export default class PRepositories extends Page {
             rows={Repository.all}
             rowMapper={(repo: Repository) => {
                 return {
+                    cnt: ++cnt,
                     name: repo.name,
                     group: repo.config.group,
-                    id: repo.key,
+                    id: <Link link={this.endpoint.REPO.getLink({repo: repo.key})}>{repo.key}</Link>,
+                    cols: repo.columns.length,
+                    actions: repo.actions ? repo.actions.length : null,
                     recs: repo.rows.size,
                     updates: repo.updates,
                     last: repo.lastUpdated ? repo.lastUpdated.toLocaleString() : "",
-                    actions: (<span>
-                            <Link
-                                downloadName={repo.key + ".json"}
-                                downloadData={() => repo.storage.build()}
-                                icon={Icon.DOWNLOAD}
-                            />
-                            <Link
-                                link={this.endpoint.REPO.getLink({repo: repo.key})}
-                                icon={Icon.EYE}
-                            />
-                        </span>),
                     refs: repo.refs.length,
                     crude: repo.config.crude
                 }

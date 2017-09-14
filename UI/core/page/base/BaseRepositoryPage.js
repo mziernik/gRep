@@ -52,8 +52,8 @@ export default class BaseRepositoryPage extends RepoPage {
                         new ReportWindow(this.reports[0], items).open();
                         return;
                     }
-                    PopupMenu.openMenu(e, Utils.forEach(this.reports, (report: EReportInfo) =>
-                        MenuItem.createItem((item: MenuItem) => {
+                    PopupMenu.open(e, Utils.forEach(this.reports, (report: EReportInfo) =>
+                        MenuItem.create((item: MenuItem) => {
                             item.name = report.REPORT_NAME.value;
                             item.onClick = () => new ReportWindow(report, items).open();
                         })

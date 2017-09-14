@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import CTreeNode from './CTreeNode';
 import './Tree.css';
 import Tree from "./Tree";
+import Panel from "../Panel";
 
 
 export default class CTree extends React.Component {
@@ -34,16 +35,17 @@ export default class CTree extends React.Component {
             }, 300);
         };
 
-        return (
-            <div className="x-tree-main" data-menu={this.tree.menuMode} style={{...this.props.style}}>
-                {this.tree.search ? <div className="x-tree-search">
-                    <input type="search" placeholder="Szukaj" onChange={search}/>
-                </div> : null}
-                <ul className="x-tree" style={{width: "100%"}}>
-                    {this.tree.children.map((item) => <CTreeNode key={item.id} item={item}/>)}
-                </ul>
-            </div>
-        );
+
+        const ul = <ul className="x-tree" style={{width: "100%"}}>
+            {this.tree.children.map((item) => <CTreeNode key={item.id} item={item}/>)}
+        </ul>;
+
+        return <div className="x-tree-main" data-menu={this.tree.menuMode} style={{...this.props.style}}>
+            {this.tree.search ? <div className="x-tree-search">
+                <input type="search" placeholder="Szukaj" onChange={search}/>
+            </div> : null}
+            <Panel scrollable noPadding>{ul}</Panel>
+        </div>;
     }
 }
 

@@ -63,7 +63,8 @@ export class PopupMenu extends Component {
      * @param itemEventProps obiekt z dedykowanymi danymi dla zdarzeń elementów menu
      * @param onClick zdarzenie kliknięcia menu niezwiązane z pozycją
      */
-    static openMenu(e: MouseEvent, items: [], itemEventProps: Object = {}, onClick: (e) => void) {
+    static open(e: MouseEvent, items: [], itemEventProps: Object = {}, onClick: (e) => void) {
+        items = Utils.forEach(Utils.asArray(items), item => item ? item : undefined);
         e.preventDefault();
         e.stopPropagation();
         if (!INSTANCE) {
@@ -349,7 +350,7 @@ export class MenuItem {
      * @param config callback konfigurujący obiekt MenuItem
      * @returns {MenuItem}
      */
-    static createItem(config: (item: MenuItem) => void): MenuItem {
+    static create(config: (item: MenuItem) => void): MenuItem {
         let item = new MenuItem();
         Is.func(config, config(item));
         return item;
@@ -359,7 +360,7 @@ export class MenuItem {
      * @param name opcjonalna wyświetlana nazwa
      * @returns {MenuItemSeparator}
      */
-    static createSeparator(name: ?any = null): MenuItemSeparator {
+    static separator(name: ?any = null): MenuItemSeparator {
         return new MenuItemSeparator(name);
     }
 }

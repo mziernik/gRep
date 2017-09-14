@@ -1,15 +1,14 @@
 //@Flow
 'use strict';
-import {React, ReactUtils, PropTypes, ReactDOM, Application, Is, AppNode, Utils} from '../core';
+import {React, ReactUtils, PropTypes, ReactDOM, Application, Is, AppNode, Utils, AppEvent} from '../core';
 import {Component, Button, Icon, Resizer, Dragger, Scrollbar, DynamicValue} from '../components';
 import {PageTab} from "../page/PageContainer";
 import {Children, Dynamic} from "./Component";
 import {PageButtons} from "../page/Page";
 import {Btn} from "./Button";
 import {isFunction} from "../utils/Check";
+import {Observer} from "../utils/Dispatcher";
 
-
-//FixMe: Wojtek Limity pozycji (aby nie wychodziło poza ekran)
 
 export class ModalWindow {
     /** zawartość okna
@@ -69,6 +68,8 @@ export class ModalWindow {
      */
 
     _node: AppNode;
+    _tag = null;
+    _tmpStyle: {} = null;
 
 
     /** treść na belce tytułowej
@@ -84,6 +85,17 @@ export class ModalWindow {
 
     constructor() {
         Utils.makeFinal(this, ["title", "icon"]);
+        AppEvent.RESIZE.listen(this, () => this._limitPosition());
+        this._observer = new MutationObserver((mutations) => {
+            let done: boolean = false;
+            Utils.forEach(mutations, (mut) => {
+                if (!done)
+                    if (mut.type === 'childList') {
+                        done = true;
+                        this._limitPosition();
+                    }
+            })
+        })
     }
 
 
@@ -116,9 +128,9 @@ export class ModalWindow {
 
         if (!this.title.value && tab)
             this.title.set(tab.title);
-
         this._node = Application.render(this.render(), this._instance, tab);
         this.result = false;
+        this._observer.observe(this._tag, {childList: true, subtree: true});
         return this._node;
     }
 
@@ -186,6 +198,8 @@ export class ModalWindow {
             e.preventDefault();
             e.stopPropagation();
         }
+        if (this._observer)
+            this._observer.disconnect();
         if (err) throw err;
     }
 
@@ -193,14 +207,76 @@ export class ModalWindow {
      * @param mw - tag okna
      * @private
      */
-    _setPosition(mw) {
-        if (!mw) return;
-        let elem = ReactDOM.findDOMNode(mw);
-        const pos = elem.getBoundingClientRect();
+    _centerWindow(mw) {
+        if (!this._tag) {
+            if (!mw) return;
+            this._tag = ReactDOM.findDOMNode(mw);
+        }
+        const pos = this._tag.getBoundingClientRect();
         const x = window.innerWidth / 2;
         const y = window.innerHeight / 2;
-        elem.style.left = (x - pos.width / 2) + 'px';
-        elem.style.top = (y - pos.height / 2) + 'px';
+        this._tag.style.left = (x - pos.width / 2) + 'px';
+        this._tag.style.top = (y - pos.height / 2) + 'px';
+    }
+
+    /** przsuwa okno by nie rysowało się poza widokiem
+     * @param mw tag okna modalnego
+     * @private
+     */
+    _limitPosition(mw) {
+        if (!this._tag) {
+            if (!mw) return;
+            this._tag = ReactDOM.findDOMNode(mw);
+        }
+        const pos = this._tag.getBoundingClientRect();
+
+        if (pos.left < 0)
+            this._tag.style.left = '0px';
+        if (pos.top < 0)
+            this._tag.style.top = '0px';
+
+        const w = pos.right - window.innerWidth;
+        if (w > 0)
+            this._tag.style.left = (pos.left - w) + 'px';
+        const h = pos.bottom - window.innerHeight;
+        if (h > 0)
+            this._tag.style.top = (pos.top - h) + 'px';
+
+    }
+
+    _isMaximized(): boolean {
+        return (this._tmpStyle
+            && this._tag.style.top === "0px"
+            && this._tag.style.left === "0px"
+            && this._tag.style.width === "100%"
+            && this._tag.style.height === "100%");
+    }
+
+    _maximize(e: MouseEvent) {
+        if (!this._isMaximized()) {
+            this._tmpStyle = {
+                top: this._tag.style.top,
+                left: this._tag.style.left,
+                width: this._tag.style.width,
+                height: this._tag.style.height,
+            };
+
+            this._tag.style.top = '0';
+            this._tag.style.left = '0';
+            this._tag.style.width = '100%';
+            this._tag.style.height = '100%';
+
+        } else if (this._tmpStyle) {
+            this._tag.style.top = this._tmpStyle.top;
+            this._tag.style.left = this._tmpStyle.left;
+            this._tag.style.width = this._tmpStyle.width;
+            this._tag.style.height = this._tmpStyle.height;
+
+        }
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
     }
 
     /** Utwórz domyslny przycisk "Anuluj" */
@@ -241,7 +317,7 @@ export class ModalWindow {
                 className="c-modal-window"
                 resizable={this.resizable}
                 fromCenter={true}
-                ref={elem => this._setPosition(elem)}
+                ref={elem => this._centerWindow(elem)}
                 tabIndex={-1}
                 style={{
                     display: 'flex',
@@ -251,20 +327,22 @@ export class ModalWindow {
                     top: '0',
                     minWidth: '300px',
                     minHeight: '200px',
-                    maxWidth: '95%',
-                    maxHeight: '95%',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
                     ...this.mainStyle
                 }}
             >
-                <div className="c-modal-window-title" style={{
-                    flex: '0 0 auto',
-                    display: 'flex',
-                    ...this.titleStyle
-                }}>
+                <div className="c-modal-window-title"
+                     style={{
+                         flex: '0 0 auto',
+                         display: 'flex',
+                         ...this.titleStyle
+                     }}>
                     <span
                         className="c-modal-window-title-text"
                         title={this.title.value}
-                        onMouseDown={this.draggable ? (e) => Dragger.dragStart(e, e.currentTarget.parentElement.parentElement) : null}
+                        onDoubleClick={(e) => this._maximize(e)}
+                        onMouseDown={this.draggable ? (e) => Dragger.dragStart(e, e.currentTarget.parentElement.parentElement, true) : null}
                         style={{
                             flex: '1 1 auto',
                             whiteSpace: 'nowrap',

@@ -37,7 +37,7 @@ export default class WebApiRepoStorage extends RepositoryStorage {
                 API.repoGet({repositories: list}, ok => {
                     resolve(ok);
                 }, (err) => {
-                    if (this.api && !this.api.transport.connected)
+                    if (this.api && !this.api.transport.isConnected)
                         return;
                     AppStatus.error(this, err);
                     reject(err);

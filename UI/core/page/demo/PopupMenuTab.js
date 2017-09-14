@@ -45,7 +45,7 @@ export default class PopupMenuTab extends Component {
                               ...style,
                               background: PopupMenuTab.getRandomColor(),
                           }}
-                          onContextMenu={(e) => PopupMenu.openMenu(e, this.MENU_ITEMS, {target: e.currentTarget})}>
+                          onContextMenu={(e) => PopupMenu.open(e, this.MENU_ITEMS, {target: e.currentTarget})}>
                 {'0'.repeat(3 - ('' + i).length) + (i + 1)}
             </div>)
         }
@@ -79,7 +79,7 @@ export default class PopupMenuTab extends Component {
     }
 
     MENU_ITEMS = [
-        MenuItem.createItem((item: MenuItem) => {
+        MenuItem.create((item: MenuItem) => {
             item.name = "Zmień kolor";
             item.hint = "Nadaje nowy losowy kolor";
             item.onClick = (e, props) => {
@@ -87,7 +87,7 @@ export default class PopupMenuTab extends Component {
                 props.target.style.borderColor = PopupMenuTab.getRandomColor();
             };
         }),
-        MenuItem.createItem((item: MenuItem) => {
+        MenuItem.create((item: MenuItem) => {
             item.name = "Zmień kolor i nie zamykaj";
             item.hint = "Nadaje nowy losowy kolor i nie zamyka menu";
             item.onClick = (e, props) => {
@@ -96,7 +96,7 @@ export default class PopupMenuTab extends Component {
             };
             item.closeOnClick = false;
         }),
-        MenuItem.createItem((item: MenuItem) => {
+        MenuItem.create((item: MenuItem) => {
             item.name = "Kolor elementu";
             item.hint = "Ikona jest w kolorze elementu w momencie otwarcia menu";
             item.onBeforeOpen = (item, props) => {
@@ -106,31 +106,31 @@ export default class PopupMenuTab extends Component {
                 alert(props.target.style.backgroundColor);
             };
         }),
-        MenuItem.createItem((item: MenuItem) => {
+        MenuItem.create((item: MenuItem) => {
             item.name = "PARTY!!!";
             item.hint = "OSTRZEŻENIE PRZED EPILEPSJĄ! ;)";
             item.checkbox = true;
             item.onBeforeOpen = (item) => item.checked = this._ivId !== -1;
             item.onClick = (e, props) => this._party();
         }),
-        MenuItem.createSeparator("Zagnieżdżenia"),
-        MenuItem.createItem((item: MenuItem) => {
+        MenuItem.separator("Zagnieżdżenia"),
+        MenuItem.create((item: MenuItem) => {
             item.name = "Ustaw kolor";
             item.hint = "Ustaw jeden z dostępnych kolorów";
             item.subMenu = [
-                MenuItem.createItem((item: MenuItem) => {
+                MenuItem.create((item: MenuItem) => {
                     let color = 'rgb(255,0,0)';
                     item.icon = <span className={Icon.SQUARE} style={{color: color}}/>;
                     item.name = "Czerwony";
                     item.onClick = (e, props) => props.target.style.background = color;
                 }),
-                MenuItem.createItem((item: MenuItem) => {
+                MenuItem.create((item: MenuItem) => {
                     let color = 'rgb(0,255,0)';
                     item.icon = <span className={Icon.SQUARE} style={{color: color}}/>;
                     item.name = "Zielony";
                     item.onClick = (e, props) => props.target.style.background = color;
                 }),
-                MenuItem.createItem((item: MenuItem) => {
+                MenuItem.create((item: MenuItem) => {
                     let color = 'rgb(0,0,255)';
                     item.icon = <span className={Icon.SQUARE} style={{color: color}}/>;
                     item.name = "Niebieski";
@@ -138,7 +138,7 @@ export default class PopupMenuTab extends Component {
                 })
             ]
         }),
-        MenuItem.createItem((item: MenuItem) => {
+        MenuItem.create((item: MenuItem) => {
             let r = 0, g = 0, b = 0;
             item.name = "Dostosuj kolor";
             item.hint = "Dostosuj kolor elementu";
@@ -151,11 +151,11 @@ export default class PopupMenuTab extends Component {
                 b = Number(b);
             };
             item.subMenu = [
-                MenuItem.createItem((item: MenuItem) => {
+                MenuItem.create((item: MenuItem) => {
                     item.icon = <span className={Icon.SQUARE} style={{color: 'rgb(255,0,0)'}}/>;
                     item.name = "Czerwony";
                     item.subMenu = [
-                        MenuItem.createItem((item: MenuItem) => {
+                        MenuItem.create((item: MenuItem) => {
                             item.name = "Zwiększ";
                             item.icon = Icon.CHEVRON_UP;
                             item.closeOnClick = false;
@@ -165,7 +165,7 @@ export default class PopupMenuTab extends Component {
                                 props.target.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
                             }
                         }),
-                        MenuItem.createItem((item: MenuItem) => {
+                        MenuItem.create((item: MenuItem) => {
                             item.name = "Zmniejsz";
                             item.icon = Icon.CHEVRON_DOWN;
                             item.closeOnClick = false;
@@ -177,11 +177,11 @@ export default class PopupMenuTab extends Component {
                         })
                     ]
                 }),
-                MenuItem.createItem((item: MenuItem) => {
+                MenuItem.create((item: MenuItem) => {
                     item.icon = <span className={Icon.SQUARE} style={{color: 'rgb(0,255,0)'}}/>;
                     item.name = "Zielony";
                     item.subMenu = [
-                        MenuItem.createItem((item: MenuItem) => {
+                        MenuItem.create((item: MenuItem) => {
                             item.name = "Zwiększ";
                             item.icon = Icon.CHEVRON_UP;
                             item.closeOnClick = false;
@@ -191,7 +191,7 @@ export default class PopupMenuTab extends Component {
                                 props.target.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
                             }
                         }),
-                        MenuItem.createItem((item: MenuItem) => {
+                        MenuItem.create((item: MenuItem) => {
                             item.name = "Zmniejsz";
                             item.icon = Icon.CHEVRON_DOWN;
                             item.closeOnClick = false;
@@ -203,11 +203,11 @@ export default class PopupMenuTab extends Component {
                         })
                     ]
                 }),
-                MenuItem.createItem((item: MenuItem) => {
+                MenuItem.create((item: MenuItem) => {
                     item.icon = <span className={Icon.SQUARE} style={{color: 'rgb(0,0,255)'}}/>;
                     item.name = "Niebieski";
                     item.subMenu = [
-                        MenuItem.createItem((item: MenuItem) => {
+                        MenuItem.create((item: MenuItem) => {
                             item.name = "Zwiększ";
                             item.icon = Icon.CHEVRON_UP;
                             item.closeOnClick = false;
@@ -217,7 +217,7 @@ export default class PopupMenuTab extends Component {
                                 props.target.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
                             }
                         }),
-                        MenuItem.createItem((item: MenuItem) => {
+                        MenuItem.create((item: MenuItem) => {
                             item.name = "Zmniejsz";
                             item.icon = Icon.CHEVRON_DOWN;
                             item.closeOnClick = false;

@@ -1,10 +1,13 @@
-import { Connection } from "./Connection";
-export { Connection } from "./Connection";
-export { TransportType } from "./Transports";
+import {Connection} from "./Connection";
+
+export {Connection} from "./Connection";
+export {TransportType} from "./Transports";
+
 export class HubConnection {
     static create(url, queryString) {
         return new this(new Connection(url, queryString));
     }
+
     constructor(connectionOrUrl, queryString) {
         this.connection = typeof connectionOrUrl === "string" ? new Connection(connectionOrUrl, queryString) : connectionOrUrl;
         this.connection.onDataReceived = data => {
@@ -17,6 +20,7 @@ export class HubConnection {
         this.methods = new Map();
         this.id = 0;
     }
+
     onDataReceived(data) {
         if (!data) {
             return;
@@ -38,6 +42,7 @@ export class HubConnection {
             }
         }
     }
+
     onConnectionClosed(error) {
         let errorInvocationResult = {
             Id: "-1",
@@ -52,12 +57,15 @@ export class HubConnection {
             this.connectionClosedCallback(error);
         }
     }
+
     start(transportType) {
         return this.connection.start(transportType);
     }
+
     stop() {
         return this.connection.stop();
     }
+
     invoke(methodName, ...args) {
         let id = this.id;
         this.id++;
@@ -77,15 +85,17 @@ export class HubConnection {
             });
             this.connection.send(JSON.stringify(invocationDescriptor))
                 .catch(e => {
-                reject(e);
-                this.callbacks.delete(invocationDescriptor.Id);
-            });
+                    reject(e);
+                    this.callbacks.delete(invocationDescriptor.Id);
+                });
         });
         return p;
     }
+
     on(methodName, method) {
         this.methods[methodName] = method;
     }
+
     set onClosed(callback) {
         this.connectionClosedCallback = callback;
     }

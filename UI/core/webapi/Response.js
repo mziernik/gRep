@@ -15,7 +15,8 @@ export default class WebApiResponse {
     webApi: WebApi;
     data: Object;
     raw: Object;
-    type: ["event", "response"];
+    type: string; // typ danych (content type)
+    isEvent: boolean;
     request: WebApiRequest;
     hash: string;
     error: boolean = false;
@@ -26,7 +27,7 @@ export default class WebApiResponse {
         this.webApi = webApi;
         this.raw = data;
         this.data = data.data;
-
+        this.isEvent = data.event || !Is.defined(data.id);
         this.type = data.type;
 
         AppEvent.WEB_API_ACTION.send(this, {
@@ -35,15 +36,14 @@ export default class WebApiResponse {
             ...data
         });
 
-        if (this.type === "event" && !data.id) {
-            webApi.onEvent.dispatch(this, {
-                source: data.source,
-                event: data.event,
-                data: data.data,
-                response: this
-            });
-            return;
-        }
+        webApi.onResponse.dispatch(this, {
+            event: data.event,
+            type: data.type,
+            data: data.data,
+            response: this
+        });
+
+        if (!Is.defined(data.id)) return;
 
         if (!webApi.processed.has(data.id)) {
             Dev.error(this, "Nieznane id " + data.id);
@@ -60,8 +60,7 @@ export default class WebApiResponse {
 
         Dev.log(this, `${req.id},\t "${req.method}", czas: ${this.processTime}ms, serwer: ${data.duration}ms`, data);
 
-
-     //   console.log("RESPONSE " + req.method + "\n" + JSON.stringify(data, null, 4));
+        //   console.log("RESPONSE " + req.method + "\n" + JSON.stringify(data, null, 4));
 
         /*
          if (req.spinner && req.spinner.hide)
@@ -83,13 +82,12 @@ export default class WebApiResponse {
         if (req.onResponse)
             req.onResponse(data);
 
-        if (this.type === "response")
-            this.webApi.processed.delete(data.id);
+        this.webApi.processed.delete(data.id);
 
         data.request = req;
         this.error = data.error;
 
-        if (this.type === "event") {
+        if (this.isEvent) {
             if (data.request && data.request.onEvent)
                 data.request.onEvent(data);
             return;

@@ -26,6 +26,7 @@ export default class Table extends Component {
         filterable: PropTypes.bool,
         selectable: PropTypes.bool,
         style: PropTypes.object,
+        contextMenu: PropTypes.array,
     };
 
     _htmlTableElement: HTMLElement;
@@ -99,7 +100,7 @@ export default class Table extends Component {
                 column.description = col.name + (col.description ? ('\n' + col.description) : '');
                 column.sortable = col.sortable;
                 column.filterable = col.filterable;
-                column.show = !col.hidden;
+                column.show = col.hidden.repo === false;
                 column.id = col.key;
                 column.sortMethod = Is.func(col.compare) ? (a, b) => {
                     a = Utils.getPropValue('value', a, a);
@@ -217,7 +218,7 @@ export default class Table extends Component {
                        onClick={(e) => e.stopPropagation()}
                        onChange={(e) => this._select(row.index, row.row, e.currentTarget.checked)}/> : val}</div>;
 
-                if (!this._updateWidths)
+        if (!this._updateWidths)
             return ReactUtils.isReactElement(val) ? val : Utils.toString(val);
 
         return <span ref={elem => {
@@ -583,6 +584,13 @@ export default class Table extends Component {
         })
     }
 
+    _createContextMenu(row: {}): [] {
+        if (!this.props.contextMenu || this.props.contextMenu.length === 0)
+            return this.ROWS_MENU_ITEMS;
+
+        return this.props.contextMenu.concat([MenuItem.separator()], this.ROWS_MENU_ITEMS);
+    }
+
     render() {
 
         if (!this._columns)
@@ -621,7 +629,7 @@ export default class Table extends Component {
                 //wyłączenie flexa w wierszach
                 return {
                     style: {display: 'block'},
-                    onContextMenu: (e) => PopupMenu.openMenu(e, this.ROWS_MENU_ITEMS)
+                    onContextMenu: (e) => PopupMenu.open(e, this.ROWS_MENU_ITEMS)
                 }
             }}
             getTheadFilterProps={() => {
@@ -630,7 +638,10 @@ export default class Table extends Component {
             getTdProps={(state, row, column, instance) => {
                 return {
                     onClick: Is.func(this._onRowClick) ? (e) => this._onRowClick(row, column, instance, e) : null,
-                    onContextMenu: (e) => PopupMenu.openMenu(e, this.ROWS_MENU_ITEMS, {row: row.row, column: column})
+                    onContextMenu: (e) => PopupMenu.open(e, this._createContextMenu(row.row), {
+                        row: row.row,
+                        column: column
+                    })
                 };
             }}
             getTrGroupProps={(state, row, column, instance) => {
@@ -658,7 +669,7 @@ export default class Table extends Component {
                         this._swapColumns(this._drag, column.id, e.currentTarget, e.pageX);
                         this._drag = null;
                     },
-                    onContextMenu: (e) => PopupMenu.openMenu(e, this.COLUMNS_MENU_ITEMS, {column: column}),
+                    onContextMenu: (e) => PopupMenu.open(e, this.COLUMNS_MENU_ITEMS, {column: column}),
                     onClick: column.id !== '__number' ?
                         column.sortable ? (e) => this.sortColumn(column.id, null, true) : null
                         : (this._selectable && this._showRowNum ? (e) => this._setSelectable(!this._selecting) : null)
@@ -700,7 +711,7 @@ export default class Table extends Component {
     /** pozycje menu kontekstowego wierszy */
     ROWS_MENU_ITEMS: [] = [
         //ToDo pozostałe opcje
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.create((c: MenuItem) => {
             c.name = "Filtruj tabelę";
             c.icon = Icon.FILTER;
             c.hint = "Otwiera okno do filtrowania tabeli";
@@ -709,7 +720,7 @@ export default class Table extends Component {
                 item.disabled = !this._filterable;
             }
         }),
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.create((c: MenuItem) => {
             c.name = "Usuń filtr tabeli";
             c.icon = Icon.MINUS;
             c.hint = "Usuwa globalny filtr tabeli";
@@ -723,8 +734,8 @@ export default class Table extends Component {
                     }
             }
         }),
-        MenuItem.createSeparator(),
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.separator(),
+        MenuItem.create((c: MenuItem) => {
             c.icon = Icon.FILTER;
             c.hint = "Filtruje kolumnę po danej wartości";
             c.onBeforeOpen = (item, props) => {
@@ -738,7 +749,7 @@ export default class Table extends Component {
     ];
     /** pozycje menu kontekstowego kolumn*/
     COLUMNS_MENU_ITEMS: [] = [
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.create((c: MenuItem) => {
             c.icon = Icon.EYE_SLASH;
             c.hint = "Ukrywa kolumnę";
             c.onClick = (e, props) => this.changeColumnVisibility(props.column.id, false);
@@ -748,14 +759,14 @@ export default class Table extends Component {
                 item.name = 'Ukryj "' + props.column.name + '"';
             }
         }),
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.create((c: MenuItem) => {
             c.name = "Pokaż";
             c.icon = Icon.EYE;
             c.hint = "Odkrywa ukryte kolumny";
             c.onBeforeOpen = (item: MenuItem, props) => {
                 item.subMenu = Utils.forEach(this._columns, (col) => {
                     if (col.show === false)
-                        return MenuItem.createItem((c: MenuItem) => {
+                        return MenuItem.create((c: MenuItem) => {
                             c.name = col.name;
                             c.icon = Icon.EYE;
                             c.hint = "Odkrywa kolumnę";
@@ -763,8 +774,8 @@ export default class Table extends Component {
                         });
                 });
                 item.disabled = (item.subMenu.length === 0);
-                item.subMenu.unshift(MenuItem.createSeparator());
-                item.subMenu.unshift(MenuItem.createItem((c: MenuItem) => {
+                item.subMenu.unshift(MenuItem.separator());
+                item.subMenu.unshift(MenuItem.create((c: MenuItem) => {
                     c.name = "Pokaż wszystkie";
                     c.hint = "Odkrywa wszystkie kolumny";
                     c.icon = Icon.EYE;
@@ -772,8 +783,8 @@ export default class Table extends Component {
                 }))
             }
         }),
-        MenuItem.createSeparator(),
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.separator(),
+        MenuItem.create((c: MenuItem) => {
             c.name = 'Sortuj rosnąco';
             c.hint = 'Sortuje zawartość rosnąco';
             c.icon = Icon.SORT_ALPHA_ASC;
@@ -782,7 +793,7 @@ export default class Table extends Component {
                 item.disabled = props.column.id ? !props.column.sortable : true;
             }
         }),
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.create((c: MenuItem) => {
             c.name = 'Sortuj malejąco';
             c.hint = 'Sortuje zawartość malejąco';
             c.icon = Icon.SORT_ALPHA_DESC;
@@ -791,7 +802,7 @@ export default class Table extends Component {
                 item.disabled = props.column.id ? !props.column.sortable : true;
             }
         }),
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.create((c: MenuItem) => {
             c.name = 'Usuń sortowanie';
             c.hint = 'Usuwa sortowanie kolumny';
             c.icon = Icon.MINUS;
@@ -808,8 +819,8 @@ export default class Table extends Component {
                 }
             }
         }),
-        MenuItem.createSeparator(),
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.separator(),
+        MenuItem.create((c: MenuItem) => {
             c.name = 'Filtruj';
             c.icon = Icon.FILTER;
             c.hint = 'Otwiera okno dialogowe z filtrami';
@@ -818,7 +829,7 @@ export default class Table extends Component {
                 item.disabled = props.column.id ? !props.column.filterable : true;
             }
         }),
-        MenuItem.createItem((c: MenuItem) => {
+        MenuItem.create((c: MenuItem) => {
             c.name = 'Usuń filtr';
             c.icon = Icon.MINUS;
             c.hint = 'Usuwa filtr z kolumny';

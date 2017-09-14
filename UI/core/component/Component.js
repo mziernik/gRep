@@ -93,7 +93,11 @@ export default class Component<DefaultProps: any, Props: any, State: any>
                 ++renderCount;
                 this.beforeRender.dispatch(this, {});
                 this[NODE].componentsStack.push(this);
-                return Dev.duration(this, "Render", () => this[RENDER]());
+                return Dev.duration(this, "Render", () => {
+                    const result = this[RENDER]();
+                    this[NODE].componentsStack.remove(this); // zdejmij ze stosu tylko jeśli nie zwróci wyjątku
+                    return result;
+                });
             } catch (e) {
                 if (this[NODE] && this[NODE].currentPage) {
                     this[NODE].currentPage.__error = new EError(e);
@@ -249,24 +253,10 @@ export default class Component<DefaultProps: any, Props: any, State: any>
 export class Children {
 
     component: Component;
-    _nonEmpty: boolean = false;
     _filter: ?(child: Child) => boolean;
-    _props: Object;
-    _instances: [];
 
     constructor(component: Component) {
         this.component = component;
-    }
-
-    props(props: Object): Children {
-        this._props = props;
-        return this;
-    }
-
-    /** Weryfikacja typów komponentów */
-    instanceOf(instances: any | any[]): Children {
-        this._instances = Utils.asArray(instances);
-        return this;
     }
 
     filter(filter: (child: Child) => boolean): Children {
@@ -274,17 +264,10 @@ export class Children {
         return this;
     }
 
-    nonEmpty(): Children {
-        this._nonEmpty = true;
-        return this;
-    }
 
     render(children: Object | Array) {
 
         children = children || this.component.props.children;
-
-        let childrenList = [];
-
 
         const list = [];
 
@@ -310,34 +293,17 @@ export class Children {
         visit(children);
 
         const result = Utils.forEach(list, (child: Child) => {
-            let changed = false;
-            // weryfikacja czy obiekt właściwości uległ zmianie
-            if (child._propsChanged) {
-                const oryginalProps = child.element.props;
-                const currProps = child.props;
 
-
-                changed = (Object.values(oryginalProps).length !== Object.values(currProps));
-                if (!changed)
-                    for (let key in oryginalProps) {
-                        const src = oryginalProps[key];
-                        const dst = currProps[key];
-                        if (src !== dst) {
-                            changed = true;
-                            break;
-                        }
-                    }
-            }
-
-            if (changed) {
+            if (this._filter) {
                 const props = {};
-                child.allowedProps.forEach((name: string) => {
-                    if (child.props[name] !== undefined)
-                        props[name] = child.props[name];
+                Utils.forEach(child.allowedProps, name => {
+                    const val = child.props[name];
+                    if (val !== undefined)
+                        props[name] = val;
                 });
                 return React.cloneElement(child.element, props);
-
             }
+
             return child.element;
         });
 
@@ -350,23 +316,14 @@ export class Child {
     children: Children;
     element: any;
     props: {} = {};
-    _propsChanged: boolean;
 
 
     constructor(children: Children, element: any) {
         this.children = children;
         this.element = element;
 
-        if (this.isReactComponent) {
+        if (this.isReactComponent)
             this.props = Utils.clone(this.element.props);
-            this._propsChanged = true;
-        }
-
-        Utils.forEach(children._props, (v, k) => {
-            if (v !== undefined)
-                this.props[k] = v;
-        });
-        this._propsChanged = this._propsChanged || Object.values(this.props).length;
     }
 
     get allowedProps(): string[] {

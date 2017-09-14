@@ -24,14 +24,13 @@ import WebApiRepoStorage from "./storage/WebApiRepoStorage";
 import API from "../application/API";
 import RepoConfig from "./RepoConfig";
 import RepoCursor from "./RepoCursor";
+import RepoTree from "./RepoTree";
 
 
 //ToDo: Opcja inline - edycja rekordów podobnie jak w uprawnieniach
 
 export default class Repository {
 
-    /** Ignoruj błędy w rekordach i dodawaj je nawet jeśli nie przeszły walidacji*/
-    static ignoreErrors: boolean = true;
 
     static onUpdate: Dispatcher = new Dispatcher();
     static defaultStorage: RepositoryStorage = WebApiRepoStorage.INSTANCE;
@@ -205,6 +204,16 @@ export default class Repository {
                     });
 
 
+                Utils.forEach(value.deletedRows, id => {
+                    const rec: Record = repo.get(null, id, false);
+                    if (!rec) {
+                        Dev.warning("Repository", "Nie znaleziono wiersza " + Utils.escape(id) + " repozytorium " + Utils.escape(repo.key));
+                        return;
+                    }
+                    rec.action = CRUDE.DELETE;
+                    records.push(rec);
+                });
+
                 if (Is.array(value.columns) && Is.array(value.rows)) {
 
                     let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
@@ -222,26 +231,20 @@ export default class Repository {
                     return;
                 }
 
+
                 const processObject = (value) =>
                     Utils.forEach(value, obj => {
 
                         const pk = obj[repo.primaryKeyColumn.key];
                         Check.isDefined(pk, "Pusta wartość klucza głównego repozytorium " + repo.key);
 
-                        const rec: Record = repo.createRecord(context, repo.has(pk) ? CRUDE.UPDATE : CRUDE.CREATE);
-                        repo.refs.remove(rec); // nie traktuj jako referencję
+                        const rec: Record = repo.createRecord(null, repo.has(pk) ? CRUDE.UPDATE : CRUDE.CREATE);
                         const map: Map = new Map();
                         Utils.forEach(obj, (v, k) => {
                             const col: Column = repo.getColumn(k);
                             rec.get(col).value = v;
                             map.set(col, v);
                         });
-
-                        if (map.size === 1)
-                            map.forEach((v, col: Column) => {
-                                if (col === rec.primaryKey.config)
-                                    rec.action = CRUDE.DELETE;
-                            });
 
                         records.push(rec);
                     });
@@ -255,9 +258,7 @@ export default class Repository {
                 processObject(value);
 
             } catch (e) {
-                if (!Repository.ignoreErrors)
-                    throw e;
-                if (DEV_MODE) console.warn(e); else Dev.error(this, e);
+                DEV_MODE ? console.warn(e) : Dev.error(this, e);
             }
         });
 
@@ -268,16 +269,14 @@ export default class Repository {
             try {
                 rec.validate();
             } catch (e) {
-                if (!Repository.ignoreErrors)
-                    throw e;
-                if (DEV_MODE) console.warn(e); else Dev.error(this, e);
+                records.remove(rec);
+                DEV_MODE ? console.warn(e) : Dev.error(this, e);
             }
         });
 
         // zastosowanie zmian (na tym etapie dane są zwalidowane)
         const map: Map<Repository, Record[]> = Utils.agregate(records, (rec: Record) => rec.repo);
         Repository.onUpdate.dispatch(context, {map: map});
-
 
         const changes = [];
 
@@ -372,7 +371,8 @@ export default class Repository {
     static commit(context: any, records: Record[]): Promise {
         records = Utils.asArray(records);
 
-        Utils.forEach(records, (rec: Record) => rec.validate());
+
+        Utils.forEach(records, (rec: Record) => rec.action !== CRUDE.DELETE && rec.validate());
 
 
         records = Utils.forEach(records, (rec: Record) => {
@@ -415,7 +415,7 @@ export default class Repository {
                 const r = {};
                 let add: boolean = record.action === CRUDE.DELETE;
                 r["#action"] = record.action ? record.action.name : null;
-                r["#uid"] = record.UID;
+                r["#uid"] = record._uid;
 
                 if (record.action !== CRUDE.UPDATE) hasChanges = true;
 

@@ -10,6 +10,7 @@ import AttributesRecord from "./AttributesRecord";
 import {PageButtons} from "../../page/Page";
 import {Btn} from "../Button";
 import Dispatcher from "../../utils/Dispatcher";
+import * as Check from "../../utils/Check";
 
 
 export default class RecordCtrl {
@@ -33,6 +34,33 @@ export default class RecordCtrl {
 
     onCommit: Dispatcher = new Dispatcher(this);
 
+    constructor(record: Record) {
+        this.record = Check.instanceOf(record, [Record]);
+        this.crude = record.action;
+        this.title = (record.repo.config.group ? record.repo.config.group + " :: " : "" ) + record.repo.name;
+    }
+
+    /**
+     * Kliknięto przycisk "Dodaj" lub wybrano akcje menu kontekstowego
+     * @param repo
+     */
+    static actionCreate(repo: Repository, e: Event) {
+        Endpoint.devRouter.RECORD.navigate({
+            repo: repo.key,
+            id: "~new"
+        }, e);
+    }
+
+
+    /**
+     * Kliknięto przycisk "Usuń" lub wybrano akcje menu kontekstowego
+     * @param repo
+     */
+    actionDelete(e: Event) {
+        Alert.confirm(this, "Czy na pewno usunąć " + Utils.escape(this.record.repo.name)
+            + " » " + Utils.escape(this.record.displayValue),
+            () => this.commit(CRUDE.DELETE));
+    }
 
     get btnNew(): Btn {
         return this._btnNew || (this._btnNew = new Btn((btn: Btn) => {
@@ -84,18 +112,10 @@ export default class RecordCtrl {
             btn.type = "danger";
             btn.icon = Icon.TIMES;
             btn.text = "Usuń";
-            btn.confirm = "Czy na pewno usunąć " + Utils.escape(this.record.displayValue);
-            btn.onClick = e => this.commit(CRUDE.DELETE);
+            btn.onClick = e => this.actionDelete(e);
             btn.modalClose = !this._modal;
             //    btn._visible = this.crude === CRUDE.CREATE;
         }));
-    }
-
-
-    constructor(record: Record) {
-        this.record = record;
-        this.crude = record.action;
-        this.title = (record.repo.config.group ? record.repo.config.group + " :: " : "" ) + record.repo.name;
     }
 
 
@@ -117,7 +137,8 @@ export default class RecordCtrl {
 
         this.record.action = crude;
 
-        if (!this.validate()) return false;
+
+        if (crude !== CRUDE.DELETE && !this.validate()) return false;
 
         this.buttons.forEach(btn => btn.disabled = true);
         const spinner = this.spinner ? Spinner.modal() : null;
@@ -228,7 +249,7 @@ export default class RecordCtrl {
                 showAdvanced={this.showAdvanced}
                 local={this.local}
             />
-            {this.renderNavBar()}
+            {/*{this.renderNavBar()}*/}
         </div>
 
     }
