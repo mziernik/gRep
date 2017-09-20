@@ -30,4 +30,8 @@ export default class Cell extends Field {
     }
 
 
+    get foreign(): Record | Record[]  {
+        return this.record._getForeign(this, this);
+    }
+
 }

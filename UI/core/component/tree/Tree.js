@@ -6,7 +6,15 @@ import TreeNode from './TreeNode';
 import DragAndDropContext from "../DragAndDrop/DragAndDropContext";
 import TreeElement from "./TreeElement";
 import {VarArray} from "../../Var";
+import Similarity from "../../utils/Similarity";
 
+export class SearchData {
+    similarity: Similarity;
+    matched: boolean;
+    distance: number;
+    expanded: boolean;
+    visible: boolean;
+}
 
 export default class Tree extends TreeElement {
     children: Array<TreeNode> = [];
@@ -29,24 +37,60 @@ export default class Tree extends TreeElement {
     search(value: string) {
         let found = 0;
         let total = 0;
+        value = (value || "").trim();
 
-        value = value.toLowerCase().trim();
-        const empty = value === "";
+        const similarity: Similarity = new Similarity();
+        const empty = !value;
+
+        if (!empty) {
+            this.visit((item: TreeNode) => similarity.add(item, [item.name]));
+            similarity.search(value);
+        }
 
         this.visit((item: TreeNode) => {
-            ++total;
-            item._found = false;
 
-            item._hidden = empty ? null : false;
-            if (!empty && item.name.toLowerCase().indexOf(value) >= 0) {
-                ++found;
-                item._found = true;
+            if (item.selected) {
                 let it = item;
-                while (it) {
-                    it._hidden = true;
-                    it = it.parent;
+                while (it = it.parent) it.expanded = true;
+            }
+
+            const sd: SearchData = item._search = empty ? null : new SearchData();
+            if (empty) return;
+
+            const res = similarity.results.get(item);
+            sd.similarity = similarity;
+            sd.matched = !!res;
+            sd.visible = sd.matched;
+            sd.expanded = sd.matched;
+
+            if (sd.matched) {
+                // ustaw wszystkie nadrzędne gałęzie jako widoczne
+                let it = item;
+                while (it = it.parent) {
+                    it._search.visible = true;
+                    it._search.expanded = true;
                 }
             }
+            /*
+                        ++total;
+                        item._found = false;
+                        const matched = !empty && similarity.results.has(item);
+                        if (matched) ++found;
+                        item._found = matched;
+                        // if (item.parent && item.parent._hidden === false) {
+                        //     item._hidden = false;
+                        //     return;
+                        // }
+
+                        item._hidden = empty ? null : !matched;
+
+                        let it = item.parent;
+                        while (it) {
+                            if (item._hidden === false)
+                                it._hidden = null;
+                            it = it.parent;
+                        }
+            */
         })
         // alert("Znaleziono " + found + " z " + total);
     }

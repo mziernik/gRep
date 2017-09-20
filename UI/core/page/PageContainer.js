@@ -42,6 +42,11 @@ export class PageTab {
         s.height = "100%";
     }
 
+
+    get current(): PageTab {
+        return currentTab;
+    }
+
     close() {
         if (tabs.length === 1) return;
 
@@ -92,6 +97,8 @@ export class PageTab {
 
     renderContent() {
 
+        Endpoint.current = null;
+
         if (!containerElement) return null;
         const children = <Switch key={this.id}>{Endpoint.routeMap()}</Switch>;
 
@@ -117,9 +124,10 @@ export class PageTab {
         this.currentURL = window.location.pathname;
 
         //    tabs.forEach((tab: PageTab) => Is.condition(tab.node === this.node, () => tab.onNavigate(this)));
-
-        if (this.node.currentPage)
-            this.node.element.setAttribute("data-page", this.node.currentPage.endpoint.key);
+        if (this.node.currentPage) {
+            Endpoint.current = this.node.currentPage.endpoint;
+            this.node.element.setAttribute("data-page", this.node.currentPage.constructor.name);
+        }
     }
 
 
@@ -131,13 +139,12 @@ export default class PageContainer extends Component {
     /** Pzy najbliższym żądaniu, nawigacja zostanie skierowana do okna modalnego*/
     static _navigateToModal: ?string = null;
 
-
     constructor() {
         super(...arguments);
         pageContainer = this;
 
         // zmienił się URL strony, odśwież kontener
-        AppEvent.APPLICATION__BEFORE_UPDATE.listen(this, () => currentTab.renderContent());
+        AppEvent.APPLICATION__LOCATION_CHANGE.listen(this, () => currentTab.renderContent());
     }
 
 

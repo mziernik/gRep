@@ -87,6 +87,9 @@ export class DataType {
         const x1 = this.serialize(v1);
         const x2 = this.serialize(v2);
 
+        if (Is.array(x1) && Is.array(x2))
+            return window.JSON.stringify(x1) === window.JSON.stringify(x2);
+
         return x1 === x2;
     }
 
@@ -279,8 +282,13 @@ export const UUID: DataType = new DataType((dt: DataType) => {
             return;
         const v = Utils.toString(val).trim().toLowerCase();
         if (!v.length) return null;
+
+        if (v === "00000000-0000-0000-0000-000000000000")
+            throw new Error("UID nie może mieć wartości " + v);
+
         if (!v.match("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"))
-            throw new Error(Utils.escape(val) + " nie jest prawidłowym identyfikatorem UUID");
+            throw new Error(Utils.escape(val) + " nie jest prawidłowym identyfikatorem UID");
+
         return v;
     }
 });
@@ -294,7 +302,7 @@ export const GUID: DataType = new DataType((dt: DataType) => {
 export const REGEX: DataType = new DataType((dt: DataType) => {
     dt.name = "regex";
     dt.simpleType = "string";
-    dt.parser = val => val;
+    dt.parser = val => val instanceof RegExp ? val : new RegExp(val);
 });
 
 export const FILE_NAME: DataType = new DataType((dt: DataType) => {

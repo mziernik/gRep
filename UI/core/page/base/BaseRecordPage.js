@@ -28,8 +28,8 @@ export default class BaseRecordPage extends RepoPage {
     constructor(repo: Repository | string, props: any, context: any, state: any) {
         super(repo, props, context, state);
 
-        if (this.props.recCtrl) {
-            this.controller = Check.instanceOf(this.props.recCtrl, [RecordCtrl]);
+        if (this.props.recordCtrl) {
+            this.controller = Check.instanceOf(this.props.recordCtrl, [RecordCtrl]);
             this.record = this.controller.record;//Check.instanceOf(this.props.record, [Record]);
             this.repo = this.record.repo;
             this.isNew = this.record.action === CRUDE.CREATE;
@@ -43,7 +43,6 @@ export default class BaseRecordPage extends RepoPage {
     onReady(repo: Repository, list: Repository[]) {
 
         super.onReady(repo, list);
-
 
         if (!this.record) {
             this.isNew = this.props.id === "~new";

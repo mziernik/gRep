@@ -13,6 +13,9 @@ import Button from "../core/component/Button";
 import Var from "../core/Var";
 import {DEV_MODE, PROCESS_ENV} from "../core/Dev";
 import API from "../core/application/API";
+import CoreConfig from "../core/config/CoreConfig";
+import {UserData} from "../core/application/UserData";
+import * as Utils from "../core/utils/Utils";
 
 
 function setError(e) {
@@ -28,17 +31,25 @@ const username: Var<string> = new Var().localStorage("login");
 const password: Var<string> = new Var().sessionStorage("pass");
 const authTS: Var<number> = new Var().sessionStorage("authTS");
 
-const SESSION_EXPIRE = 5000;
 
-//ToDo: Wygasanie sesji
+let idleTimeout;
 
-if (SESSION_EXPIRE && authTS.value && password.value) {
-    debugger;
-    const diff: number = new Date().getTime() - authTS.value;
+function peak() {
+    clearTimeout(idleTimeout);
+    const expire = CoreConfig.ui.idleTimeout.value;
+    if (!(expire > 0)) return;
 
-    if (diff > SESSION_EXPIRE)
+    idleTimeout = setTimeout(() => {
         password.value = null;
+        Spinner.create();
+        setTimeout(() => window.location.reload(), 500);
+    }, expire);
 }
+
+
+window.addEventListener("keydown", peak);
+window.addEventListener("mousemove", peak);
+window.addEventListener("resize", peak);
 
 
 export default class Login extends Component {
@@ -49,6 +60,17 @@ export default class Login extends Component {
     static instance: AppNode;
 
     static error: string;
+
+    constructor() {
+        super(...arguments);
+
+        const expire = CoreConfig.ui.idleTimeout.value;
+
+        const diff: number = new Date().getTime() - authTS.value;
+        if (expire > 0 && diff > expire)
+            password.value = null;
+
+    }
 
     static logout() {
         password.value = undefined;
@@ -71,9 +93,11 @@ export default class Login extends Component {
 
         if (username.value && password.value) {
 
-            Login.spinner = new Spinner(false);
+            Login.spinner = Spinner.create();
+            UserData.current = null;
             API.authorizeUser(username.value || "", password.value || "", (data) => {
                 Login.spinner.hide();
+                UserData.current = UserData.factory(data);
                 authTS.value = new Date().getTime();
                 // User.current.fill(data);
                 setTimeout(() => Login.onAuthorized(data));
@@ -91,8 +115,8 @@ export default class Login extends Component {
             Login.instance = Application.render(<Login/>,
                 document.body.tag("div").css({
                     backgroundImage: "url('/res/login_background.jpg')",
-                    backgroundRepeat: "round",
-                    backgroundSize: "auto",
+                    //backgroundRepeat: "round",
+                    backgroundSize: "100%",
                     zIndex: 1,
                     position: "fixed",
                     left: 0,
@@ -131,6 +155,10 @@ export default class Login extends Component {
 
         // rozwiązanie problemu zapamiętywania hasła
         document.getElementById("edtPassword").value = "";
+        document.getElementById("edtPassword").setAttribute("value", "");
+        document.getElementById("edtPassword").disabled = true;
+        document.getElementById("edtLogin").disabled = true;
+
         e.preventDefault();
         e.cancelBubble = true;
 
@@ -140,9 +168,12 @@ export default class Login extends Component {
             Login.spinner.hide();
         };
 
-        Login.spinner = new Spinner(false);
+        UserData.current = null;
+        Login.spinner = Spinner.create();
         API.authorizeUser(username.value, password.value, (data) => {
             done();
+            UserData.current = UserData.factory(data);
+
             authTS.value = new Date().getTime();
             //User.current.fill(data);
             this.onAuthorized(e);
@@ -223,8 +254,10 @@ export default class Login extends Component {
                         }}/>
 
                         <IconEdit
+                            key={Utils.randomId()}
                             type="text"
                             icon="user"
+                            id="edtLogin"
                             placeholder="Login"
                             value={username.value}
                             onChange={(e) => username.value = e.target.value}
@@ -232,6 +265,7 @@ export default class Login extends Component {
                         />
 
                         <IconEdit
+                            key={Utils.randomId()}
                             autoCompleteOff
                             id="edtPassword"
                             type="password"

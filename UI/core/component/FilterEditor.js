@@ -4,6 +4,8 @@ import {React, ReactDOM, ReactUtils, PropTypes, Utils, Is, CustomFilter, Field, 
 import {Component, Icon, Select} from "../components";
 import FCtrl from "./form/FCtrl";
 
+//FixMe cachowanie enumeraty w Field zepsuło listę warunków. Nie aktualizuje się po zmianie typu
+
 export default class FilterEditor extends Component {
     static propTypes = {
         dataSource: PropTypes.object, //{columns:[Column,...], rows:[]}

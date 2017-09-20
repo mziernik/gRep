@@ -14,6 +14,7 @@ export default class Resizer extends Component {
         resizable: PropTypes.bool,
         noDefaultLimits: PropTypes.bool,
         outerProps: PropTypes.object,
+        className: PropTypes.string,
     };
 
     static defaultProps = {
@@ -272,10 +273,12 @@ export default class Resizer extends Component {
         return res;
     }
 
+    //FixMe className
     render() {
         return (
             <div
-                className="c-resizer"
+                //     className="c-resizer"
+                className={"c-resizer" + (this.props.className ? " " + this.props.className : "")}
                 style={{
                     position: this.props.from ? 'fixed' : 'relative',
                     ...this.props.style,

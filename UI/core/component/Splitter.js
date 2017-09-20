@@ -7,7 +7,8 @@ export class Splitter extends Component {
 
     static propTypes = {
         horizontal: PropTypes.bool,
-        style: PropTypes.object
+        style: PropTypes.object,
+        className: PropTypes.string
     };
 
     _drag = null;
@@ -146,9 +147,11 @@ export class Splitter extends Component {
         else
             childes = this.split();
         let style = this.props.style || {width: '100%', height: '100%'};
-        return <div className="c-splitter" style={{
-            ...style
-        }}>{childes}</div>;
+        return <div
+            className={"c-splitter" + (this.props.className ? " " + this.props.className : "")}
+            style={{
+                ...style
+            }}>{childes}</div>;
     }
 }
 

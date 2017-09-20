@@ -90,9 +90,10 @@
 .x-tree-main[data-menu=true] {
     font-family: Open Sans, sans-serif;
     background-color: #303336;
+    background: #1a2669 linear-gradient(to bottom, #2a3679 0%, #0a1659 100%);
     color: #ccc;
-    font-size: 1.15em;
-    line-height: 2.2em;
+    font-size: 1em;
+    line-height: 2em;
     padding: 0;
     /* text-shadow: 0 -1px 0 rgba(0, 0, 0, .5); */
     -webkit-transition: height .3s, color .3s, background-color .3s;
@@ -107,11 +108,13 @@
 
 .x-tree-main[data-menu=true] .x-tree-header {
     cursor: pointer;
+    transition: background-color .5s ease-out;
 }
 
 .x-tree-main[data-menu=true] .x-tree-header:hover {
-
-    background-color: #404346;
+    /*transform: scale(1.1);*/
+    transition: background-color .1s;
+    background-color: rgba(100, 100, 100, 0.5);
 }
 
 .x-tree-main[data-menu=true] .x-tree-header:active {
@@ -124,11 +127,12 @@
 }
 
 .x-tree-main[data-menu=true] .x-tree-header[selected] {
+    transition: background-color .1s ease-in;
     background: #f53 linear-gradient(to bottom, #f64 0%, #e42 100%);
 }
 
 .x-tree-main[data-menu=true] .x-tree-expand-indicator {
-    line-height: 2.2em;
+    /*line-height: 2.2em;*/
     color: #bbb;
     height: 100%;
     padding-right: 20px;
@@ -167,7 +171,7 @@
     color: yellow;;
 }
 
-.x-tree-main[data-menu=true] .x-tree-node[data-level="1"] {
-    font-size: 0.9em;
-    line-height: 2.1em;
-}
+/*.x-tree-main[data-menu=true] .x-tree-node[data-level="1"] {*/
+/*font-size: 0.8em;*/
+/*line-height: 1.7em;*/
+/*}*/

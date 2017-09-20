@@ -10,20 +10,22 @@ import Field from "../../repository/Field";
 import * as Type from "../../repository/Type";
 import FCtrl from "../../component/form/FCtrl";
 import * as Check from "../../utils/Check";
+import {RWebApi} from "../../repository/WebApiRepo";
+import {R_WEBAPI} from "../../repository/WebApiRepo";
 
 
 export default class PWebApi extends Page {
 
     constructor() {
         super(...arguments);
-        this.requireRepo(WebApiRepo.RWEBAPI);
+        this.requireRepo(WebApiRepo.R_WEBAPI);
     }
 
     render() {
 
         const api: WebApi = WebApi.instance;
 
-        const rctrl: RepoCtrl = new RepoCtrl(WebApiRepo.RWEBAPI);
+        const rctrl: RepoCtrl = new RepoCtrl(WebApiRepo.R_WEBAPI);
 
         return [
             <div>
@@ -32,7 +34,7 @@ export default class PWebApi extends Page {
             </div>,
             <RepoTable
                 key={Utils.randomId()}
-                repository={WebApiRepo.RWEBAPI}
+                repository={WebApiRepo.R_WEBAPI}
                 onClick={(rec: EWebApi, row, column, instance, e) => {
                     ModalWindow.create((mw: ModalWindow) => {
                         mw.content = <Viewer data={rec.DATA.value}/>;
@@ -44,6 +46,7 @@ export default class PWebApi extends Page {
 
 }
 
+R_WEBAPI.repoPage = obj => <PWebApi modal={obj.modal}/>;
 
 class Viewer extends Component {
 

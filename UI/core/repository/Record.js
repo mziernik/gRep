@@ -191,7 +191,6 @@ export default class Record {
         if (!column.foreign)
             throw new RecordError(this, "Kolumna " + column.key + " nie posiada klucza obcego");
 
-        debugger;
         const frepo: Repository = column.foreign.repo;
 
         if (fk instanceof Array)

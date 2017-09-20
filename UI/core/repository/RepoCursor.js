@@ -3,6 +3,7 @@ import {Utils} from "../$utils";
 import Record from "./Record";
 import Column from "./Column";
 import * as CRUDE from "./CRUDE";
+import Dev from "../Dev";
 
 export default class RepoCursor {
     repo: Repository;
@@ -11,6 +12,9 @@ export default class RepoCursor {
 
     constructor(repo: Repository) {
         this.repo = repo;
+        if (!repo.isReady)
+            throw new RepoError(repo, "Brak gotowości");
+
         repo.rows.forEach(row => this._rows.push(row));
     }
 
@@ -55,6 +59,7 @@ export default class RepoCursor {
         return rec;
     }
 
+
     get(column: Column): any {
         const idx = this.repo.getColumnIndex(column);
 
@@ -62,5 +67,16 @@ export default class RepoCursor {
             throw new RepoError(this.repo, "Kursor poza zakresem");
 
         return this._rows[this._index][idx];
+    }
+
+
+    getValue(column: Column): any {
+        // nie zmieniać nazwy metody! Nazwa musi być identyczna z Record.getValue
+        return this.get(column);
+    }
+
+    get displayValue(): string {
+        // nie zmieniać nazwy metody! Nazwa musi być identyczna z Record.displayValue
+        return this.getRecord(null).displayValue;
     }
 }

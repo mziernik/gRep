@@ -35,7 +35,7 @@ export default class PIcons extends Page {
         });
 
 
-        return <Panel fit noPadding>
+        return <Panel fit noPadding className={"dev-icons"}>
             <Panel>
                 <div>
                     <input

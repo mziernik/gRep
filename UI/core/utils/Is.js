@@ -106,6 +106,15 @@ export function isFontInstalled(name: string, then: ?(object: any) => void, othe
     return result(installed, name, then, otherwise);
 }
 
+/**
+ * Czy dany obiekt (funkcja) jest klasą
+ * @param obj
+ * @return {boolean}
+ */
+export function clazz(obj) {
+    return typeof obj === 'function' && obj.prototype.constructor === obj;
+}
+
 
 function result(condition: boolean, object: any, then: ?(object: any) => void, otherwise: ?(object: any) => void) {
     if (condition && typeof then === "function")

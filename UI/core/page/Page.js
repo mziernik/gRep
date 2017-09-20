@@ -11,7 +11,7 @@ import {
     Is,
     EError,
     Dev,
-    DEV_MODE,
+    Check,
     Ready,
     CRUDE,
     Record
@@ -22,8 +22,11 @@ import {ModalWindow} from "../component/ModalWindow";
 import {Btn} from "../component/Button";
 import {NODE, Dynamic} from "../component/Component";
 import Busy from "../component/Busy";
+import {MenuItem} from "../component/PopupMenu";
 
 const RENDER = Symbol("Render Page");
+
+let currentPage: Page;
 
 export default class Page extends Component {
 
@@ -57,7 +60,7 @@ export default class Page extends Component {
         if (modal)
             this.titleBar._render = () => {
                 modal.buttons = this.buttons;
-                modal.icon.set(this.icon.value);
+                //   modal.icon.set(this.icon.value);
                 modal.title.set(this.title.value);
                 return null;
             };
@@ -65,6 +68,7 @@ export default class Page extends Component {
         this[RENDER] = this.render;
 
         this.render = () => {
+            currentPage = this;
             try {
                 this[NODE].currentPage = this;
 
@@ -75,7 +79,7 @@ export default class Page extends Component {
                         window.console.error(e);
                     }
 
-                if (this._waitingForRepo  || this._awaitings.length)
+                if (this._waitingForRepo || this._awaitings.length)
                     return <Busy fit label="Proszę czekać..."/>;
 
                 const result = this[RENDER]();
@@ -140,6 +144,8 @@ export default class Page extends Component {
                 r => Is.func(r) ? r() : Is.string(r) ? Repository.get(r, true) : r));
 
             list.forEach((repo: Repository) => {
+
+                Check.instanceOf(repo, [Repository]);
 
                 repo.onChange.listen(this, data => {
                     if (this._waitingForRepo || this._awaitings.length) return;
@@ -224,14 +230,14 @@ export class PageButtons extends Dynamic {
     }
 
     insert(config: Btn | (button: Btn) => void): Btn {
-        const btn = new Btn(config);
+        const btn = config instanceof Btn ? config : new Btn(config);
         this.list.unshift(btn);
         this.update(true);
         return btn;
     }
 
     add(config: Btn | (button: Btn) => void): Btn {
-        const btn = new Btn(config);
+        const btn = config instanceof Btn ? config : new Btn(config);
         this.list.push(btn);
         this.update(true);
         return btn;
@@ -273,3 +279,10 @@ export class PageTitleBar extends Dynamic {
     }
 
 }
+
+addEventListener("load", () => Dev.TOOLS.push(MenuItem.create((item: MenuItem) => {
+        item.name = "Przerysuj bieżącą stronę";
+        item.onClick = e => currentPage && currentPage.forceUpdate(true);
+    }))
+);
+

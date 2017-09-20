@@ -1,7 +1,8 @@
 //@Flow
 'use strict';
+import * as Is from "../utils/Is";
 
-/** klasa do przeciągani elementów. Przeciągany element powinien mieć position: absolute. Można używać statycznie.*/
+/** klasa do przeciągania elementów. Przeciągany element powinien mieć position: absolute. Można używać statycznie.*/
 export default class Dragger {
     /** instancja draggera
      * @type {null}
@@ -22,16 +23,36 @@ export default class Dragger {
      * @private
      */
     _limits = null;
+    /** czy przy rozpoczęciu przeciągani ma element zostać wyśrodkowany względem myszy
+     * @type {boolean}
+     * @private
+     */
+    _center: boolean = false;
+    /** czy pierwsze przeciągnięcie
+     * @type {boolean}
+     * @private
+     */
+    _start: boolean = true;
+    /** callback wywoływany przy pierwszym przeciągnięciu
+     * @type {null}
+     * @private
+     */
+    _onStart: () => void = null;
+
 
     /** rozpoczyna przeciąganie elementu. Powinno być wywoływane przez mouseDown
      * @param e obiekt zdarzenia mousedown
      * @param target element, który m abyc przeciągany. Jeśli brak, to brany jest e.currentTarget
      * @param limits czy przeciąganie ma być ograniczone do rozmiaru okna (def false)
+     * @param center czy ma wyśorodkować przeciągany element względem myszy
      */
-    static dragStart(e: MouseEvent, target = null, limits: boolean = false) {
+    static dragStart(e: MouseEvent, target = null, limits: boolean = false, center: boolean = false, onStarCallback: () => void = null) {
         if (!Dragger.INSTANCE)
             Dragger.INSTANCE = new Dragger(limits);
         Dragger.INSTANCE.setLimits(limits);
+        Dragger.INSTANCE._center = center;
+        Dragger.INSTANCE._onStart = onStarCallback;
+        Dragger.INSTANCE._start = true;
         Dragger.INSTANCE.dragStart(e, target);
     }
 
@@ -84,8 +105,22 @@ export default class Dragger {
         }
         e.preventDefault();
         let diff = {x: e.pageX - this._startPos.x, y: e.pageY - this._startPos.y};
+
+        if (this._start) {
+            if (Math.abs(diff.x + diff.y) < 10) return;
+            this._start = false;
+            if (Is.func(this._onStart))
+                this._onStart();
+
+            if (this._center) {
+                this._center = false;
+                this._target.style.left = (this._startPos.x - (this._target.offsetWidth / 2)) + "px";
+            }
+        }
+
         let nl = (this._target.offsetLeft + diff.x);
         let nt = (this._target.offsetTop + diff.y);
+
         //poziom
         if (e.pageX >= this._limits.min.x && (e.pageX) <= this._limits.max.x) {
             this._target.style.left = nl + 'px';

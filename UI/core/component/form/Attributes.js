@@ -176,6 +176,7 @@ export class Attr extends Component {
             {this.props.renderBefore ? <td>{this.props.renderBefore}</td> : null}
             <td className="c-attributes-name">{field ?
                 <FCtrl
+                    style={{whiteSpace:'initial'}}
                     field={field}
                     label={this.props.name}
                     description={1}

@@ -431,6 +431,13 @@ export class DynamicComponent extends Component {
         Is.func(visible, v => visible = v());
         if (!visible)
             return null;
+
+        if (dyn.value === dyn)
+            return null;
+
+        if (dyn.value instanceof Dynamic)
+            return (dyn.value: Dynamic).$;
+
         return dyn._render(dyn.value);
     }
 }

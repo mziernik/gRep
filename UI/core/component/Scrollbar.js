@@ -2,8 +2,7 @@
 'use strict';
 import {React, ReactDOM, AppEvent, Trigger} from "../core.js";
 import {Component} from "../components.js";
-//fixMe poziomy scrollbar zbędnie pojawia się, szczególnie w ModalWindow
-//fixMe @up wina bootstrapa. Ustawia ujemne marginesy
+
 export class Scrollbar extends Component {
     _resizeTrigger: Trigger = new Trigger();
 

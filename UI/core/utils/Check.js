@@ -57,6 +57,12 @@ export function isObject(value: ?Object, error: ?Error = null): Object {
     throw error ? error : new Error("Wymagany obiekt" + _details(value));
 }
 
+export function isPlainObject(value: ?Object, error: ?Error = null): Object {
+    if (typeof value === 'object' && value.constructor === Object)
+        return value;
+    throw error ? error : new Error("Wymagany obiekt" + _details(value));
+}
+
 export function isBoolean(value: ?[], error: ?Error = null): Array {
     if (typeof value === "boolean")
         return value;
@@ -138,12 +144,23 @@ export function instanceOf<T:any>(object: T, instances: any[], error: ?Error = n
     if (res === null)
         return object;
     throw error ? error : new Error("Nieprawidłowa instancja obiektu.\nOczekiwana "
-        + (res: string[]).join(" lub ") + ", aktualna " + Utils.className(object))
-        + (object !== null && object !== undefined ? " (" + Utils.escape(object) + ")" : "");
+        + (res: string[]).join(" lub ") + _details(object));
 }
 
 
 function _details(value: any) {
+
+    let val = null;
+    if (value === null)
+        val = "null";
+    else if (value === undefined)
+        val = "undefined";
+    else {
+        val = Utils.escape(value);
+        if (val === {}.toString() || val === [].toString())
+            val = null;
+    }
+
     return ", aktualnie: " + (value === null ? "null" : value === undefined ? "undefined"
-        : Utils.className(value) + " (" + Utils.escape(value) + ")");
+        : Utils.className(value) + (val ? " (" + val + ")" : ""));
 }

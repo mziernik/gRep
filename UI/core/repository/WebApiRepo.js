@@ -111,16 +111,16 @@ export class EWebApi extends Record {
 }
 
 
-export const RWEBAPI: RWebApi = Repository.register(new RWebApi());
+export const R_WEBAPI: RWebApi = Repository.register(new RWebApi());
 
-RWEBAPI.storage = null;
-RWEBAPI.isReady = true;
-Ready.confirm("WebApiRepo", RWEBAPI);
+R_WEBAPI.storage = null;
+R_WEBAPI.isReady = true;
+Ready.confirm("WebApiRepo", R_WEBAPI);
 
 AppEvent.WEB_API_ACTION.listen("WebApiRepo", data => {
 
-    const rec: EWebApi = RWEBAPI.createRecord("WebApiRepo", CRUDE.CREATE);
-    rec.PK.value = RWEBAPI.max(RWebApi.PK, 0) + 1;
+    const rec: EWebApi = R_WEBAPI.createRecord("WebApiRepo", CRUDE.CREATE);
+    rec.PK.value = R_WEBAPI.max(RWebApi.PK, 0) + 1;
     rec.ID.value = data.id;
     rec.REQUEST.value = data.request;
     rec.EVENT.value = data.request ? null : data.event;

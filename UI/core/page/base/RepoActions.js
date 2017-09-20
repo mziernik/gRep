@@ -36,7 +36,7 @@ export default class RepoActions {
             return;
         }
 
-        const spinner: Spinner = Spinner.modal("Wykonuję akcję " + Utils.escape(act.name));
+        const spinner: Spinner = Spinner.create("Wykonuję akcję " + Utils.escape(act.name));
 
         act.execute(this.record, params)
             .then(() => {
@@ -76,6 +76,7 @@ export default class RepoActions {
                 btn.type = act.type;
                 btn.icon = act.icon;
                 btn.text = act.name;
+                btn.modalClose = false;
                 btn.onClick = e => {
                     if (act.children && act.children.length) {
                         PopupMenu.open(e, Utils.forEach(act.children, (a: RepoAction) => this._createMenuItem(a)));

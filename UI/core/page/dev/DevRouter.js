@@ -20,8 +20,6 @@ import PWebApi from "./PWebApi";
 import {DEBUG_MODE} from "../../Dev";
 import PConfig from "../../config/PConfig";
 
-//FixMe: Nie działa prawidłowo nawigacja do repozytoriów / rekordów
-
 export default class DevRouter extends Endpoint {
 
     static INSTANCES: DevRouter[] = [];
@@ -93,7 +91,9 @@ export default class DevRouter extends Endpoint {
                     if (!parent)
                         parent = this.REPOS.child(key, group, null, null);
                 }
-                parent.child(repo.key.replaceChars(".-", ""), repo.name, this.REPOS._path + "/" + repo.key, PRepository).icon(repo.config.icon);
+                parent.child(repo.key.replaceChars(".-", ""), repo.name, this.REPOS._path + "/" + repo.key, PRepository)
+                    .icon(repo.config.icon);
+                parent.sortChildren();
             }
         );
 

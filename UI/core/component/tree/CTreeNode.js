@@ -1,14 +1,13 @@
 // @flow
-'use strict';
-
 import {React, PropTypes, Is, Utils} from "../../core";
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DragAndDrop from "../DragAndDrop/DragAndDrop";
-import Tree from "./Tree";
+import Tree, {SearchData} from "./Tree";
 import TreeNode from "./TreeNode";
+import Component from "../Component";
 
 
-export default class CTreeNode extends React.Component {
+export default class CTreeNode extends Component {
 
     static propTypes = {
         item: PropTypes.instanceOf(TreeNode).isRequired
@@ -34,18 +33,19 @@ export default class CTreeNode extends React.Component {
 
     _expand(state: boolean, e: MouseEvent) {
         const item: TreeNode = this.props.item;
+        const sd: SearchData = item._search;
 
-        if (typeof state !== "boolean")
-            state = !item.expanded;
+        if (!Is.boolean(state)) state = !(sd ? sd.expanded : item.expanded);
 
         if (item.onClick)
             item.onClick(e);
 
-        item.expanded = state;
+        if (sd && state)
+            Utils.forEach(item.children, (nd: TreeNode) => nd._search.visible = true);
+
+        sd ? sd.expanded = state : item.expanded = state;
         this.expanding = true;
-        this.setState({
-            expanded: state
-        });
+        this.forceUpdate();
 
         if (item.id) {
             if (state)
@@ -108,12 +108,14 @@ export default class CTreeNode extends React.Component {
     render() {
         const item: TreeNode = this.props.item;
         const tree: Tree = item.tree;
+        const hasChildren = item.children && item.children.length;
+        const sd: SearchData = item._search;
 
-        if (item._hidden !== null && !item._hidden) return null;
+        if ((sd && !sd.visible) || !item.visible) return null;
 
-        const childrenVisible = item._hidden !== null ? item._hidden : item.expanded && item.children && item.children.length;
+        let expanded = hasChildren && (sd ? sd.expanded : item.expanded || (sd && sd.visible));
 
-        let ul = childrenVisible ?
+        let ul = hasChildren && expanded ?
             <ul ref={ul => this._ulReady(ul)}>
                 {item.children.map(item => <CTreeNode key={Utils.randomId()} item={item}/>)}
             </ul>
@@ -121,13 +123,17 @@ export default class CTreeNode extends React.Component {
 
 
         let indicator = !item.children.length ? ""
-            : "fa fa-caret-" + (item.expanded ? "down" : tree.rightIndicator ? "left" : "right");
+            : "fa fa-caret-" + (expanded ? "down" : tree.rightIndicator ? "left" : "right");
 
         const header =
             <div className="x-tree-header"
-                 data-found={item._found ? true : null}
+                 data-found={sd && sd.matched ? true : null}
                  style={{paddingLeft: ((item.level + 1) * 20) + "px"}}
-                 ref={tag => this.item.tHeader = tag}
+                 ref={tag => {
+                     item.tHeader = tag;
+                     if (tag && item.selected)
+                         item.select();
+                 }}
                  onClick={e => this._expand(null, e)}
                  title={Utils.forEach(item.path, (node: TreeNode) => node.name).join(" » ")}
             >
@@ -143,7 +149,7 @@ export default class CTreeNode extends React.Component {
             </div>;
 
         return (
-            <li data-expanded={item.expanded}
+            <li data-expanded={expanded}
                 data-level={item.level}
                 className="x-tree-node">
                 {/*<DragAndDrop dnd={this.dnd} item={item} itemIndex={item.index}>*/}

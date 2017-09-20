@@ -19,7 +19,12 @@ window.addEventListener("keydown", (e: KeyboardEvent) => {
     }
 });
 
+/** Lista obiektów typu MenuItem */
+
+
 export default class Dev {
+
+    static TOOLS = [];
 
     static OCCUPATIONS = ["Grafik", "Pracownik biurowy", "Urzędnik państwowy", "Lekarz", "Specjalista ds. zakupów",
         "Specjalista ds. PR", "Programista", "Architekt wnętrz / krajobrazu", "Ekonomista", "Specjalista ds. marketingu",

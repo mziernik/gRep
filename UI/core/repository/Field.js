@@ -42,6 +42,9 @@ export default class Field {
     attributes: Object = {};
     /** Pola nadpisane przez funkcję zwrotną api*/
     redefined: RedefinedProps = new RedefinedProps(this);
+    enumerateFilter: ?string[] | ?(enumerate: Map) => void = null;
+    _cachedEnum: ?Map = null;
+    _cachedEnumHash: ?string = null;
 
     constructor(cfg: Column | (cfg: Column) => void) {
 
@@ -174,46 +177,65 @@ export default class Field {
 
     get enumerate(): Map {
 
-        if (this.redefined.enumerate)
-            return this.redefined.enumerate;
 
-        const getEnum = () => {
-            if (!this.config.foreign && !this.config.enumerate) return null;
-            return this.config.foreign ? this.config.foreign.getEnumerate(this) : DataType.getMap(this.config.enumerate);
+        const process = () => {
+
+            if (this.redefined.enumerate)
+                return this.redefined.enumerate;
+
+            const getEnum = () => {
+                if (!this.config.foreign && !this.config.enumerate) return null;
+                return this.config.foreign ? this.config.foreign.getEnumerate(this) : DataType.getMap(this.config.enumerate);
+            };
+
+            const result = getEnum();
+
+            //sprawdzenie czy value ma dozwolone wartości
+            if (result && !this.isEmpty) {
+                if (this._value instanceof (Array)) {
+                    let val: Array = Utils.forEach(this._value, (val) => {
+                        if (result.has(val)) return val;
+                    });
+                    if (!val.equals(this._value))
+                        this.value = val;
+                } else if (!result.has(this._value))
+                    if (this._value !== null)
+                        this._value = null;
+            }
+
+            if (!result || !result.size)
+                return result;
+
+            if (this.record && this.record.action === CRUDE.CREATE && result.size === 1 && this._value === null && this.required)
+                Utils.forEach(result, (v, k, stop) => {
+                    this._value = this.type.isList ? [k] : k;
+                    this.changed = true;
+                    stop();
+                });
+
+            return result;
         };
 
-        const result = getEnum();
+        if (this.config.foreign && this.config.foreign.repo.hashCode !== this._cachedEnumHash)
+            this._cachedEnum = null;
 
-        //sprawdzenie czy value ma dozwolone wartości
-        if (result && !this.isEmpty) {
-            if (this._value instanceof (Array)) {
-                let val: Array = Utils.forEach(this._value, (val) => {
-                    if (result.has(val)) return val;
-                });
-                if (!val.equals(this._value))
-                    this.value = val;
-            } else if (!result.has(this._value))
-                if (this._value !== null)
-                    this._value = null;
+        if (!this._cachedEnum) {
+            this._cachedEnum = process();
+            this._cachedEnumHash = this.config.foreign && this.config.foreign.repo;
         }
 
-        if (!result || !result.size)
-            return result;
+        const map: Map = this._cachedEnum ? new Map() : null;
+        Utils.forEach(this._cachedEnum, (v, k) => map.set(k, v));
 
-        if (result.size === 1 && this._value === null && !this.type.isList && this.required)
-            Utils.forEach(result, (v, k, stop) => ( this._value = k) && stop());
+        if (Is.array(this.enumerateFilter))
+            Utils.forEachSafe(map, (v, k) => {
+                if (!this.enumerateFilter.contains(k))
+                    map.delete(k);
+            });
 
-        // sortowanie elementów enumeraty na podstawie nazwy wyświetlanej z uwzględnieniem ustawień lokalnych
-        const arr: [] = Utils.forEach(result, (v, k) => {
-            const sortKey = (Utils.toString(v) || "").toLowerCase();
-            let value = Utils.toString(v).trim() || "<bez nazwy>";
-            return [sortKey, value, k];
-        });
-
-        arr.sort((a, b) => a[0].localeCompare(b[1]));
-        result.clear();
-        Utils.forEach(arr, i => result.set(i[2], i[1]));
-        return result;
+        if (Is.func(this.enumerateFilter))
+            this.enumerateFilter(map);
+        return map;
     }
 
     get units(): ?() => {} {

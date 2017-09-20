@@ -25,7 +25,12 @@ export default class RepoPage extends Page {
         super(props, context, updater);
         this.repo = repository;
 
-        const callOnReady = (list: Repository[]) => this.whenComponentIsReady.listen(this, () => this.onReady(this.repo, list));
+        let called = false;
+        const callOnReady = (list: Repository[]) => {
+            if (called) return;
+            this.whenComponentIsReady.listen(this, () => this.onReady(this.repo, list));
+            called = true;
+        };
 
         const list: Repository[] = this.requireRepo(repository, (repos: Repository[]) => {
             if (!this.repo || !(this.repo instanceof Repository))
@@ -41,7 +46,7 @@ export default class RepoPage extends Page {
             callOnReady(list);
     }
 
-    waitForRepoCallback(record: Record){
+    waitForRepoCallback(record: Record) {
 
     }
 

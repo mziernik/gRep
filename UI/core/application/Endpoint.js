@@ -25,11 +25,11 @@ export default class Endpoint {
     static ALL: Map<String, Endpoint> = new Map();
     static onChange: Dispatcher = new Dispatcher();
 
+    /** Aktualnie wyrenderowany endpoint (strona) */
+    static current: Endpoint;
+
     /** domyślna strona 404 */
     static NOT_FOUND: ?Endpoint;
-
-    repositories: Set<Repository> = new Set();
-    records: Set<Record> = new Set();
 
     key: string;
     _icon: ?Icon = null;
@@ -128,14 +128,6 @@ export default class Endpoint {
     };
 
 
-    static getByRepository(repositoryClass: any): Endpoint[] {
-        return Utils.forEach(Endpoint.ALL, (e: Endpoint) => e.repositories.has(repositoryClass) ? e : undefined);
-    }
-
-    static getByRecord(recordClass: any): Endpoint[] {
-        return Utils.forEach(Endpoint.ALL, (e: Endpoint) => e.records.has(recordClass) ? e : undefined);
-    }
-
     navigate(params: ?Object = null, target: string | MouseEvent = null) {
         if (this.canNavigate)
             Endpoint.navigate(this.getLink(params), this._external ? ENDPOINT_TARGET_EXTERNAL : target, this.key, this._name);
@@ -152,16 +144,13 @@ export default class Endpoint {
         return page;
     }
 
-    repository(repositoryClass: any): Endpoint {
-        if (repositoryClass instanceof Repository)
-            repositoryClass = repositoryClass.constructor;
-
-        this.repositories.add(Check.isFunction(repositoryClass));
+    repository(repo: Repository): Endpoint {
+        Check.instanceOf(repo, [Repository]).repoPage = this._component;
         return this;
     }
 
-    record(recordClass: any): Endpoint {
-        this.records.add(Check.isFunction(recordClass));
+    record(repo: Repository): Endpoint {
+        Check.instanceOf(repo, [Repository]).recordPage = this._component;
         return this;
     }
 
@@ -208,6 +197,10 @@ export default class Endpoint {
 
     static routeMap(): Map {
         return Utils.forEach(Endpoint.ALL, (page: Endpoint) => page.route());
+    }
+
+    sortChildren() {
+        this._children.sort((a: Endpoint, b: Endpoint) => a._name && b._name && a._name.localeCompare(b._name));
     }
 
     createComponent(route: Object | ReactComponent): ReactComponent {

@@ -149,7 +149,7 @@ export default class Foreign {
 
         if (!rightCount)
             return this.repo.displayMap;
-
+        Repository.sortMap(result);
         return result;
     }
 }

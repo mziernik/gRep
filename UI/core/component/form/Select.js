@@ -96,7 +96,7 @@ export default class Select extends FormComponent {
         if (this.field.isEmpty) return null;
         const n = this.field.value.length;
         if (n === 0) return null;
-        let text = 'Wybranych pozycji: ' + n;
+        let text = 'Wybranych: ' + n + " / " + this._enumerate.length;
         return <span>{text}</span>;
     }
 

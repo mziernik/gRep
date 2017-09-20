@@ -1,9 +1,7 @@
 // @flow
-'use strict';
-
-import Tree from './Tree';
+import Tree, {SearchData} from './Tree';
 import TreeElement from "./TreeElement";
-import {Icon} from "../glyph/Icon";
+import Icon from "../glyph/Icon";
 
 export default class TreeNode extends TreeElement {
 
@@ -19,8 +17,7 @@ export default class TreeNode extends TreeElement {
     checkbox: boolean = false;
     tree: Tree;
     visible = true;
-    _hidden: ?boolean = null; // boolean, ukryte na skutek filtrowania
-    _found: boolean = false; // znaleziono frazę
+    _search: ?SearchData = null;
     checked: ?boolean = false;
     selected: boolean = false;
     //--------------------------------------

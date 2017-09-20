@@ -108,7 +108,7 @@ export default class RepoConfig {
         this.group = data.group;
         this.description = data.description;
         this.info = data.info || {};
-        this.actions = data.actions;
+        this.actions = data.actions || [];
         this.limit = data.limit;
         this.icon = data.icon;
         this.broadcast = data.broadcast;
@@ -126,7 +126,7 @@ export default class RepoConfig {
     update() {
         const repo: Repository = this._repo;
 
-        repo.actions = Is.def(this.actions, acts => Utils.forEach(acts, (obj, key) => RepoAction.create(obj, repo, key)), []);
+        Utils.forEach(this.actions, (obj, key) => RepoAction.create(obj, repo, key).register());
 
         this._columns.forEach(col => {
             if (!repo.columns.contains(col))

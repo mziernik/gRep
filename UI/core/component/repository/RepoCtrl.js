@@ -5,6 +5,7 @@ import {PageButtons} from "../../page/Page";
 import {Btn} from "../Button";
 import RecordCtrl from "./RecordCtrl";
 import * as Check from "../../utils/Check";
+import * as Is from "../../utils/Is";
 
 
 export default class RepoCtrl {
@@ -28,7 +29,7 @@ export default class RepoCtrl {
         ModalWindow.create((mw: ModalWindow) => {
             this._modal = mw;
             mw.content = <Panel fit noPadding>
-                {this.render()}
+                {this.render(mw)}
             </Panel>;
             mw.title.set(this.title || this.repo.name);
             mw.mainStyle = {
@@ -50,7 +51,23 @@ export default class RepoCtrl {
 
     }
 
-    render() {
+
+    render(modal: ModalWindow) {
+
+        const page = this.repo.repoPage;
+        const props = {
+            modal: modal,
+            repoCtrl: this,
+            repository: this.repo,
+            id: this.repo.key
+        };
+
+        if (Is.clazz(page))
+            return React.createElement(page, props, null);
+
+        if (Is.func(page))
+            return page(props);
+
         const RepoTable = require("./RepoTable").default;
         return <RepoTable
             style={{border: "none"}}

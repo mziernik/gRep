@@ -246,28 +246,35 @@ export default class FCtrl extends Component {
 
         const foreign: Foreign = field.config.foreign;
 
-        PopupMenu.open(e, [
+        const items = [];
 
-            foreign && MenuItem.create((c: MenuItem) => {
+        const preview = this.props.preview;
+
+        if (foreign)
+            items.push(MenuItem.create((c: MenuItem) => {
                 c.name = "Pokaż " + Utils.escape(foreign.repo.name);
                 c.icon = Icon.TH_LIST;
                 c.onClick = e => new RepoCtrl(foreign.repo).modalEdit();
-            }),
+            }));
 
-            Is.def(field.value) && MenuItem.create((c: MenuItem) => {
+        if (!preview && Is.def(field.value))
+            items.push(MenuItem.create((c: MenuItem) => {
                 c.name = "Wyczyść";
                 c.icon = Icon.TIMES;
                 c.hint = "Wyczyść";
                 c.onClick = () => field.update(this, null);
-            }),
+            }));
 
-            Is.def(field.value) && Is.def(field.config.value) && MenuItem.create((c: MenuItem) => {
+        if (!preview && Is.def(field.config.value) && field.value !== field.config.value)
+            items.push(MenuItem.create((c: MenuItem) => {
                 c.name = "Domyślne";
                 c.icon = Icon.UNDO;
                 c.hint = "Przywróć domyślną wartość";
                 c.onClick = () => field.update(this, field.config.value);
-            }),
-        ]);
+            }));
+
+        if (items.length)
+            PopupMenu.open(e, items);
     }
 
     /***************************************************************/
@@ -349,7 +356,7 @@ export default class FCtrl extends Component {
      */
     renderFlexValue() {
         if (!this.props.value && !this.props.preview && !this.props.inline) return null;
-        return <div key="value" style={{flex: '1 1 auto'}}>{this.renderValue()}</div>;
+        return <div key="value" style={{flex: '1 1 auto', display: 'flex'}}>{this.renderValue()}</div>;
     }
 
     /** zwraca pole edycyjne lub podgląd
@@ -380,7 +387,7 @@ export default class FCtrl extends Component {
             return <span title={title}>{this.field.displayValue}</span>;
         }
 
-        if ((field.type instanceof Type.ListDataType && !field.unique) || field.type instanceof Type.MapDataType)
+        if ((field.type instanceof Type.ListDataType && !this.field.unique) || field.type instanceof Type.MapDataType)
             return <List field={this.field} preview={this.props.preview}/>;
 
         if (this.field.type instanceof Type.MultipleDataType)
@@ -396,6 +403,7 @@ export default class FCtrl extends Component {
                         return <Select readOnly={this.field.readOnly} field={this.field}/>;
                 }
             else return <Select readOnly={this.field.readOnly} field={this.field}/>;
+
 
         if (this.field.units)
             this._unitSelect = <Select
@@ -534,7 +542,6 @@ export default class FCtrl extends Component {
                     ...this.tagProps.style,
                     display: this.props.fit ? 'flex' : 'inline-flex',
                     width: this.props.fit ? "100%" : null,
-                    whiteSpace: 'nowrap',
                     position: 'relative'
                 }}>
                 {this.sortedCtrl()}

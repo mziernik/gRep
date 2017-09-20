@@ -1,6 +1,9 @@
 import {React, PropTypes, Utils, Is, AppEvent, Trigger} from '../core';
 import {Component, Icon} from '../components';
 import './TabSet.css';
+import Application from "../application/Application";
+import AppNode from "../application/Node";
+import {NODE} from "./Component";
 
 /** Klasa do obsługi zakładek */
 export class TabSet extends Component {
@@ -8,7 +11,7 @@ export class TabSet extends Component {
     static propTypes = {
         vertical: PropTypes.bool,
         selectedIndex: PropTypes.number,
-        controllerVisible: PropTypes.boolean
+        controllerVisible: PropTypes.bool
     };
     props: {
         vertical: boolean,
@@ -27,14 +30,23 @@ export class TabSet extends Component {
     constructor() {
         super(...arguments);
 
-        let i = this.props.selectedIndex || 0;
-        if (!this._isSelectable(this.props.children[i]))
-            for (i = 0; i < this.props.children.length; ++i) {
-                if (!this._isSelectable(this.props.children[i]))
+        const node: AppNode = this[NODE];
+
+        let sel = Application.location.hash;
+        let selIdx = this.props.selectedIndex || 0;
+
+        if (node && node.currentPage && !node.currentPage.modal && sel.startsWith("#")) {
+            sel = parseInt(sel.substring(1));
+            if (!isNaN(sel))
+                selIdx = sel;
+        }
+        if (!this._isSelectable(this.props.children[selIdx]))
+            for (selIdx = 0; selIdx < this.props.children.length; ++selIdx) {
+                if (!this._isSelectable(this.props.children[selIdx]))
                     continue;
                 break;
             }
-        this.state = {selected: i, arrows: true};
+        this.state = {selected: selIdx, arrows: true};
         this._showArrowsFunc = () => this._showArrows();
 
         this.arrows = {left: null, right: null};
@@ -76,6 +88,7 @@ export class TabSet extends Component {
         if (Is.func(callback))
             callback(e, index);
 
+        window.location.replace("#" + index);
         this.setState({selected: index});
     }
 

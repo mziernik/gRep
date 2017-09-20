@@ -27,7 +27,7 @@ export default class Spinner {
 
     config: SpinnerConfig = new SpinnerConfig();
 
-    static modal(text: string): Spinner {
+    static create(text: string): Spinner {
         return new Spinner((sc: SpinnerConfig) => {
             sc.modal = true;
             sc.text = text;

@@ -58,7 +58,10 @@ const delayedDispatch = new Trigger(null, 0);
 export default class AppEvent {
 
     /** @type {EventType}  */
-    static APPLICATION__BEFORE_UPDATE: EventType = new EventType("Aktualizacja gałęzi aplikacji");
+    static APPLICATION__LOCATION_CHANGE: EventType = new EventType("Zmiana adresu URL");
+
+    /** @type {EventType}  */
+    static APPLICATION__HASH_CHANGE: EventType = new EventType("Zmiana sekcji hash adresu URL");
 
     /** @type {EventType}  */
     static REPOSITORY_REGISTERED: EventType = new EventType("Zarejestrowano repozytorium");

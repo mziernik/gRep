@@ -10,6 +10,7 @@ import TreeNode from "../../core/component/tree/TreeNode";
 import TreeElement from "../../core/component/tree/TreeElement";
 import {EndpointLink} from "../../core/application/Endpoint";
 import * as Utils from "../../core/utils/Utils";
+import PageContainer from "../../core/page/PageContainer";
 
 const trigger: Trigger = new Trigger();
 
@@ -22,9 +23,11 @@ export default class NavBar extends Component<*, *, *> {
 
     render() {
 
-        const tree = new Tree("navbar");
+        const tree: Tree = new Tree("navbar");
+        tree.searchable = true;
         tree.menuMode = true;
         tree.rightIndicator = true;
+
 
         const visit = (endp: Endpoint, node: TreeElement) => {
             if ((node === tree && endp._parent) || endp._hidden)
@@ -34,6 +37,7 @@ export default class NavBar extends Component<*, *, *> {
             //   tn.render = children => endp.hasLink() ? <Link to={endp.getLink()}>{children}</Link> : <a>{children}</a>;
             tn.icon = endp._icon;
             tn.onClick = (e: MouseEvent) => endp.navigate(null, e);
+            tn.selected = endp === Endpoint.current;
 
             endp._children.forEach((e: Endpoint) => {
                 visit(e, tn);
@@ -44,8 +48,8 @@ export default class NavBar extends Component<*, *, *> {
 
 
         return (
-            <Panel scrollable resizable east noPadding id="app-navbar">
-                <CTree key={Utils.randomId()} data={tree}/>
+            <Panel resizable east noPadding>
+                <CTree id="app-navbar" key={Utils.randomId()} data={tree}/>
             </Panel>
         );
     }

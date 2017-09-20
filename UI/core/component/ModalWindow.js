@@ -70,6 +70,7 @@ export class ModalWindow {
     _node: AppNode;
     _tag = null;
     _tmpStyle: {} = null;
+    _closed: boolean = false;
 
 
     /** treść na belce tytułowej
@@ -107,6 +108,10 @@ export class ModalWindow {
         let ins = new ModalWindow();
         if (config) Is.func(config, config(ins));
         return ins;
+    }
+
+    static open(config: (cfg: ModalWindow) => void): ModalWindow {
+        return ModalWindow.create(config).open();
     }
 
     redraw() {
@@ -185,6 +190,9 @@ export class ModalWindow {
      * @param e obiek zdarzenia przekazywany do callbacka onClose
      */
     close(e: Event) {
+        if (this._closed) return;
+        this._closed = true;
+
         let err = null;
         try {
             Is.func(this.onClose, () => this.onClose(e, this.result));
@@ -244,15 +252,25 @@ export class ModalWindow {
 
     }
 
+    /** sprawdza czy okno jest zmaksymalizowane
+     * @returns {boolean}
+     * @private
+     */
     _isMaximized(): boolean {
-        return (this._tmpStyle
-            && this._tag.style.top === "0px"
-            && this._tag.style.left === "0px"
+        return (!!this._tmpStyle
+            && parseInt(this._tag.style.top) === 0
+            && parseInt(this._tag.style.left) === 0
             && this._tag.style.width === "100%"
             && this._tag.style.height === "100%");
     }
 
-    _maximize(e: MouseEvent) {
+    /** maksymalizuje okno lub przywraca jego poprzedni stan
+     * @param e zdarzenie myszy
+     * @param pos czy ma przywrócić poprzednią pozycję
+     * @param size czy ma przywrócić poprzedni rozmiar
+     * @private
+     */
+    _maximize(e: ?MouseEvent, pos: boolean = true, size: boolean = true) {
         if (!this._isMaximized()) {
             this._tmpStyle = {
                 top: this._tag.style.top,
@@ -267,11 +285,15 @@ export class ModalWindow {
             this._tag.style.height = '100%';
 
         } else if (this._tmpStyle) {
-            this._tag.style.top = this._tmpStyle.top;
-            this._tag.style.left = this._tmpStyle.left;
-            this._tag.style.width = this._tmpStyle.width;
-            this._tag.style.height = this._tmpStyle.height;
-
+            if (pos) {
+                this._tag.style.top = this._tmpStyle.top;
+                this._tag.style.left = this._tmpStyle.left;
+            }
+            if (size) {
+                this._tag.style.width = this._tmpStyle.width;
+                this._tag.style.height = this._tmpStyle.height;
+            }
+            this._limitPosition();
         }
         if (e) {
             e.stopPropagation();
@@ -279,7 +301,7 @@ export class ModalWindow {
         }
     }
 
-    /** Utwórz domyslny przycisk "Anuluj" */
+    /** Utwórz domyślny przycisk "Anuluj" */
     get btnCancel() {
         return new Btn((btn: Btn) => {
             btn.key = "cancel";
@@ -329,6 +351,7 @@ export class ModalWindow {
                     minHeight: '200px',
                     maxWidth: '100%',
                     maxHeight: '100%',
+                    boxShadow: "4px 4px 8px 2px rgba(0, 0, 0, 0.3)",
                     ...this.mainStyle
                 }}
             >
@@ -342,7 +365,13 @@ export class ModalWindow {
                         className="c-modal-window-title-text"
                         title={this.title.value}
                         onDoubleClick={(e) => this._maximize(e)}
-                        onMouseDown={this.draggable ? (e) => Dragger.dragStart(e, e.currentTarget.parentElement.parentElement, true) : null}
+                        onMouseDown={this.draggable ? (e) => {
+                            if (this._isMaximized())
+                                Dragger.dragStart(e, e.currentTarget.parentElement.parentElement, true, true, () => this._maximize(null, false));
+                            else
+                                Dragger.dragStart(e, e.currentTarget.parentElement.parentElement, true)
+                        } : null}
+
                         style={{
                             flex: '1 1 auto',
                             whiteSpace: 'nowrap',

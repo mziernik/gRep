@@ -16,15 +16,16 @@ export default class Lists extends Component {
 
 
     render() {
-        return <div style={{display: "flex"}}>
-            <table>
+        return <div style={{display: "flex", width: "100%"}}>
+            <table style={{flex: "auto"}}>
                 <tbody>
 
                 {Object.keys(DATA).map((prop, index) => {
                     let field = DATA[prop];
                     return <tr key={index}>
-                        <td style={{width: '20px'}}>
+                        <td style={{width: '200px'}}>
                             <FCtrl field={field}
+
                                    required
                                    description
                                    name
@@ -36,9 +37,9 @@ export default class Lists extends Component {
                         </td>
 
                         <td style={{paddingLeft: "20px"}}>
-                            <FCtrl field={field} value/>
+                            <FCtrl fit field={field} value/>
                         </td>
-                        <td >
+                        <td>
                             <FCtrl field={field} error/>
                         </td>
                     </tr>
@@ -46,7 +47,7 @@ export default class Lists extends Component {
                 </tbody>
             </table>
 
-            <div style={{display: "auto", padding: "8px"}}>
+            <div style={{flex: "auto", padding: "8px"}}>
                 <div>DTO:</div>
                 <JsonViewer object={getDTO()} instance={e => this.viewer = e}/>
             </div>

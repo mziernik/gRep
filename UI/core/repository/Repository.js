@@ -1,4 +1,5 @@
 import {
+    ReactComponent,
     DEV_MODE,
     Ready,
     Check,
@@ -18,19 +19,20 @@ import {
 import Permission from "../application/Permission";
 import Dispatcher from "../utils/Dispatcher";
 import RepositoryStorage from "./storage/RepositoryStorage";
-import Alert from "../component/alert/Alert";
 import {RecordDataGenerator} from "./Record";
 import WebApiRepoStorage from "./storage/WebApiRepoStorage";
-import API from "../application/API";
 import RepoConfig from "./RepoConfig";
 import RepoCursor from "./RepoCursor";
 import RepoTree from "./RepoTree";
+import RepoAction from "./RepoAction";
 
 
 //ToDo: Opcja inline - edycja rekordów podobnie jak w uprawnieniach
 
 export default class Repository {
 
+    repoPage: any | (data: Object) => ReactComponent; //modal: ModalWindow, repo: Repository
+    recordPage: any | (data: Object) => ReactComponent; //modal: ModalWindow, repoCtrl: RepoCtrl, record: Record
 
     static onUpdate: Dispatcher = new Dispatcher();
     static defaultStorage: RepositoryStorage = WebApiRepoStorage.INSTANCE;
@@ -39,16 +41,13 @@ export default class Repository {
     onChange: Dispatcher = new Dispatcher(); //CRUDE, Record, Map
     /** Błąd metadanych lub treści repozytorium */
     error: ?Error = null;
-    actions: RepoAction[] = [];
+    actions: Map<String, RepoAction> = new Map();
     refs: Record[] = [];
 
     config: RepoConfig = new RepoConfig(this);
     rows: Map<any, any[]> = new Map();
-
     recordsUpdateTsMap: Map<any, number> = new Map();
-
     columns: Column[] = [];
-
     permission: Permission;
 
     /** Magazyn danych dla repozytorium. W momencie zarejestrowania repozytorium (metoda [register]) przypisane zostanie [defaultStorage]*/
@@ -67,6 +66,9 @@ export default class Repository {
     /** Wersja repozytorium, wymagane podczas zapisu/odczytu danych magazynu*/
     version: number = 1;
 
+    /** Losowa wartość generowana każdorazowo po modyfikacji danych **/
+    hashCode: string;
+
     constructor(config: (cfg: RepoConfig) => void) {
         Check.isFunction(config);
         config(this.config);
@@ -81,6 +83,8 @@ export default class Repository {
             if (DEV_MODE)
                 col["#instance"] = this.config.key + "." + col.key;
         }
+
+        this.onChange.listen(this, () => this.hashCode = Utils.randomId())
 
         this.config._processColumns(this.config);
         this.config.update();
@@ -156,9 +160,9 @@ export default class Repository {
                     repo.config.load(data);
                     repo.config.update();
                 } catch (e) {
+                    e = new RepoError(repo, e);
                     repo.error = e;
                     Dev.error(null, e);
-                    repo.error = e;
                 }
             }
         );
@@ -219,9 +223,14 @@ export default class Repository {
                     let columns: Column[] = Utils.forEach(value.columns, c => repo.getColumn(c, true));
 
                     Utils.forEach(value.rows, (row: []) => {
+                        if (columns.length !== row.length)
+                            throw new RepoError(repo, "Liczba kolumn (" + columns.length
+                                + ") jest różna od liczby komórek (" + row.length + ")");
+
                         const rec: Record = repo.createRecord(context, CRUDE.CREATE);
                         repo.refs.remove(rec); // nie traktuj jako referencję
                         records.push(rec);
+
                         for (let i = 0; i < columns.length; i++) {
                             const field: Field = rec.get(columns[i]);
                             field.value = row[i];
@@ -327,6 +336,7 @@ export default class Repository {
             });
         });
 
+
         changes.forEach(obj => {
             const repo: Repository = obj.repo;
             const rec: Record = obj.record;
@@ -341,15 +351,11 @@ export default class Repository {
                         };
             */
             if (rec.action !== CRUDE.DELETE) {
-
-                //    if (repo.key === "attrElm") debugger;
-
                 const val = repo.getDisplayValue(rec);
-                if (val === undefined) {
-                    //           debugger;
+                if (val === undefined)
                     repo.getDisplayValue(rec);
-                }
                 repo.displayMap.set(obj.pk, val);
+
             }
 
             rec.repo.onChange.dispatch(context, {action: obj.action, record: rec, changed: obj.changed});
@@ -359,10 +365,24 @@ export default class Repository {
         });
 
 
+        Utils.forEach(repositories, (repo: Repository) => Repository.sortMap(repo.displayMap));
+
         AppEvent.REPOSITORY_UPDATED.send(Repository, {changes: changes});
 
         // zaktualizuj flagę gotowości dla wszystkich odebranych repozytoriów (włącznie z pustymi)
         repositories.forEach(repo => repo.confirmReadyState());
+    }
+
+    static sortMap(map: Map) {
+        // sortowanie elementów enumeraty na podstawie nazwy wyświetlanej z uwzględnieniem ustawień lokalnych
+        const arr: [] = Utils.forEach(map, (v, k) => {
+            const sortKey = (Utils.toString(v) || "").toLowerCase();
+            let value = (Utils.toString(v) || "").trim() || "<bez nazwy>";
+            return [sortKey, value, k];
+        });
+        arr.sort((a, b) => a[0].localeCompare(b[1]));
+        map.clear();
+        Utils.forEach(arr, i => map.set(i[2], i[1]));
     }
 
     /**
@@ -641,7 +661,7 @@ export default class Repository {
 
     confirmReadyState() {
         this.isReady = true;
-        Ready.confirm(Repository, this);
+        setTimeout(() => Ready.confirm(Repository, this));
     }
 
     cursor(): RepoCursor {

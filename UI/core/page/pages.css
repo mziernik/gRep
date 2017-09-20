@@ -1,6 +1,6 @@
 /* ====================================================== IKONY ======================================================*/
 
-.app-page[data-page="dev.icons"] ._ico {
+.dev-icons ._ico {
     display: inline-block;
     width: 100px;
     margin: 4px;
@@ -8,11 +8,11 @@
     padding: 10px 0;
 }
 
-.app-page[data-page="dev.icons"] ._ico > div {
+.dev-icons ._ico > div {
     font-size: 40px;
 }
 
-.app-page[data-page="dev.icons"] ._ico:hover {
+.dev-icons ._ico:hover {
     background-color: rgba(255, 200, 0, 0.3);
     outline: 1px solid rgba(255, 0, 0, 0.5);
 }

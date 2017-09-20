@@ -4,6 +4,7 @@
 import {React, ReactComponent, ReactDOM, PropTypes, AppNode, AppEvent, Utils, Dispatcher} from "../core.js";
 import {BrowserRouter} from 'react-router-dom';
 import {PageTab} from "../page/PageContainer";
+import {object} from "../utils/Is";
 
 
 export const onCreate: Dispatcher = new Dispatcher();
@@ -18,9 +19,9 @@ export default class Application extends ReactComponent {
 
     /** @type {Application} */
     static instance: ?Application = null;
-
+    /** Bieżąca lokalizacja */
+    static location: ?Location = null;
     static initialized: boolean = false;
-
 
     /**
      * ReactDOM.render
@@ -72,8 +73,17 @@ export default class Application extends ReactComponent {
         return null;
     }
 
+    componentWillMount() {
+        Application.location = new Location(this.context.router.route.location);
+    }
+
     componentWillUpdate() {
-        AppEvent.APPLICATION__BEFORE_UPDATE.send(this);
+        const loc: Location = new Location(this.context.router.history.location);
+        if (loc.pathname === Application.location.pathname && loc.search === Application.location.search)
+            AppEvent.APPLICATION__HASH_CHANGE.send(this);
+        else
+            AppEvent.APPLICATION__LOCATION_CHANGE.send(this);
+        Application.location = loc;
     }
 
     static contextTypes = {
@@ -81,6 +91,24 @@ export default class Application extends ReactComponent {
         node: PropTypes.instanceOf(AppNode)
     }
 }
+
+let previousURL: string;
+
 export const DEV_MODE = process && process.env ? process.env.NODE_ENV !== 'production' : false;
 Object.preventExtensions(Application);
 
+export class Location {
+    hash: string;
+    key: string;
+    pathname: string;
+    search: string;
+    state: Object;
+
+    constructor(loc) {
+        this.hash = loc.hash;
+        this.key = loc.key;
+        this.pathname = loc.pathname;
+        this.search = loc.search;
+        this.state = loc.state;
+    }
+}

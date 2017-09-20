@@ -855,8 +855,7 @@ export class RUsers extends Repository {
             c.displayNameColumn = "login";
             c.crude = "CRU";
             c.local = false;
-            c.icon = "users";
-            c.actions = {
+             c.actions = {
                 add: {record: true, name: "Dodaj", confirm: null, type: "primary", icon: "user-plus"},
                 rem: {record: true, name: "Usuń", confirm: "Czy na pewno usunąć?", type: "danger", icon: "user-times"},
                 editRandom: {record: false, name: "Modyfikuj losowy", confirm: null, type: "primary", icon: "user-secret"},

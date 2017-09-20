@@ -42,6 +42,7 @@ export default class Panel extends Component {
 
         name: PropTypes.node,
         icon: PropTypes.string,
+        className: PropTypes.string,
     };
 
     static defaultProps = {
@@ -106,6 +107,8 @@ export default class Panel extends Component {
     render() {
         const scrollable = Is.defined(this.props.scrollable) ? this.props.scrollable : this.props.resizable;
 
+        const className = this.props.className ? " " + this.props.className : "";
+
         const resizer = this.props.resizable || this.props.scrollable || this.props.foldable;
         let size = this.props.fit || resizer ? '100%' : null;
         let panel = null;
@@ -125,7 +128,7 @@ export default class Panel extends Component {
             if (!resizer)
                 style = this.props.style;
             panel = <div
-                className="c-panel-child"
+                className={"c-panel-child" + className}
                 data-fit={!!this.props.fit}
                 data-vertical={!!this.props.vertical}
                 style={{
@@ -138,8 +141,8 @@ export default class Panel extends Component {
                     flex: this.props.foldable ? '1' : null,
                     ...style
                 }}>
-                {scrollable? <Scrollbar/> : null}
-                {scrollable? <Scrollbar horizontal/> : null}
+                {scrollable ? <Scrollbar/> : null}
+                {scrollable ? <Scrollbar horizontal/> : null}
                 {super.renderChildren()}
             </div>;
         }
@@ -147,7 +150,7 @@ export default class Panel extends Component {
         if (resizer)
             return <Resizer
                 ref={elem => this._setSize(ReactDOM.findDOMNode(elem))}
-                className="c-panel"
+                className={"c-panel" + className}
                 resizable={this.props.resizable}
                 north={this.props.north}
                 east={this.props.east}
