@@ -2,6 +2,7 @@
 'use strict';
 import {Application, React, PropTypes, Utils, Is} from '../core';
 import {Component, Icon} from '../components';
+import {Scrollbar} from "./Scrollbar";
 
 let INSTANCE: PopupMenu;
 
@@ -156,10 +157,24 @@ export class PopupMenu extends Component {
 
         /* pion */
         if ((el.top + el.height) >= window.innerHeight) {
+            const diff = (el.top + el.height) - window.innerHeight;
+            let ntop = 0;
             if (sub)
-                elem.style.top = (elem.offsetTop - el.height) + 'px';
+                ntop = elem.offsetTop;
             else
-                elem.style.top = (el.top - el.height) + 'px';
+                ntop = el.top;
+            if ((ntop - el.height) < 0)
+                if ((ntop - diff) < 0)
+                    if (sub) ntop -= el.top;
+                    else ntop = 0;
+                else ntop -= diff;
+            else ntop -= el.height;
+
+            if (el.height > window.innerHeight) {
+                elem.style.height = window.innerHeight + 'px';
+                elem.style.overflow = 'auto';
+            }
+            elem.style.top = ntop + 'px';
         }
         elem.style.visibility = 'visible';
     }
@@ -173,7 +188,8 @@ export class PopupMenu extends Component {
             if (item.onBeforeOpen) Is.func(item.onBeforeOpen, item.onBeforeOpen(item, this.state.itemEventProps));
         });
         return <table>
-            <tbody>{Utils.forEach(items, (item, index) => {
+            <tbody>
+            {Utils.forEach(items, (item, index) => {
                 // Separator
                 if (item instanceof (MenuItemSeparator)) {
                     if (item.name)
@@ -353,6 +369,12 @@ export class MenuItem {
     static create(config: (item: MenuItem) => void): MenuItem {
         let item = new MenuItem();
         Is.func(config, config(item));
+        return item;
+    }
+
+    item(consumer: (item: MenuItem) => void): MenuItem {
+        const item: MenuItem = MenuItem.create(consumer);
+        (this.subMenu || (this.subMenu = [])).push(item);
         return item;
     }
 

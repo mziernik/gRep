@@ -2,6 +2,7 @@
 'use strict';
 import {React, PropTypes, Utils} from "../core.js";
 import {Component, Scrollbar} from "../components.js";
+import * as Is from "../utils/Is";
 
 export class Splitter extends Component {
 
@@ -14,6 +15,7 @@ export class Splitter extends Component {
     _drag = null;
     _startPos = {x: 0, y: 0};
     _childes = [];
+    _children: [] = [];
 
     constructor() {
         super(...arguments);
@@ -26,6 +28,7 @@ export class Splitter extends Component {
         window.addEventListener('mousemove', this._moveListener);
         window.addEventListener('mouseup', this._upListener);
     }
+
 
     componentWillUnmount() {
         super.componentWillUnmount(...arguments);
@@ -52,7 +55,7 @@ export class Splitter extends Component {
     _initSizes(): [] {
         let percents = 100;
         let sum = 0;
-        let sorted = Utils.forEach(this.props.children, (child, i) => {
+        let sorted = Utils.forEach(this._children, (child, i) => {
             return [i, child.props.size]
         });
         sorted.sort((a, b) => {
@@ -68,7 +71,7 @@ export class Splitter extends Component {
                 percents -= tmp;
                 sum += tmp;
             } else {
-                let r = Utils.round(percents / (this.props.children.length - i));
+                let r = Utils.round(percents / (this._children.length - i));
                 percents -= r;
                 sum += r;
                 if ((sum + percents) !== 100)
@@ -85,12 +88,12 @@ export class Splitter extends Component {
 
         this._childes = [];
 
-        Utils.forEach(this.props.children, (child, i) => {
+        Utils.forEach(this._children, (child, i) => {
             if (child.type === SplitPanel)
                 child = React.cloneElement(child, {
                     horizontal: this.props.horizontal,
                     key: i,
-                    splitHandle: i < this.props.children.length - 1,
+                    splitHandle: i < this._children.length - 1,
                     size: base[i],
                     onMouseDown: (e) => this._mouseDown(e, i),
                     ...child.props
@@ -99,7 +102,7 @@ export class Splitter extends Component {
                 child = <SplitPanel key={i}
                                     horizontal={this.props.horizontal}
                                     size={base[i]}
-                                    splitHandle={i < this.props.children.length - 1}
+                                    splitHandle={i < this._children.length - 1}
                                     onMouseDown={(e) => this._mouseDown(e, i)}
                 >{child}</SplitPanel>;
             this._childes.push(child);
@@ -141,9 +144,23 @@ export class Splitter extends Component {
     }
 
     render() {
+
+        this._children = [];
+
+        // sp³aszczenie struktury komponentów potomnych (wyci¹gniêcie elementów z tablic na zewn¹trz)
+        Utils.forEach(this.props.children, c => {
+            if (!c) return;
+            if (Is.array(c)) {
+                Utils.forEach(c, d => d ? this._children.push(d) : undefined);
+                return;
+            }
+            this._children.push(c);
+        });
+
+
         let childes = null;
-        if (this.props.children.length < 2)
-            childes = this.props.children;
+        if (this._children.length < 2)
+            childes = this._children;
         else
             childes = this.split();
         let style = this.props.style || {width: '100%', height: '100%'};

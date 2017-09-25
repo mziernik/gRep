@@ -1,15 +1,19 @@
 //@Flow
 'use strict';
-import {React, ReactUtils, PropTypes, ReactDOM, Application, Is, AppNode, Utils, AppEvent} from '../core';
-import {Component, Button, Icon, Resizer, Dragger, Scrollbar, DynamicValue} from '../components';
-import {PageTab} from "../page/PageContainer";
-import {Children, Dynamic} from "./Component";
-import {PageButtons} from "../page/Page";
-import {Btn} from "./Button";
-import {isFunction} from "../utils/Check";
-import {Observer} from "../utils/Dispatcher";
+import {React, ReactUtils, PropTypes, ReactDOM, Application, Is, AppNode, Utils, AppEvent} from '../../core';
+import {Component, Button, Icon, Resizer, Dragger, Scrollbar} from '../../components';
+import {PageTab} from "../../page/PageContainer";
+import {Children, Dynamic} from "../Component";
+import {PageButtons} from "../../page/Page";
+import {Btn} from "../Button";
+import {isFunction} from "../../utils/Check";
+import {Observer} from "../../utils/Dispatcher";
 
+/*
+    bazowe okno wyskakujące używane najczęściej do wprowadzania danych
+    w takie okno mogę wdokować page lub kontrokę, kontrolki
 
+ */
 export class ModalWindow {
     /** zawartość okna
      * @type {null}

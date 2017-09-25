@@ -42,11 +42,6 @@ export class PageTab {
         s.height = "100%";
     }
 
-
-    get current(): PageTab {
-        return currentTab;
-    }
-
     close() {
         if (tabs.length === 1) return;
 
@@ -144,7 +139,7 @@ export default class PageContainer extends Component {
         pageContainer = this;
 
         // zmienił się URL strony, odśwież kontener
-        AppEvent.APPLICATION__LOCATION_CHANGE.listen(this, () => currentTab.renderContent());
+        AppEvent.APPLICATION__BEFORE_UPDATE.listen(this, () => currentTab.renderContent());
     }
 
 

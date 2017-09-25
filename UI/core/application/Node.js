@@ -4,7 +4,7 @@
 import {React, ReactComponent, ReactDOM, PropTypes, Application} from "../core";
 import {Component, Page} from "../components";
 import {PageTab} from "../page/PageContainer";
-import {ModalWindow} from "../component/ModalWindow";
+import {ModalWindow} from "../component/modal/ModalWindow";
 
 
 //

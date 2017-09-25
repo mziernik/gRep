@@ -1,7 +1,7 @@
 import WebApiRequest from "./Request";
-import {HubConnection} from "./SignalR/HubConnection";
 import WebApiResponse from "./Response";
 import {Dev, Utils, Is, Dispatcher} from "../core";
+import * as signalR from "./signalr-client";
 
 let _reconnect: ?() => void;
 
@@ -155,8 +155,8 @@ export class SignalRTransport extends WebApiTransport {
 
 
     doConnect(url: string) {
-
-        this.conn = HubConnection.create(url);
+        this.conn = new signalR.HubConnection(url);
+        //    this.conn = HubConnection.create(url);
         this.conn.start()
             .then((xxx) => {
                 const confirm = () => {

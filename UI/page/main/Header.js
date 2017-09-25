@@ -12,9 +12,6 @@ import {DEBUG_MODE, PROCESS_ENV} from "../../core/Dev";
 import {UserData} from "../../core/application/UserData";
 import ApplicationData from "../../core/application/ApplicationData";
 import * as Utils from "../../core/utils/Utils";
-import Link from "../../core/component/Link";
-import PNotification from "../notification/PNotification";
-import Application from "../../core/application/Application";
 
 
 let context;
@@ -40,7 +37,6 @@ export default class Header extends Component {
         return (
             <div>
                 <img src="/res/logo.png" onClick={e => Endpoint.navigate("/", e)}/>
-                <a className="fa fa-exclamation-triangle" title="Dodaj zgłoszenie" onClick={e => PNotification.add(e)}/>
                 <Breadcrumb/>
                 {DEBUG_MODE ?
                     <div className="hdr-version-info">
@@ -52,11 +48,7 @@ export default class Header extends Component {
                             {frmt(ApplicationData.serviceDate)}
                         </div>
                     </div> : null}
-
-
-                {DEBUG_MODE ? <WebApiStatus/> : null}
-                {DEBUG_MODE ? <a className="fa fa-bug" onClick={e => PopupMenu.open(e, Dev.TOOLS)}/> : null}
-
+                <WebApiStatus/>
                 <a className="fa fa-user" onClick={(e) => {
                     PopupMenu.open(e, MENU_ITEMS);
                 }}><span>{UserData.current && UserData.current.firstname || null}</span></a>

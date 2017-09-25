@@ -87,9 +87,6 @@ export class DataType {
         const x1 = this.serialize(v1);
         const x2 = this.serialize(v2);
 
-        if (Is.array(x1) && Is.array(x2))
-            return window.JSON.stringify(x1) === window.JSON.stringify(x2);
-
         return x1 === x2;
     }
 

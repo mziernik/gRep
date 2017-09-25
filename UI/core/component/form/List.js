@@ -34,7 +34,7 @@ export default class List extends FormComponent {
 
             const f: Field = new Field((c: Column) => {
                 c.enumerate = field.config.enumerate;
-                c.type = field.type.type;
+                c.type = field.type.raw;
                 c.key = field.key + "_" + index;
                 c.name = field.name;
                 c.foreign = field.config.foreign;

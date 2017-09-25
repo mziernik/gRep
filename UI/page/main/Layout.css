@@ -11,6 +11,11 @@ root, html, body, table td, table th {
 }
 
 body {
+
+    background: url('/res/wallpaper.jpeg') round;
+    background-size: auto;
+    box-sizing: border-box;
+
     display: flex;
     position: absolute;
     flex-direction: column;
@@ -20,7 +25,7 @@ body {
     /*text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);*/
 
     font-family: proxima-nova, "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-    color: #484848;
+    color: #aa9;
     line-height: 1.3;
     width: 100%;
     height: 100%;
@@ -37,17 +42,60 @@ body {
 
 /*}*/
 
+#app-header {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/*Efekt tafli szkła*/
+#app-header > div,
+#app-status-bar,
+#app-navbar .x-tree-main,
+.app-page-container {
+
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+    border-right: 2px solid rgba(0, 0, 0, 0.5);
+    border-left: 2px solid rgba(255, 255, 255, 0.05);
+    border-top: 2px solid rgba(255, 255, 255, 0.05);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.c-input,
+.c-memo,
+.rw-widget {
+    color: #ccc;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.c-table {
+    color: #ccc;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.c-table .rt-thead {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.c-input > input,
+.c-memo > textarea,
+.rw-input {
+    color: #ccc;
+    border: none;
+    background: none;
+}
+
 #app-header > div {
     display: flex;
-    background: #303336 linear-gradient(to bottom, #555 0%, #303336 100%);
-    color: #ccc;
+    color: inherit;
     font-size: 1.2em;
     font-weight: bold;
     vertical-align: baseline;
     overflow: hidden;
     white-space: nowrap;
     width: 100%;
-    border-bottom: 2px solid #000;
+    border-radius: 0 0 5px 5px;
 }
 
 #app-header > div > * {
@@ -109,22 +157,20 @@ body {
 }
 
 #app-status-bar {
-    background-color: #333;
-    color: #aaa;
+    border-radius: 5px 5px 0 0;
     font-size: 10pt;
     padding: 2px 10px;
+    margin-left: 8px;
+    margin-right: 8px;
 }
 
 #app-navbar {
-    border-right: 1px solid #c2c2c2;
     display: flex;
-    background-color: #ccc;
-    border-right: 2px solid #000;
-    border-top: 1px solid #555;
 }
 
 #app-navbar .x-tree-main {
-    border-right: 1px solid #555;
+    margin: 8px 4px 8px 8px;
+    border-radius: 5px;
 }
 
 #app-toolbar {
@@ -136,16 +182,15 @@ body {
     flex: auto;
     overflow: hidden;
     position: relative;
-    background: url('/res/background.jpg') round;
-    background-size: auto;
+    padding: 8px 8px 8px 4px;
 }
 
 .app-page-container {
     flex: auto;
     display: flex;
     flex-direction: column;
-    background-color: rgba(255, 255, 255, 0.1);
     overflow: auto;
+    border-radius: 5px;
 }
 
 #app-status-hint {

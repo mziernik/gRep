@@ -173,8 +173,6 @@ export default class FCtrl extends Component {
     _setHtmlElement(element: HTMLElement) {
         if (this.htmlElement || !element) return;
         this.htmlElement = element;
-        const now = new Date().getTime();
-        const tolerance = 4000;
     }
 
     componentDidMount() {
@@ -481,16 +479,16 @@ export default class FCtrl extends Component {
         const val: BinaryData = this.field.value;
         return <div style={{display: "flex"}}>
 
-            <input
+            {this.props.preview ? null : <input
                 style={{flex: "auto"}}
                 type="file"
                 accept={img ? "image/*" : null}
                 name={this.field.key}
                 onChange={e => API.uploadFile(this.field, e.currentTarget)}
-            />
+            />}
 
             {val ? <Link style={{flex: "auto"}} onClick={e => {
-                if (img) new ImageViewer(this.field).show();
+                if (img) new ImageViewer(this.field, !this.props.preview).show();
                 else API.downloadFile(this.field);
             }}>{val.name}</Link> : null}
 
@@ -539,6 +537,7 @@ export default class FCtrl extends Component {
             <div
                 {...this.tagProps}
                 style={{
+                    whiteSpace: 'nowrap',
                     ...this.tagProps.style,
                     display: this.props.fit ? 'flex' : 'inline-flex',
                     width: this.props.fit ? "100%" : null,

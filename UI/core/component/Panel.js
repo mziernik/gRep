@@ -162,7 +162,7 @@ export default class Panel extends Component {
                     flexDirection: this.props.foldable ? 'column' : null,
                     height: this.props.fit ? "100%" : null,
                     width: this.props.fit ? "100%" : null,
-                    overflow: "hidden",
+                    overflow: this.props.foldable ? "" : "hidden",
                     border: this.props.border ? "1px solid #444" : null,
                     ...this.props.style
                 }}

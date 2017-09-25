@@ -6,7 +6,6 @@ import {BrowserRouter} from 'react-router-dom';
 import {PageTab} from "../page/PageContainer";
 import {object} from "../utils/Is";
 
-
 export const onCreate: Dispatcher = new Dispatcher();
 
 export default class Application extends ReactComponent {
@@ -19,7 +18,7 @@ export default class Application extends ReactComponent {
 
     /** @type {Application} */
     static instance: ?Application = null;
-    /** BieÅ¼Ä…ca lokalizacja */
+    /** Bie¿¹ca lokalizacja */
     static location: ?Location = null;
     static initialized: boolean = false;
 

@@ -6,39 +6,14 @@ const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const StringReplacePlugin = require("string-replace-webpack-plugin");
 const WebpackAutoInject = require('webpack-auto-inject-version');
-//const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-
-// lista katalogów w node_modules, które będą obsługiwane
+// lista katalogów w node_modules, które będą przetwarzane
 const nodeModulesWhiteList = [
     "react-grid-layout/css",
     "react-resizable/css",
     "react-widgets/dist",
     "react-table"
 ];
-
-
-// ------------ konfiguracja prywatna (dla danego dewelopera) ----------------
-
-let _private = {
-    devServer: {},
-    env: {
-        AUTH: true,
-        //  NODE_ENV: "development",
-        //   WEB_API_URL: "http://localhost:52676/hubs/MainHub"
-    }
-};
-
-if (process.env.NODE_ENV === "development")
-    try {
-        _private = require('./.private.js');
-    } catch (e) {
-        // jeśli plik nie istnieje, ignorujemy to i zwracamy domyślną strukturę
-        console.warn(e);
-    }
-
-
-const environment = _private.env;
 
 
 function filter(loader, file, ext) {
@@ -83,7 +58,7 @@ const config = {
     devtool: 'source-map',
     entry: __dirname + "/Index.js",
     output: {
-        path: __dirname + "/" + (_private.outPath || "public"),
+        path: __dirname + "/" + "public",
         filename: "bundle.js"
     },
     module: {
@@ -149,8 +124,8 @@ const config = {
     ],
     devServer: {
         contentBase: "public",
-        host: _private.devServer.host || "localhost",
-        port: _private.devServer.port || 8080,
+        host: "localhost",
+        port: 8080,
 
         historyApiFallback: {  // wymagane przez router
             rewrites: [
@@ -167,15 +142,17 @@ const config = {
 
 
 config.plugins.push(new OpenBrowserPlugin({url: 'http://' + config.devServer.host + ":" + config.devServer.port}));
+
+const environment = {};
 environment.BUILD_VERSION = require("./package.json").version;
 environment.BUILD_DATE = new Date().getTime();
+environment.NODE_ENV = ENV;
 
-const _env = {};
+
 for (let name in environment)
-    _env[name] = JSON.stringify(environment[name]);
+    environment[name] = JSON.stringify(environment[name]);
 
-config.plugins.push(new webpack.DefinePlugin({'process.env': _env}));
-
+config.plugins.push(new webpack.DefinePlugin({'process.env': environment}));
 
 if (ENV === 'production' || ENV === 'test') {
 
@@ -277,22 +254,4 @@ function _filter(loader, file) {
 
     return result;
 }
-
-
-// -------------------- poniżej przykład pliku
-const _module_exports = {
-
-    outPath: "/../CKTechnik/CKTechnik/wwwroot", // katalog docelowy pliku bundle.js
-
-    devServer: {
-        host: "localhost",
-        port: 8080
-    },
-
-    // zmienne środowiskowe przekazywane do aplikacji
-    environment: {
-        NODE_ENV: "development",
-        WEB_API_URL: "http://localhost:52676/hubs/MainHub"
-    }
-};
 

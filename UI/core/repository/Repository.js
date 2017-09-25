@@ -160,9 +160,9 @@ export default class Repository {
                     repo.config.load(data);
                     repo.config.update();
                 } catch (e) {
-                    e = new RepoError(repo, e);
                     repo.error = e;
                     Dev.error(null, e);
+                    repo.error = e;
                 }
             }
         );

@@ -188,7 +188,7 @@ type Mode = "apl" | "asciiarmor" | "asn.1" | "asterisk" | "brainfuck" | "clike" 
     | "coffeescript" | "commonlisp" | "crystal" | "css" | "cypher" | "d" | "dart" | "diff" | "django" | "dockerfile"
     | "dtd" | "dylan" | "ebnf" | "ecl" | "eiffel" | "elm" | "erlang" | "factor" | "fcl" | "forth" | "fortran" | "gas"
     | "gfm" | "gherkin" | "go" | "groovy" | "haml" | "handlebars" | "haskell" | "haskell-literate" | "haxe"
-    | "htmlembedded" | "htmlmixed" | "http" | "idl" | "index.html" | "javascript" | "jinja2" | "jsx" | "julia"
+    | "htmlembedded" | "htmlmixed" | "http" | "idl" | "javascript" | "jinja2" | "jsx" | "julia"
     | "livescript" | "lua" | "markdown" | "mathematica" | "mbox" | "meta.js" | "mirc" | "mllike" | "modelica"
     | "mscgen" | "mumps" | "nginx" | "nsis" | "ntriples" | "octave" | "oz" | "pascal" | "pegjs" | "perl" | "php"
     | "pig" | "powershell" | "properties" | "protobuf" | "pug" | "puppet" | "python" | "q" | "r" | "rpm" | "rst"
@@ -211,22 +211,16 @@ export default class CodeMirror extends Component {
 
     field: Field;
 
-    props: {
-        field: ?Field,
-        mode: Mode,
-        theme: ?Theme,
-        editorRef: ?(cm: CM) => void,
-        onChange: ?(cm: CM, change: []) => void,
-        style: ?Object,
-    };
-
     static propTypes = {
+        ignore: PropTypes.bool, // warunek wykluczający rysowanie
         value: PropTypes.string,
         mode: PropTypes.string.isRequired,
         theme: PropTypes.string,
+        field: PropTypes.any,
         onChange: PropTypes.func,
         style: PropTypes.object,
-        editorRef: PropTypes.func
+        editorRef: PropTypes.func,
+        onExecute: PropTypes.func, // funkcja zwrotna dla Ctrl+Enter
     };
 
     static defaultProps = {
@@ -256,6 +250,27 @@ export default class CodeMirror extends Component {
 
     render() {
 
+        const keys = {
+            "Ctrl-J": "toMatchingTag",
+            "Ctrl-S": (cm) => {
+                cm.saveCode(cm); //function called when 'ctrl+s' is used when instance is in focus
+            },
+            "Shift-Alt-F": (cm) => {
+                const from = cm.getCursor(true);
+                const to = cm.getCursor(false);
+                CM.commands["selectAll"](cm);
+                cm.autoFormatRange(cm.getCursor(true), cm.getCursor(false));
+                cm.doc.setSelection(from, to);
+            },
+            "Esc": (cm) => {
+                cm.toggleFullscreen(cm, false); //function to escape full screen mode
+            }
+        }
+
+        if (this.props.onExecute)
+            keys["Ctrl-Enter"] = cm => this.props.onExecute(cm);
+
+
         return <div
             ref={tag => {
 
@@ -269,22 +284,7 @@ export default class CodeMirror extends Component {
                     theme: this.props.theme,
                     readOnly: false,
                     autofocus: false,
-                    extraKeys: {
-                        "Ctrl-J": "toMatchingTag",
-                        "Ctrl-S": (cm) => {
-                            cm.saveCode(cm); //function called when 'ctrl+s' is used when instance is in focus
-                        },
-                        "Shift-Alt-F": (cm) => {
-                            const from = cm.getCursor(true);
-                            const to = cm.getCursor(false);
-                            CM.commands["selectAll"](cm);
-                            cm.autoFormatRange(cm.getCursor(true), cm.getCursor(false));
-                            cm.doc.setSelection(from, to);
-                        },
-                        "Esc": (cm) => {
-                            cm.toggleFullscreen(cm, false); //function to escape full screen mode
-                        }
-                    }
+                    extraKeys: keys
                 });
 
                 cm.on("change", (cm, change) => {

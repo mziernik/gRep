@@ -5,7 +5,7 @@ import {State} from "../../webapi/Transport";
 import {MenuItem, PopupMenu} from "../PopupMenu";
 import * as Utils from "../../utils/Utils";
 import Icon from "../glyph/Icon";
-import {R_WEBAPI} from "../../repository/WebApiRepo";
+import {R_WEBAPI} from "../../repository/impl/WebApiRepo";
 import RepoCtrl from "../repository/RepoCtrl";
 import {DEBUG_MODE, DEV_MODE} from "../../Dev";
 import Dev from "../../Dev";

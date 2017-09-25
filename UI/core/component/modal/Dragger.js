@@ -1,8 +1,11 @@
 //@Flow
 'use strict';
-import * as Is from "../utils/Is";
+import * as Is from "../../utils/Is";
 
-/** klasa do przeciągania elementów. Przeciągany element powinien mieć position: absolute. Można używać statycznie.*/
+/** klasa do przeciągania elementów. Przeciągany element powinien mieć position: absolute. Można używać statycznie.
+ * do okna modalnego do rozciągania
+ *
+ * */
 export default class Dragger {
     /** instancja draggera
      * @type {null}
