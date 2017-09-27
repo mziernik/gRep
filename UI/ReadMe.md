@@ -13,6 +13,11 @@ npm install
 >Odpowiednik JSDoc-a obsługujący ECMA6
 
 
+------------ ajtualziacja wszystkich zależności ----------------
+npm i -g npm-check-updates
+npm-check-updates -u
+npm install
+
 
 ___
 

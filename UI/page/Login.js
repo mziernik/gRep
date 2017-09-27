@@ -84,7 +84,7 @@ export default class Login extends Component {
 
         Login.onAuthorized = onAuthorized;
 
-        if (DEV_MODE && PROCESS_ENV.AUTH === false) {
+        if (true || DEV_MODE && PROCESS_ENV.AUTH === false) {
             // pomiń autoryzację w trybie deweloperskim
             onAuthorized(null);
             return;

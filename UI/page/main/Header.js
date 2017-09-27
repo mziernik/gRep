@@ -40,7 +40,7 @@ export default class Header extends Component {
                 <Breadcrumb/>
                 {DEBUG_MODE ?
                     <div className="hdr-version-info">
-                        <div title="Wersja UI">
+                        <div title="@ Wersja UI">
                             <span style={{marginRight: "10px"}}>{ApplicationData.uiVersion}</span>
                             {frmt(ApplicationData.uiDate)}
                         </div>

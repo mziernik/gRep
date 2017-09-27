@@ -1,132 +1,45 @@
-// https://webpack.js.org/loaders/
-
+"use strict";
 const ENV = process.env.NODE_ENV;
+
 const webpack = require('webpack');
+const path = require('path');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const StringReplacePlugin = require("string-replace-webpack-plugin");
 const WebpackAutoInject = require('webpack-auto-inject-version');
 
-// lista katalogów w node_modules, które będą przetwarzane
-const nodeModulesWhiteList = [
-    "react-grid-layout/css",
-    "react-resizable/css",
-    "react-widgets/dist",
-    "react-table"
-];
+const HOST = process.env.HOST || "127.0.0.1";
+const PORT = process.env.PORT || "3000";
+
+const environment = {};
+environment.BUILD_VERSION = require("./package.json").version;
+environment.BUILD_DATE = new Date().getTime();
+environment.NODE_ENV = ENV;
+for (let name in environment)
+    environment[name] = JSON.stringify(environment[name]);
 
 
-function filter(loader, file, ext) {
-
-    switch (loader) {
-
-        case "babel":
-            return ext === "js" || ext === "jsx";
-
-        case "ts":
-            return ext === "ts" || ext === "tsx";
-
-        case "plain": // plain text
-            return false;
-
-        case "imports":
-            const result = file.indexOf("syncfusion/common") >= 0 || file.indexOf("syncfusion/scripts") >= 0;
-            if (result)
-                console.log("-------------- imports: " + file);
-            return result;
-
-        case "url":
-            return ["jpg", "png", "gif", "svg", "cur", "ttf", "eot", "woff", "woff2"].indexOf(ext) >= 0;
-
-        case "css":
-            return ext === "css";
-            return false;
-    }
-
-
-    return null;
-}
-
-const acceptedFiles = [];
-const rejectedFiles = [];
-const allFiles = [];
-
-let displayTimeout;
-
-
-const config = {
-    devtool: 'source-map',
-    entry: __dirname + "/Index.js",
+module.exports = {
+    entry: [
+        'react-hot-loader/patch',
+        './Index.js'
+    ],
+    devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
     output: {
-        path: __dirname + "/" + "public",
-        filename: "bundle.js"
-    },
-    module: {
-        rules: [
-            {
-                test: file => _filter("babel", file),
-                loader: StringReplacePlugin.replace({
-                    replacements: [
-                        {
-                            pattern: /^/,
-                            replacement: _moduleMarker
-                        },
-                        {
-                            pattern: /$/,
-                            replacement: _moduleMarker
-                        }
-                    ]
-                })
-            },
-            {
-                test: file => _filter("babel", file),
-                loader: 'babel-loader',
-                query: {
-                    presets: ['es2015', 'es2016', 'react', 'stage-2', 'flow']
-                }
-            },
-            {
-                test: file => _filter("ts", file),
-                loader: 'ts-loader'
-            },
-            {
-                test: file => _filter("css", file),
-                loader: "style-loader!css-loader"
-            },
-            {
-                // test: file => _filter("imports", file),
-                test: /component\/syncfusion\/.+\.js$/,
-                loader: 'imports?jQuery=jquery,$=jquery,this=>window'
-            },
-            {
-                test: file => _filter("plain", file),
-                use: 'raw-loader'
-
-            },
-            {
-                test: file => _filter("url", file),
-                loader: "file-loader?name=/assets/[hash].[ext]"
-            }
-        ]
+        publicPath: '/',
+        path: path.join(__dirname, 'public'),
+        filename: 'bundle.js'
     },
     resolve: {
-        extensions: [".tsx", ".ts", ".js", ".jsx"]
+        extensions: ['.js', '.jsx']
     },
-    plugins: [
-        new StringReplacePlugin(),
-        new ExtractTextPlugin({filename: 'style.css', allChunks: true}),
-        new webpack.ProvidePlugin({
-            $: "jquery",
-            jQuery: "jquery",
-            "window.jQuery": "jquery",
-            "window.$": "jquery"
-        })
-    ],
+    module: {loaders: []},
     devServer: {
-        contentBase: "public",
-        host: "localhost",
-        port: 8080,
-
+        contentBase: "./public",
+        // noInfo: true,        // do not print bundle build stats
+        hot: true,        // enable HMR
+        inline: true,         // embed the webpack-dev-server runtime into the bundle
+        // serve index.html in place of 404 responses to allow HTML5 history
         historyApiFallback: {  // wymagane przez router
             rewrites: [
                 {
@@ -135,31 +48,43 @@ const config = {
                 }
             ]
         },
-        inline: true,
-        quiet: false,
-    }
+        port: PORT,
+        host: HOST
+    },
+
 };
 
-
-config.plugins.push(new OpenBrowserPlugin({url: 'http://' + config.devServer.host + ":" + config.devServer.port}));
-
-const environment = {};
-environment.BUILD_VERSION = require("./package.json").version;
-environment.BUILD_DATE = new Date().getTime();
-environment.NODE_ENV = ENV;
-
-
-for (let name in environment)
-    environment[name] = JSON.stringify(environment[name]);
-
-config.plugins.push(new webpack.DefinePlugin({'process.env': environment}));
+module.exports.plugins = [
+    new OpenBrowserPlugin({url: `http://${HOST}:${PORT}`}),
+    new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.NamedModulesPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.DefinePlugin({'process.env': environment}),
+    new ExtractTextPlugin({
+        filename: 'style.css',
+        allChunks: true
+    }),
+    // do sprawdzenia czy potrzebny
+    new webpack.ProvidePlugin({
+        $: "jquery",
+        jQuery: "jquery",
+        "window.jQuery": "jquery",
+        "window.$": "jquery"
+    }),
+    new HtmlWebpackPlugin({
+        template: './core/application/index.html',
+        files: {
+            title: 'gRep',
+          //  filename: 'assets/admin.html',
+            // css: ['style.css'],
+            js: ["bundle.js"],
+        }
+    }),
+];
 
 if (ENV === 'production' || ENV === 'test') {
 
-    if (ENV === 'production')
-        config.devtool = false;
-
-    config.plugins.push(
+    module.exports.plugins.push(
         new WebpackAutoInject({
             PACKAGE_JSON_PATH: './package.json',
             components: {
@@ -191,67 +116,61 @@ if (ENV === 'production' || ENV === 'test') {
 }
 
 
-module.exports = config;
+//=============================== LOADERY =================================================
+module.exports.module.loaders = [
+    {
+        test: /\.jsx?$/,
+        exclude: /(node_modules|bower_components|public\/)/,
+        loader: "babel-loader",
+        query: {
+            presets: ['es2016', 'react', 'stage-2', 'flow']
+        }
+    },
+    {
+        test: /\.css$/,
+        loaders: ['style-loader', 'css-loader?importLoaders=1'],
+        //      exclude: ['node_modules']
+    },
+    {
+        test: /\.scss$/,
+        loaders: ['style-loader', 'css-loader?importLoaders=1', 'sass-loader'],
+        exclude: ['node_modules']
+    },
+    {
+        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+        //     exclude: /(node_modules|bower_components)/,
+        loader: "file-loader"
+    },
+    {
+        test: /\.(woff|woff2)$/,
 
-function _moduleMarker(match, pos, offset) {
-    // nie można dodawać nowych linii bo są problemy z debugowaniem
-    var fileName = null;
-    if (this && this.resourcePath)
-        fileName = this.resourcePath.substring(__dirname.length + 1).split("\\").join("/");
-    return "  (window._registerModule && window._registerModule(" + JSON.stringify(fileName) + ", module, " + pos + "));  ";
-}
-
-function _filter(loader, file) {
-    if (!file || file.indexOf(__dirname) !== 0) {
-        debugger;
-        console.error(`Nieprawidłowa ścieżka: "${file}"`);
-        return;
+        //     exclude: /(node_modules|bower_components)/,
+        loader: "url-loader?prefix=font/&limit=5000"
+    },
+    {
+        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+        //   exclude: /(node_modules|bower_components)/,
+        loader: "url-loader?limit=10000&mimetype=application/octet-stream"
+    },
+    {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+        //    exclude: /(node_modules|bower_components)/,
+        loader: "url-loader?limit=10000&mimetype=image/svg+xml"
+    },
+    {
+        test: /\.gif/,
+        //      exclude: /(node_modules|bower_components)/,
+        loader: "url-loader?limit=10000&mimetype=image/gif"
+    },
+    {
+        test: /\.jpg/,
+        ///     exclude: /(node_modules|bower_components)/,
+        loader: "url-loader?limit=10000&mimetype=image/jpg"
+    },
+    {
+        test: /\.png/,
+        //      exclude: /(node_modules|bower_components)/,
+        loader: "url-loader?limit=10000&mimetype=image/png"
     }
-
-
-    file = file.substring(__dirname.length + 1).split("\\").join("/");
-    const ext = file.indexOf(".") > 0 ? file.substring(file.lastIndexOf(".") + 1) : null;
-
-    // wykluczenia
-    if (file.indexOf("node_modules/") === 0
-        && !nodeModulesWhiteList.find(str => file.startsWith("node_modules/" + str)))
-        return false;
-
-    if (allFiles.indexOf(file) === -1)
-        allFiles.push(file);
-
-    const acceptedIdx = acceptedFiles.indexOf(file);
-    const rejectedIdx = rejectedFiles.indexOf(file);
-
-
-    const result = filter(loader, file, ext);
-
-    if (result === null)
-        throw new Error("Nieznany loader: " + loader);
-
-
-    if (acceptedIdx === -1) {
-
-        if (result) {
-            acceptedFiles.push(file);
-            if (rejectedIdx !== -1)
-                rejectedFiles.splice(rejectedIdx, 1);
-
-        } else if (rejectedIdx === -1)
-            rejectedFiles.push(file);
-
-    }
-
-    clearTimeout(displayTimeout);
-    displayTimeout = setTimeout(() => {
-
-        //   allFiles.sort();
-        //    console.log("Pliki:\n\t" + allFiles.join("\n\t"))
-
-        if (rejectedFiles.length > 0)
-            console.warn("Nieużywane pliki:\n\t" + rejectedFiles.join("\n\t"))
-    }, 1000);
-
-    return result;
-}
+];
 
