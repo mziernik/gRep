@@ -81,6 +81,7 @@ export default class Column {
 
         Check.id(this.key);
         Check.nonEmptyString(this.name, new Error("Nazwa kolumny " + this.key + " nie może być pusta"));
+        Check.isDefined(this.type);
 
         if (!(this.type instanceof DataType))
             this.type = Type.get(this.type);
@@ -124,9 +125,7 @@ export default class Column {
                         value = Is.defined(value[1]) ? value[1] : key;
                     }
                 }
-
-
-                map.set(this.type.parse(key), value);
+                map.set(this.type.raw.parse(key), value);
             });
             this.enumerate = () => map;
         }

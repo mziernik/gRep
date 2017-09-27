@@ -11,7 +11,7 @@ import {MenuItem, PopupMenu} from "../../component/PopupMenu";
 import RepoAction from "../../repository/RepoAction";
 import Alert from "../../component/alert/Alert";
 import ParamsWindow from "./ParamsWindow";
-import Spinner from "../../component/Spinner";
+import Spinner from "../../component/spinner/Spinner";
 import StatusHint from "../../component/application/StatusHint";
 import AppStatus from "../../application/Status";
 import RepoActions from "./RepoActions";

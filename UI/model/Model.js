@@ -3,7 +3,7 @@ import {RepoTree} from "../core/repository/Repository";
 import * as Router from "../page/Router";
 import Endpoint from "../core/application/Endpoint";
 import {RCatalog} from "./Repositories";
-import PCatalogs from "../page/PCatalogs";
+import PCatalogs from "../page/PCatalog";
 
 let catalogTree: RepoTree;
 

@@ -3,6 +3,7 @@ import API from "../application/API";
 import Record from "./Record";
 import {Utils, Is} from "../$utils";
 import RepoFlag from "./RepoFlag";
+import * as Check from "../utils/Check";
 
 export default class RepoAction {
 
@@ -14,10 +15,11 @@ export default class RepoAction {
     type: string = "info";
     icon: string;
     confirm: string;
-    params: Object; //ToDo obsługa
+    params: Object;
     paramsTitle: string;
     paramsButtonLabel: string;
-    constraints: Object; //ToDo obsługa
+    /** Ograniczenia widoczności w powiązaniu z rekordem */
+    constraints: Object;
     children: RepoAction[] = [];
     visibility: RepoFlag;
 
@@ -28,7 +30,6 @@ export default class RepoAction {
         this.action = action;
         this.confirm = confirm;
         this.visibility = new RepoFlag(visibility);
-
     }
 
     static create(obj: Object, repo: Repository, key: string): RepoAction {
@@ -39,7 +40,7 @@ export default class RepoAction {
         act.paramsButtonLabel = obj.paramsButtonLabel;
         act.confirm = obj.confirm;
         act.params = obj.params;
-        act.constraints = obj.constraints;
+        act.constraints = obj.constraints && Check.isPlainObject(obj.constraints);
         Utils.forEach(obj.children, (v, k) => act.children.push(RepoAction.create(v, repo, k)));
         return act;
     }
@@ -51,15 +52,23 @@ export default class RepoAction {
     }
 
     isVisible(record: Record) {
-
-        if (!!this.visibility.repo !== !record) return false;
-
         if (!Is.defined(this.visibility))
             return true;
-
+        if (!!this.visibility.repo !== !record) return false;
         if (!record) return true;
+        if (!this.visibility.ofCrude(record.action)) return false;
 
-        return new RepoFlag(this.visibility).ofCrude(record.action);
+        let pass = true;
+        Utils.forEach(this.constraints, (v, k, stop) => {
+            const field = record.get(k);
+            const value = field.value;
+            if (Utils.find(Utils.asArray(v), v => field.type.equals(field.type.parse(v), value)) === undefined) {
+                pass = false;
+                stop();
+            }
+        });
+
+        return pass;
     }
 
     execute(record: Record, params: {}): Promise {

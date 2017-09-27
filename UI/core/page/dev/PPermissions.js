@@ -1,4 +1,4 @@
-import {PermissionRecord, PERMISSIONS} from "../../repository/PermissionRepo";
+import {PermissionRecord, PERMISSIONS} from "../../repository/impl/PermissionRepo";
 import {React, Field} from '../../core';
 import {Page, Table, Panel} from '../../components';
 

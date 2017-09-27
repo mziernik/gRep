@@ -5,32 +5,23 @@ import WebApiRequest from "../../webapi/Request";
 import WebApi from "../../webapi/WebApi";
 import {BinaryData, UploadData} from "../Type";
 
+/** Czy wczytywać metadane repozytoriów - można wyłączyć (np do testów deweloperskich) - domyślnie true*/
+const LOAD_META_DATA: boolean = true;
+
 export default class WebApiRepoStorage extends RepositoryStorage {
 
     static INSTANCE: WebApiRepoStorage = new WebApiRepoStorage();
 
     load(repos: Repository[]): Promise {
+        if (!API.instance) return null;
+
         return new Promise((resolve: () => void, reject: () => void) => {
 
-            if (!API.instance) {
-                reject();
-                return;
-            }
-
             const list = [];
-
             const add = (repo: Repository) => !repo.config.onDemand && list.push(repo.key);
-
             Utils.forEach(repos, repo => add(repo));
 
-            API.repoList(data => {
-
-                Utils.forEach(Repository.processMetaData(data), (repo: Repository) => {
-                    if (!(repo.config.dynamic)) return;
-                    add(repo);
-                    Repository.register(repo)
-                });
-
+            const getData = () => {
                 // potwierdzenie gotowości repozytoriów dynamicznych
                 Ready.confirm(WebApiRepoStorage, WebApiRepoStorage);
 
@@ -42,6 +33,20 @@ export default class WebApiRepoStorage extends RepositoryStorage {
                     AppStatus.error(this, err);
                     reject(err);
                 });
+            };
+
+            if (!LOAD_META_DATA)
+                return getData();
+
+            API.repoList(data => {
+
+                Utils.forEach(Repository.processMetaData(data), (repo: Repository) => {
+                    if (!(repo.config.dynamic)) return;
+                    add(repo);
+                    Repository.register(repo)
+                });
+
+                getData();
 
             }, err => {
                 reject(err);
@@ -55,7 +60,7 @@ export default class WebApiRepoStorage extends RepositoryStorage {
         const dto: Object = Repository.buildDTO(records, false);
 
         if (!dto)
-            return new Promise((resolve, reject) => resolve());
+            return new Promise((resolve, reject) => resolve(null));
 
         Dev.log(context, "Save", dto);
 

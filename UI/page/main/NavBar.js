@@ -28,6 +28,7 @@ export default class NavBar extends Component<*, *, *> {
         tree.menuMode = true;
         tree.rightIndicator = true;
 
+
         const visit = (endp: Endpoint, node: TreeElement) => {
             if ((node === tree && endp._parent) || endp._hidden)
                 return;

@@ -1,6 +1,9 @@
 import {Dispatcher} from "../core";
 import {PROCESS_ENV} from "../Dev";
 
+/**
+ * Informacje o wersji aplikacji
+ */
 class ApplicationData {
     onChange: Dispatcher = new Dispatcher("ApplicationData");
 

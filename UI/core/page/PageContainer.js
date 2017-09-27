@@ -5,7 +5,7 @@ import {React, Endpoint, Application, AppEvent, Utils, AppNode, Is, Check} from 
 import {Component, Icon} from "../components";
 import {Switch} from 'react-router-dom';
 import Page from "./Page";
-import {ModalWindow} from "../component/ModalWindow";
+import {ModalWindow} from "../component/modal/ModalWindow";
 
 
 const containers = [];
@@ -40,6 +40,11 @@ export class PageTab {
         s.position = "relative";
         s.width = "100%";
         s.height = "100%";
+    }
+
+
+    get current(): PageTab {
+        return currentTab;
     }
 
     close() {
@@ -139,7 +144,7 @@ export default class PageContainer extends Component {
         pageContainer = this;
 
         // zmienił się URL strony, odśwież kontener
-        AppEvent.APPLICATION__BEFORE_UPDATE.listen(this, () => currentTab.renderContent());
+        AppEvent.APPLICATION__LOCATION_CHANGE.listen(this, () => currentTab.renderContent());
     }
 
 

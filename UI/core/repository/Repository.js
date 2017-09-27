@@ -160,9 +160,9 @@ export default class Repository {
                     repo.config.load(data);
                     repo.config.update();
                 } catch (e) {
+                    e = new RepoError(repo, e);
                     repo.error = e;
                     Dev.error(null, e);
-                    repo.error = e;
                 }
             }
         );
@@ -247,7 +247,7 @@ export default class Repository {
                         const pk = obj[repo.primaryKeyColumn.key];
                         Check.isDefined(pk, "Pusta wartość klucza głównego repozytorium " + repo.key);
 
-                        const rec: Record = repo.createRecord(null, repo.has(pk) ? CRUDE.UPDATE : CRUDE.CREATE);
+                        const rec: Record = repo.getOrCreate(null, pk);
                         const map: Map = new Map();
                         Utils.forEach(obj, (v, k) => {
                             const col: Column = repo.getColumn(k);
@@ -302,8 +302,11 @@ export default class Repository {
                 repo.rows.set(pk, row);
             }
 
+
             const refs: Record[] = repo.getRefs(pk);
 
+            if (rec.fullId === "catalogAttrValue[id=1]") debugger;
+            
             const changed: Map<Column, any[]> = new Map();
             if (action === CRUDE.DELETE) {
                 repo.rows.delete(pk);
@@ -573,7 +576,7 @@ export default class Repository {
     }
 
     getOrCreate(context: any, pk: any): Record {
-        return Is.defined(pk) ? this.get(context, pk, true) : this.createRecord(context, CRUDE.CREATE);
+        return this.has(pk) ? this.get(context, pk, true) : this.createRecord(context, CRUDE.CREATE);
     }
 
     createRecord(context: any, crude: CRUDE): Record {
@@ -590,6 +593,12 @@ export default class Repository {
         return rec;
     }
 
+    /**
+     * Konwertuje zdefiniowane kolumny do postaci tablicy obiektów
+     * @param columns
+     * @param filter
+     * @returns {*[]}
+     */
     toObjects(columns: Column[], filter: (cursor: RepoCursor) => boolean): [] {
         const result: [] = [];
         const cursor: RepoCursor = this.cursor();
@@ -597,8 +606,25 @@ export default class Repository {
             if (filter && !filter(cursor))
                 continue;
             const obj = {};
-            columns.forEach((col: Column) => obj[col.key] = cursor.get(col));
+            columns.forEach((col: Column) => obj[col.key] = cursor.getValue(col));
             result.push(obj);
+        }
+        return result;
+    }
+
+    /**
+     * Konwertuje zdefiniowane kolumny do postaci tablicy tablic
+     * @param columns
+     * @param filter
+     * @returns {*[]}
+     */
+    toArrays(columns: Column[], filter: (cursor: RepoCursor) => boolean): [] {
+        const result: [] = [];
+        const cursor: RepoCursor = this.cursor();
+        while (cursor.next()) {
+            if (filter && !filter(cursor))
+                continue;
+            result.push(Utils.forEach(columns, (col: Column) => cursor.getValue(col)));
         }
         return result;
     }
@@ -717,7 +743,7 @@ export class RepoReference {
 
     update(parent: Record) {
         this.parent = parent;
-        this.records.addAll(this.repo.find(this, (cursor: RepoCursor) => cursor.get(this.column) === parent.pk))
+        this.records.addAll(this.repo.find(this, (cursor: RepoCursor) => cursor.getValue(this.column) === parent.pk))
     }
 }
 

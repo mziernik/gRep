@@ -2,7 +2,7 @@
 'use strict';
 import {React, Field, Type, Utils} from '../../core';
 import {Page, Icon, FCtrl, Panel} from '../../components';
-import {Tab, TabSet} from '../../component/TabSet';
+import {Tab, TabSet} from '../../component/tabset/TabSet';
 import FormTab from "./FormTab";
 import ListsTab from "./ListsTab";
 import TablesTab from "./TablesTab";
@@ -12,7 +12,7 @@ import AlertsTab from "./AlertsPopupTab";
 import SplitterTab from "./SplitterTab";
 import PopupMenuTab from "./PopupMenuTab";
 
-import "../../repository/DemoRepositories.js";
+import "../../repository/impl/DemoRepositories.js";
 
 export default class PDemo extends Page {
 

@@ -1,7 +1,9 @@
 import {React, Trigger, Field, Column, Type} from "../../core";
 import {Page, Panel} from "../../components";
 import CodeMirror from "../../component/CodeMirror/CodeMirror";
-import {SplitPanel, Splitter} from "../../component/Splitter";
+import {SplitPanel, Splitter} from "../../component/panel/Splitter";
+import FCtrl from "../../component/form/FCtrl";
+import * as Utils from "../../utils/Utils";
 //https://jsfiddle.net/
 //https://codepen.io/
 
@@ -9,49 +11,46 @@ import {SplitPanel, Splitter} from "../../component/Splitter";
 
 //https://github.com/tomkp/react-split-pane
 
+
+class Format {
+    key: string;
+    name: string;
+    content: Field;
+    state: Field;
+    mode: string;
+
+    constructor(page: PWebTester, key: string, mode: string, name: string, active: boolean, value: any) {
+        this.key = key;
+        this.mode = mode;
+        this.name = name;
+        this.content = Field.create(Type.MEMO, "v" + key, name, value);
+        this.state = Field.create(Type.BOOLEAN, "c" + key, name, active);
+        this.state.onChange.listen(this, () => page.forceUpdate());
+        page.formats.push(this);
+    }
+}
+
 export default class PWebTester extends Page {
 
     fra: HTMLIFrameElement;
     console: HTMLDivElement;
 
-    JS: Field = new Field((fc: Column) => {
-        fc.type = Type.STRING;
-        fc.key = "js";
-        fc.name = " JavaScript";
-        fc.value = JS;
-        // fc.store = "WebTester_JS";
-    });
+    formats: Format[] = [];
 
-    CSS: Field = new Field((fc: Column) => {
-        fc.type = Type.STRING;
-        fc.key = "css";
-        fc.name = " CSS";
-        fc.value = CSS;
-        // fc.store = "WebTester_CSS";
-    });
-
-    HTML: Field = new Field((fc: Column) => {
-        fc.type = Type.STRING;
-        fc.key = "html";
-        fc.name = " HTML";
-        fc.value = HTML;
-        // fc.store = "WebTester_HTML";
-    });
-
-    changed = new Trigger(() => this._reload(), 1500);
+    TXT: Format = new Format(this, "txt", "textile", "Tekst", true, "1 linia\n2 linia");
+    JS: Format = new Format(this, "js", "javascript", "JavaScript", true, JS);
+    CSS: Format = new Format(this, "css", "css", "CSS", false, CSS);
+    HTML: Format = new Format(this, "html", "html", "HTML", false, HTML);
 
     constructor() {
         super(...arguments);
-        this.JS.onChange.listen(this, () => this.changed.run());
-        this.CSS.onChange.listen(this, () => this.changed.run());
-        this.HTML.onChange.listen(this, () => this.changed.run());
     }
 
     _reload() {
         const wnd = this.fra.contentWindow;
         const doc = wnd.document;
         doc.open();
-        doc.write(this.HTML.value);
+        doc.write(this.HTML.content.value);
 
         wnd.console.log = (data) => {
             const div = doc.createElement("div");
@@ -70,72 +69,77 @@ export default class PWebTester extends Page {
         this.console.innerHTML = "";
 
         let css = doc.createElement("style");
-        css.innerHTML = "\n" + this.CSS.value + "\n";
+        css.innerHTML = "\n" + this.CSS.content.value + "\n";
         doc.head.appendChild(css);
 
         let js = doc.createElement("script");
-        js.innerHTML = `//# sourceURL=skrypcik\n (function(document, window){\n${this.JS.value}\n})(document, window)`;
+        js.innerHTML = `(function(document, window){\n${this.JS.content.value}\n})(document, window)`;
         doc.head.appendChild(js);
 
         doc.close();
     }
 
-    componentWillUnmount() {
-        this.changed.cancel();
-        super.componentWillUnmount();
-    }
-
-    _textAreaKeyDown(e: Event) {
-        if (e.keyCode !== 9)
-            return;
-        return;
-        const ta = e.target;
-        var start = ta.selectionStart;
-        var end = ta.selectionEnd;
-        ta.value = ta.value.substring(0, start)
-            + "\t"
-            + ta.value.substring(end);
-        ta.selectionStart = ta.selectionEnd = start + 1;
-        e.preventDefault();
-    };
 
     render() {
         this.title.set("WEB Tester");
 
-        this.changed.run();
 
-        const cmStyle = {
-            width: '100%',
-            height: '100%',
-            color: "#bbb",
-            resize: "none",
-        };
+        return <Panel fit noPadding>
 
-        return <Panel fit split noPadding>
-            <Panel fit split vertical>
-                <CodeMirror style={cmStyle} field={this.HTML} mode="html"/>
-                <CodeMirror style={cmStyle} field={this.JS} mode="javascript"/>
-                <CodeMirror style={cmStyle} field={this.CSS} mode="css"/>
-            </Panel>
-            <Panel fit split vertical>
-                <iframe ref={(e) => this.fra = e}
+            <div>
+                <button
+                    style={{padding: "2px 8px"}}
+                    onClick={e => this._reload(e)}
+                >run
+                </button>
+                {this.formats.map((f: Format) => <FCtrl
+                    key={f.key}
+                    style={{padding: "2px 8px"}}
+                    value={1}
+                    name={2}
+                    field={f.state}
+                />)}
+            </div>
+
+            <Panel fit split noPadding>
+
+                {
+                    Utils.forEach(this.formats, (f: Format) => f.state.value ? <CodeMirror
+                        key={Utils.randomId()}
                         style={{
-                            border: "none",
-                            backgroundColor: "#fff",
-                            width: "100%",
-                            height: "100%",
-                        }}/>
-                <div ref={(e) => this.console = e}
-                     style={{
-                         backgroundColor: "#222",
-                         color: "#ddd",
-                         font: "10pt Consolas",
-                         padding: "8px",
-                         width: "100%",
-                         height: "100%",
-                         overflow: "auto"
-                     }}
-                />
+                            width: '100%',
+                            height: '100%',
+                            color: "#bbb",
+                            resize: "none",
+                            border: "1px solid #888"
+                        }}
+                        mode={f.mode}
+                        field={f.content}
+                        onExecute={c => this._reload()}
+                    /> : undefined)}
+
+                <Panel fit split vertical>
+                    <iframe ref={(e) => this.fra = e}
+                            style={{
+                                border: "none",
+                                backgroundColor: "#fff",
+                                width: "100%",
+                                height: "100%",
+                            }}/>
+                    <pre contentEditable
+                         readOnly
+                         ref={(e) => this.console = e}
+                         style={{
+                             backgroundColor: "#222",
+                             color: "#ddd",
+                             font: "10pt Consolas",
+                             padding: "8px",
+                             width: "100%",
+                             height: "100%",
+                             overflow: "auto"
+                         }}
+                    />
+                </Panel>
             </Panel>
         </Panel>
     }

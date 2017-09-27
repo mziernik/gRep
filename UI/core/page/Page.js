@@ -18,12 +18,15 @@ import {
 } from "../core";
 import {Component, Spinner, Panel, Icon} from "../components";
 import WebApiRepoStorage from "../repository/storage/WebApiRepoStorage";
-import {ModalWindow} from "../component/ModalWindow";
+import {ModalWindow} from "../component/modal/ModalWindow";
 import {Btn} from "../component/Button";
 import {NODE, Dynamic} from "../component/Component";
-import Busy from "../component/Busy";
+import Busy from "../component/spinner/Busy";
+import {MenuItem} from "../component/PopupMenu";
 
 const RENDER = Symbol("Render Page");
+
+let currentPage: Page;
 
 export default class Page extends Component {
 
@@ -65,6 +68,7 @@ export default class Page extends Component {
         this[RENDER] = this.render;
 
         this.render = () => {
+            currentPage = this;
             try {
                 this[NODE].currentPage = this;
 
@@ -275,3 +279,10 @@ export class PageTitleBar extends Dynamic {
     }
 
 }
+
+addEventListener("load", () => Dev.TOOLS.push(MenuItem.create((item: MenuItem) => {
+        item.name = "Przerysuj bieżącą stronę";
+        item.onClick = e => currentPage && currentPage.forceUpdate(true);
+    }))
+);
+

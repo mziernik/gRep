@@ -1,6 +1,6 @@
 import {React, Utils, Field, Column, AppStatus, DEBUG_MODE} from "../../core.js";
 import {Icon} from "../../components.js";
-import {ModalWindow} from "../../component/ModalWindow";
+import {ModalWindow} from "../../component/modal/ModalWindow";
 import {Btn} from "../../component/Button";
 import {PageButtons} from "../../page/Page";
 import {Attr, Attributes} from "../../component/form/Attributes";

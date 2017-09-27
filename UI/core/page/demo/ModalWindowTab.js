@@ -2,11 +2,12 @@
 'use strict';
 import {React, Utils, Dev} from '../../core';
 import {Component, Button, Icon, Page} from '../../components';
-import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
+import {ModalWindow, MW_BUTTONS} from "../../component/modal/ModalWindow";
 import FormTab from "./FormTab";
-import Resizer from "../../component/Resizer";
-import {Scrollbar} from "../../component/Scrollbar";
-import Panel from "../../component/Panel";
+import Resizer from "../../component/panel/Resizer";
+import {Scrollbar} from "../../component/panel/Scrollbar";
+import Panel from "../../component/panel/Panel";
+
 
 export class DemoModalPage extends Page {
     render() {

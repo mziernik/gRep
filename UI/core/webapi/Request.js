@@ -4,7 +4,7 @@
 import "../utils/DOMPrototype";
 import WebApi, {OnSuccess, OnError} from "./WebApi";
 import WebApiResponse from "./Response";
-import Spinner from "../component/Spinner";
+import Spinner from "../component/spinner/Spinner";
 import EError from "../utils/EError";
 import Dev from "../Dev";
 

@@ -107,7 +107,6 @@ export default class PRepository extends RepoPage {
             <Attr field={seq}/>
             <Attr field={local}/>
             <Attr field={rnd}/>
-            <Attr field={local}/>
             <Attr field={instance}/>
             <Attr field={cnt}/>
             <Attr field={factor}/>

@@ -15,9 +15,10 @@ import {
 
 
 "use strict";
-import {RepoCursor, RepoReference} from "./Repository";
+import {RepoReference} from "./Repository";
 import {ListDataType} from "./Type";
 import RepositoryStorage from "./storage/RepositoryStorage";
+import RepoCursor from "./RepoCursor";
 
 export default class Record {
 
@@ -53,14 +54,13 @@ export default class Record {
 
         if (DEV_MODE) this._instanceId = this.UID;
 
-        this.onChange.listen(this, data => {
+        this.onChange._onDispatch = (sender, data) => {
             if (data.action !== CRUDE.UPDATE) return;
             Utils.forEach(data.changes, (change: [], col: Column) => {
                 const field: Field = this.fields.get(col);
                 field.update(change[0]);
             });
-        });
-
+        };
     }
 
     /** Zwraca wartość klucza głównego */
@@ -191,12 +191,12 @@ export default class Record {
         if (!column.foreign)
             throw new RecordError(this, "Kolumna " + column.key + " nie posiada klucza obcego");
 
-        const frepo: Repository = column.foreign.repo;
+        const fRepo: Repository = column.foreign.repo;
 
         if (fk instanceof Array)
-            return Utils.forEach(fk, v => frepo.get(context, v));
+            return Utils.forEach(fk, v => fRepo.get(context, v));
 
-        return frepo.get(context, fk);
+        return fRepo.get(context, fk);
 
     }
 
@@ -213,7 +213,7 @@ export default class Record {
 
     _getReferences(context: any, column: Column): Record[] {
         const pk = this.pk;
-        return column.repository.find(context, (cursor: RepoCursor) => cursor.get(column) === pk);
+        return column.repository.find(context, (cur: RepoCursor) => cur.getValue(column) === pk);
     }
 
     processCallback(data: Object) {
@@ -328,7 +328,7 @@ export class RecordDataGenerator {
 
             let enm: Map = field.enumerate;
             if (enm)
-                return field.value = Utils.asArray(enm().keys()).random();
+                return field.value = Utils.asArray(enm.keys()).random();
 
             switch (field.config.type) {
                 case Type.UUID:

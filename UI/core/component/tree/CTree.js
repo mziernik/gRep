@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import CTreeNode from './CTreeNode';
 import './Tree.css';
 import Tree from "./Tree";
-import Panel from "../Panel";
+import Panel from "../panel/Panel";
 
 
 export default class CTree extends React.Component {

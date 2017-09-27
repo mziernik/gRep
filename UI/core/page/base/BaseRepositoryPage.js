@@ -36,10 +36,10 @@ export default class BaseRepositoryPage extends RepoPage {
             this.buttons.add((btn: Btn) => {
                 btn.type = "primary";
                 btn.text = "Dodaj";
-                btn.icon = Icon.USER_PLUS;
+                btn.icon = Icon.PLUS;
                 btn.onClick = e => this.navigate(null, this.defaultTarget || e);
             });
-
+/*
         R_REPORT_INFO.find(this, (cursor: RepoCursor) => {
             const repos: [] = cursor.get(RReportInfo.LINKED_REPOSITORIES);
             if (repos && repos.contains(this.repo.key))
@@ -89,7 +89,7 @@ export default class BaseRepositoryPage extends RepoPage {
                     ));
                 };
             }
-        );
+        );*/
     }
 
     navigate(rec: Record, e: Event) {

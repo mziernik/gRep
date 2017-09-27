@@ -5,7 +5,7 @@ import {Route, BrowserRouter, Link, Redirect, Switch, Miss} from 'react-router-d
 import NotFound from "./NotFound";
 import Dashboard from "./dashboard/Dashboard";
 import Endpoint from "../core/application/Endpoint";
-import PCatalogs from "./PCatalogs";
+import PCatalogs from "./PCatalog";
 import DevRouter from "../core/page/dev/DevRouter";
 
 

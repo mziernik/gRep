@@ -97,6 +97,7 @@ export default class DatePicker extends FormComponent {
         return (
             <DateTimePicker
                 ref={elem => this._setDropdown(elem)}
+                className="c-datepicker"
                 {...this.props.dtpProps}
                 title={this.field.hint}
                 dayComponent={(props) => this._dayRendererFunc(props)}

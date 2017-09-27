@@ -3,7 +3,7 @@ import Record from "../../repository/Record";
 import ParamsWindow from "./ParamsWindow";
 import RepoAction from "../../repository/RepoAction";
 import Alert from "../../component/alert/Alert";
-import Spinner from "../../component/Spinner";
+import Spinner from "../../component/spinner/Spinner";
 import AppStatus from "../../application/Status";
 import * as Utils from "../../utils/Utils";
 import {MenuItem, PopupMenu} from "../../component/PopupMenu";

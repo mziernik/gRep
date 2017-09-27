@@ -2,7 +2,7 @@
 'use strict';
 import {Application, React, PropTypes, Utils, Is} from '../core';
 import {Component, Icon} from '../components';
-import {Scrollbar} from "./Scrollbar";
+import {Scrollbar} from "./panel/Scrollbar";
 
 let INSTANCE: PopupMenu;
 

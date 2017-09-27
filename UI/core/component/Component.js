@@ -17,7 +17,9 @@ const RENDER = Symbol("render");
 const ON_DESTROY = Symbol("On component destroy");
 const FORCE_UPDATE_TRIGGER = Symbol("Force update trigger");
 
+/** @deprecated*/
 export const NAME = Symbol("name");
+/** @deprecated*/
 export const NODE = Symbol("node");
 
 

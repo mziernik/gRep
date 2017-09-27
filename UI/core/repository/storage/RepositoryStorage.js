@@ -5,7 +5,6 @@ import Alert from "../../component/alert/Alert";
 export default class RepositoryStorage {
 
 
-
     /** Wczytaj zawartość repozytoriów */
     load(repos: Repository[]): Promise {
         throw new Error("Unsupported operation");
@@ -28,17 +27,20 @@ export default class RepositoryStorage {
     /** Wczytaj wszystkie repozytoria */
     static loadData() {
         const map: Map = Utils.agregate(Repository.all, (repo: Repository) => repo.storage);
-        map.forEach((repos: Repository[], storage: RepositoryStorage) => storage.load(repos)
-            .then(data => {
-                try {
-                    Repository.update(storage, data);
-                } catch (e) {
-                    Dev.error(this, e);
-                    AppStatus.error(this, e);
-                }
-            }).catch(e => {
-                Alert.error(RepositoryStorage, e)
-            })
+        map.forEach((repos: Repository[], storage: RepositoryStorage) => {
+                const p: Promise = storage.load(repos);
+                p && p.then(data => {
+                    try {
+                        Repository.update(storage, data);
+                    } catch (e) {
+                        Dev.error(this, e);
+                        AppStatus.error(this, e);
+                    }
+                }).catch(e => {
+                    Alert.error(RepositoryStorage, e)
+                })
+
+            }
         );
     }
 

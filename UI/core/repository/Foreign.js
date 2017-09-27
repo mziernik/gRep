@@ -54,7 +54,7 @@ export class ForeignConstraintItem {
         if (!this.foreign)
             return cursor.primaryKey;
 
-        return cursor.get(this.foreign);
+        return cursor.getValue(this.foreign);
     }
 
 }

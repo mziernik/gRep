@@ -19,9 +19,10 @@ import * as Utils from "../../utils/Utils";
 import PWebApi from "./PWebApi";
 import {DEBUG_MODE} from "../../Dev";
 import PConfig from "../../config/PConfig";
-import {RWebApi} from "../../repository/WebApiRepo";
+import PUnicode from "./PUnicode";
+import {MenuItem} from "../../component/PopupMenu";
+import Dev from "../../Dev";
 
-//FixMe: Nie działa prawidłowo nawigacja do repozytoriów / rekordów
 
 export default class DevRouter extends Endpoint {
 
@@ -54,21 +55,28 @@ export default class DevRouter extends Endpoint {
         this.REPOS = this.child("repos", "Repozytoria", baseUrl + "/repositories", PRepositories);
         this.REPO = this.REPOS.child("repo", "Repozytorium", this.REPOS._path + "/:repo", PRepository).hidden(true);
         this.REPO_DETAILS = this.REPOS.child("repodetails", "Szczegóły", this.REPOS._path + "/:repo/details", PRepoDetails).hidden(true);
-        this.DEMO = this.child("demo", "Demo", baseUrl + "/demo", Demo);
-        this.SKIN = this.child("skin", "Skórka", baseUrl + "/skin", PSkin);
-        this.EVENTS = this.child("events", "Zdarzenia", baseUrl + "/events", PEvents);
-        this.PERMISSIONS = this.child("perms", "Uprawnienia", baseUrl + "/permissions", PPermissions);
 
-        this.JS_TESTER = this.child("webTester", "WEB Tester", baseUrl + "/webtest", PWebTester);
-        this.COMPONENTS = this.child("components", "Komponenty", baseUrl + "/components", PComponents);
-        this.CTX_OBJS = this.child("ctxObjs", "Obiekty kontekstu", baseUrl + "/ctxobj", PContextObject);
 
-        this.LOCAL_STORAGE = this.child("localStorage", "Magazyn lokalny", baseUrl + "/localstorage", PLocalStorage);
-        this.MODULES = this.child("modules", "Moduły", baseUrl + "/modules", PModules);
-        this.ICONS = this.child("icons", "Ikony", `${baseUrl}/icons`, PIcons);
-        this.WEBAPI = this.child("webapi", "WebApi", `${baseUrl}/webapi`, PWebApi);
+        const service = this.child("service", "Usługa", baseUrl + "/svr/");
+        this.EVENTS = service.child("events", "Zdarzenia", baseUrl + "/svr/events", PEvents);
+        this.COMPONENTS = service.child("components", "Komponenty", baseUrl + "/svr/components", PComponents);
+        this.CTX_OBJS = service.child("ctxObjs", "Obiekty kontekstu", baseUrl + "/svr/ctxobj", PContextObject);
+        this.MODULES = service.child("modules", "Moduły", baseUrl + "/svr/modules", PModules);
 
-        this.CONFIG = this.child("config", "Konfiguracja", baseUrl + "/config", PConfig);
+
+        const tools = this.child("tools", "Narzędzia", baseUrl + "/tools");
+        this.DEMO = tools.child("demo", "Demo", service._path + "/demo", Demo);
+        this.JS_TESTER = tools.child("webTester", "WEB Tester", service._path + "/webtest", PWebTester);
+        this.WEBAPI = tools.child("webapi", "WebApi", service._path + "/webapi", PWebApi);
+        this.LOCAL_STORAGE = tools.child("localStorage", "Magazyn lokalny", service._path + "/localstorage", PLocalStorage);
+        this.ICONS = tools.child("icons", "Ikony", service._path + "/icons", PIcons);
+        tools.child("unicode", "Unicode", service._path + "/unicode", PUnicode);
+
+
+        const config = this.child("cfg", "Konfiguracja", baseUrl + "/cfg");
+        this.CONFIG = config.child("config", "Konfiguracja", config._path + "/config", PConfig);
+        this.SKIN = config.child("skin", "Skórka", config._path + "/skin", PSkin);
+        this.PERMISSIONS = config.child("perms", "Uprawnienia", config._path + "/permissions", PPermissions);
 
         this.RECORD = this.REPOS.child("rec", "Rekord", this.REPOS._path + "/:repo/edit/:id", PRecord)
             .defaultParams({
@@ -84,6 +92,22 @@ export default class DevRouter extends Endpoint {
 
         Object.preventExtensions(this);
 
+        Dev.TOOLS.push(MenuItem.create((mi: MenuItem) => {
+            mi.name = "Demo";
+            mi.onClick = e => this.DEMO.navigate(null, e);
+        }));
+
+        Dev.TOOLS.push(MenuItem.create((mi: MenuItem) => {
+            mi.name = "Konfiguracja";
+            mi.onClick = e => this.CONFIG.navigate(null, "popup");
+        }));
+
+        const repoMenuItem: MenuItem = MenuItem.create((mi: MenuItem) => {
+            mi.name = "Repozytoria";
+        });
+
+        Dev.TOOLS.push(repoMenuItem);
+
         AppEvent.REPOSITORY_REGISTERED.listen(this, data => {
                 const repo: Repository = data.repository;
                 const group = repo.config.group;
@@ -94,9 +118,20 @@ export default class DevRouter extends Endpoint {
                     if (!parent)
                         parent = this.REPOS.child(key, group, null, null);
                 }
+
+                let miGroup = group ? Utils.find(repoMenuItem.subMenu, (mi: MenuItem) => mi.name === group) : repoMenuItem;
+                if (!miGroup) miGroup = repoMenuItem.item((mi: MenuItem) => {
+                    mi.name = group;
+                });
+
                 parent.child(repo.key.replaceChars(".-", ""), repo.name, this.REPOS._path + "/" + repo.key, PRepository)
                     .icon(repo.config.icon);
                 parent.sortChildren();
+
+                miGroup.item((mi: MenuItem) => {
+                    mi.name = repo.name;
+                });
+
             }
         );
 

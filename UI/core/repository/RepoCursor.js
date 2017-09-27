@@ -50,7 +50,7 @@ export default class RepoCursor {
     }
 
     get primaryKey(): any {
-        return this.get(this.repo.primaryKeyColumn);
+        return this.getValue(this.repo.primaryKeyColumn);
     }
 
     getRecord(context: any) {
@@ -60,19 +60,13 @@ export default class RepoCursor {
     }
 
 
-    get(column: Column): any {
+    getValue(column: Column): any {
         const idx = this.repo.getColumnIndex(column);
 
         if (this._index < 0 || this._index >= this._rows.length)
             throw new RepoError(this.repo, "Kursor poza zakresem");
 
         return this._rows[this._index][idx];
-    }
-
-
-    getValue(column: Column): any {
-        // nie zmieniać nazwy metody! Nazwa musi być identyczna z Record.getValue
-        return this.get(column);
     }
 
     get displayValue(): string {

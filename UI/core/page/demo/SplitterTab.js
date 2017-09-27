@@ -2,9 +2,10 @@
 'use strict';
 import {React, Field, Type, Utils, Column} from '../../core';
 import {Component, FCtrl, Table}from '../../components';
-import {Splitter} from '../../component/Splitter.js';
-import {SplitPanel} from "../../component/Splitter";
-import Resizer from "../../component/Resizer";
+import {Splitter} from '../../component/panel/Splitter.js';
+import {SplitPanel} from "../../component/panel/Splitter";
+import Resizer from "../../component/panel/Resizer";
+
 
 export default class SplitterTab extends Component {
     render() {

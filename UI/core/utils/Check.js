@@ -57,6 +57,12 @@ export function isObject(value: ?Object, error: ?Error = null): Object {
     throw error ? error : new Error("Wymagany obiekt" + _details(value));
 }
 
+export function isPlainObject(value: ?Object, error: ?Error = null): Object {
+    if (typeof value === 'object' && value.constructor === Object)
+        return value;
+    throw error ? error : new Error("Wymagany obiekt" + _details(value));
+}
+
 export function isBoolean(value: ?[], error: ?Error = null): Array {
     if (typeof value === "boolean")
         return value;

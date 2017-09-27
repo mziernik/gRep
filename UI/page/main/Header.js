@@ -1,6 +1,5 @@
 // @flow
-'use strict';
-//FixMe importy
+
 import {React} from "../../core/core.js";
 import {Component, Icon} from "../../core/components.js";
 import Breadcrumb from "../../core/component/Breadcrumbs";
@@ -12,6 +11,7 @@ import {DEBUG_MODE, PROCESS_ENV} from "../../core/Dev";
 import {UserData} from "../../core/application/UserData";
 import ApplicationData from "../../core/application/ApplicationData";
 import * as Utils from "../../core/utils/Utils";
+import SkinSwitcher from "../../core/component/application/SkinSwitcher";
 
 
 let context;
@@ -48,7 +48,12 @@ export default class Header extends Component {
                             {frmt(ApplicationData.serviceDate)}
                         </div>
                     </div> : null}
-                <WebApiStatus/>
+
+
+                {DEBUG_MODE ? <WebApiStatus/> : null}
+                <SkinSwitcher/>
+                {DEBUG_MODE ? <a className="fa fa-bug" onClick={e => PopupMenu.open(e, Dev.TOOLS)}/> : null}
+
                 <a className="fa fa-user" onClick={(e) => {
                     PopupMenu.open(e, MENU_ITEMS);
                 }}><span>{UserData.current && UserData.current.firstname || null}</span></a>

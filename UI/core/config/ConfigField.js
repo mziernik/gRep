@@ -1,6 +1,6 @@
 import {Column, Record} from "../core";
 import ConfigNode from "./ConfigNode";
-import {Utils, Check} from "../$utils";
+import {Utils, Check, Dispatcher} from "../$utils";
 import Field from "../repository/Field";
 import * as Bootstrap from "../Bootstrap";
 
@@ -50,6 +50,10 @@ export default class ConfigField {
 
     set customValue(value: any) {
         this.setValue(true, value);
+    }
+
+    get onChange(): Dispatcher {
+        return this.field.onChange;
     }
 
     setValue(custom: boolean, value: any) {

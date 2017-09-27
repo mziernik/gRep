@@ -1,7 +1,6 @@
 import WebApiRequest from "./Request";
 import WebApiResponse from "./Response";
 import {Dev, Utils, Is, Dispatcher} from "../core";
-import * as signalR from "./signalr-client";
 
 let _reconnect: ?() => void;
 
@@ -135,76 +134,6 @@ export class WebSocketTransport extends WebApiTransport {
 }
 
 
-export class SignalRTransport extends WebApiTransport {
-
-    conn: HubConnection;
-
-    send(req: WebApiRequest) {
-        const args: [] = Utils.forEach(req.params, v => v);
-        this.conn.invoke(req.method, ...args)
-            .then(data => this.onMessage(data, req))
-            .catch(e => {
-                Dev.error(this, e);
-                WebApiResponse.error(req, e);
-            });
-    }
-
-    close() {
-        this.conn.stop();
-    }
-
-
-    doConnect(url: string) {
-        this.conn = new signalR.HubConnection(url);
-        //    this.conn = HubConnection.create(url);
-        this.conn.start()
-            .then((xxx) => {
-                const confirm = () => {
-                    if (this.conn.connection.connectionState === 1) {
-                        setTimeout(() => confirm, 10);
-                        return;
-                    }
-                    this.onOpen();
-                };
-                confirm();
-            })
-            .catch((e: Object) => {
-                if (!e) {
-                    this.onClose(null, null);
-                    return;
-                }
-                let msg = e;
-                if (Is.defined(e.statusText))
-                    msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
-                this.onClose(e && e.code ? getReason(e.code, this.isConnected) : msg, e);
-            });
-
-
-        this.conn.on("RepositoryUpdate", data => {
-            data.event = true;
-            data.type = "RepositoryUpdate";
-            this.onMessage(data, null);
-        });
-
-        this.conn.onClosed = (e) => {
-            if (!e) {
-                this.onClose(null, null);
-                return;
-            }
-            if (e.wasClean && e.code === 1000) {
-                this.onClose(null, e);
-                return;
-            }
-            let msg = e;
-            if (Is.defined(e.statusText))
-                msg = e.statusText || "Nie można nawiązać połączenia z serwerem";
-            this.onClose(e && e.code ? getReason(e.code, this.isConnected) : msg, e);
-        };
-
-    }
-
-
-}
 
 
 export function getReason(code: number, wasConnected: boolean): string {

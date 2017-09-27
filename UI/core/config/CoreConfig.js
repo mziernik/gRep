@@ -3,13 +3,28 @@ import * as Type from "../repository/Type";
 import ConfigNode from "./ConfigNode";
 
 
+class Skin extends ConfigNode {
+
+    dark: ConfigField;
+
+
+    constructor(node: ConfigNode) {
+        super(node, "skin", "Skin");
+        this.dark = this.field(Type.BOOLEAN, "dark", "Ciemny", true);
+        this.dark.onChange.listen(this, () => document.body.setAttribute("dark", this.dark.value));
+    }
+
+}
+
 class UI extends ConfigNode {
 
     idleTimeout: ConfigField;
     historyBackOnCreate: ConfigField;
+    skin: Skin;
 
     constructor(cc: CoreConfig) {
         super(cc, "ui", "UI");
+        this.skin = new Skin(this);
         this.idleTimeout = this.field(Type.DURATION, "idleTimeout", "Maksymalny czas nieaktywności", 15 * 60 * 1000); // 15 minut
         this.historyBackOnCreate = this.field(Type.BOOLEAN, "historyBackOnCreate", "Powrót po zapisaniu nowego rekordu", true);
     }

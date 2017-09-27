@@ -2,10 +2,8 @@
 'use strict';
 import {React, PropTypes, Field, Type, Column, Utils} from '../../core';
 import {Component, Page, Icon, FCtrl} from '../../components';
-import JsonViewer from "../../component/JsonViewer";
-import {PopupMenu, MenuItem, MenuItemSeparator} from "../../component/PopupMenu";
-import {ModalWindow, MW_BUTTONS} from "../../component/ModalWindow";
-import {Scrollbar} from "../../component/Scrollbar";
+import {ModalWindow, MW_BUTTONS} from "../../component/modal/ModalWindow";
+import {Scrollbar} from "../../component/panel/Scrollbar";
 
 export default class FormTab extends Component {
 

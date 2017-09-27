@@ -10,7 +10,7 @@ import CTree from "../component/tree/CTree";
 import {Component, Panel, Icon} from "../components";
 import ConfigField from "./ConfigField";
 import {Attr, Attributes} from "../component/form/Attributes";
-import Resizer from "../component/Resizer";
+import Resizer from "../component/panel/Resizer";
 import {Btn} from "../component/Button";
 import Repository from "../repository/Repository";
 import Link from "../component/Link";

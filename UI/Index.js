@@ -1,5 +1,5 @@
 // @flow
-'use strict';
+
 import "./core/Bootstrap";
 import "./core/utils/ErrorHandler";
 import "./core/core";
@@ -12,29 +12,16 @@ import Login from "./page/Login";
 import './page/main/Layout.css';
 
 import {React, Application, API} from "./core/core";
-import {PERMISSIONS} from "./core/repository/PermissionRepo";
+import {PERMISSIONS} from "./core/repository/impl/PermissionRepo";
 import "./model/Repositories";
 import StatusHint from "./core/component/application/StatusHint";
 import RepositoryStorage from "./core/repository/storage/RepositoryStorage";
 import * as Model from "./model/Model";
+import {SignalRTransport} from "./core/webapi/Transport";
 import WebApi from "./core/webapi/WebApi";
 import GrepApi from "./model/GrepApi";
 import CoreConfig from "./core/config/CoreConfig";
-
-//----------------------------------------------------------------------------------------------------------------------
-// debugger;
-//
-// var target = {};
-// var handler = {
-//     get: function (receiver, name) {
-//         debugger;
-//         // This example includes a template string.
-//         return `Hello, ${name}!`;
-//     }
-// };
-//
-// var p = new Proxy(target, handler);
-// console.log(p.world);
+import {DEV_MODE} from "./core/Dev";
 
 
 window.addEventListener("load", () => {

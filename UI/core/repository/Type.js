@@ -11,6 +11,9 @@ const all = {};
 
 export class DataType {
 
+    /** Typ bazowy np dla elementów listowych (int[] -> int)*/
+    raw: DataType = this;
+
     simpleType: SimpleType;
     parser: (value: any) => any;
     serializer: (value: any) => any;
@@ -87,6 +90,9 @@ export class DataType {
         const x1 = this.serialize(v1);
         const x2 = this.serialize(v2);
 
+        if (Is.array(x1) && Is.array(x2))
+            return window.JSON.stringify(x1) === window.JSON.stringify(x2);
+
         return x1 === x2;
     }
 
@@ -150,7 +156,6 @@ export function get(name: string): DataType {
 
 export class ListDataType extends DataType {
 
-    type: DataType;
 
     constructor(type: DataType) {
         super((dt: DataType) => {
@@ -158,20 +163,19 @@ export class ListDataType extends DataType {
             dt.simpleType = "array";
             dt.parser = value => {
                 Check.isArray(value);
-                value = Utils.forEach(value, elm => this.type.parse(elm));
+                value = Utils.forEach(value, elm => this.raw.parse(elm));
                 return value;
             };
-            dt.formatter = (val, map) => Utils.forEach(val, v => this.type.formatDisplayValue(v, map)).join(", ");
+            dt.formatter = (val, map) => Utils.forEach(val, v => this.raw.formatDisplayValue(v, map)).join(", ");
 
         }, false);
-        this.type = Check.instanceOf(type, [DataType]);
+        this.raw = Check.instanceOf(type, [DataType]);
     }
 
 }
 
 export class MapDataType extends DataType {
 
-    type: DataType;
     types: DataType[];
 
     constructor(type: DataType) {
@@ -187,15 +191,15 @@ export class MapDataType extends DataType {
                         val = val instanceof Array ? val[1] : null;
                     }
 
-                    result.set(Utils.toString(key).trim(), this.type.parse(val));
+                    result.set(Utils.toString(key).trim(), this.raw.parse(val));
                 });
                 return result;
             };
-            dt.formatter = (val: Map) => Utils.forEach(val, (v, k) => Utils.toString(k) + ": " + this.type.formatDisplayValue(v)).join(",\n");
+            dt.formatter = (val: Map) => Utils.forEach(val, (v, k) => Utils.toString(k) + ": " + this.raw.formatDisplayValue(v)).join(",\n");
 
         }, false);
 
-        this.type = type;
+        this.raw = type;
         this.types = [STRING, type];
     }
 

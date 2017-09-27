@@ -2,16 +2,16 @@ import {React, PropTypes, Utils} from "../../core";
 import {Page, Component, Table, Panel, ModalWindow, MW_BUTTONS} from "../../components";
 import WebApi from "../../webapi/WebApi";
 import RepoCtrl from "../../component/repository/RepoCtrl";
-import * as WebApiRepo from "../../repository/WebApiRepo";
+import * as WebApiRepo from "../../repository/impl/WebApiRepo";
 import RepoTable from "../../component/repository/RepoTable";
-import {EWebApi} from "../../repository/WebApiRepo";
+import {EWebApi} from "../../repository/impl/WebApiRepo";
 import JsonViewer from "../../component/JsonViewer";
 import Field from "../../repository/Field";
 import * as Type from "../../repository/Type";
 import FCtrl from "../../component/form/FCtrl";
 import * as Check from "../../utils/Check";
-import {RWebApi} from "../../repository/WebApiRepo";
-import {R_WEBAPI} from "../../repository/WebApiRepo";
+import {RWebApi} from "../../repository/impl/WebApiRepo";
+import {R_WEBAPI} from "../../repository/impl/WebApiRepo";
 
 
 export default class PWebApi extends Page {

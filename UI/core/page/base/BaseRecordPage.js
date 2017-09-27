@@ -4,7 +4,7 @@
 import {React, PropTypes, Check, Record, Repository, CRUDE} from "../../core.js";
 import RecordCtrl from "../../component/repository/RecordCtrl";
 import RepoPage from "./RepoPage";
-import {TabSet} from "../../component/TabSet";
+import {TabSet} from "../../component/tabset/TabSet";
 import Config from "../../config/CoreConfig";
 import API from "../../application/API";
 

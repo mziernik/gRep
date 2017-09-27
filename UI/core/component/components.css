@@ -22,8 +22,8 @@
     opacity: 0.7;
 }
 
-.swal2-modal{
-    box-shadow: 4px 4px 4px rgba(0, 0,0 );
+.swal2-modal {
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.5);
 }
 
 .rw-widget {
@@ -105,7 +105,11 @@
 }
 
 .c-attributes-row > td:first-child {
-    font-weight: bold;
+    /*font-weight: bold;*/
+}
+
+.c-attributes-value {
+
 }
 
 .c-attributes-row:nth-child(even) > td {
@@ -113,7 +117,8 @@
 }
 
 .c-attributes-row:hover > td {
-    background-color: rgba(0, 50, 100, 0.1);
+    /*background-color: rgba(0, 50, 100, 0.1);*/
+    color: yellow;
 }
 
 .c-attributes-row[data-error=true] {
@@ -126,13 +131,11 @@
 
 .c-attributes-name {
     text-align: right;
-    width: 175px;
-    min-width: 175px;
-    max-width: 175px;
+    opacity: 0.7;
 }
 
 .c-attributes-value {
-    min-width: 175px;
+
 }
 
 /*==================================================== BreadCrumbs ===================================================*/
@@ -311,10 +314,12 @@
 
 .c-modal-window-exit {
     text-align: center;
-    padding: 5px 15px;
+    padding: 0 8px;
     margin: 2px;
     align-self: center;
     color: lightgray;
+    font-size: 18px;
+    cursor: pointer;
 }
 
 .c-modal-window-exit:hover {
@@ -339,11 +344,6 @@
 /*========================================================= Panel ====================================================*/
 
 .c-panel {
-    font-size: 16px;
-    padding: 6px 12px;
-    /*margin-right: 10px;*/
-    /*margin-top: 10px;*/
-    cursor: pointer;
     box-sizing: border-box;
 }
 
@@ -412,6 +412,7 @@
 /*========================================================= Input ====================================================*/
 .c-input {
     height: 100%;
+    width: 100%;
 }
 
 .c-input > input {
@@ -432,19 +433,25 @@
 /*========================================================= Memo =====================================================*/
 
 .c-memo {
-
+    width: 100%;
 }
 
 /*======================================================= Multiple ===================================================*/
 
 .c-multiple-fields {
-
+    width: 100%;
 }
 
 /*======================================================== Select ====================================================*/
 
 .c-select {
+    width: 200px;
+    flex: 1;
+}
 
+/*====================================================== DatePicker ==================================================*/
+.c-datepicker {
+    width: 100%;
 }
 
 /*====================================================== PopupMenu ===================================================*/

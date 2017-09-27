@@ -5,6 +5,8 @@ import {React, ReactComponent, ReactDOM, PropTypes, AppNode, AppEvent, Utils, Di
 import {BrowserRouter} from 'react-router-dom';
 import {PageTab} from "../page/PageContainer";
 import {object} from "../utils/Is";
+import CoreConfig from "../config/CoreConfig";
+
 
 export const onCreate: Dispatcher = new Dispatcher();
 
@@ -18,7 +20,7 @@ export default class Application extends ReactComponent {
 
     /** @type {Application} */
     static instance: ?Application = null;
-    /** Bie¿¹ca lokalizacja */
+    /** BieÅ¼Ä…ca lokalizacja */
     static location: ?Location = null;
     static initialized: boolean = false;
 
@@ -30,12 +32,10 @@ export default class Application extends ReactComponent {
      */
     static render(child: React.Component<*, *, *>, element: ?HTMLElement | ?string, tab: PageTab): AppNode {
 
-        if (!Application.initialized) {
-            ReactDOM.render(<BrowserRouter ref={e => Application.router = e}>
-                <Application/></BrowserRouter>, document.createElement("span"));
-            Application.initialized = true;
-            onCreate.dispatch(this, {child: child, element: element});
-        }
+        if (!Application.initialized)
+            initializeApplication();
+
+        onCreate.dispatch(this, {child: child, element: element});
 
         let own = false;
         if (!element) {
@@ -89,6 +89,15 @@ export default class Application extends ReactComponent {
         router: PropTypes.object.isRequired,
         node: PropTypes.instanceOf(AppNode)
     }
+}
+
+function initializeApplication() {
+    ReactDOM.render(<BrowserRouter ref={e => Application.router = e}>
+        <Application/></BrowserRouter>, document.createElement("span"));
+    Application.initialized = true;
+
+    // wymuszenie ustawienia atrubutu body[data-skin]
+    CoreConfig.ui.skin.dark.onChange.dispatch(this);
 }
 
 let previousURL: string;
