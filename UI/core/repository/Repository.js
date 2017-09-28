@@ -305,8 +305,8 @@ export default class Repository {
 
             const refs: Record[] = repo.getRefs(pk);
 
-            if (rec.fullId === "catalogAttrValue[id=1]") debugger;
-            
+//            if (rec.fullId === "catalogAttrValue[id=1]") debugger;
+
             const changed: Map<Column, any[]> = new Map();
             if (action === CRUDE.DELETE) {
                 repo.rows.delete(pk);
@@ -583,6 +583,7 @@ export default class Repository {
 
         Check.instanceOf(crude, [CRUDE.Crude]);
         const rec: Record = new (this.config.record || Record)(this, context);
+        rec.context = context;
         rec.action = crude;
         if (PROD_MODE)
             return rec;

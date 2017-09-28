@@ -76,17 +76,6 @@ export default class PCatalogViewer extends Component {
 
     static displayValue(attr: EAttribute, catAttr: ECatalogAttribute, cavs: ECatalogAttributeValue[]): string {
 
-        if (!cavs)
-            cavs = catAttr.catalogAttrValue_catAttr(this);
-
-        catAttr.onChange.listen(this, e => {
-            debugger;
-        });
-
-        catAttr.repo.onChange.listen(this, e => {
-            debugger;
-        });
-
         const values: string[] = Utils.forEach(cavs, (v: ECatalogAttributeValue, idx) => Utils.toString(v.VALUE.value));
 
         if (attr.MASK.value) {

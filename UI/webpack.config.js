@@ -1,35 +1,35 @@
 "use strict";
-const ENV = process.env.NODE_ENV;
-const DEV = ENV === 'development';
-const TEST = ENV === 'test';
-const PROD = ENV === 'production';
-
 const webpack = require('webpack');
 const path = require('path');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const WebpackAutoInject = require('webpack-auto-inject-version');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
+const NODE_ENV = (process.env.NODE_ENV || "").trim().toLowerCase();
+const DEV = NODE_ENV === 'development' || NODE_ENV === 'dev';
+const TEST = NODE_ENV === 'test';
+const PROD = NODE_ENV === 'production' || NODE_ENV === 'prod';
+
+const PACKAGE = require("./package.json");
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = process.env.PORT || "3000";
 
-const environment = {};
-environment.BUILD_VERSION = require("./package.json").version;
-environment.BUILD_DATE = new Date().getTime();
-environment.NODE_ENV = ENV;
-for (let name in environment)
-    environment[name] = JSON.stringify(environment[name]);
+if (!NODE_ENV)
+    throw new Error('Brak definicji zmiennej środowiskowej "NODE_ENV"');
+
+const env = {};
+env.NAME = PACKAGE.name;
+env.BUILD_VERSION = PACKAGE.version;
+env.BUILD_DATE = new Date().getTime();
+env.NODE_ENV = NODE_ENV;
+for (let name in env)
+    env[name] = JSON.stringify(env[name]);
 
 
 module.exports = {
-    entry: [
-        'react-hot-loader/patch',
-        './Index.js'
-    ],
-    //devtool: false,
-    devtool: 'source-map',
+    entry: ['react-hot-loader/patch', './Index.js'],
+    devtool: PROD ? false : 'source-map',
     output: {
         publicPath: '/',
         path: path.join(__dirname, 'public'),
@@ -64,18 +64,18 @@ module.exports.plugins = [
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.DefinePlugin({'process.env': environment}),
+    new webpack.DefinePlugin({'process.env': env}),
     new ExtractTextPlugin({
         filename: 'style.css',
         allChunks: true
     }),
     // do sprawdzenia czy potrzebny
-    new webpack.ProvidePlugin({
+  /*  new webpack.ProvidePlugin({
         $: "jquery",
         jQuery: "jquery",
         "window.jQuery": "jquery",
         "window.$": "jquery"
-    }),
+    }),*/
     new HtmlWebpackPlugin({
         template: './core/application/index.html',
         files: {
@@ -86,7 +86,7 @@ module.exports.plugins = [
         }
     }),
 ];
-/*
+
 if (!DEV) {
 
     module.exports.plugins.push(
@@ -105,8 +105,9 @@ if (!DEV) {
         new webpack.optimize.LimitChunkCountPlugin({maxChunks: 15}),
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.optimize.MinChunkSizePlugin({minChunkSize: 10000}), // Minimum number of characters
-        new UglifyJSPlugin({
-           // sourceMap: true,
+      //  new webpack.optimize.CommonsChunkPlugin('common.js'),
+        new webpack.optimize.UglifyJsPlugin({
+            sourceMap: true,
             compress: {
                 warnings: false,
                 keep_fnames: true
@@ -115,12 +116,13 @@ if (!DEV) {
                 warnings: false,
                 keep_fnames: true
             }
-        })
+        }),
+        new webpack.optimize.AggressiveMergingPlugin()
     )
 
 }
 
-*/
+
 //=============================== LOADERY =================================================
 module.exports.module.loaders = [
     {
@@ -128,12 +130,12 @@ module.exports.module.loaders = [
         exclude: /(node_modules|bower_components|public\/)/,
         loader: "babel-loader",
         query: {
-            presets: [
-                'es2016', // builduje się znacznie szybciej niż 2015, nie działa w połączeniu z uglify
+            presets: [// es2106 builduje się znacznie szybciej niż 2015 ale nie działa w połączeniu z uglify
+                DEV ? 'es2016' : 'es2015',
                 'react', 'stage-2', 'flow'
             ],
             plugins: [ // tylko w trybie produkcyjnym
-              //  "transform-react-constant-elements",
+                //  "transform-react-constant-elements", // nie używać, powoduje błędy importu
                 "transform-react-inline-elements"
             ]
         }

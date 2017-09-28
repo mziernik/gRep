@@ -10,6 +10,7 @@ import RepoPage from "../core/page/base/RepoPage";
 import RecordCtrl from "../core/component/repository/RecordCtrl";
 import PCatalogViewer from "./PCatalogViewer";
 import RepoCursor from "../core/repository/RepoCursor";
+import Record from "../core/repository/Record";
 
 export default class PCatalog extends RepoPage {
 
@@ -31,11 +32,10 @@ export default class PCatalog extends RepoPage {
         if (this.props.id === "all")
             return <div>Wszystkie</div>;
 
-        const rec: ECatalog = this.rec = R_CATALOG.get(this, this.props.id);
+        const catalog: ECatalog = this.rec = R_CATALOG.get(this, this.props.id);
+        const catalogId: number = catalog.ID.value;
 
-        const catalogId: number = rec.ID.value;
-
-        let r = rec;
+        let r = catalog;
         const path = [];
         while (r) {
             path.push(r.NAME.value);
@@ -68,24 +68,29 @@ export default class PCatalog extends RepoPage {
                     selectable
                     onAttrClick={(e, attr) => Is.defined(this._viewer, v => v.setState({record: new RecordCtrl(attr.record)}))}
                 >
-                    <Attr ignore={!adv} field={rec.ID}/>
-                    <Attr ignore={!adv} field={rec.UID}/>
-                    <Attr field={rec.NAME} edit/>
-                    <Attr ignore={!adv} field={rec.PARENT}/>
-                    <Attr ignore={!adv} field={rec.ABSTRACT}/>
-                    <Attr ignore={!adv} field={rec.CATEGORY}/>
-                    <Attr ignore={!adv} field={rec.CREATED}/>
-                    <Attr ignore={!adv} field={rec.ORDER}/>
-                    <Attr field={rec.DESC} edit/>
+                    <Attr ignore={!adv} field={catalog.ID}/>
+                    <Attr ignore={!adv} field={catalog.UID}/>
+                    <Attr field={catalog.NAME} edit/>
+                    <Attr ignore={!adv} field={catalog.PARENT}/>
+                    <Attr ignore={!adv} field={catalog.ABSTRACT}/>
+                    <Attr ignore={!adv} field={catalog.CATEGORY}/>
+                    <Attr ignore={!adv} field={catalog.CREATED}/>
+                    <Attr ignore={!adv} field={catalog.ORDER}/>
+                    <Attr field={catalog.DESC} edit/>
 
                     <hr/>
 
                     {catAttrs.map((catAttr: ECatalogAttribute) => {
                         const attr: EAttribute = catAttr.attrForeign(this);
+
+                        const cavs: ECatalogAttributeValue[] = catAttr.catalogAttrValue_catAttr(this);
+
+                        Utils.forEach(cavs, (cav: ECatalogAttributeValue) => cav.onChange.listen(this, x => this.forceUpdate()));
+
                         return <Attr key={catAttr.ID.value}
                                      record={catAttr}
                                      name={attr.NAME.value}
-                                     value={PCatalogViewer.displayValue(attr, catAttr)}/>
+                                     value={PCatalogViewer.displayValue(attr, catAttr, cavs)}/>
                     })}
 
                     <hr/>
