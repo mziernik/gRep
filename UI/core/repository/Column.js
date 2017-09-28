@@ -52,8 +52,6 @@ export default class Column {
     repository: ?Repository = null;
 
     constructor(config: (c: Column) => void) {
-
-
         if (DEV_MODE)
             this["#instance"] = null;
 

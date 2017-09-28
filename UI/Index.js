@@ -1,5 +1,4 @@
 // @flow
-
 import "./core/Bootstrap";
 import "./core/utils/ErrorHandler";
 import "./core/core";

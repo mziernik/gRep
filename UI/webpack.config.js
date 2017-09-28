@@ -1,5 +1,8 @@
 "use strict";
 const ENV = process.env.NODE_ENV;
+const DEV = ENV === 'development';
+const TEST = ENV === 'test';
+const PROD = ENV === 'production';
 
 const webpack = require('webpack');
 const path = require('path');
@@ -7,6 +10,7 @@ const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const WebpackAutoInject = require('webpack-auto-inject-version');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = process.env.PORT || "3000";
@@ -24,7 +28,8 @@ module.exports = {
         'react-hot-loader/patch',
         './Index.js'
     ],
-    devtool: process.env.WEBPACK_DEVTOOL || 'eval-source-map',
+    //devtool: false,
+    devtool: 'source-map',
     output: {
         publicPath: '/',
         path: path.join(__dirname, 'public'),
@@ -75,14 +80,14 @@ module.exports.plugins = [
         template: './core/application/index.html',
         files: {
             title: 'gRep',
-          //  filename: 'assets/admin.html',
+            //  filename: 'assets/admin.html',
             // css: ['style.css'],
             js: ["bundle.js"],
         }
     }),
 ];
-
-if (ENV === 'production' || ENV === 'test') {
+/*
+if (!DEV) {
 
     module.exports.plugins.push(
         new WebpackAutoInject({
@@ -100,8 +105,8 @@ if (ENV === 'production' || ENV === 'test') {
         new webpack.optimize.LimitChunkCountPlugin({maxChunks: 15}),
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.optimize.MinChunkSizePlugin({minChunkSize: 10000}), // Minimum number of characters
-        new webpack.optimize.UglifyJsPlugin({
-            sourceMap: true,
+        new UglifyJSPlugin({
+           // sourceMap: true,
             compress: {
                 warnings: false,
                 keep_fnames: true
@@ -115,7 +120,7 @@ if (ENV === 'production' || ENV === 'test') {
 
 }
 
-
+*/
 //=============================== LOADERY =================================================
 module.exports.module.loaders = [
     {
@@ -123,53 +128,50 @@ module.exports.module.loaders = [
         exclude: /(node_modules|bower_components|public\/)/,
         loader: "babel-loader",
         query: {
-            presets: ['es2016', 'react', 'stage-2', 'flow']
+            presets: [
+                'es2016', // builduje się znacznie szybciej niż 2015, nie działa w połączeniu z uglify
+                'react', 'stage-2', 'flow'
+            ],
+            plugins: [ // tylko w trybie produkcyjnym
+              //  "transform-react-constant-elements",
+                "transform-react-inline-elements"
+            ]
         }
     },
     {
         test: /\.css$/,
         loaders: ['style-loader', 'css-loader?importLoaders=1'],
-        //      exclude: ['node_modules']
     },
     {
         test: /\.scss$/,
         loaders: ['style-loader', 'css-loader?importLoaders=1', 'sass-loader'],
-        exclude: ['node_modules']
     },
     {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        //     exclude: /(node_modules|bower_components)/,
         loader: "file-loader"
     },
     {
         test: /\.(woff|woff2)$/,
-
-        //     exclude: /(node_modules|bower_components)/,
         loader: "url-loader?prefix=font/&limit=5000"
     },
     {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        //   exclude: /(node_modules|bower_components)/,
         loader: "url-loader?limit=10000&mimetype=application/octet-stream"
     },
     {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        //    exclude: /(node_modules|bower_components)/,
         loader: "url-loader?limit=10000&mimetype=image/svg+xml"
     },
     {
         test: /\.gif/,
-        //      exclude: /(node_modules|bower_components)/,
         loader: "url-loader?limit=10000&mimetype=image/gif"
     },
     {
         test: /\.jpg/,
-        ///     exclude: /(node_modules|bower_components)/,
         loader: "url-loader?limit=10000&mimetype=image/jpg"
     },
     {
         test: /\.png/,
-        //      exclude: /(node_modules|bower_components)/,
         loader: "url-loader?limit=10000&mimetype=image/png"
     }
 ];
