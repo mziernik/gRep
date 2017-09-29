@@ -12,6 +12,9 @@ import RecordCtrl from "../core/component/repository/RecordCtrl";
 
 export default class PCatalogViewer extends Component {
 
+    state = {
+        record: null
+    };
 
     render() {
         if (!this.state || !this.state.record) return null;
@@ -30,11 +33,10 @@ export default class PCatalogViewer extends Component {
             if (!value) {
                 value = R_CATALOG_ATTRIBUTE_VALUE.createRecord(null, CRUDE.CREATE);
                 value.ATTR_ELM.value = elm.ID.value;
-                value.CAT_ATTR.value = catAttr.ID.value;
+                value.CAT_ATTR.value = catAttr.action === CRUDE.CREATE ? -1 : catAttr.ID.value;
             }
 
             ctrl.record.changedReferences.push(value);
-
 
             const e: EElement = elm.elmForeign();
 

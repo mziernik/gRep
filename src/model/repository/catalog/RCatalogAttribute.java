@@ -47,6 +47,7 @@ public class RCatalogAttribute extends Repository<Integer> {
         c.repository = RCatalogAttribute.class;
         c.type = DataType.INT;
         c.key = "cat";
+        c.required = true;
         c.daoName = "catalog";
         c.name = "Katalog";
     }, RCatalog.ID);

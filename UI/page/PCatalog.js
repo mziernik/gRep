@@ -16,7 +16,8 @@ export default class PCatalog extends RepoPage {
 
     rec: ECatalog;
     _viewer: PCatalogViewer;
-    _select: HTMLSelectElement;
+    newAttr: Field;
+
     advanced: Field = new Field((c: Column) => {
         c.type = Type.BOOLEAN;
         c.key = "advanced";
@@ -26,6 +27,23 @@ export default class PCatalog extends RepoPage {
 
     constructor(props: Object, context: Object, updater: Object) {
         super(R_CATALOG, props, context, updater);
+    }
+
+    onReady(repo: Repository, list: Repository[]) {
+        super.onReady(repo, list);
+
+        this.newAttr = new Field((c: Column) => {
+            c.key = "newAttr";
+            c.name = "Atrybut";
+            c.type = Type.INT;
+            c.enumerate = R_ATTRIBUTE.toArrays([RAttribute.ID, RAttribute.NAME]);
+        });
+
+        this.newAttr.onChange.listen(this, (data) => {
+            const attr: ECatalogAttribute = R_CATALOG_ATTRIBUTE.createRecord(null, CRUDE.CREATE);
+            attr.ATTR.value = data.value;
+            this._viewer.setState({record: new RecordCtrl(attr)});
+        });
     }
 
     render() {
@@ -42,12 +60,6 @@ export default class PCatalog extends RepoPage {
             r = r.getParent();
         }
 
-        const newAttr: Field = new Field((c: Column) => {
-            c.key = "newAttr";
-            c.name = "Atrybut";
-            c.type = Type.INT;
-            c.enumerate = R_ATTRIBUTE.toArrays([RAttribute.ID, RAttribute.NAME]);
-        });
 
         const catAttrs: ECatalogAttribute[] = R_CATALOG_ATTRIBUTE.find(this,
             (cursor: RepoCursor) => cursor.getValue(RCatalogAttribute.CAT) === catalogId);
@@ -103,25 +115,7 @@ export default class PCatalog extends RepoPage {
                     })}
 
                     <div>
-                        <FCtrl field={newAttr}/>
-
-                        <Link
-                            type="primary"
-                            icon={Icon.PLUS}
-                            onClick={e => {
-                                if (!this._viewer || !this._select) return;
-                                debugger;
-
-                                const attr: ECatalogAttribute = R_CATALOG_ATTRIBUTE.createRecord(null, CRUDE.CREATE);
-
-                                attr.ATTR.value = this._select.selectedValue();
-
-                                this._viewer.setState({record: new RecordCtrl(attr)});
-
-                            }}
-
-                        >Dodaj</Link>
-
+                        <FCtrl field={this.newAttr} value/>
                     </div>
 
                 </Attributes>

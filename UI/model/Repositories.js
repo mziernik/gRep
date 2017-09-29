@@ -1818,6 +1818,7 @@ export class RCatalogAttribute extends Repository {
         c.key = "cat";
         c.name = "Katalog";
         c.type = "int";
+        c.required = true;
         c.foreign = () => R_CATALOG;
     });
 
