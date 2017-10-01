@@ -14,7 +14,7 @@ import Record from "../core/repository/Record";
 
 export default class PCatalog extends RepoPage {
 
-    rec: ECatalog;
+    catalog: ECatalog;
     _viewer: PCatalogViewer;
     newAttr: Field;
 
@@ -31,6 +31,7 @@ export default class PCatalog extends RepoPage {
 
     onReady(repo: Repository, list: Repository[]) {
         super.onReady(repo, list);
+        this.catalog = R_CATALOG.get(this, this.props.id);
 
         this.newAttr = new Field((c: Column) => {
             c.key = "newAttr";
@@ -42,6 +43,7 @@ export default class PCatalog extends RepoPage {
         this.newAttr.onChange.listen(this, (data) => {
             const attr: ECatalogAttribute = R_CATALOG_ATTRIBUTE.createRecord(null, CRUDE.CREATE);
             attr.ATTR.value = data.value;
+            attr.CAT.value = this.catalog.pk;
             this._viewer.setState({record: new RecordCtrl(attr)});
         });
     }
@@ -50,7 +52,7 @@ export default class PCatalog extends RepoPage {
         if (this.props.id === "all")
             return <div>Wszystkie</div>;
 
-        const catalog: ECatalog = this.rec = R_CATALOG.get(this, this.props.id);
+        const catalog: ECatalog = this.catalog;
         const catalogId: number = catalog.ID.value;
 
         let r = catalog;
